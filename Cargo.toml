@@ -1,0 +1,27 @@
+[workspace]
+members = ["crates/daw-domain", "crates/daw-engine", "crates/daw-app", "src-tauri"]
+default-members = ["crates/daw-domain", "crates/daw-engine", "crates/daw-app"]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+
+[workspace.dependencies]
+daw-domain = { path = "crates/daw-domain" }
+daw-engine = { path = "crates/daw-engine" }
+daw-app = { path = "crates/daw-app" }
+tauri = { version = "=2.12.5" }
+tauri-build = { version = "=2.7.4" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[profile.dev]
+debug = 1
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

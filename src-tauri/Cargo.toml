@@ -1,0 +1,21 @@
+[package]
+name = "rust-daw-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Adaptador desktop Tauri para Rust DAW"
+
+[lib]
+name = "rust_daw_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[dependencies]
+daw-app.workspace = true
+tauri.workspace = true
+
+[lints]
+workspace = true

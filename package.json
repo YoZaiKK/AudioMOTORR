@@ -1,0 +1,43 @@
+{
+  "name": "rust-daw",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.23.4 <23",
+    "npm": ">=10.9.9 <11"
+  },
+  "packageManager": "npm@10.9.9",
+  "scripts": {
+    "dev": "vite",
+    "desktop:dev": "tauri dev",
+    "build": "npm run typecheck && vite build",
+    "desktop:build": "tauri build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "doctor": "powershell -NoProfile -File scripts/doctor.ps1",
+    "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.12.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@tauri-apps/cli": "2.12.4",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "eslint": "10.14.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.7",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.5"
+  }
+}

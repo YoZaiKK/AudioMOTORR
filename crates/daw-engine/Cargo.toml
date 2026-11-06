@@ -1,0 +1,12 @@
+[package]
+name = "daw-engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+daw-domain.workspace = true
+
+[lints]
+workspace = true
