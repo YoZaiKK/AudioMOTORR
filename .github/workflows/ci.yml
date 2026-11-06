@@ -1,0 +1,77 @@
+name: Core and desktop checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  headless-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .node-version
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+      - name: Test the five headless packages
+        run: cargo test -p daw-domain -p daw-engine -p daw-audio -p daw-app -p daw-cli --no-default-features --locked
+      - name: Lint the five headless packages
+        run: cargo clippy -p daw-domain -p daw-engine -p daw-audio -p daw-app -p daw-cli --no-default-features --all-targets --locked -- -D warnings
+      - name: Run nine offline CLI scenarios
+        run: node howToRunThis/run-cli-cases.mjs
+      - name: Verify unchanged lockfiles
+        if: always()
+        run: git diff --exit-code -- Cargo.lock package-lock.json
+
+  desktop-windows:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .node-version
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy --target x86_64-pc-windows-msvc
+      - name: Verify npm and Windows prerequisites
+        run: |
+          $expectedNpm = (Get-Content package.json -Raw | ConvertFrom-Json).packageManager -replace '^npm@', ''
+          $actualNpm = npm --version
+          if ($LASTEXITCODE -ne 0 -or $actualNpm -ne $expectedNpm) {
+            throw "Expected npm $expectedNpm; found $actualNpm"
+          }
+          npm run doctor
+      - name: Install frontend dependencies from lockfile
+        run: npm ci
+      - name: Verify deterministic binding regeneration
+        run: |
+          npm run bindings:generate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git diff --exit-code -- src/shared/api/generated/api.ts
+      - name: Check frontend, mock IPC, and Rust workspace
+        run: npm run check
+      - name: Build desktop debug without installer
+        run: npm run desktop:build -- --debug --no-bundle
+      - name: Verify unchanged lockfiles and generated types
+        if: always()
+        run: git diff --exit-code -- Cargo.lock package-lock.json src/shared/api/generated/api.ts

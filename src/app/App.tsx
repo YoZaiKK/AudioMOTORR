@@ -1,39 +1,37 @@
-import { isTauri } from "@tauri-apps/api/core";
+﻿import { AudioPanel } from "../features/audio/AudioPanel";
+import { useDawSession } from "../features/audio/useDawSession";
+import { TransportBar } from "../features/transport/TransportBar";
+import { EngineStatusPanel } from "../features/engine-status/EngineStatusPanel";
 
 export function App() {
+  const session = useDawSession();
   return (
     <main className="workspace">
       <header>
-        <span className="eyebrow">AudioMOTORR · Etapa 3</span>
-        <h1>Rust DAW</h1>
-        <p>
-          Servicio de audio disponible mediante la CLI. Interfaz pendiente de
-          conectar.
-        </p>
+        <span className="eyebrow">AudioMOTORR · Etapa 4</span>
+        <h1>
+          {session.info?.name ?? "Rust DAW"}{" "}
+          <small>{session.info?.version}</small>
+        </h1>
+        <p>{session.project?.title ?? "Proyecto"}</p>
+        <p className="notice">Motor base: salida de silencio</p>
       </header>
-      <section aria-labelledby="status-title" className="status-panel">
-        <h2 id="status-title">Estado de desarrollo</h2>
-        <dl>
-          <div>
-            <dt>Interfaz</dt>
-            <dd>React + TypeScript + Vite</dd>
-          </div>
-          <div>
-            <dt>Entorno</dt>
-            <dd>{isTauri() ? "Aplicación Tauri" : "Navegador"}</dd>
-          </div>
-          <div>
-            <dt>Audio</dt>
-            <dd>Backends manual y nativo; controles pendientes</dd>
-          </div>
-        </dl>
-        {!isTauri() && (
-          <p className="notice">Vista de interfaz: requiere Tauri para audio</p>
-        )}
-        <p className="muted">
-          El siguiente paso es conectar la interfaz al servicio de audio.
+      {!session.native && (
+        <p className="browser-notice">
+          Vista de interfaz: requiere Tauri para audio
         </p>
-      </section>
+      )}
+      {session.native && !session.connected && !session.error && (
+        <p role="status">Conectando con el servicio…</p>
+      )}
+      {session.error && (
+        <div className="error" role="alert">
+          <strong>{session.error.code}</strong>: {session.error.message}
+        </div>
+      )}
+      <AudioPanel session={session} />
+      <TransportBar session={session} />
+      <EngineStatusPanel snapshot={session.snapshot} />
     </main>
   );
 }

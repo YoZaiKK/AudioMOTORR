@@ -5,6 +5,7 @@ pub use daw_audio::{
     Result, ServiceSnapshot,
 };
 use daw_domain::{Project, ProjectId, Tempo};
+pub use daw_engine::TransportState;
 use daw_engine::{EngineCommand, EngineConfig};
 
 pub struct ProjectSummary {

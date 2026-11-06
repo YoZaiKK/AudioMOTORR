@@ -4,6 +4,10 @@ Este archivo conserva el registro granular de cada etapa. El estado resumido se
 mantiene en [checklist.md](checklist.md). Los requisitos originales permanecen en
 [rust-daw-bootstrap-prompt.md](rust-daw-bootstrap-prompt.md).
 
+Las secciones de etapas anteriores conservan el estado de Git y CI al tomar
+cada evidencia. La revisión para publicación de las etapas 4–6 está al final;
+el relevo vigente es [continuidad-etapa-6.md](continuidad-etapa-6.md).
+
 ## Etapa 1 — Preparar el proyecto
 
 Estado: completada. Inicio: 2026-11-04. Cierre: 2026-11-05.
@@ -299,7 +303,299 @@ Estado: completada. Inicio y cierre: 2026-11-06.
   carga de CPU y plazos de tiempo real permanecen sin verificar. Procesar silencio
   no demuestra ausencia de dropouts ni continuidad audible.
 
-## Etapas 4 a 6
+## Etapa 4 — Conectar la interfaz
 
-Pendientes. Al comenzar cada etapa se agregará su sección con cambios, decisiones,
-comandos ejecutados, resultados y verificaciones que no pudieron realizarse.
+Estado actual: completada y verificada.
+Fecha: 2026-11-06. El registro de pausa siguiente es histórico; los resultados
+actuales están en «Implementación después de reanudar».
+
+### Publicación de la etapa anterior
+
+- Se creó el commit `69467ef97698b291fa764acee3d7cfd52d5a412e`,
+  `feat(audio): add manual and native audio service with smoke CLI`.
+- Push completado a `origin/main` en
+  `https://github.com/YoZaiKK/AudioMOTORR.git`.
+- El sandbox denegó escritura del índice Git y la conexión a GitHub falló por TLS
+  Schannel. Commit y push se completaron mediante las autorizaciones del entorno.
+- La nota de la etapa 3 sobre ausencia de commits describe su cierre inicial de
+  verificación; la publicación ocurrió después, al comenzar esta etapa.
+
+### Cambios locales al pausar
+
+- `Cargo.toml`: declaraciones compartidas de Serde 1.0.229, serde_json 1.0.154 y
+  ts-rs 12.0.1. Las dos primeras versiones ya existían transitivamente en el lock.
+- `src-tauri/Cargo.toml`: dependencias de DTO/bindings y feature `test` de Tauri
+  como dependencia de desarrollo. Falta resolver ts-rs en Cargo.lock y verificar
+  su compatibilidad real con la toolchain.
+- `crates/daw-app/src/lib.rs`: reexport de `TransportState`, para que los DTO usen
+  el contrato público de aplicación sin añadir dependencia directa del adaptador
+  al motor.
+- Nuevos `src-tauri/src/ipc/{mod,commands,dto,state}.rs`: borradores de los diez
+  comandos, errores estructurados, tipos IPC, conversión de u64 a strings y estado
+  compartido. Las operaciones de aplicación se plantean con spawn_blocking.
+- Nuevo `src-tauri/src/bin/bindings.rs`: borrador de generador y comprobador de
+  declaraciones en `src/shared/api/generated/api.ts`. Ese archivo aún no existe.
+- `package.json` y `package-lock.json`: instaladas Vitest 5.1.0,
+  @testing-library/react 16.3.3 y jsdom 31.0.0 con versiones directas exactas.
+  Se inspeccionaron sus package.json en node_modules para confirmar instalación.
+  Todavía no hay configuración, tests ni script `test:frontend`.
+
+### Punto exacto de interrupción y verificación
+
+- Se intentó `cargo fetch` tras declarar ts-rs; falló dentro del sandbox por
+  `SEC_E_NO_CREDENTIALS`. El turno se interrumpió durante el reintento con
+  autorización. Al inspeccionar el estado tras la interrupción, Cargo.lock no
+  contiene ts-rs ni ts-rs-macros y no tiene cambios respecto al commit publicado.
+  No se afirma que esa descarga haya terminado.
+- `src-tauri/src/lib.rs` conserva el arranque de la etapa 3: no declara `pub mod ipc`
+  ni usa `ipc::configure`, por lo que los borradores no están integrados.
+- El nuevo binario de bindings referencia precisamente ese módulo no expuesto;
+  debe corregirse la integración antes de intentar afirmar que desktop compila.
+- No se ejecutaron compilación, tests, generación de bindings, formato completo ni
+  integración IPC para esta etapa. Las verificaciones satisfactorias de la etapa 3
+  siguen siendo la última evidencia de funcionamiento completo.
+- React, CSS, CSP, capabilities, build.rs y scripts de verificación siguen sin
+  implementar la etapa 4. Tampoco existe publicador de eventos engine-snapshot.
+- No se observaron procesos Cargo ni procesos npm de esta tarea todavía ejecutándose
+  al revisar la pausa; no se detuvieron procesos ajenos.
+
+### Punto de reanudación registrado al pausar (histórico)
+
+Al pausar se dejó el inventario y orden de trabajo en retomar-etapa-4.md, con los
+cambios sin publicar y las casillas abiertas. El usuario solicitó después continuar.
+
+### Implementación después de reanudar
+
+- Descarga de ts-rs 12.0.1 completada mediante cargo fetch autorizado; Cargo.lock
+  actualizado. Compilación correcta con Rust 1.90 y DTO Serde/ts-rs fuera del motor.
+- Los diez comandos quedaron conectados al Builder real mediante ipc::configure.
+  DesktopState conserva Application y serializa su acceso; las llamadas que pueden
+  esperar al servicio se ejecutan con spawn_blocking, fuera del hilo de interfaz.
+- DTO camelCase, errores code/message/details y strings decimales para IDs,
+  secuencias, frames y callbacks. El motor permanece sin Serde ni IPC.
+- Binario bindings y scripts bindings:generate/check: salida única en
+  src/shared/api/generated/api.ts, comparación exacta sin reescribir. Se excluye
+  esa salida de Prettier para conservar generación determinista; ESLint y TypeScript
+  siguen comprobándola. default-run fija el binario principal al añadir el generador.
+- Publicador nativo de engine-snapshot hacia main: espera al menos 67 ms entre
+  observaciones, omite snapshots repetidos y ciclos con estado ocupado, y termina
+  si main desaparece. Cerrar main o salir señaliza el publicador, une su hilo y
+  destruye Application/servicio. No hay llamadas IPC desde el callback de audio.
+- React separa DTO observados, datos de proyecto y estado visual mediante
+  useDawSession. desktop-client centraliza invoke/listen. Paneles de dispositivos,
+  apertura/cierre, transporte, BPM y estado técnico; errores visibles y controles
+  deshabilitados sin servicio. La inicialización solo ocurre tras clic explícito.
+- La suscripción se registra antes de consultar el estado inicial. Comparación
+  mediante BigInt de secuencias e IDs, descarte de eventos viejos y limpieza incluso
+  si el registro asíncrono termina después del desmontaje. Se contempla StrictMode.
+- Aceptar un comando muestra pendiente hasta su aplicación. También se contemplan
+  snapshots aplicados o de error que llegan antes de la respuesta de aceptación.
+- En navegador se muestra «Vista de interfaz: requiere Tauri para audio» sin
+  llamadas nativas ni dispositivos ficticios. Nota visible de salida de silencio.
+- ACL de aplicación generado por build.rs a partir de una lista de comandos
+  compartida; permisos limitados a main local y listen/unlisten. Los artefactos
+  de permisos están ignorados en Git y formato. CSP explícita conservada; el smoke
+  real confirma que permite la aplicación empaquetada sin deshabilitar seguridad.
+- Vitest/jsdom configurados, tests React y cliente añadidos a npm run check junto
+  con bindings:check. El peer @testing-library/dom está instalado transitivamente.
+- Nuevo smoke opcional desktop-smoke.ps1/mjs: abre el ejecutable, controla WebView2
+  vía CDP local 9223, verifica la UI real con hardware, toma captura y cierra la
+  ventana. No se ejecuta en la suite automática ni modifica configuración global.
+
+### Incidencias resueltas al verificar
+
+- El primer ejecutable de tests que ejercita Tauri falló con STATUS_ENTRYPOINT_NOT_FOUND.
+  Se identificó la importación de TaskDialogIndirect desde comctl32, que requiere
+  Common Controls v6. Se pasó a tests de integración y se añadió manifiesto MSVC
+  solo a esos ejecutables; Tauri sigue generando los manifiestos de los binarios.
+  La primera prueba con flags globales provocó un recurso duplicado y fue corregida.
+- El mock runtime necesita acceso a rutas de datos de la aplicación fuera del
+  workspace. Dentro del sandbox falló con Access is denied; al ejecutar mediante
+  autorización del entorno pasaron las pruebas. No se sustituyeron por mocks de IPC
+  que eludan el handler o la evaluación de permisos.
+- Se corrigieron imports explícitos de globals Node en el smoke para pasar ESLint.
+
+### Verificaciones actuales
+
+- typecheck: correcto. Once pruebas frontend correctas: modo navegador, errores de
+  apertura, estado aceptado/aplicado, carreras de aceptación, secuencias mayores a
+  Number.MAX_SAFE_INTEGER, StrictMode, limpieza real y contrato del cliente IPC.
+- cargo test -p rust-daw-desktop --locked --offline, autorizado: cuatro pruebas
+  de integración correctas. Handler real, argumentos y errores; precisión JSON;
+  rechazo desde otra ventana; tasa de publicación y parada del worker.
+- cargo clippy -p rust-daw-desktop --all-targets --locked --offline -- -D warnings:
+  correcto en la comprobación individual anterior al cierre general.
+- bindings:check: correcto; generación original completada con el binario bindings.
+- desktop:build -- --debug --no-bundle: correcto con la interfaz nueva empaquetada.
+- desktop-smoke.ps1 autorizado: correcto con WebView2 real y Realtek WASAPI f32,
+  48 kHz y 2 canales. Inicializar, Play, 137.5 BPM, Pause, Stop (posición cero),
+  shutdown, reinicializar conservando tempo y salida normal de la ventana. Primera
+  corrida: 40 callbacks observados y último comando aplicado 4. Captura revisada
+  visualmente en target/desktop-stage4.png. El smoke se amplió para esperar también
+  callbacks observados en la UI tras reiniciar antes de tomar la captura.
+- npm run check completo, ejecutado con autorización del entorno: correcto.
+  Bindings, TypeScript, lint, once tests frontend, formato, build Vite, rustfmt,
+  22 tests headless, Clippy headless, 26 tests Rust del workspace y Clippy de todo
+  el workspace con -D warnings. La prueba nativa de hardware de etapa 3 permanece
+  ignorada en la suite automática como estaba previsto.
+- Se regeneraron los bindings y se comparó su SHA-256 antes/después: idéntico.
+- Tras el check se volvió a empaquetar desktop debug sin instalador. Cargo test
+  puede reconstruir el binario sin custom-protocol, que usa devUrl; un intento de
+  smoke intermedio no encontró el destino empaquetado. Recompilar con Tauri CLI
+  antes de ejecutar el smoke resolvió el problema. Usar el orden check, build
+  desktop y smoke, sin comandos Cargo intermedios que sustituyan ese ejecutable.
+- Smoke final ampliado: correcto; error DeviceAbsent por ID inexistente a través
+  del IPC real, error visible en React y recuperación; luego Play/Pause/Stop,
+  BPM 137.5, shutdown/restart con callbacks observados en UI y cierre normal de
+  ventana. 44 callbacks y último ID aplicado 4 en la observación previa al cierre.
+  Captura actualizada en target/desktop-stage4.png.
+
+### Límites que permanecen
+
+- Salida de silencio; no se afirma continuidad audible ni ausencia de dropouts.
+- Linux/macOS, desconexión física de hardware y medición de deadlines sin verificar.
+- La suite IPC usa mock runtime; el smoke real se registra aparte. No hay CI aún.
+- No se ejecutó todavía instalador ni release. Esta reanudación no crea commit/push;
+  los cambios quedan para revisión local, sobre el commit publicado de etapa 3.
+
+## Etapa 5 — Verificación y guías prácticas
+
+Estado: completada en Windows, 2026-11-06.
+
+- Motor: nueva prueba de particiones 1/127/256/4096 con Play/Pause/Stop y cambio
+  de tempo en límites equivalentes: 3228 frames de dispositivo y posición final 257.
+- Servicio: FIFO con comandos mezclados al cruzar el límite de 32 por callback;
+  Pause conserva posición hasta aplicar Stop en el callback siguiente.
+- Aplicación: cierre con comandos aceptados pendientes; se descartan al cerrar,
+  pero el documento conserva 137.5 BPM para el reinicio detenido, con IDs crecientes.
+- React: apertura fallida seguida de recuperación y transporte habilitado sin Play
+  automático. Se conserva toda la cobertura anterior de carreras y StrictMode.
+- howToRunThis: índice, cinco guías españolas, fixtures JSON y ejecutor Node sin
+  dependencias nuevas. Nueve casos CLI incluidos en npm run check. Los archivos
+  son escenarios, no proyectos musicales importables. README principal en inglés.
+- Smoke real con -UpdateDocs: siete PNG versionables y metadata.json con fecha,
+  plataforma y snapshots. El modo normal no los modifica. Se comprueba el puerto
+  9223 antes de abrir la ventana y se mantiene el cierre/restauración del entorno.
+
+### Verificaciones
+
+- npm ci autorizado: correcto; 218 paquetes instalados y diez avisos moderados.
+  No se aplicó audit fix ni se realizó una auditoría detallada adicional.
+- npm run check autorizado: correcto tras corregir el import URL del ejecutor.
+  Doce tests frontend, 25 headless y 29 Rust del workspace, nueve fixtures CLI,
+  bindings, TypeScript, lint, formato, build y Clippy con -D warnings. Las suites
+  comparten pruebas; la prueba nativa ignorada sigue fuera del check normal.
+- Hashes SHA-256 de Cargo.lock, package-lock.json y api.ts antes de npm ci y después
+  de regeneración/check/build: sin cambios. Valores en howToRunThis/resultados.md.
+- Build desktop debug sin instalador: correcto después del check.
+- Smoke -UpdateDocs autorizado: correcto con WebView2 real y Realtek WASAPI f32,
+  48000 Hz, dos canales. Error DeviceAbsent y recuperación, Play/137.5 BPM/Pause/Stop,
+  cierre/reapertura con callbacks y salida normal de ventana. Se observaron 67
+  callbacks y último ID aplicado 4 antes de reiniciar.
+- Siete capturas inspeccionadas visualmente: sin inicializar, error, reproduciendo,
+  pausado, detenido, reiniciado y cerrado. La etiqueta Etapa 4 de la UI identifica
+  el hito de interfaz validado; esta etapa no cambia funciones de producción.
+
+### Continuidad y límites
+
+Sin pruebas Linux/macOS, desconexión física, otros formatos de hardware, medición
+del allocator/deadlines o continuidad audible. No se añadió CI ni instalador ni se
+crearon commits/push adicionales. Se conserva el trabajo previo de etapa 4.
+Continuar con etapa 6. Guías y reporte: ../howToRunThis/README.md.
+
+## Etapa 6 — Documentación técnica y CI
+
+Estado: completada localmente en Windows, 2026-11-06. Evidencia y auditoría final
+en [cierre-etapa-6.md](cierre-etapa-6.md); siguiente trabajo en
+[continuidad-etapa-6.md](continuidad-etapa-6.md).
+
+### Archivos y decisiones
+
+- docs/architecture.md: dependencias y secuencia React/IPC/aplicación/servicio/
+  callback en Mermaid; documento editable, reproducción, observación y cierre.
+- docs/realtime-contract.md consolida audio-service.md; el anterior queda como
+  enlace compatible. Se actualizan las referencias obsoletas de etapa 3 y se
+  incorporan strings JSON, snapshots/errores desktop, publicación y cierre.
+- docs/adr/0001-core-and-desktop-boundaries.md registra motor independiente,
+  backend manual, CPAL opcional, owner del stream, SPSC, strings y DTO generados.
+- docs/development.md distingue Windows verificado, mock runtime, build y hardware;
+  Linux/macOS previstos sin verificación local. docs/roadmap.md ordena los siete
+  hitos con responsabilidades y aceptación. README y guías enlazan estos documentos.
+- .github/workflows/ci.yml: push a main, PR y manual, contents: read y cancelación
+  por workflow/ref. Ubuntu 24.04 usa paquetes explícitos sin CPAL/Tauri; Windows
+  Server 2022 usa npm ci, regeneración/diff de bindings, check y build debug sin
+  instalador. Diffs finales protegen lockfiles/tipos incluso tras fallo.
+- checkout v4.2.2 y setup-node v4.4.0 fijados por SHA completo; verificados mediante
+  git ls-remote sobre repositorios oficiales. No hay acciones de terceros, caché
+  Cargo, smoke de hardware, modificación de capturas, firma, artefactos o releases.
+
+### Comandos y resultados
+
+- Rust 1.90.0, Node 22.23.4 y npm 10.9.9 ya instalados; no se cambiaron versiones.
+  npm run doctor confirma MSVC 14.44.35207, SDK 10.0.26100.0 y WebView2 156.0.4314.58.
+- npm ci: correcto, 218 paquetes; informa 13 avisos moderados en esta ejecución
+  (etapa 5 registró diez). No se ejecutó audit fix ni se modificaron dependencias.
+- actionlint 1.7.7: workflow válido, sin diagnósticos de sintaxis o expresiones.
+  Descarga oficial comprobada contra checksum SHA-256 publicado, alojada solo en
+  target/stage6-tools. La consulta git y descarga requirieron autorización de red
+  del entorno tras fallar dentro del sandbox; no se cambió configuración global.
+- npm run bindings:generate: correcto. Hash de api.ts idéntico al inicial.
+- npm run check: correcto dentro del entorno disponible; 12 pruebas frontend,
+  25 headless y 29 Rust del workspace, nueve escenarios CLI; bindings, typecheck,
+  lint, formato, build Vite, rustfmt y Clippy headless/workspace con -D warnings.
+  La prueba nativa de hardware sigue ignorada por defecto. Las suites se solapan.
+- npm run desktop:build -- --debug --no-bundle: correcto después del check.
+  Ejecutable target/debug/rust-daw-desktop.exe, sin instalador. Sin smoke real nuevo.
+- Comprobación de destinos locales Markdown/PNG: correcta; ver cantidad final
+  en el reporte de cierre. Prettier y actionlint se repiten tras actualizar el registro.
+- SHA-256 de Cargo.lock, package-lock.json y api.ts: idénticos antes/después de
+  npm ci, regeneración, check y build. Valores completos en cierre-etapa-6.md.
+
+### Cierre y límites
+
+Las seis etapas quedan cerradas en el checklist; esta etapa documenta y automatiza
+la arquitectura existente sin añadir código musical ni alterar evidencia previa.
+No se crearon commits/push ni se ejecutó GitHub Actions con estos cambios.
+Workflow creado/validado localmente no equivale a ejecución remota satisfactoria.
+Linux/macOS, otros formatos/dispositivos, desconexión física, allocator, deadlines
+y continuidad/carga en release siguen pendientes. No se atribuyen al commit
+publicado los cambios locales de etapas 4–6.
+
+Siguiente cambio concreto: oscilador senoidal offline de baja amplitud dentro de
+daw-engine, fase continua y pruebas por particiones; después WAV fuera del callback.
+No implementado durante esta etapa.
+
+## Revisión de documentación y entrega de etapas 4–6
+
+Fecha: 2026-11-06. Solicitud posterior del usuario: comprobar toda la documentación
+y hacer commit/push del último estado completo de la aplicación.
+
+- Revisados README, documentos técnicos, guías howToRunThis y seguimiento contra
+  scripts, configuración y contratos implementados. Se conserva el prompt original.
+- README, desarrollo, índice de guías, pruebas, checklist y continuidad dejan de
+  presentar las etapas 4–6 como trabajo pendiente de publicación. El historial Git
+  identifica la revisión entregada y Actions informa el resultado remoto.
+- Reportes de etapas 4/5/6 marcados como históricos cuando describen estado previo
+  de Git/CI. Se conservan las pruebas, hashes y capturas fechadas.
+- Comandos de check descritos en el orden real, incluidos los nueve escenarios CLI;
+  conteos actuales separados de los históricos y suites solapadas identificadas.
+- Se mantienen pendientes oscilador, mediciones de tiempo real, desconexión física
+  y plataformas sin verificación. Ninguna comprobación local acredita éxito de CI remota.
+
+La entrega incluye la UI/IPC, pruebas, bindings, guías/capturas, documentación
+técnica y workflow existentes; no añade funciones musicales. El asunto del commit
+es `feat(desktop): complete UI, verification guides, and CI`. Consultar el historial
+Git y los [logs de Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
+para identificar la revisión publicada y su validación hospedada.
+
+Verificación repetida antes del commit:
+
+- npm run check: correcto; 12 tests frontend, 25 headless, 29 Rust workspace y
+  nueve escenarios CLI, además de bindings, TypeScript, ESLint, Prettier, build,
+  rustfmt y Clippy. Test de hardware ignorado por defecto; sin smoke/capturas nuevos.
+- npm run desktop:build -- --debug --no-bundle: correcto después del check.
+- 108 destinos locales de enlaces Markdown/imágenes correctos y actionlint 1.7.7
+  sin diagnósticos. git diff --check sin errores de espacios.
+- Hashes de ambos lockfiles y api.ts idénticos a los del cierre de etapa 6.
+- git fetch origin completado con autorización del entorno para escribir en .git;
+  HEAD y origin/main coincidían antes de crear esta entrega. No se fuerza el push.

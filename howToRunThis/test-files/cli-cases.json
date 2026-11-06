@@ -1,0 +1,56 @@
+[
+  {
+    "name": "bloque-1",
+    "args": ["smoke", "--frames", "48001", "--block-size", "1"],
+    "exit": 0,
+    "stdout": "frames=48001, block_size=1,"
+  },
+  {
+    "name": "bloque-127",
+    "args": ["smoke", "--frames", "48001", "--block-size", "127"],
+    "exit": 0,
+    "stdout": "frames=48001, block_size=127,"
+  },
+  {
+    "name": "bloque-256",
+    "args": ["smoke", "--frames", "48001", "--block-size", "256"],
+    "exit": 0,
+    "stdout": "frames=48001, block_size=256,"
+  },
+  {
+    "name": "bloque-4096",
+    "args": ["smoke", "--frames", "48001", "--block-size", "4096"],
+    "exit": 0,
+    "stdout": "frames=48001, block_size=4096,"
+  },
+  {
+    "name": "vacio",
+    "args": ["smoke", "--frames", "0"],
+    "exit": 0,
+    "stdout": "frames=0,"
+  },
+  {
+    "name": "un-segundo",
+    "args": ["smoke", "--seconds", "1"],
+    "exit": 0,
+    "stdout": "frames=48000,"
+  },
+  {
+    "name": "bloque-invalido",
+    "args": ["smoke", "--block-size", "0"],
+    "exit": 1,
+    "stderr": "Block size must be 1..4096"
+  },
+  {
+    "name": "frames-negativos",
+    "args": ["smoke", "--frames", "-1"],
+    "exit": 1,
+    "stderr": "invalid digit"
+  },
+  {
+    "name": "argumentos-incompatibles",
+    "args": ["smoke", "--frames", "1", "--seconds", "1"],
+    "exit": 1,
+    "stderr": "Choose --frames or --seconds"
+  }
+]

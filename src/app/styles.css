@@ -74,3 +74,84 @@ dd {
 .muted {
   color: #b4bdcb;
 }
+
+.panel {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid #303744;
+  border-radius: 12px;
+  background: #1a1f28;
+}
+.workspace {
+  padding-top: 32px;
+}
+h1 small {
+  color: #b4bdcb;
+  font-size: 1rem;
+  font-weight: 400;
+}
+button,
+input,
+select {
+  font: inherit;
+  border: 1px solid #465368;
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: inherit;
+  background: #242c38;
+}
+button {
+  cursor: pointer;
+}
+button.primary {
+  border-color: #86d6b3;
+}
+button:hover:not(:disabled) {
+  background: #334052;
+}
+:focus-visible {
+  outline: 2px solid #86d6b3;
+  outline-offset: 3px;
+}
+:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+select {
+  display: block;
+  width: 100%;
+  margin: 8px 0 16px;
+}
+.actions,
+.tempo-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+input[type="number"] {
+  width: 110px;
+}
+.error,
+.browser-notice {
+  padding: 16px;
+  border: 1px solid #efcc85;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.error {
+  border-color: #ec9292;
+  color: #ffc4c4;
+}
+.technical dd {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 480px) {
+  .workspace {
+    padding: 24px 14px;
+  }
+  .panel {
+    padding: 18px;
+  }
+}

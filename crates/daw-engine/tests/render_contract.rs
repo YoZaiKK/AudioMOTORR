@@ -103,3 +103,34 @@ fn editing_document_does_not_implicitly_change_playback() {
     engine.apply_command(EngineCommand::SetTempo(project.tempo()));
     assert_eq!(engine.snapshot().tempo, project.tempo());
 }
+
+#[test]
+fn partitions_preserve_a_timeline_with_transport_and_tempo_changes() {
+    let mut results = Vec::new();
+    for block in [1, 127, 256, 4096] {
+        let mut engine = engine(2);
+        for (command, duration) in [
+            (EngineCommand::Play, 1001usize),
+            (EngineCommand::Pause, 513),
+            (EngineCommand::SetTempo(Tempo::new(137.5).unwrap()), 71),
+            (EngineCommand::Play, 997),
+            (EngineCommand::Stop, 389),
+            (EngineCommand::Play, 257),
+        ] {
+            engine.apply_command(command);
+            let mut remaining = duration;
+            while remaining > 0 {
+                let frames = remaining.min(block);
+                engine
+                    .render_interleaved(&mut vec![1.0; frames * 2])
+                    .unwrap();
+                remaining -= frames;
+            }
+        }
+        results.push(engine.snapshot());
+    }
+    assert!(results.windows(2).all(|pair| pair[0] == pair[1]));
+    assert_eq!(results[0].device_frames, 3228);
+    assert_eq!(results[0].transport_frames, 257);
+    assert_eq!(results[0].tempo.bpm(), 137.5);
+}

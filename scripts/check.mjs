@@ -7,10 +7,13 @@ if (!npmCli) {
 }
 
 const checks = [
+  [process.execPath, [npmCli, "run", "bindings:check"]],
   [process.execPath, [npmCli, "run", "typecheck"]],
   [process.execPath, [npmCli, "run", "lint"]],
+  [process.execPath, [npmCli, "run", "test:frontend"]],
   [process.execPath, [npmCli, "run", "format:check"]],
   [process.execPath, [npmCli, "run", "build"]],
+  [process.execPath, ["howToRunThis/run-cli-cases.mjs"]],
   ["cargo", ["fmt", "--all", "--", "--check"]],
   [
     "cargo",

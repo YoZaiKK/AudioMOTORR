@@ -1,0 +1,165 @@
+{
+  "platform": "win32",
+  "release": "10.0.26200",
+  "node": "v22.23.4",
+  "app": {
+    "name": "Rust DAW",
+    "version": "0.1.0"
+  },
+  "note": "Snapshots taken after screenshots; counters may differ slightly.",
+  "captures": [
+    {
+      "file": "01-sin-inicializar.png",
+      "description": "Servicio sin inicializar; transporte deshabilitado.",
+      "capturedAt": "2026-11-06T22:57:22.171Z",
+      "observed": {
+        "sequence": "0",
+        "state": "uninitialized",
+        "backend": null,
+        "output": null,
+        "engine": null,
+        "callbacks": "0",
+        "lastAppliedCommand": null,
+        "error": null
+      }
+    },
+    {
+      "file": "02-error-dispositivo.png",
+      "description": "Error real de IPC por ID inexistente; recuperación disponible.",
+      "capturedAt": "2026-11-06T22:57:22.576Z",
+      "observed": {
+        "sequence": "1",
+        "state": "error",
+        "backend": "native",
+        "output": null,
+        "engine": null,
+        "callbacks": "0",
+        "lastAppliedCommand": null,
+        "error": {
+          "code": "deviceAbsent",
+          "message": "Requested output device is unavailable",
+          "details": null
+        }
+      }
+    },
+    {
+      "file": "03-reproduciendo.png",
+      "description": "Play y 137.5 BPM aplicados; contadores reales.",
+      "capturedAt": "2026-11-06T22:57:23.064Z",
+      "observed": {
+        "sequence": "20",
+        "state": "ready",
+        "backend": "native",
+        "output": {
+          "deviceId": "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+          "name": "Speakers (2- Realtek(R) Audio)",
+          "sampleFormat": "f32"
+        },
+        "engine": {
+          "sampleRate": 48000,
+          "channels": 2,
+          "tempo": 137.5,
+          "transport": "playing",
+          "deviceFrames": "14016",
+          "transportFrames": "11040"
+        },
+        "callbacks": "28",
+        "lastAppliedCommand": "2",
+        "error": null
+      }
+    },
+    {
+      "file": "04-pausado.png",
+      "description": "Pause aplicado; posición conservada.",
+      "capturedAt": "2026-11-06T22:57:23.225Z",
+      "observed": {
+        "sequence": "31",
+        "state": "ready",
+        "backend": "native",
+        "output": {
+          "deviceId": "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+          "name": "Speakers (2- Realtek(R) Audio)",
+          "sampleFormat": "f32"
+        },
+        "engine": {
+          "sampleRate": 48000,
+          "channels": 2,
+          "tempo": 137.5,
+          "transport": "paused",
+          "deviceFrames": "21696",
+          "transportFrames": "11520"
+        },
+        "callbacks": "44",
+        "lastAppliedCommand": "3",
+        "error": null
+      }
+    },
+    {
+      "file": "05-detenido.png",
+      "description": "Stop aplicado; posición musical en cero.",
+      "capturedAt": "2026-11-06T22:57:23.445Z",
+      "observed": {
+        "sequence": "47",
+        "state": "ready",
+        "backend": "native",
+        "output": {
+          "deviceId": "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+          "name": "Speakers (2- Realtek(R) Audio)",
+          "sampleFormat": "f32"
+        },
+        "engine": {
+          "sampleRate": 48000,
+          "channels": 2,
+          "tempo": 137.5,
+          "transport": "stopped",
+          "deviceFrames": "32256",
+          "transportFrames": "0"
+        },
+        "callbacks": "66",
+        "lastAppliedCommand": "4",
+        "error": null
+      }
+    },
+    {
+      "file": "06-reiniciado.png",
+      "description": "Audio reiniciado, detenido y con callbacks; tempo conservado.",
+      "capturedAt": "2026-11-06T22:57:23.956Z",
+      "observed": {
+        "sequence": "65",
+        "state": "ready",
+        "backend": "native",
+        "output": {
+          "deviceId": "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+          "name": "Speakers (2- Realtek(R) Audio)",
+          "sampleFormat": "f32"
+        },
+        "engine": {
+          "sampleRate": 48000,
+          "channels": 2,
+          "tempo": 137.5,
+          "transport": "stopped",
+          "deviceFrames": "11136",
+          "transportFrames": "0"
+        },
+        "callbacks": "22",
+        "lastAppliedCommand": null,
+        "error": null
+      }
+    },
+    {
+      "file": "07-audio-cerrado.png",
+      "description": "Servicio cerrado; controles de transporte deshabilitados.",
+      "capturedAt": "2026-11-06T22:57:24.276Z",
+      "observed": {
+        "sequence": "75",
+        "state": "uninitialized",
+        "backend": null,
+        "output": null,
+        "engine": null,
+        "callbacks": "0",
+        "lastAppliedCommand": null,
+        "error": null
+      }
+    }
+  ]
+}

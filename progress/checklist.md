@@ -3,6 +3,12 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
+Estado actual (2026-11-06): etapas 1–6 implementadas y verificadas localmente.
+Esta entrega integra las etapas 4–6 sobre la base de etapa 3 (`69467ef`).
+Registro actual: [continuidad tras etapa 6](continuidad-etapa-6.md).
+Git identifica las revisiones publicadas; consultar [Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
+para el resultado remoto. CI creada y validada localmente no implica CI remota satisfactoria.
+
 Estas son las seis etapas acordadas en el análisis. No equivalen a la numeración
 de las once secciones del documento original. Una casilla se marca únicamente
 cuando existe implementación o evidencia de la verificación indicada.
@@ -43,30 +49,38 @@ cuando existe implementación o evidencia de la verificación indicada.
 
 ## Etapa 4 — Conectar la interfaz
 
-- [ ] Etapa terminada.
-- [ ] Crear comandos IPC y errores estructurados.
-- [ ] Generar DTO TypeScript desde Rust y centralizar `invoke`/`listen`.
-- [ ] Crear panel de audio, transporte, BPM y estado técnico.
-- [ ] Reflejar estado aplicado con eventos de hasta 15 Hz.
-- [ ] Limpiar suscripciones y tareas; contemplar StrictMode y cierre.
-- [ ] Verificar capabilities, CSP y modo navegador sin funciones nativas.
+Estado: completada y verificada (2026-11-06), incluido smoke real de ventana y audio.
+
+- [x] Etapa terminada y verificada en Windows (2026-11-06).
+- [x] Crear comandos IPC y errores estructurados.
+- [x] Generar DTO TypeScript desde Rust y centralizar `invoke`/`listen`.
+- [x] Crear panel de audio, transporte, BPM y estado técnico.
+- [x] Reflejar estado aplicado con eventos de hasta 15 Hz.
+- [x] Limpiar suscripciones y tareas; contemplar StrictMode y cierre.
+- [x] Verificar capabilities, CSP y modo navegador sin funciones nativas.
 
 ## Etapa 5 — Verificar el funcionamiento
 
-- [ ] Etapa terminada.
-- [ ] Completar pruebas de contratos del motor, colas y lifecycle.
-- [ ] Verificar errores de inicialización desde React.
-- [ ] Ejecutar comprobaciones frontend y Rust, con y sin audio nativo.
-- [ ] Ejecutar CLI `smoke` con varios tamaños de bloque.
-- [ ] Comprobar regeneración de bindings y lockfiles.
-- [ ] Compilar desktop y registrar smoke real de ventana/audio si está disponible.
+- [x] Etapa terminada y verificada en Windows (2026-11-06).
+- [x] Completar pruebas de contratos del motor, colas y lifecycle.
+- [x] Verificar errores de inicialización desde React.
+- [x] Ejecutar comprobaciones frontend y Rust, con y sin audio nativo.
+- [x] Ejecutar CLI `smoke` con varios tamaños de bloque.
+- [x] Comprobar regeneración de bindings y lockfiles.
+- [x] Compilar desktop y registrar smoke real de ventana/audio si está disponible.
+- [x] Crear howToRunThis en español con escenarios ejecutables y siete capturas reales.
 
 ## Etapa 6 — Documentar y automatizar
 
-- [ ] Etapa terminada.
-- [ ] Completar documentación de arquitectura, tiempo real y decisiones.
-- [ ] Completar instrucciones de Windows y limitaciones de otras plataformas.
-- [ ] Crear CI headless Linux y frontend/desktop Windows.
-- [ ] Documentar pruebas que requieren hardware.
-- [ ] Registrar roadmap posterior: oscilador, sampler, mezcla, pasos y clips.
-- [ ] Revisar los criterios finales contra el documento original.
+- [x] Etapa terminada localmente (2026-11-06); ver [cierre y evidencia](cierre-etapa-6.md).
+- [x] Completar documentación de arquitectura, tiempo real y decisiones.
+- [x] Completar instrucciones de Windows y limitaciones de otras plataformas.
+- [x] Crear CI headless Linux y frontend/desktop Windows; validar con actionlint.
+- [x] Documentar pruebas que requieren hardware y conservar evidencia anterior.
+- [x] Registrar roadmap posterior: oscilador offline/WAV, nativo/rampas, sampler, mezcla, pasos, persistencia/exportación y clips.
+- [x] Revisar los criterios finales contra el documento original.
+- [x] Ejecutar check completo y después build Windows; comprobar lockfiles/bindings intactos.
+
+Pendientes explícitos: confirmar resultados remotos de Actions, Linux/macOS,
+desconexión física, otros formatos de hardware y mediciones de allocator/deadlines
+y continuidad en release con señal. No se implementa el siguiente hito aquí.

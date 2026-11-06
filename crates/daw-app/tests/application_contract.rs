@@ -44,3 +44,35 @@ fn tempo_updates_document_on_acceptance_and_playback_after_render() {
         140.0
     );
 }
+
+#[test]
+fn shutdown_discards_pending_commands_but_retains_accepted_document_tempo() {
+    let mut app = Application::new().unwrap();
+    let config = EngineConfig::new(48_000, 2).unwrap();
+    app.initialize_manual(config).unwrap();
+    let tempo = app.transport_set_tempo(137.5).unwrap();
+    let play = app.transport_play().unwrap();
+    assert_eq!(
+        app.get_engine_snapshot().unwrap().last_applied_command,
+        None
+    );
+    app.shutdown_audio().unwrap();
+    let restarted = app.initialize_manual(config).unwrap();
+    assert_eq!(restarted.last_applied_command, None);
+    let engine = restarted.engine.unwrap();
+    assert_eq!(engine.tempo.bpm(), 137.5);
+    assert_eq!(engine.transport, daw_engine::TransportState::Stopped);
+    assert_eq!(engine.device_frames, 0);
+    app.render_manual(10).unwrap();
+    assert_eq!(
+        app.get_engine_snapshot().unwrap().last_applied_command,
+        None
+    );
+    let next = app.transport_play().unwrap();
+    assert!(next.command_id > play.command_id && play.command_id > tempo.command_id);
+    app.render_manual(1).unwrap();
+    assert_eq!(
+        app.get_engine_snapshot().unwrap().last_applied_command,
+        Some(next.command_id)
+    );
+}

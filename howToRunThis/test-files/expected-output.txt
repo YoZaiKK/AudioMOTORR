@@ -1,0 +1,14 @@
+REFERENCE OUTPUT — illustrative, not a saved execution report.
+
+smoke OK: frames=48001, block_size=127, sample_rate=48000, channels=2, silence=true
+
+PASS bloque-1: exit=0
+PASS bloque-127: exit=0
+PASS bloque-256: exit=0
+PASS bloque-4096: exit=0
+PASS vacio: exit=0
+PASS un-segundo: exit=0
+PASS bloque-invalido: exit=1
+PASS frames-negativos: exit=1
+PASS argumentos-incompatibles: exit=1
+9 CLI cases passed; manual backend, no audio device opened.

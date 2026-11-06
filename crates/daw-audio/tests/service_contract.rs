@@ -137,6 +137,30 @@ fn manual_backend_has_no_timer_and_validates_requests() {
     }
 }
 
+#[test]
+fn mixed_commands_preserve_fifo_effects_across_callback_budget() {
+    let service = AudioService::new().unwrap();
+    let audio = service.handle();
+    audio.initialize_manual(config(), Tempo::default()).unwrap();
+    audio.command(EngineCommand::Play).unwrap();
+    audio.render_manual(128).unwrap();
+    for _ in 0..31 {
+        audio.command(EngineCommand::Play).unwrap();
+    }
+    let pause = audio.command(EngineCommand::Pause).unwrap();
+    let stop = audio.command(EngineCommand::Stop).unwrap();
+    audio.render_manual(10).unwrap();
+    let paused = audio.snapshot().unwrap();
+    assert_eq!(paused.last_applied_command, Some(pause.command_id));
+    assert_eq!(paused.engine.unwrap().transport, TransportState::Paused);
+    assert_eq!(paused.engine.unwrap().transport_frames, 128);
+    audio.render_manual(10).unwrap();
+    let stopped = audio.snapshot().unwrap();
+    assert_eq!(stopped.last_applied_command, Some(stop.command_id));
+    assert_eq!(stopped.engine.unwrap().transport_frames, 0);
+    assert_eq!(stopped.engine.unwrap().device_frames, 148);
+}
+
 #[cfg(not(feature = "native-audio"))]
 #[test]
 fn native_capabilities_are_explicitly_disabled_in_headless_build() {

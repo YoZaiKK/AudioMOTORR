@@ -6,10 +6,35 @@ can later evolve into a clip-based DAW.
 
 ## Current status
 
-Stages 1–3 are complete: project setup, a deterministic silence-rendering engine,
-and an audio service with manual and native CPAL backends. The CLI can process
-exact frame counts offline or open a real output device. The desktop UI currently
-displays development status; connecting it through IPC is stage 4.
+Stages 1–6 are implemented and verified locally: project setup, a deterministic silence-rendering
+engine, manual and native CPAL backends, a functional desktop UI connected through
+Tauri IPC, technical documentation, and a locally validated CI workflow.
+The UI opens audio only on an explicit click, controls transport and BPM, and
+displays observed engine state. Browser mode disables native operations.
+
+This snapshot includes the desktop integration, verification guides, technical
+documentation, and CI completed after the stage 3 baseline (`69467ef`). See the
+[implementation log](progress/detalles.md), [current handoff](progress/continuidad-etapa-6.md),
+and [stage 6 requirements audit](progress/cierre-etapa-6.md).
+The progress documents are in Spanish; this README and technical docs remain in
+English. Git history identifies published revisions; the
+[Actions page](https://github.com/YoZaiKK/AudioMOTORR/actions) reports hosted checks.
+Local verification alone does not establish remote CI success.
+
+Technical documentation:
+
+- [Architecture and control/observation diagrams](docs/architecture.md).
+- [Realtime contract](docs/realtime-contract.md): ownership, limits, overflow,
+  applied state, formats, errors, and restart.
+- [ADR 0001: core and desktop boundaries](docs/adr/0001-core-and-desktop-boundaries.md).
+- [Development, platform evidence, and CI](docs/development.md).
+- [Ordered roadmap and milestone acceptance](docs/roadmap.md).
+
+See the [Spanish practical guides](howToRunThis/README.md) for setup, feature
+walkthroughs, tests, troubleshooting, nine executable CLI scenarios, and seven
+real UI screenshots. Run the scenarios with `node howToRunThis/run-cli-cases.mjs`.
+They are test fixtures, not importable projects. The [verification report](howToRunThis/resultados.md)
+records actual results and unchanged lockfile/binding hashes.
 
 Implemented capabilities:
 
@@ -22,14 +47,19 @@ Implemented capabilities:
 - Device enumeration, supported output configurations, and explicit device selection.
 - Audio initialization, shutdown, failure reporting, and restart.
 - CLI smoke checks and behavioral tests for rendering, queues, and service lifecycle.
+- Ten IPC commands with Rust DTOs and generated TypeScript declarations.
+- Audio-device selection, initialization/shutdown, Play/Pause/Stop, and BPM controls.
+- State published below 15 Hz, with pending commands separated from applied state.
 
 Verified on Windows: reproducible npm installation, prerequisite diagnostics,
 frontend checks and build, core tests, workspace Clippy, and a debug desktop build
 without an installer. Native CLI checks opened the Realtek WASAPI output at
 48 kHz, stereo, `f32`, confirmed callbacks and applied Play/Pause/Stop, closed it,
 and reopened it by explicit device ID. These results are recorded in the
-implementation log. Visual window checks remain pending. Linux and macOS are
-intended targets but have not been verified.
+implementation log. A real WebView2 UI smoke also confirmed initialization,
+transport, 137.5 BPM, shutdown/restart, and normal window exit. Its screenshot is
+saved locally at `target/desktop-stage4.png`. Linux and macOS are intended targets
+but have not been verified.
 
 Project tracking documents are currently maintained in Spanish:
 
@@ -90,11 +120,11 @@ Run the current verification sequence:
 npm run check
 ```
 
-This runs TypeScript checks, ESLint, Prettier, the frontend build, Rust formatting,
-headless tests and Clippy, then workspace tests and Clippy with warnings treated
-as errors. It stops at the first failure and requires desktop prerequisites for
-workspace checks. The desktop package enables native audio; automated tests do
-not open hardware. Generated-binding checks will be added with IPC.
+This checks generated bindings, TypeScript, ESLint, frontend tests, Prettier, and
+the frontend build, then runs nine offline CLI scenarios, Rust formatting,
+headless tests/Clippy, and workspace tests/Clippy with warnings treated as errors.
+It stops at the first failure and requires desktop prerequisites for workspace
+checks. The desktop package enables native audio; automated tests do not open hardware.
 
 To check only the core, without Tauri or an audio device:
 
@@ -124,7 +154,60 @@ It does not publish or sign the application.
 Use `npm run format` to format frontend files and documentation, and
 `cargo fmt --all` to format Rust code.
 
-## Audio CLI
+## Desktop IPC and bindings
+
+DTOs live in `src-tauri/src/ipc/dto.rs`. Serde defines the camelCase wire contract
+and ts-rs **12.0.1** generates `src/shared/api/generated/api.ts`:
+
+```powershell
+npm run bindings:generate
+npm run bindings:check
+npm run test:frontend
+```
+
+The check compares generated text without rewriting files. Generated TypeScript
+is excluded from Prettier so regeneration stays deterministic. Frames, callback
+counts, sequences, and IDs cross JSON as decimal strings; the UI compares them
+with `BigInt`. Components use domain hooks and a central `desktop-client.ts` rather
+than invoking Tauri directly. They register snapshot listeners before querying
+initial state, reject old sequences, and dispose asynchronous subscriptions.
+
+Ten application commands are registered through `ipc::configure`; build.rs
+generates their ACL permissions, granted only to the local `main` window along
+with event listen/unlisten. Generated permissions are build artifacts ignored by
+Git. Production CSP stays explicit; no remote capability or plugin is enabled.
+Application calls run on blocking workers, while a separate publisher sends
+observed snapshots at intervals of at least 67 ms. Closing main stops and joins
+the publisher and closes the audio service. The engine callback performs no IPC.
+
+On Windows/MSVC, integration-test executables receive a Common Controls v6
+manifest for Tauri's imported APIs. Tauri builds the normal binary manifests.
+Mock-runtime tests may need access to the application's data directories outside
+a restricted filesystem sandbox; this does not mean an audio device is opened.
+
+To run the optional real desktop smoke after a debug desktop build:
+
+```powershell
+powershell -NoProfile -File scripts/desktop-smoke.ps1
+```
+
+Run `npm run check` first, then build desktop and run this smoke. Workspace tests
+may rebuild the main executable for development; rebuild through the Tauri CLI
+before the smoke if Cargo commands ran after the desktop build.
+
+This Windows-only check opens the built app, uses WebView2's local debugging port
+9223 to exercise the real React UI and audio service, captures a screenshot in
+`target/desktop-stage4.png`, shuts audio down, and closes the native window. It
+needs real hardware and is not part of `npm run check`. Browser-debugging arguments
+are scoped to the launched process and restored afterward; no global settings are
+changed. Use an available local port and close other copies of the app first.
+
+The real desktop smoke verifies a structured missing-device error in the UI,
+recovery, and callbacks after restarting audio. Historical counts and hardware
+evidence are preserved in the [stage 5 report](howToRunThis/resultados.md);
+the latest complete local checks are recorded in the implementation log.
+
+## Audio CLI commands
 
 Render and verify silence offline, without a device or Tauri:
 
@@ -158,14 +241,14 @@ return `NativeAudioDisabled` instead of simulating a device.
 
 | Path                 | Responsibility                                                                |
 | -------------------- | ----------------------------------------------------------------------------- |
-| `src/`               | Initial React UI and runtime detection.                                       |
-| `src-tauri/`         | Tauri window setup and application composition.                               |
+| `src/`               | React panels, domain hooks, central IPC client, and generated API types.      |
+| `src-tauri/`         | Tauri composition, IPC DTOs/commands, ACLs, and snapshot publisher.           |
 | `crates/daw-domain/` | Minimal project document, IDs, and validated tempo.                           |
 | `crates/daw-engine/` | Deterministic silence rendering, transport, and snapshots.                    |
 | `crates/daw-audio/`  | Audio service, bounded queues, manual rendering, optional CPAL backend.       |
 | `crates/daw-app/`    | Project coordination and audio/transport use cases shared by desktop and CLI. |
 | `crates/daw-cli/`    | Offline smoke, output enumeration, and native smoke commands.                 |
-| `docs/`              | Audio-service ownership, limits, failure behavior, and restart policy.        |
+| `docs/`              | Architecture, realtime contract, ADR, development/CI, and roadmap.            |
 | `scripts/`           | Windows diagnostics and verification orchestration.                           |
 | `progress/`          | Requirements, implementation checklist, and verification log.                 |
 
@@ -233,12 +316,12 @@ reinitialization starts stopped at frame zero with the application's current
 document tempo. Command IDs and observation sequences survive restart within the
 same service instance. Shut down a ready service before selecting another output.
 
-See the [audio-service contract](docs/audio-service.md) for queue capacities,
+See the [realtime contract](docs/realtime-contract.md) for queue capacities,
 timeouts, supported sample formats, callback constraints, and ownership.
 
 ## Verification coverage and next steps
 
-The original eight core tests cover project and tempo validation, silence across different
+Core tests cover project and tempo validation, silence across different
 channel counts and consecutive block sizes, identical results across different
 block partitions, transport behavior, invalid configuration and partial frames,
 counter overflow, and independence between document edits and playback state.
@@ -260,9 +343,32 @@ performed. Native smoke validates lifecycle and callbacks, not audible continuit
 or absence of dropouts. Physical device removal and other output formats have
 not been tested on hardware.
 
-Stage 4 will add IPC commands and generated TypeScript DTOs, connect the UI to
-audio initialization and transport, and publish observed engine state. CI and
-the complete integration checks remain scheduled for stages 5 and 6.
+Frontend tests cover initialization errors, pending/applied commands, events that
+arrive before invoke replies, stale observations, browser mode, and listener cleanup
+under StrictMode. Desktop tests exercise the real registered handler with Tauri's
+mock runtime, decimal-string counters beyond JavaScript's safe integer range,
+window ACLs, publication rate, and publisher shutdown. Mock-runtime tests do not
+replace the separate real WebView2/hardware smoke.
+
+Stage 5 passed 12 frontend tests, 25 headless Rust tests, 29 workspace Rust tests,
+and nine CLI scenarios, plus Clippy and the real desktop walkthrough. These suites
+overlap. Installation and binding regeneration preserved both lockfiles and generated
+types. Use `powershell -NoProfile -File scripts/desktop-smoke.ps1 -UpdateDocs` after
+a fresh desktop build to explicitly update documented screenshots and metadata.
+Normal checks neither open hardware nor overwrite those images.
+
+Stage 6 adds [GitHub Actions](.github/workflows/ci.yml): explicit headless checks
+on Ubuntu 24.04 and frontend/mock IPC/desktop checks on Windows Server 2022.
+Official actions use full SHA pins; lockfiles and generated types are checked for
+changes. No hardware, screenshot updates, signing, or publishing run in CI.
+The workflow is validated locally; inspect its
+[hosted runs](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
+for remote results. Local results are in the [stage 6 closure](progress/cierre-etapa-6.md)
+and [implementation log](progress/detalles.md).
+
+The next concrete change is an offline oscillator inside `daw-engine`, retaining
+phase across blocks, followed by WAV output through an offline adapter. See the
+[roadmap](docs/roadmap.md); this milestone is not implemented in stage 6.
 
 Output currently contains silence only. There is no synthesizer, sampler,
 sequencer, project persistence, or WAV export; an oscillator is a later milestone.
