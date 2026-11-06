@@ -192,7 +192,114 @@ Estado: completada. Inicio y cierre: 2026-11-05.
   no se ejecutó instrumentación del allocator ni medición de plazos de tiempo real.
 - No se verificó compilación en Linux/macOS ni funcionamiento con hardware.
 
-## Etapas 3 a 6
+## Etapa 3 — Conectar el audio
+
+Estado: completada. Inicio y cierre: 2026-11-06.
+
+### Implementación y decisiones
+
+- Nuevos paquetes `daw-audio` y `daw-cli`, incorporados al workspace y sus miembros
+  por defecto. `daw-app` coordina proyecto y audio sin depender de Tauri. Se
+  reexporta `Tempo` desde el motor para sus consumidores; no cambia su validación.
+- Dependencias fijadas: CPAL 0.18.2 y rtrb 0.4.1, consultadas en sus APIs oficiales.
+  CPAL requiere Rust 1.85 y es compatible con la toolchain 1.90 del proyecto.
+  `native-audio` es opcional y se propaga explícitamente por audio, app y CLI;
+  desktop la habilita. No se añadieron Serde ni contratos IPC al motor.
+- Hilo de control propietario del stream y de las operaciones CPAL, incluida su
+  destrucción. Handles clonables admiten llamadas concurrentes mediante un canal
+  externo acotado a 32 solicitudes. Cola llena devuelve Busy; respuesta con plazo
+  de 10 segundos. Se rechazan solicitudes que vencieron antes de ejecutarse.
+- Si una operación nativa ya está ejecutándose al vencer el plazo, puede terminar
+  después; se debe consultar estado antes de reintentar. El cierre no espera un
+  acknowledgement del callback, pero depende del retorno de las llamadas del driver.
+- Cola SPSC de comandos con 128 entradas Copy; FIFO y máximo de 32 comandos por
+  callback completo. QueueFull rechaza explícitamente sin consumir commandId.
+- Segunda cola SPSC con 64 snapshots Copy. El callback intenta publicar una vez
+  por bloque; si no cabe, el siguiente callback vuelve a publicar el estado más
+  reciente, con acknowledgement acumulativo. El control drena hasta 64 snapshots
+  por iteración y consulta su canal cada 5 ms.
+- La aceptación devuelve un ID monotónico. El snapshot confirma el último ID
+  aplicado, callbacks, configuración, contadores y estado observado. Los snapshots
+  del servicio tienen secuencia monotónica; los nativos incluyen dispositivo y
+  formato reales. Los enteros siguen siendo u64: su conversión JSON a strings
+  corresponde a la etapa 4.
+- Backend manual sin timer ni dispositivo: procesa exactamente 0–4096 frames
+  por solicitud, usando el mismo procesador de comandos y motor. Cero frames es
+  una operación vacía; no aplica comandos ni incrementa callbacks. El llamador
+  divide duraciones largas en bloques. El reporte comprueba el silencio del buffer
+  real, inicialmente rellenado con NaN para detectar muestras no sobrescritas.
+- Backend nativo enumera IDs, salidas predeterminadas y configuraciones soportadas.
+  Inicializa la salida predeterminada o el ID exacto solicitado, con su configuración
+  predeterminada soportada. Cambiar salida requiere shutdown e initialize; no hay
+  fallback, hot-swap, ASIO ni selección manual de sample rate/buffer en esta etapa.
+- Ambos backends admiten 1–32 canales. Conversión nativa de f32, f64 y enteros con
+  y sin signo de 8/16/32/64 bits. Formatos restantes, incluidos los de 24 bits,
+  devuelven UnsupportedSampleFormat. El silencio unsigned usa su punto medio.
+- Scratch nativo preasignado de 256 frames por canal; callbacks mayores se procesan
+  por fragmentos alineados sin ampliar memoria. Los comandos se procesan una sola
+  vez por callback. El callback de error solo señala un flag atómico; el control
+  forma el error y cierra el stream. No se conserva el mensaje original de CPAL.
+- Shutdown es idempotente y descarta comandos pendientes explícitamente al cerrar
+  la sesión. Reiniciar crea motor detenido en cero con el tempo del documento;
+  IDs de comandos y secuencia de observación siguen creciendo dentro del servicio.
+  El Drop del propietario cierra el servicio y une el hilo incluso si hay handles.
+- `Application` expone resumen del proyecto, dispositivos, inicialización/cierre,
+  snapshots y transporte. Tempo inválido se rechaza antes de enviar; el documento
+  cambia tras aceptación, y el playback cambia tras aplicación.
+- CLI: smoke offline con frames o segundos enteros, bloque de 1–4096 frames y
+  comprobación de silencio, contadores y Play aplicado. También devices y live-smoke
+  opcionales: este último verifica callbacks y Play/Pause/Stop aplicados, con cierre.
+- README conservado en inglés, nuevo `docs/audio-service.md` con ownership,
+  límites y políticas; pantalla inicial actualizada sin conectar controles todavía.
+- `npm run check` amplía pruebas y Clippy headless a los cinco paquetes, y añade
+  pruebas de todo el workspace. Las pruebas automáticas no abren dispositivos.
+
+### Verificaciones ejecutadas
+
+- `cargo fetch`: el intento dentro del sandbox falló por TLS Schannel
+  SEC_E_NO_CREDENTIALS. La descarga autorizada fuera del sandbox completó el
+  lockfile y las dependencias; las compilaciones posteriores usan --locked/offline.
+- `cargo test -p daw-domain -p daw-engine -p daw-audio -p daw-app -p daw-cli --no-default-features --locked --offline`:
+  correcto, 22 pruebas. Cubren además colas, telemetría llena, aceptación/aplicación,
+  concurrencia, cierre/reinicio, handles tras Drop, error de stream simulado,
+  solicitudes vencidas, CLI inválida y particiones 1/127/256/4096.
+- Clippy headless y con native-audio de los paquetes audio/app/CLI: correctos con
+  warnings tratados como errores. Se corrigieron diferencias de API de rtrb y un
+  import no usado durante las primeras compilaciones.
+- `devices` con native-audio enumeró Speakers (2- Realtek(R) Audio), WASAPI,
+  salida predeterminada estéreo, con rangos y formatos reportados por el driver.
+- `live-smoke --seconds 2`: correcto; 200 callbacks y 96576 frames al observar
+  Play; Pause y Stop confirmados antes del cierre. Configuración 48000 Hz, 2 canales.
+- `live-smoke --seconds 1 --device <ID enumerado>`: correcto; 101 callbacks y
+  49056 frames. La salida volvió a abrir y cerró correctamente por ID explícito.
+- Tras añadir metadatos de salida al snapshot, live-smoke confirmó el formato f32,
+  100 callbacks, 48576 frames y Pause/Stop aplicados. Los contadores de hardware
+  dependen de los callbacks realmente recibidos; no son duraciones exactas offline.
+- Prueba nativa `native_failure_recovery_and_restart_on_same_service`, ejecutada
+  explícitamente con --ignored: correcta. Verifica error DeviceAbsent con ID
+  inexistente, recuperación, Play/Pause/Stop, cierre, reapertura por ID en el mismo
+  servicio, IDs crecientes y Drop mientras reproduce. Permanece ignorada en CI y
+  en pruebas normales porque abre hardware real.
+- `npm run check` (mediante npm.cmd): correcto; TypeScript, ESLint, Prettier,
+  build Vite, rustfmt, 22 pruebas headless, Clippy headless, pruebas del workspace
+  con audio nativo (22 correctas y una de hardware ignorada por defecto) y Clippy
+  del workspace con --locked y -D warnings.
+- `npm run desktop:build -- --debug --no-bundle`: correcto; ejecutable generado en
+  `target/debug/rust-daw-desktop.exe` con la feature nativa habilitada, sin instalador.
+- `git diff --check`: correcto. El formato de archivos nuevos se verifica mediante
+  rustfmt y Prettier. No se realizaron commits ni publicación.
+
+### Límites y validaciones pendientes
+
+- No se abrió una ventana para verificar controles: React sigue sin IPC ni audio
+  conectado, que corresponden a la etapa 4. No se adelantaron sus DTO ni eventos.
+- Solo se verificó hardware WASAPI estéreo f32 a 48 kHz. Otros formatos tienen
+  conversión implementada y prueba de silencio unsigned, sin verificación física.
+- Desconexión física del dispositivo, Linux/macOS, instrumentación del allocator,
+  carga de CPU y plazos de tiempo real permanecen sin verificar. Procesar silencio
+  no demuestra ausencia de dropouts ni continuidad audible.
+
+## Etapas 4 a 6
 
 Pendientes. Al comenzar cada etapa se agregará su sección con cambios, decisiones,
 comandos ejecutados, resultados y verificaciones que no pudieron realizarse.

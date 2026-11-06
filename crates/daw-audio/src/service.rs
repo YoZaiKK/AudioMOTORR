@@ -1,0 +1,539 @@
+use crate::{
+    realtime::{Command, ControlQueues, Realtime},
+    *,
+};
+use daw_engine::{AudioEngine, EngineCommand, EngineConfig, Tempo};
+use std::{
+    sync::{
+        atomic::Ordering,
+        mpsc::{self, Receiver, SyncSender, TrySendError},
+    },
+    thread::{self, JoinHandle},
+    time::{Duration, Instant},
+};
+
+const REQUEST_CAPACITY: usize = 32;
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
+const CONTROL_POLL: Duration = Duration::from_millis(5);
+
+enum Operation {
+    Devices,
+    Manual(EngineConfig, Tempo),
+    Native(Option<String>, Tempo),
+    Shutdown,
+    Snapshot,
+    Command(EngineCommand),
+    Render(usize),
+    Exit,
+}
+enum Response {
+    #[cfg(feature = "native-audio")]
+    Devices(Vec<OutputDevice>),
+    Snapshot(ServiceSnapshot),
+    Accepted(CommandAccepted),
+    Render(RenderReport),
+    Done,
+}
+struct Request {
+    operation: Operation,
+    deadline: Instant,
+    reply: SyncSender<Result<Response>>,
+}
+
+/// Cloneable handle for concurrent callers. No callback accesses this channel.
+#[derive(Clone)]
+pub struct AudioHandle {
+    tx: SyncSender<Request>,
+}
+
+/// Owns the control thread. Drop terminates it even if cloned handles remain.
+pub struct AudioService {
+    handle: AudioHandle,
+    thread: Option<JoinHandle<()>>,
+}
+
+impl AudioService {
+    pub fn new() -> Result<Self> {
+        let (tx, rx) = mpsc::sync_channel(REQUEST_CAPACITY);
+        let thread = thread::Builder::new()
+            .name("daw-audio-control".into())
+            .spawn(move || Controller::new().run(rx))
+            .map_err(|e| AudioError::new(ErrorCode::ServiceClosed, e.to_string()))?;
+        Ok(Self {
+            handle: AudioHandle { tx },
+            thread: Some(thread),
+        })
+    }
+    pub fn handle(&self) -> AudioHandle {
+        self.handle.clone()
+    }
+}
+
+impl Drop for AudioService {
+    fn drop(&mut self) {
+        let (reply, _) = mpsc::sync_channel(1);
+        let _ = self.handle.tx.send(Request {
+            operation: Operation::Exit,
+            deadline: Instant::now(),
+            reply,
+        });
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
+    }
+}
+
+impl AudioHandle {
+    fn request(&self, operation: Operation) -> Result<Response> {
+        let (reply, rx) = mpsc::sync_channel(1);
+        let deadline = Instant::now() + REQUEST_TIMEOUT;
+        self.tx
+            .try_send(Request {
+                operation,
+                deadline,
+                reply,
+            })
+            .map_err(|e| match e {
+                TrySendError::Full(_) => AudioError::new(
+                    ErrorCode::Busy,
+                    "Control request queue is full; retry later",
+                ),
+                TrySendError::Disconnected(_) => {
+                    AudioError::new(ErrorCode::ServiceClosed, "Audio control thread is closed")
+                }
+            })?;
+        rx.recv_timeout(REQUEST_TIMEOUT).map_err(|e| match e {
+            mpsc::RecvTimeoutError::Timeout => AudioError::new(
+                ErrorCode::Timeout,
+                "Control request timed out; query state before retrying",
+            ),
+            mpsc::RecvTimeoutError::Disconnected => AudioError::new(
+                ErrorCode::ServiceClosed,
+                "Audio control thread disconnected",
+            ),
+        })?
+    }
+
+    pub fn list_output_devices(&self) -> Result<Vec<OutputDevice>> {
+        match self.request(Operation::Devices)? {
+            #[cfg(feature = "native-audio")]
+            Response::Devices(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
+    pub fn initialize_manual(&self, config: EngineConfig, tempo: Tempo) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::Manual(config, tempo))
+    }
+    /// Opens the default output, or an ID from list_output_devices. No automatic fallback.
+    pub fn initialize_native(
+        &self,
+        device_id: Option<String>,
+        tempo: Tempo,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::Native(device_id, tempo))
+    }
+    pub fn shutdown(&self) -> Result<()> {
+        match self.request(Operation::Shutdown)? {
+            Response::Done => Ok(()),
+            _ => Err(protocol_error()),
+        }
+    }
+    pub fn snapshot(&self) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::Snapshot)
+    }
+    fn snapshot_response(&self, operation: Operation) -> Result<ServiceSnapshot> {
+        match self.request(operation)? {
+            Response::Snapshot(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
+    pub fn command(&self, command: EngineCommand) -> Result<CommandAccepted> {
+        match self.request(Operation::Command(command))? {
+            Response::Accepted(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
+    /// Exactly one manual callback, with 0..=MANUAL_MAX_FRAMES frames; zero is a no-op.
+    pub fn render_manual(&self, frames: usize) -> Result<RenderReport> {
+        match self.request(Operation::Render(frames))? {
+            Response::Render(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
+}
+
+fn protocol_error() -> AudioError {
+    AudioError::new(ErrorCode::ServiceClosed, "Unexpected control response")
+}
+
+enum Running {
+    Manual {
+        rt: Realtime,
+        scratch: Vec<f32>,
+    },
+    #[cfg(feature = "native-audio")]
+    Native {
+        _stream: cpal::Stream,
+    },
+}
+
+struct Controller {
+    running: Option<Running>,
+    queues: Option<ControlQueues>,
+    snapshot: ServiceSnapshot,
+    next_command: u64,
+}
+
+impl Controller {
+    fn new() -> Self {
+        Self {
+            running: None,
+            queues: None,
+            next_command: 0,
+            snapshot: ServiceSnapshot {
+                sequence: 0,
+                state: AudioServiceState::Uninitialized,
+                backend: None,
+                output: None,
+                engine: None,
+                callbacks: 0,
+                last_applied_command: None,
+                error: None,
+            },
+        }
+    }
+    fn changed(&mut self) {
+        self.snapshot.sequence = self.snapshot.sequence.saturating_add(1);
+    }
+
+    fn run(mut self, rx: Receiver<Request>) {
+        loop {
+            self.refresh();
+            match rx.recv_timeout(CONTROL_POLL) {
+                Ok(request) => {
+                    if matches!(request.operation, Operation::Exit) {
+                        self.stop();
+                        break;
+                    }
+                    let result = if Instant::now() >= request.deadline {
+                        Err(AudioError::new(
+                            ErrorCode::Timeout,
+                            "Request expired before execution",
+                        ))
+                    } else {
+                        self.refresh();
+                        self.execute(request.operation)
+                    };
+                    let _ = request.reply.try_send(result);
+                }
+                Err(mpsc::RecvTimeoutError::Timeout) => (),
+                Err(mpsc::RecvTimeoutError::Disconnected) => {
+                    self.stop();
+                    break;
+                }
+            }
+        }
+    }
+
+    fn refresh(&mut self) {
+        let mut updated = false;
+        let mut failure = 0;
+        if let Some(queues) = &mut self.queues {
+            // Bounded even if callbacks continue publishing while we drain.
+            for _ in 0..SNAPSHOT_CAPACITY {
+                let Ok(applied) = queues.snapshots.pop() else {
+                    break;
+                };
+                self.snapshot.engine = Some(applied.engine);
+                self.snapshot.callbacks = applied.callbacks;
+                self.snapshot.last_applied_command = applied.last_applied;
+                updated = true;
+            }
+            failure = queues.failure.load(Ordering::Relaxed);
+        }
+        if failure != 0 {
+            self.running = None; // stream is always dropped on this owner thread
+            self.queues = None;
+            self.snapshot.state = AudioServiceState::Error;
+            self.snapshot.error = Some(AudioError::new(
+                ErrorCode::StreamError,
+                if failure == 1 {
+                    "Audio stream failed; initialize again to restart"
+                } else {
+                    "Audio render invariant failed; initialize again to restart"
+                },
+            ));
+            updated = true;
+        }
+        if updated {
+            self.changed();
+        }
+    }
+
+    fn stop(&mut self) {
+        self.snapshot.state = AudioServiceState::ShuttingDown;
+        self.changed();
+        self.running = None;
+        self.queues = None;
+        self.snapshot.state = AudioServiceState::Uninitialized;
+        self.snapshot.backend = None;
+        self.snapshot.output = None;
+        self.snapshot.engine = None;
+        self.snapshot.callbacks = 0;
+        self.snapshot.last_applied_command = None;
+        self.snapshot.error = None;
+        self.changed();
+    }
+
+    fn can_initialize(&self) -> Result<()> {
+        if self.running.is_some() {
+            Err(AudioError::new(
+                ErrorCode::Busy,
+                "Shut down audio before reinitializing",
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn ready(
+        &mut self,
+        engine: daw_engine::EngineSnapshot,
+        backend: Backend,
+        output: Option<OutputSelection>,
+        queues: ControlQueues,
+        running: Running,
+    ) {
+        self.snapshot.state = AudioServiceState::Ready;
+        self.snapshot.backend = Some(backend);
+        self.snapshot.output = output;
+        self.snapshot.engine = Some(engine);
+        self.snapshot.callbacks = 0;
+        self.snapshot.last_applied_command = None;
+        self.snapshot.error = None;
+        self.queues = Some(queues);
+        self.running = Some(running);
+        self.changed();
+    }
+
+    fn execute(&mut self, operation: Operation) -> Result<Response> {
+        match operation {
+            Operation::Devices => {
+                #[cfg(feature = "native-audio")]
+                {
+                    crate::native::devices().map(Response::Devices)
+                }
+                #[cfg(not(feature = "native-audio"))]
+                {
+                    Err(AudioError::new(
+                        ErrorCode::NativeAudioDisabled,
+                        "Build with native-audio to enumerate outputs",
+                    ))
+                }
+            }
+            Operation::Manual(config, tempo) => {
+                self.can_initialize()?;
+                validate_channels(config)?;
+                let engine = AudioEngine::new(config, tempo);
+                let initial = engine.snapshot();
+                let (queues, rt) = Realtime::new(engine);
+                let scratch = vec![0.0; MANUAL_MAX_FRAMES * usize::from(config.channels())];
+                self.ready(
+                    initial,
+                    Backend::Manual,
+                    None,
+                    queues,
+                    Running::Manual { rt, scratch },
+                );
+                Ok(Response::Snapshot(self.snapshot.clone()))
+            }
+            Operation::Native(device_id, tempo) => {
+                self.can_initialize()?;
+                #[cfg(feature = "native-audio")]
+                {
+                    match crate::native::open(device_id, tempo) {
+                        Ok(opened) => {
+                            self.ready(
+                                opened.engine,
+                                Backend::Native,
+                                Some(opened.output),
+                                opened.queues,
+                                Running::Native {
+                                    _stream: opened.stream,
+                                },
+                            );
+                            self.refresh();
+                            if let Some(error) = &self.snapshot.error {
+                                return Err(error.clone());
+                            }
+                            Ok(Response::Snapshot(self.snapshot.clone()))
+                        }
+                        Err(error) => {
+                            self.snapshot.state = AudioServiceState::Error;
+                            self.snapshot.backend = Some(Backend::Native);
+                            self.snapshot.output = None;
+                            self.snapshot.engine = None;
+                            self.snapshot.callbacks = 0;
+                            self.snapshot.last_applied_command = None;
+                            self.snapshot.error = Some(error.clone());
+                            self.changed();
+                            Err(error)
+                        }
+                    }
+                }
+                #[cfg(not(feature = "native-audio"))]
+                {
+                    let _ = (device_id, tempo);
+                    Err(AudioError::new(
+                        ErrorCode::NativeAudioDisabled,
+                        "Build with native-audio to open a device",
+                    ))
+                }
+            }
+            Operation::Shutdown => {
+                self.stop();
+                Ok(Response::Done)
+            }
+            Operation::Snapshot => Ok(Response::Snapshot(self.snapshot.clone())),
+            Operation::Command(command) => {
+                self.require_ready()?;
+                let id = self.next_command.checked_add(1).ok_or_else(|| {
+                    AudioError::new(
+                        ErrorCode::Busy,
+                        "Command IDs exhausted; recreate the service",
+                    )
+                })?;
+                let queues = self.queues.as_mut().ok_or_else(protocol_error)?;
+                queues.commands.push(Command { id, command }).map_err(|_| {
+                    AudioError::new(
+                        ErrorCode::QueueFull,
+                        "Realtime command queue is full; retry later",
+                    )
+                })?;
+                self.next_command = id;
+                Ok(Response::Accepted(CommandAccepted { command_id: id }))
+            }
+            Operation::Render(frames) => {
+                self.require_ready()?;
+                if frames > MANUAL_MAX_FRAMES {
+                    return Err(AudioError::new(
+                        ErrorCode::InvalidArgument,
+                        "Manual render exceeds 4096 frames per call",
+                    ));
+                }
+                let channels = self
+                    .snapshot
+                    .engine
+                    .ok_or_else(protocol_error)?
+                    .config
+                    .channels();
+                let Some(Running::Manual { rt, scratch }) = &mut self.running else {
+                    return Err(AudioError::new(
+                        ErrorCode::InvalidArgument,
+                        "Manual rendering requires the manual backend",
+                    ));
+                };
+                let output = &mut scratch[..frames * usize::from(channels)];
+                output.fill(f32::NAN);
+                if frames != 0 {
+                    rt.begin();
+                    rt.render(output);
+                    rt.end();
+                }
+                let silent = output.iter().all(|&value| value == 0.0);
+                self.refresh();
+                self.require_ready()?;
+                Ok(Response::Render(RenderReport { frames, silent }))
+            }
+            Operation::Exit => Err(protocol_error()),
+        }
+    }
+
+    fn require_ready(&self) -> Result<()> {
+        if let Some(error) = &self.snapshot.error {
+            return Err(error.clone());
+        }
+        if self.snapshot.state != AudioServiceState::Ready {
+            return Err(AudioError::new(
+                ErrorCode::Uninitialized,
+                "Initialize audio before using the transport",
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn stream_failure_rejects_transport_and_allows_fresh_restart() {
+        let mut control = Controller::new();
+        let config = EngineConfig::new(48_000, 2).unwrap();
+        control
+            .execute(Operation::Manual(config, Tempo::default()))
+            .unwrap();
+        control
+            .execute(Operation::Command(EngineCommand::Play))
+            .unwrap();
+        control
+            .queues
+            .as_ref()
+            .unwrap()
+            .failure
+            .store(1, Ordering::Relaxed);
+        control.refresh();
+        assert_eq!(control.snapshot.state, AudioServiceState::Error);
+        assert!(control.running.is_none());
+        let Err(error) = control.execute(Operation::Command(EngineCommand::Play)) else {
+            panic!("failed stream accepted command")
+        };
+        assert_eq!(error.code, ErrorCode::StreamError);
+        control
+            .execute(Operation::Manual(config, Tempo::default()))
+            .unwrap();
+        assert_eq!(control.snapshot.state, AudioServiceState::Ready);
+        assert_eq!(control.snapshot.last_applied_command, None);
+        assert_eq!(control.snapshot.engine.unwrap().device_frames, 0);
+        assert_eq!(control.next_command, 1);
+    }
+
+    #[test]
+    fn full_external_queue_returns_busy_without_waiting_for_callback() {
+        let (tx, _rx) = mpsc::sync_channel(1);
+        let (reply, _) = mpsc::sync_channel(1);
+        tx.try_send(Request {
+            operation: Operation::Snapshot,
+            deadline: Instant::now() + REQUEST_TIMEOUT,
+            reply,
+        })
+        .unwrap();
+        let handle = AudioHandle { tx };
+        assert_eq!(handle.snapshot().unwrap_err().code, ErrorCode::Busy);
+    }
+
+    #[test]
+    fn expired_requests_do_not_start_audio() {
+        let (tx, rx) = mpsc::sync_channel(2);
+        let (reply, result) = mpsc::sync_channel(1);
+        tx.send(Request {
+            operation: Operation::Manual(EngineConfig::new(48_000, 2).unwrap(), Tempo::default()),
+            deadline: Instant::now(),
+            reply,
+        })
+        .unwrap();
+        let (reply, _) = mpsc::sync_channel(1);
+        tx.send(Request {
+            operation: Operation::Exit,
+            deadline: Instant::now(),
+            reply,
+        })
+        .unwrap();
+        Controller::new().run(rx);
+        let Err(error) = result.recv().unwrap() else {
+            panic!("expired request executed")
+        };
+        assert_eq!(error.code, ErrorCode::Timeout);
+    }
+}

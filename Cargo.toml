@@ -1,6 +1,6 @@
 [workspace]
-members = ["crates/daw-domain", "crates/daw-engine", "crates/daw-app", "src-tauri"]
-default-members = ["crates/daw-domain", "crates/daw-engine", "crates/daw-app"]
+members = ["crates/daw-domain", "crates/daw-engine", "crates/daw-audio", "crates/daw-app", "crates/daw-cli", "src-tauri"]
+default-members = ["crates/daw-domain", "crates/daw-engine", "crates/daw-audio", "crates/daw-app", "crates/daw-cli"]
 resolver = "3"
 
 [workspace.package]
@@ -12,6 +12,9 @@ publish = false
 [workspace.dependencies]
 daw-domain = { path = "crates/daw-domain" }
 daw-engine = { path = "crates/daw-engine" }
+daw-audio = { path = "crates/daw-audio" }
+cpal = { version = "=0.18.2", default-features = false }
+rtrb = "=0.4.1"
 daw-app = { path = "crates/daw-app" }
 tauri = { version = "=2.12.5" }
 tauri-build = { version = "=2.7.4" }

@@ -32,14 +32,14 @@ cuando existe implementación o evidencia de la verificación indicada.
 
 ## Etapa 3 — Conectar el audio
 
-- [ ] Etapa terminada.
-- [ ] Crear `daw-audio` con backend manual determinista.
-- [ ] Implementar CPAL opcional mediante `native-audio`.
-- [ ] Resolver dispositivos, canales y formatos negociados.
-- [ ] Implementar hilo de control y colas SPSC acotadas.
-- [ ] Distinguir comandos aceptados y aplicados, y publicar snapshots.
-- [ ] Implementar errores, inicialización, cierre y reinicio.
-- [ ] Integrar los casos de uso en `daw-app` y crear la CLI `smoke`.
+- [x] Etapa terminada y verificada en Windows con audio real (2026-11-06).
+- [x] Crear `daw-audio` con backend manual determinista.
+- [x] Implementar CPAL opcional mediante `native-audio`.
+- [x] Resolver dispositivos, canales y formatos negociados.
+- [x] Implementar hilo de control y colas SPSC acotadas.
+- [x] Distinguir comandos aceptados y aplicados, y publicar snapshots.
+- [x] Implementar errores, inicialización, cierre y reinicio.
+- [x] Integrar los casos de uso en `daw-app` y crear la CLI `smoke`.
 
 ## Etapa 4 — Conectar la interfaz
 

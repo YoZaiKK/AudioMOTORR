@@ -4,10 +4,11 @@ export function App() {
   return (
     <main className="workspace">
       <header>
-        <span className="eyebrow">AudioMOTORR · Etapa 2</span>
+        <span className="eyebrow">AudioMOTORR · Etapa 3</span>
         <h1>Rust DAW</h1>
         <p>
-          Motor de silencio y transporte verificados sin dispositivo de audio.
+          Servicio de audio disponible mediante la CLI. Interfaz pendiente de
+          conectar.
         </p>
       </header>
       <section aria-labelledby="status-title" className="status-panel">
@@ -23,14 +24,14 @@ export function App() {
           </div>
           <div>
             <dt>Audio</dt>
-            <dd>Pendiente de implementar</dd>
+            <dd>Backends manual y nativo; controles pendientes</dd>
           </div>
         </dl>
         {!isTauri() && (
           <p className="notice">Vista de interfaz: requiere Tauri para audio</p>
         )}
         <p className="muted">
-          El siguiente paso es conectar el motor al servicio de audio.
+          El siguiente paso es conectar la interfaz al servicio de audio.
         </p>
       </section>
     </main>

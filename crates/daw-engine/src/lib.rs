@@ -6,7 +6,7 @@
 
 use std::fmt;
 
-use daw_domain::Tempo;
+pub use daw_domain::Tempo;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConfigError {

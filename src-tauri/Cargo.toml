@@ -14,7 +14,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build.workspace = true
 
 [dependencies]
-daw-app.workspace = true
+daw-app = { workspace = true, features = ["native-audio"] }
 tauri.workspace = true
 
 [lints]
