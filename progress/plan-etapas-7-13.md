@@ -1,27 +1,27 @@
 # Plan de progreso — Etapas 7 a 13
 
 Fecha: 2026-11-07. Base publicada: `1ef9bd0` en main; etapas 1–6 completadas con
-evidencia local. Estado: **etapa 7 en curso; oscilador, render acotado y WAV
-implementados localmente (7.2–7.3)**. Desktop/smoke siguen en silencio; export-wav
-genera señal offline. Evidencia: [reporte WAV](etapa-7-exportacion.md) y
-[reporte de motor](etapa-7-oscilador.md). Cierre y CI nueva pendientes.
+evidencia local. Estado: **etapa 7 completada**, publicada en c6cf627 y verificada
+en Linux headless/Windows desktop por CI. Desktop/smoke siguen en silencio;
+export-wav genera señal offline. Evidencia actual: [cierre de etapa 7](cierre-etapa-7.md).
+Los reportes de motor/WAV conservan sus resultados previos a la publicación.
 
 El [checklist](checklist.md) registra el estado; el [roadmap técnico](../docs/roadmap.md)
-define los hitos y el [contrato propuesto](../docs/offline-oscillator.md) concreta
+define los hitos y el [contrato](../docs/offline-oscillator.md) concreta
 la etapa 7. Las etapas 7–13 corresponden, en el mismo orden, a los siete hitos
 posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren.
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                             |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | En curso; exportación local lista. |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Pendiente.                         |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Pendiente.                         |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                         |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                         |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                         |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                         |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                            |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | --------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta. |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Pendiente.                        |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Pendiente.                        |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                        |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                        |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                        |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                        |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -115,11 +115,12 @@ Aceptación: checks afectados correctos, WAV contrastado con el motor, limitacio
 explícitas y resultados remotos separados de los locales. No actualizar capturas
 de una UI que no cambia. No afirmar continuidad nativa o ausencia de dropouts.
 
-Parte local completada: nuevas pruebas descubiertas por los comandos existentes,
-check y build correctos, documentación actualizada. La confirmación remota de la
-revisión nueva queda pendiente junto con el cierre 7.5; ver reporte de exportación.
+Completada: nuevas pruebas descubiertas por los comandos existentes, check y build
+correctos, documentación actualizada y run 42419963899 correcto para c6cf627.
 
 ### 7.5 — Cerrar la etapa
+
+Completado el 2026-11-07. Ver [matriz de aceptación y CI](cierre-etapa-7.md).
 
 Entregables: módulo de oscilador real, coordinación offline, comando WAV, pruebas,
 guías actualizadas y reporte fechado con comandos/resultados. Marcar la etapa
@@ -142,7 +143,7 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Concluir **7.4/7.5: validar/documentar el conjunto y obtener CI del estado nuevo**.
-7.3 ya tiene render/exportación y pruebas. La etapa 7 permanece abierta hasta
-registrar su cierre; la siguiente etapa musical será 8 (CPAL/rampas/mediciones),
-sin anticipar sampler, mezclador ni secuenciador.
+Comenzar **etapa 8: mismo oscilador por CPAL, rampas y mediciones en release**.
+Conservar el render offline de referencia, definir el control explícito desde
+aplicación/IPC/UI y verificar transiciones/lifecycle antes de medir en hardware.
+No anticipar sampler, mezclador ni secuenciador; etapa 7 ya está cerrada.

@@ -689,3 +689,27 @@ correcto después del check. WAV de ejemplo de 48001 frames reabierto y contrast
 independientemente con Node, metadatos/muestras correctos. Formato/enlaces y
 git diff --check correctos. Nuevo hash Cargo.lock fijado y estable durante las
 comprobaciones; package-lock/api.ts intactos. Valores y límites en el reporte.
+
+## Cierre y publicación de etapa 7 (7.5)
+
+Fecha: 2026-11-07. [Auditoría final](cierre-etapa-7.md).
+
+- Revisión final sin cambios funcionales adicionales. Se repitió check completo:
+  12 frontend, 41 Rust headless y 45 Rust workspace, más nueve escenarios CLI;
+  suites Rust solapadas, hardware ignorado por defecto. Build Windows debug
+  sin instalador correcto después del check.
+- Commit c6cf62703bcd8207030d6f87d38e51d0804d18e1 publicado en origin/main:
+  feat(engine): add offline sine rendering and WAV export. Veintinueve archivos
+  incluyen implementación, pruebas, contrato, guías y progreso de la etapa.
+- Run 42419963899, SHA exacto c6cf627: completed/success en headless-linux y
+  desktop-windows, comprobado en API oficial a las 22:27:29 UTC. El 504 temporal
+  del observador se resolvió reintentando; no fue fallo de CI.
+- Con esa evidencia se cierran 7.4/7.5, se actualizan README/roadmap/contratos y
+  continuidad. El commit documental posterior registra el cierre; la CI de esa
+  revisión final se comprueba aparte. No se inicia código de etapa 8 aquí.
+- Permanecen límites de Linux nativo/macOS, desconexión física, formatos de
+  hardware adicionales, allocator/deadlines y continuidad en release. Desktop
+  y smoke conservan silencio; export-wav es la ruta de señal offline.
+
+Siguiente cambio: etapa 8, señal por CPAL, rampas y controles explícitos,
+con comparación offline y mediciones de hardware documentadas.

@@ -1,14 +1,16 @@
 ﻿# Offline oscillator and WAV contract
 
 Updated 2026-11-07. Engine signal generation (7.2) and application/CLI export
-(7.3) are implemented locally. Desktop, manual smoke, and native smoke retain
+(7.3) are published in c6cf627 and verified locally and in hosted CI. Desktop,
+manual smoke, and native smoke retain
 silence. `export-wav` explicitly generates a sine signal without initializing
 an audio service, opening a device, or modifying a project.
 
 The [realtime contract](realtime-contract.md) defines the engine/service boundary.
 The [roadmap](roadmap.md), [execution plan](../progress/plan-etapas-7-13.md), and
 [export report](../progress/etapa-7-exportacion.md) distinguish local evidence from
-hosted results. Stage 7 closure and hosted verification of these changes remain pending.
+hosted results. Stage 7 is closed with [acceptance and CI evidence](../progress/cierre-etapa-7.md)
+for the implementation SHA. Native playback/ramps remain stage 8 work.
 
 ## Ownership and responsibilities
 

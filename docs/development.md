@@ -156,3 +156,7 @@ command is device-free; hound 3.5.1 is pinned only there. Cargo.lock changes
 deliberately for this dependency; subsequent --locked checks must preserve the
 new hash. npm lockfile and generated bindings are unchanged. Local and remote
 evidence is separated in the [export report](../progress/etapa-7-exportacion.md).
+Stage 7 is closed: implementation c6cf627 passed both hosted jobs in
+[run 42419963899](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42419963899).
+The [closure audit](../progress/cierre-etapa-7.md) records that SHA's evidence;
+future changes require their own verification.

@@ -1,5 +1,10 @@
 # Etapa 7 — Exportación offline WAV (7.3)
 
+Reporte histórico del incremento local antes de publicarlo. La etapa completa
+se publicó en c6cf627 y se cerró tras CI correcta en Linux/Windows; ver
+[cierre vigente](cierre-etapa-7.md). Las notas de CI pendiente describen el
+momento de esta verificación y se conservan como evidencia fechada.
+
 Fecha: 2026-11-07. Implementación local de 7.3; pruebas/documentación de 7.4
 integradas en los comandos actuales. Cierre 7.5 y CI remota del nuevo estado
 pendientes. Se conserva el [reporte del motor](etapa-7-oscilador.md) como evidencia

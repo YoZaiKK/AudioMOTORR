@@ -31,9 +31,10 @@ Technical documentation:
 - [Ordered roadmap and milestone acceptance](docs/roadmap.md).
 - [Offline oscillator and WAV contract](docs/offline-oscillator.md).
 
-Stage 7 update (2026-11-07): baseline CI is confirmed green for `1ef9bd0`.
-The opt-in oscillator, bounded application render, and CLI float32 WAV export
-(7.2–7.3) are implemented/tested locally. See the
+Stage 7 is complete (2026-11-07): the opt-in oscillator, bounded application render,
+and CLI float32 WAV export are published in `c6cf627` and passed
+[Linux/Windows CI](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42419963899).
+See the [closure report](progress/cierre-etapa-7.md) and
 [Spanish execution plan](progress/plan-etapas-7-13.md). Stages 8–13 cover native signal/ramps, sampler,
 mixer, sequencer, persistence/beat export, and clips/scenes, in that order.
 Those later stages remain planned. Desktop and smoke commands retain silence;
@@ -402,13 +403,13 @@ The workflow is validated locally; inspect its
 for remote results. Local results are in the [stage 6 closure](progress/cierre-etapa-6.md)
 and [implementation log](progress/detalles.md).
 
-Stages 7.0–7.2 are implemented/verified to the scope recorded in the
-[increment report](progress/etapa-7-oscilador.md): hosted baseline CI passed and
-the opt-in engine oscillator has local behavior tests. Stage 7 remains open.
-Stage 7.3 now adds application offline coordination and CLI export, with local
-sample/metadata/error coverage in the [export report](progress/etapa-7-exportacion.md).
-Next is final stage 7 closure (7.5), including hosted verification of a published
-revision. The [plan](progress/plan-etapas-7-13.md) tracks outstanding evidence.
+Stage 7 is closed with local checks and hosted Linux/Windows success for the
+implementation commit `c6cf627`. The [closure report](progress/cierre-etapa-7.md)
+maps acceptance to code/tests and records the exact SHA, run, and job links.
+The [oscillator](progress/etapa-7-oscilador.md) and
+[export](progress/etapa-7-exportacion.md) reports preserve earlier local evidence.
+Next is stage 8: the same oscillator through CPAL, gain ramps, explicit desktop
+controls, and release measurements. See the [plan](progress/plan-etapas-7-13.md).
 
 Desktop and smoke output remain silent; export-wav writes signal offline.
 There are no native oscillator controls, sampler, sequencer, or project

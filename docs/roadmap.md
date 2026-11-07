@@ -1,10 +1,9 @@
 # Roadmap after the silence foundation
 
 Updated 2026-11-07. Stages 1–6 are the implemented silence foundation, published
-in baseline `1ef9bd0`, whose hosted CI passed. Stage 7 is in progress: engine
-oscillator (7.2), application rendering and WAV export (7.3) have local evidence.
-Checks/docs are integrated locally (7.4); closure and hosted verification of the
-new revision remain pending (7.5).
+in baseline `1ef9bd0`. Stage 7 is complete: engine oscillator, bounded application
+rendering and WAV export are published in c6cf627 and passed hosted Linux/Windows
+checks. See [stage 7 closure](../progress/cierre-etapa-7.md) for the exact evidence.
 Stages 8–13 are planned, not implemented features.
 Stages 7–13 preserve the order of the original seven follow-up milestones.
 The [Spanish execution plan](../progress/plan-etapas-7-13.md) and
@@ -32,7 +31,8 @@ the [export report](../progress/etapa-7-exportacion.md) covers the current incre
 
 7.0 is complete with both hosted jobs successful for `1ef9bd0`; 7.1 fixed the
 engine API and export policies; hound 3.5.1 was selected in 7.3. Signal/export are
-implemented locally with tests discovered by existing checks. 7.5 remains open.
+implemented with tests discovered by existing checks. 7.4/7.5 are closed after
+run 42419963899 succeeded for c6cf627.
 
 | Step | Work                                                                                     | Exit criterion                                                                                                                                                 |
 | ---- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -43,9 +43,10 @@ implemented locally with tests discovered by existing checks. 7.5 remains open.
 | 7.4  | Integrate tests/fixtures/checks/CI and update runnable documentation.                    | Keep nine silence scenarios, add offline signal/export coverage, run headless/full checks and Windows debug build, and record hosted results separately.       |
 | 7.5  | Record evidence and close stage 7.                                                       | All deliverables/criteria are met, limitations are explicit, and the checklist reflects actual implementation.                                                 |
 
-Next is 7.5: record final stage evidence and confirm hosted results for the new
-published revision. export-wav now writes float32 sine output without hardware;
-desktop and smoke retain silence. Native audition remains stage 8 work.
+Next is stage 8: connect the same oscillator to CPAL, add gain ramps and explicit
+application/IPC/UI controls, then measure in release on identified hardware.
+Keep offline rendering as the reference. Desktop and smoke still retain silence
+until that stage explicitly enables signal playback.
 
 Recording, external MIDI, time stretching, VST/CLAP hosting, complex routing,
 latency compensation, and collaboration remain later work. These stages do not

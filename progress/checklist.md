@@ -3,10 +3,10 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-07): etapas 1–6 implementadas y verificadas localmente,
-publicadas en `1ef9bd0`. Etapa 7 en curso: motor y exportación WAV implementados
-localmente; cierre 7.5 y validación remota del nuevo estado pendientes.
-Etapas 8–13 planificadas. Ver [reporte de exportación](etapa-7-exportacion.md).
+Estado actual (2026-11-07): etapas 1–7 completadas. Etapa 7 implementada y
+publicada en `c6cf627`, con CI Ubuntu/Windows correcta para ese SHA.
+Ver [cierre y evidencia](cierre-etapa-7.md). Etapa 8 es la siguiente; 8–13
+siguen planificadas. Se conservan los reportes históricos de cada incremento.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
 Registro actual: [continuidad tras etapa 6](continuidad-etapa-6.md).
 Git identifica las revisiones publicadas; consultar [Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
@@ -99,8 +99,8 @@ y continuidad en release con señal. La señal nativa se aborda en etapa 8.
 
 ## Etapa 7 — Oscilador offline y exportación WAV
 
-Estado: en curso; oscilador, render acotado y exportación implementados localmente.
-Detalle y cierre en [plan](plan-etapas-7-13.md) y [reporte](etapa-7-exportacion.md).
+Estado: completada el 2026-11-07; implementación c6cf627, CI remota correcta.
+Detalle en [plan](plan-etapas-7-13.md) y [cierre](cierre-etapa-7.md).
 
 - [x] 7.0: inspeccionar jobs de CI de 1ef9bd0; ambos success, evidencia en reporte.
 - [x] 7.1: concretar API/políticas; hound 3.5.1 elegido y fijado en CLI durante 7.3.
@@ -109,8 +109,8 @@ Detalle y cierre en [plan](plan-etapas-7-13.md) y [reporte](etapa-7-exportacion.
 - [x] 7.3: coordinar render acotado en daw-app y WAV float32 en CLI, sin hardware.
 - [x] Cubrir duración exacta/cero, metadatos, muestras, destino existente y errores de I/O.
 - [x] 7.4 local: cobertura WAV descubierta por check/CI, documentación real y checks/build correctos.
-- [ ] Confirmar CI remota de la revisión nueva; el éxito de la base no cubre cambios sin publicar.
-- [ ] 7.5: registrar evidencia local/remota y cerrar la etapa según aceptación.
+- [x] Confirmar CI remota de c6cf627: run 42419963899, ambos jobs success.
+- [x] 7.5: registrar evidencia local/remota y cerrar la etapa según aceptación.
 
 ## Etapa 8 — Oscilador nativo, rampas y mediciones
 

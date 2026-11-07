@@ -1,17 +1,18 @@
 # Continuidad tras etapa 6
 
-Actualizado el 2026-11-07. Base publicada y conservada: `1ef9bd0`. El plan actual
-es [etapas 7–13](plan-etapas-7-13.md); etapa 7 en curso, con oscilador de motor
-7.2–7.3 implementados localmente y cierre 7.5 pendiente. El cierre de etapas 1–6
-permanece vigente. Ver [evidencia WAV](etapa-7-exportacion.md).
+Actualizado el 2026-11-07. Etapas 1–7 completadas. Implementación actual publicada:
+`c6cf627`, con núcleo Ubuntu y desktop Windows correctos en CI. El plan actual es
+[etapas 7–13](plan-etapas-7-13.md), con etapa 8 como siguiente trabajo.
+Ver [cierre de etapa 7](cierre-etapa-7.md); las referencias a entregas anteriores
+se conservan como historial, no como trabajo pendiente de publicación.
 
 La etapa 6 añade documentación técnica y CI sin cambiar el producto. Consultar
 [cierre y auditoría](cierre-etapa-6.md), [checklist](checklist.md) y [detalles](detalles.md).
 El historial de [etapa 4](retomar-etapa-4.md) y el
 [reporte de etapa 5](../howToRunThis/resultados.md) se conservan.
 
-Esta entrega integra las etapas 4–6 sobre el commit de etapa 3, 69467ef.
-El usuario solicitó revisar toda la documentación y hacer commit/push del estado
+El registro histórico anterior integró las etapas 4–6 sobre el commit de etapa 3,
+69467ef. El usuario solicitó revisar la documentación y hacer commit/push del estado
 completo el 2026-11-06. El historial de Git identifica el commit de esta entrega;
 usar git status y git log para comprobar cambios posteriores y sincronización.
 Los [resultados de Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
@@ -21,11 +22,10 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-7.0 ya confirma ambos jobs remotos correctos de 1ef9bd0. 7.1/7.2 definen e
-implementan el constructor with_sine y sus pruebas, manteniendo silencio por
-defecto en servicio/UI/smoke. 7.3 añade render offline y export-wav; queda revisar
-el conjunto, registrar cierre y comprobar CI de la revisión nueva. No atribuir
-a estos cambios locales el éxito remoto de la base.
+Etapa 8: conectar el mismo oscilador a CPAL con selección explícita mediante
+aplicación/IPC/UI; diseñar/probar rampas y medir en release con hardware identificado.
+Conservar el render offline para comparación y el modo silencio disponible.
+La etapa 7 ya tiene evidencia del SHA nuevo, no solo de la base 1ef9bd0.
 
 En 7.3, daw-app coordina render offline con buffers acotados y daw-cli escribe
 WAV float32 fuera del render con hound 3.5.1. El render_manual existente solo devuelve un reporte,

@@ -99,6 +99,12 @@ deliberado hound 3.5.1 en CLI; no se compara su nuevo hash con el antiguo para
 afirmar que no cambió. Tras fijar dependencias, los checks locked deben mantenerlo.
 Ver [reporte WAV](../progress/etapa-7-exportacion.md).
 
+Etapa 7 cerrada: el commit c6cf627 pasó ambos jobs en
+[run 42419963899](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42419963899).
+La [auditoría de cierre](../progress/cierre-etapa-7.md) registra el SHA exacto y
+las verificaciones locales. Los reportes previos conservan el estado observado
+al realizar cada incremento; su CI pendiente no describe el cierre actual.
+
 ## Automatización de etapa 6
 
 El [workflow](../.github/workflows/ci.yml) comprueba el núcleo en Ubuntu 24.04 y

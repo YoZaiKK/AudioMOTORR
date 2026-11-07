@@ -48,7 +48,8 @@ consultar los [resultados de Actions](https://github.com/YoZaiKK/AudioMOTORR/act
 de la revisión publicada.
 
 Plan del siguiente desarrollo (2026-11-07): [etapas 7–13](../progress/plan-etapas-7-13.md).
-El oscilador 7.2 y la exportación CLI 7.3 ya están implementados localmente.
+La etapa 7 está cerrada: oscilador y exportación CLI publicados en c6cf627,
+con CI Linux/Windows correcta. Ver [cierre](../progress/cierre-etapa-7.md).
 Desktop y smoke conservan silencio; export-wav escribe señal a archivo. La
 [evidencia del incremento](../progress/etapa-7-oscilador.md) confirma la base CI
 en Ubuntu headless y Windows desktop, sin validar Linux nativo/macOS.
