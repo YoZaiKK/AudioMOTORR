@@ -2,7 +2,9 @@ use daw_app::Application;
 use daw_engine::EngineConfig;
 use std::{error::Error, process::ExitCode};
 
-const HELP: &str = "Usage: daw-cli smoke [--frames N | --seconds N] [--block-size 1..4096]\n       daw-cli devices\n       daw-cli live-smoke [--seconds 1..60] [--device ID]\nNative commands require --features native-audio. Smoke uses 48000 Hz stereo.";
+mod export;
+
+const HELP: &str = "Usage: daw-cli smoke [--frames N | --seconds N] [--block-size 1..4096]\n       daw-cli export-wav --output PATH --frames N [--block-size 1..4096] [--sample-rate HZ] [--channels 1|2] [--frequency HZ] [--amplitude 0..1]\n       daw-cli devices\n       daw-cli live-smoke [--seconds 1..60] [--device ID]\nExport defaults: 48000 Hz, stereo, 440 Hz sine, peak amplitude 0.1, block 256, float32 WAV; never overwrites.\nNative commands require --features native-audio. Smoke uses 48000 Hz stereo.";
 
 fn main() -> ExitCode {
     match run(std::env::args().skip(1).collect()) {
@@ -22,6 +24,9 @@ fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
     if command == "--help" || command == "-h" {
         println!("{HELP}");
         return Ok(());
+    }
+    if command == "export-wav" {
+        return export::run(&args[1..]);
     }
     let mut frames = None;
     let mut seconds = None;

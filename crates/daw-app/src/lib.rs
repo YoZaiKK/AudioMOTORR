@@ -1,5 +1,7 @@
 //! Application use cases shared by desktop and CLI, independent of Tauri.
 
+pub mod offline;
+
 pub use daw_audio::{
     AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, OutputDevice, RenderReport,
     Result, ServiceSnapshot,

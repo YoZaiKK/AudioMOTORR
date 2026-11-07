@@ -27,4 +27,7 @@ workspaces Cargo anidados ni cambiar el gestor npm.
 
 La [guía técnica de desarrollo](../docs/development.md) distingue build desktop,
 mock runtime y hardware, y documenta la secuencia de CI. Windows tiene evidencia
-local; Linux/macOS siguen como plataformas previstas sin compilación local comprobada.
+local. La base 1ef9bd0 pasó también Ubuntu headless y Windows desktop en
+[Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42314334447).
+Linux nativo/macOS siguen sin comprobación; los cambios locales posteriores
+requieren su propia verificación.

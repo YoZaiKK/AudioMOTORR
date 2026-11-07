@@ -29,6 +29,17 @@ Technical documentation:
 - [ADR 0001: core and desktop boundaries](docs/adr/0001-core-and-desktop-boundaries.md).
 - [Development, platform evidence, and CI](docs/development.md).
 - [Ordered roadmap and milestone acceptance](docs/roadmap.md).
+- [Offline oscillator and WAV contract](docs/offline-oscillator.md).
+
+Stage 7 update (2026-11-07): baseline CI is confirmed green for `1ef9bd0`.
+The opt-in oscillator, bounded application render, and CLI float32 WAV export
+(7.2–7.3) are implemented/tested locally. See the
+[Spanish execution plan](progress/plan-etapas-7-13.md). Stages 8–13 cover native signal/ramps, sampler,
+mixer, sequencer, persistence/beat export, and clips/scenes, in that order.
+Those later stages remain planned. Desktop and smoke commands retain silence;
+the explicit export-wav command writes a sine signal to disk without hardware.
+The [export report](progress/etapa-7-exportacion.md) records evidence and limits;
+the [oscillator report](progress/etapa-7-oscilador.md) preserves the prior increment.
 
 See the [Spanish practical guides](howToRunThis/README.md) for setup, feature
 walkthroughs, tests, troubleshooting, nine executable CLI scenarios, and seven
@@ -40,6 +51,9 @@ Implemented capabilities:
 
 - A minimal project document with a validated ID, title, and tempo.
 - Silence rendering into caller-owned, interleaved `f32` buffers.
+- Optional engine-library sine rendering with validated frequency/amplitude,
+  continuous phase across blocks, and defined Play/Pause/Stop behavior.
+- Bounded mono/stereo offline rendering and exact-frame float32 WAV export from CLI.
 - Play, Pause, Stop, and tempo changes between processing blocks.
 - Separate device-frame and transport-position counters.
 - Small, copyable engine snapshots and explicit configuration/render errors.
@@ -58,8 +72,8 @@ without an installer. Native CLI checks opened the Realtek WASAPI output at
 and reopened it by explicit device ID. These results are recorded in the
 implementation log. A real WebView2 UI smoke also confirmed initialization,
 transport, 137.5 BPM, shutdown/restart, and normal window exit. Its screenshot is
-saved locally at `target/desktop-stage4.png`. Linux and macOS are intended targets
-but have not been verified.
+saved locally at `target/desktop-stage4.png`. Hosted Ubuntu headless checks passed
+for baseline `1ef9bd0`; native Linux and all macOS builds remain unverified.
 
 Project tracking documents are currently maintained in Spanish:
 
@@ -209,6 +223,20 @@ the latest complete local checks are recorded in the implementation log.
 
 ## Audio CLI commands
 
+Export a low-amplitude 440 Hz sine to a new WAV file, without opening a device:
+
+```powershell
+cargo run -p daw-cli --no-default-features --locked -- export-wav --output target/tone.wav --frames 48001 --block-size 127
+```
+
+The parent directory must exist and the filename must be new. Defaults are
+48000 Hz, stereo, peak amplitude 0.1, and block size 256. Options also include
+`--sample-rate`, `--channels` (1 or 2), `--frequency`, and `--amplitude`.
+The command validates parameters/container limits before creation, preserves
+existing files, and reports success only after finalization. A later I/O failure
+can leave a partial new file. See the [contract](docs/offline-oscillator.md) and
+[Spanish CLI guide](howToRunThis/03-cli.md) for exact limits and examples.
+
 Render and verify silence offline, without a device or Tauri:
 
 ```powershell
@@ -282,13 +310,21 @@ selected device's default supported configuration.
 `AudioEngine::new(config, tempo)` starts stopped with both counters at zero.
 
 The caller provides a buffer to `render_interleaved`. Each frame contains one
-`f32` sample per channel in interleaved order. The engine overwrites every sample
+`f32` sample per channel in interleaved order. The default engine overwrites every sample
 with zero and accepts variable block sizes, including an empty buffer. It does
 not allocate memory, acquire locks, perform I/O, or log during rendering.
 
 Buffers must contain complete frames. A misaligned buffer or counter overflow
 returns `RenderError`, silences the entire buffer, and leaves the engine state
 unchanged. Counter increments use checked arithmetic.
+
+`AudioEngine::with_sine(config, tempo, frequency_hz, amplitude)` explicitly
+constructs a sine-rendering engine. Frequency must be finite, positive, and below
+half the sample rate; peak amplitude must be finite and within 0–1 inclusive.
+Invalid values return `OscillatorError`. Phase advances once per playing frame,
+is shared across channels, survives Pause, and resets on Stop. BPM does not retune
+the signal. See the [oscillator contract and API example](docs/offline-oscillator.md).
+The live service and smoke commands still use the silent constructor.
 
 ### Transport and snapshots
 
@@ -366,9 +402,14 @@ The workflow is validated locally; inspect its
 for remote results. Local results are in the [stage 6 closure](progress/cierre-etapa-6.md)
 and [implementation log](progress/detalles.md).
 
-The next concrete change is an offline oscillator inside `daw-engine`, retaining
-phase across blocks, followed by WAV output through an offline adapter. See the
-[roadmap](docs/roadmap.md); this milestone is not implemented in stage 6.
+Stages 7.0–7.2 are implemented/verified to the scope recorded in the
+[increment report](progress/etapa-7-oscilador.md): hosted baseline CI passed and
+the opt-in engine oscillator has local behavior tests. Stage 7 remains open.
+Stage 7.3 now adds application offline coordination and CLI export, with local
+sample/metadata/error coverage in the [export report](progress/etapa-7-exportacion.md).
+Next is final stage 7 closure (7.5), including hosted verification of a published
+revision. The [plan](progress/plan-etapas-7-13.md) tracks outstanding evidence.
 
-Output currently contains silence only. There is no synthesizer, sampler,
-sequencer, project persistence, or WAV export; an oscillator is a later milestone.
+Desktop and smoke output remain silent; export-wav writes signal offline.
+There are no native oscillator controls, sampler, sequencer, or project
+persistence yet. Native signal playback and gain ramps belong to stage 8.

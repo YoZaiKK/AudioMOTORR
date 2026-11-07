@@ -63,8 +63,41 @@ real. Ver [walkthrough](02-interfaz.md) para actualizar capturas explícitamente
 
 El reporte de etapa 5 está en [resultados](resultados.md); cuenta suites por
 separado, porque headless y workspace comparten pruebas. No sumar sus cantidades
-como si todas fueran pruebas distintas. Linux/macOS, desconexión física y medición
-de deadlines siguen fuera de la evidencia local.
+como si todas fueran pruebas distintas. Linux nativo/macOS, desconexión física y
+medición de deadlines siguen fuera de la evidencia. La base 1ef9bd0 ya tiene
+[CI headless Ubuntu y desktop Windows correcta](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42314334447).
+
+## Pruebas del oscilador de motor (7.2)
+
+```powershell
+cargo test -p daw-engine --no-default-features --locked --test oscillator_contract
+```
+
+Seis pruebas verifican señal contra referencia, validación, fase/transporte,
+particiones, errores y BPM independiente. El overflow unitario también protege
+fase. npm run check ya descubre estos tests sin cambiar el workflow. El
+[reporte actual](../progress/etapa-7-oscilador.md) separa CI de la base de las
+pruebas locales nuevas. Desktop y smoke continúan en silencio.
+
+## Pruebas de exportación WAV (7.3)
+
+```powershell
+cargo test -p daw-app --no-default-features --locked --test offline_contract
+cargo test -p daw-cli --no-default-features --locked --test export_contract
+cargo test -p daw-cli --no-default-features --locked --bin daw-cli
+```
+
+Comprueban samples exactos del motor, metadatos, mono/estéreo, frames cero y
+bloques parciales, memoria por bloques e independencia de la app viva. Además:
+destinos existentes y rutas inválidas, límites RIFF/byte rate y errores inyectados
+de header, muestras, seek/flush final con cierre del escritor. Los archivos se
+crean en directorios temporales exclusivos; no requieren hardware.
+
+check y ambos jobs CI ya ejecutan estas pruebas al seleccionar daw-app/daw-cli;
+los nueve escenarios Node siguen intactos. Cargo.lock incluye el cambio
+deliberado hound 3.5.1 en CLI; no se compara su nuevo hash con el antiguo para
+afirmar que no cambió. Tras fijar dependencias, los checks locked deben mantenerlo.
+Ver [reporte WAV](../progress/etapa-7-exportacion.md).
 
 ## Automatización de etapa 6
 

@@ -5,7 +5,7 @@ Status: accepted; records implemented decisions as of 2026-11-06.
 ## Context
 
 The initial target is a four-channel, 16-step groovebox that can later evolve
-into a clip-based DAW. The current engine produces silence. Its transport and
+into a clip-based DAW. At this ADR's baseline, the engine produces silence. Its transport and
 resource contracts must be verifiable without a window or audio device, while
 desktop must exercise the same application and engine.
 
@@ -26,6 +26,9 @@ These are concrete boundaries in the current implementation. No generic future
 graph, plugin interface, or placeholder instrument layer is introduced.
 
 ## Validation and limits
+
+The later [stage 7.2 oscillator](../offline-oscillator.md) adds an opt-in internal
+engine mode without changing these package, queue, or desktop decisions.
 
 Engine, service, application, CLI, React, and mock-runtime IPC tests cover these
 contracts. Windows native smoke evidence is dated in the

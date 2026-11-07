@@ -21,9 +21,10 @@ node howToRunThis/run-cli-cases.mjs
 npm run desktop:dev
 ```
 
-Inicializar audio abre una salida; Play inicia el transporte. **La salida contiene
-silencio**. No hay todavía instrumentos, secuenciador, guardar/abrir proyectos ni
-exportación WAV. No se espera escuchar un tono al pulsar Play.
+Inicializar audio abre una salida; Play inicia el transporte. **La salida desktop
+contiene silencio**. No hay instrumentos en la UI, secuenciador ni guardar/abrir
+proyectos. No se espera un tono al pulsar Play. La CLI sí permite exportar una
+senoide a WAV offline; ver [comando export-wav](03-cli.md).
 
 Los [casos JSON](test-files/cli-cases.json) son datos para el ejecutor de pruebas,
 no proyectos que la aplicación pueda importar. La [salida de referencia](test-files/expected-output.txt)
@@ -32,7 +33,8 @@ es ilustrativa; el ejecutor imprime los resultados reales de cada ejecución.
 Las siete capturas son de WebView2 real y un dispositivo real. Sus fechas y
 configuración están en [metadata.json](screenshots/metadata.json). Los contadores
 varían entre ejecuciones; las capturas no demuestran continuidad audible ni ausencia
-de dropouts. Las plataformas Linux/macOS siguen sin verificación local.
+de dropouts. Linux nativo/macOS siguen sin verificación; Ubuntu headless dispone
+de evidencia remota de la base publicada, indicada más abajo.
 
 Estado y evidencia de etapa 5: [registro de progreso](../progress/detalles.md).
 
@@ -44,3 +46,12 @@ los resultados locales, y [continuidad actual](../progress/continuidad-etapa-6.m
 para el relevo. Workflow validado localmente no significa CI remota satisfactoria;
 consultar los [resultados de Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
 de la revisión publicada.
+
+Plan del siguiente desarrollo (2026-11-07): [etapas 7–13](../progress/plan-etapas-7-13.md).
+El oscilador 7.2 y la exportación CLI 7.3 ya están implementados localmente.
+Desktop y smoke conservan silencio; export-wav escribe señal a archivo. La
+[evidencia del incremento](../progress/etapa-7-oscilador.md) confirma la base CI
+en Ubuntu headless y Windows desktop, sin validar Linux nativo/macOS.
+Esta guía describe las funciones implementadas; sus nueve fixtures Node siguen
+siendo de silencio y los tests Rust cubren WAV. Ver [reporte WAV](../progress/etapa-7-exportacion.md).
+La reproducción nativa de señal llegará en etapa 8.

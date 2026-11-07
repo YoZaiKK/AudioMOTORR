@@ -1,10 +1,14 @@
 //! Motor determinista sin dispositivo, IPC, asignaciones en render ni reloj externo.
 //!
 //! El documento editable permanece fuera del motor. El llamador aplica comandos
-//! entre bloques; el futuro adaptador de audio hará esto al comienzo del callback.
+//! entre bloques; el adaptador de audio hace esto al comienzo del callback.
 //! Las notas del futuro secuenciador necesitarán offsets dentro del bloque.
 
 use std::fmt;
+
+mod oscillator;
+pub use oscillator::OscillatorError;
+use oscillator::SineOscillator;
 
 pub use daw_domain::Tempo;
 
@@ -99,6 +103,7 @@ impl std::error::Error for RenderError {}
 
 pub struct AudioEngine {
     state: EngineSnapshot,
+    sine: Option<SineOscillator>,
 }
 
 impl AudioEngine {
@@ -111,7 +116,22 @@ impl AudioEngine {
                 device_frames: 0,
                 transport_frames: 0,
             },
+            sine: None,
         }
+    }
+
+    /// Selecciona explícitamente una senoide. El constructor new conserva silencio.
+    /// La frecuencia está en Hz y la amplitud es de pico normalizada (0..=1).
+    pub fn with_sine(
+        config: EngineConfig,
+        tempo: Tempo,
+        frequency_hz: f64,
+        amplitude: f64,
+    ) -> Result<Self, OscillatorError> {
+        let sine = SineOscillator::new(config.sample_rate(), frequency_hz, amplitude)?;
+        let mut engine = Self::new(config, tempo);
+        engine.sine = Some(sine);
+        Ok(engine)
     }
 
     /// Aplica inmediatamente, entre renders. No implica aceptación en una cola.
@@ -122,6 +142,9 @@ impl AudioEngine {
             EngineCommand::Stop => {
                 self.state.transport = TransportState::Stopped;
                 self.state.transport_frames = 0;
+                if let Some(sine) = &mut self.sine {
+                    sine.reset();
+                }
             }
             EngineCommand::SetTempo(tempo) => self.state.tempo = tempo,
         }
@@ -131,7 +154,8 @@ impl AudioEngine {
         self.state
     }
 
-    /// Escribe silencio intercalado: [frame0 canal0, frame0 canal1, ...].
+    /// Escribe audio intercalado: [frame0 canal0, frame0 canal1, ...].
+    /// Solo la senoide explícita produce señal mientras el transporte reproduce.
     /// Un buffer vacío es válido. Ante cualquier error silencia el buffer y
     /// conserva todo el estado. No asigna memoria, bloquea ni realiza I/O.
     pub fn render_interleaved(&mut self, output: &mut [f32]) -> Result<(), RenderError> {
@@ -155,6 +179,14 @@ impl AudioEngine {
         } else {
             self.state.transport_frames
         };
+        // Todos los errores se comprueban antes de avanzar también la fase.
+        if self.state.transport == TransportState::Playing
+            && let Some(sine) = &mut self.sine
+        {
+            for frame in output.chunks_exact_mut(channels) {
+                frame.fill(sine.next_sample());
+            }
+        }
         self.state.device_frames = device_frames;
         self.state.transport_frames = transport_frames;
         Ok(())
@@ -168,20 +200,30 @@ mod tests {
     #[test]
     fn overflow_silences_output_and_preserves_both_counters() {
         for (device_frames, transport_frames) in [(u64::MAX, 0), (0, u64::MAX)] {
-            let mut engine =
-                AudioEngine::new(EngineConfig::new(48_000, 2).unwrap(), Tempo::default());
-            engine.apply_command(EngineCommand::Play);
-            engine.state.device_frames = device_frames;
-            engine.state.transport_frames = transport_frames;
-            let before = engine.snapshot();
-            let mut output = [1.0; 2];
-            assert_eq!(
-                engine.render_interleaved(&mut output),
-                Err(RenderError::CounterOverflow)
-            );
-            assert_eq!(output, [0.0; 2]);
-            assert_eq!(engine.snapshot(), before);
-            assert_eq!(engine.render_interleaved(&mut []), Ok(()));
+            for signal in [false, true] {
+                let config = EngineConfig::new(48_000, 2).unwrap();
+                let mut engine = if signal {
+                    AudioEngine::with_sine(config, Tempo::default(), 440.0, 0.1).unwrap()
+                } else {
+                    AudioEngine::new(config, Tempo::default())
+                };
+                engine.apply_command(EngineCommand::Play);
+                engine.render_interleaved(&mut [0.0; 26]).unwrap();
+                engine.state.device_frames = device_frames;
+                engine.state.transport_frames = transport_frames;
+                let before = engine.snapshot();
+                let before_sine = engine.sine;
+                let mut output = [1.0; 2];
+                assert_eq!(
+                    engine.render_interleaved(&mut output),
+                    Err(RenderError::CounterOverflow)
+                );
+                assert_eq!(output, [0.0; 2]);
+                assert_eq!(engine.snapshot(), before);
+                assert_eq!(engine.sine, before_sine);
+                assert_eq!(engine.render_interleaved(&mut []), Ok(()));
+                assert_eq!(engine.sine, before_sine);
+            }
         }
     }
 }

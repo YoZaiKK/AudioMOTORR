@@ -12,6 +12,7 @@ native-audio = ["daw-app/native-audio"]
 [dependencies]
 daw-app.workspace = true
 daw-engine.workspace = true
+hound = "=3.5.1"
 
 [lints]
 workspace = true

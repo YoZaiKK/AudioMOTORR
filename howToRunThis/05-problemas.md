@@ -16,6 +16,12 @@
 | Bindings desactualizados                      | Revisar DTO Rust, regenerar explícitamente y comprobar el diff; no editar api.ts a mano.                                                                       |
 | Test de hardware aparece ignored              | Ejecutarlo explícitamente solo en un host con audio. La suite ordinaria no depende del dispositivo.                                                            |
 
+export-wav no sobrescribe archivos: si el destino existe, elegir otro nombre.
+Si falla después de crearlo puede quedar un WAV parcial; la ruta figura en el
+error. Revisarlo/quitarlo explícitamente antes de repetir. El padre debe existir.
+Un fallo de límite RIFF o byte rate se resuelve reduciendo frames/sample rate,
+no actualizando lockfiles ni abriendo un dispositivo.
+
 Los tests de integración Windows usan manifiesto Common Controls v6. Si reaparece
 STATUS_ENTRYPOINT_NOT_FOUND, revisar el build.rs y el manifiesto de los tests;
 no copiar DLL de sitios externos ni deshabilitar pruebas.

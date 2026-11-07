@@ -599,3 +599,93 @@ Verificación repetida antes del commit:
 - Hashes de ambos lockfiles y api.ts idénticos a los del cierre de etapa 6.
 - git fetch origin completado con autorización del entorno para escribir en .git;
   HEAD y origin/main coincidían antes de crear esta entrega. No se fuerza el push.
+
+## Planificación posterior — Etapas 7–13
+
+Fecha: 2026-11-07. Base: commit 1ef9bd0, publicado en main. Se modifica solo
+documentación; oscilador, WAV y cambios de UI/audio siguen sin implementar.
+
+- Nuevo progress/plan-etapas-7-13.md: etapas numeradas sin renumerar la base 1–6,
+  dependencias y aceptación; etapa 7 desglosada en 7.0–7.5.
+- Nuevo docs/offline-oscillator.md: contrato propuesto, separado del implementado.
+  Señal opt-in con fase continua, 440 Hz/0.1/48 kHz estéreo por defecto de export,
+  Pause conserva fase y Stop reinicia; silencio por defecto permanece intacto.
+- Exportación prevista: daw-app coordina un motor offline con memoria acotada;
+  CLI escribe WAV float32. No se confunde render_manual (reporte) con entrega de
+  muestras, ni se duplica DSP en un exportador.
+- Roadmap inglés actualizado con etapas 7–13 y criterios; checklist español
+  distingue planificación terminada de implementación pendiente. README, continuidad,
+  arquitectura, contrato actual, desarrollo y guía práctica enlazan el nuevo plan.
+- Secuencia: revisar CI de la base; contrato/API mínima; oscilador y pruebas;
+  coordinación/WAV; integración de checks/docs; cierre con evidencia. Después
+  nativo/rampas, sampler, mezcla, pasos, persistencia/export y clips/escenas.
+- La planificación no inspecciona ni afirma resultado remoto de Actions, no abre
+  hardware y no repite mediciones. Conserva reportes, hashes y capturas históricas.
+
+Siguiente paso: ejecutar 7.0 y, con la base confirmada, empezar 7.2 conforme al
+contrato de 7.1. No iniciar implementación musical durante esta petición de plan.
+
+Verificación de esta actualización documental:
+
+- npm run format:check: correcto tras formatear los documentos modificados.
+- Comprobador Node de enlaces: 130 destinos locales Markdown/imágenes existentes.
+- git diff --check: correcto; cambios limitados a documentación y seguimiento.
+- No se ejecutan suites de producto ni build nuevos por este cambio exclusivo
+  de Markdown. La evidencia de pruebas de la base permanece en los reportes fechados.
+
+## Etapa 7 — Base CI y oscilador offline (7.0–7.2)
+
+Fecha: 2026-11-07. [Reporte del incremento](etapa-7-oscilador.md).
+
+- Se consultó la API oficial de GitHub: run 42314334447, SHA completo 1ef9bd0,
+  conclusión success en ambos jobs (headless-linux y desktop-windows). La
+  ejecución fue del 2026-11-06; su inspección es posterior. No se atribuye ese
+  resultado a las modificaciones locales nuevas.
+- Implementado módulo interno oscillator.rs y constructor AudioEngine::with_sine
+  con errores tipados. Fase continua por frame, validación, Pause/Stop y BPM
+  independiente. El constructor original y todas las rutas app/CLI siguen en silencio.
+- Seis tests nuevos y ampliación del overflow con comprobación de fase. Tests
+  del motor y Clippy pasan; se conserva ausencia de dependencias externas en core.
+- Contratos, arquitectura, roadmap, README, guías, checklist y continuidad
+  actualizados para distinguir motor implementado y exportación pendiente.
+- Elección de biblioteca WAV diferida a 7.3; no se adelantan I/O, UI, DTO,
+  comandos CLI ni reproducción nativa. Etapa 7 no cerrada; siguiente trabajo 7.3.
+
+Verificación final: npm run check correcto, con 12 tests frontend, 31 Rust headless,
+35 Rust workspace y nueve escenarios CLI; Clippy sin warnings. Build desktop
+debug sin instalador correcto después del check. El reporte distingue suites
+solapadas, hardware ignorado y validaciones pendientes. Lockfiles y api.ts conservan
+sus hashes. Formato/enlaces documentales y git diff --check correctos. Se mantiene
+la evidencia histórica de etapas previas, incluidas capturas y hashes.
+
+## Etapa 7 — Exportación offline WAV (7.3)
+
+Fecha: 2026-11-07. [Reporte de exportación](etapa-7-exportacion.md).
+
+- Implementada API daw-app::offline::OfflineRender: motor propio, validación,
+  buffer reutilizado máximo 32 KiB y entrega a destino falible tras cada render.
+  No crea Application/servicio, no modifica el documento ni el transporte vivo.
+- Nuevo comando CLI export-wav con ruta/frames obligatorios y opciones para
+  sample rate, canales, frecuencia, amplitud y bloque. Mono/estéreo float32,
+  bloque final exacto y cero frames. La rama corre antes de Application::new.
+- hound 3.5.1 fijado solo en CLI, un paquete añadido a Cargo.lock con su checksum.
+  APIs/límites revisados contra documentación/código de la versión fijada.
+  Descarga autorizada tras fallo Schannel dentro del sandbox. El cambio de hash
+  de Cargo.lock es deliberado; package-lock y bindings no cambian.
+- Protección create_new, validación RIFF/byte rate previa, finalize explícito y
+  cierre del escritor con errores propagados. Un fallo tras crear archivo puede
+  dejarlo parcial; se informa ruta, sin sobrescribir/eliminar/reintentar.
+- Diez tests nuevos: cuatro de aplicación, cuatro CLI de round-trip/errores y dos
+  unitarios del adaptador de archivos. Comparan datos con el motor, inspeccionan
+  metadatos/bytes RIFF y fallos de escritura/seek/flush con cierre. Check y ambos
+  jobs descubren automáticamente estos tests; nueve escenarios Node conservados.
+- Contrato, arquitectura, README, guías y seguimiento actualizados con API/comando
+  reales y límites. Reporte 7.2 conservado como histórico. Sin cambios de UI,
+  servicio nativo, DTO, hardware o capturas. Etapa 7.5 y CI nueva pendientes.
+
+Verificación final: check correcto (12 frontend, 41 headless y 45 workspace,
+nueve escenarios CLI; suites Rust solapadas) y build desktop debug sin instalador
+correcto después del check. WAV de ejemplo de 48001 frames reabierto y contrastado
+independientemente con Node, metadatos/muestras correctos. Formato/enlaces y
+git diff --check correctos. Nuevo hash Cargo.lock fijado y estable durante las
+comprobaciones; package-lock/api.ts intactos. Valores y límites en el reporte.

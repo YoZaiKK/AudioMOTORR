@@ -3,15 +3,20 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-06): etapas 1–6 implementadas y verificadas localmente.
-Esta entrega integra las etapas 4–6 sobre la base de etapa 3 (`69467ef`).
+Estado actual (2026-11-07): etapas 1–6 implementadas y verificadas localmente,
+publicadas en `1ef9bd0`. Etapa 7 en curso: motor y exportación WAV implementados
+localmente; cierre 7.5 y validación remota del nuevo estado pendientes.
+Etapas 8–13 planificadas. Ver [reporte de exportación](etapa-7-exportacion.md).
+Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
 Registro actual: [continuidad tras etapa 6](continuidad-etapa-6.md).
 Git identifica las revisiones publicadas; consultar [Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
 para el resultado remoto. CI creada y validada localmente no implica CI remota satisfactoria.
 
-Estas son las seis etapas acordadas en el análisis. No equivalen a la numeración
-de las once secciones del documento original. Una casilla se marca únicamente
-cuando existe implementación o evidencia de la verificación indicada.
+Las etapas 1–6 corresponden al fundamento original; las 7–13 continúan con los
+siete hitos musicales en el orden acordado. No equivalen a las once secciones
+del documento original. Una casilla se marca únicamente cuando existe
+implementación o evidencia de la verificación indicada. Planificar no equivale
+a implementar ni cerrar una etapa.
 
 ## Etapa 1 — Preparar el proyecto
 
@@ -81,6 +86,64 @@ Estado: completada y verificada (2026-11-06), incluido smoke real de ventana y a
 - [x] Revisar los criterios finales contra el documento original.
 - [x] Ejecutar check completo y después build Windows; comprobar lockfiles/bindings intactos.
 
-Pendientes explícitos: confirmar resultados remotos de Actions, Linux/macOS,
+Base CI 1ef9bd0 confirmada: Ubuntu headless y Windows desktop correctos.
+Pendientes explícitos: CI de cambios nuevos, Linux nativo/macOS,
 desconexión física, otros formatos de hardware y mediciones de allocator/deadlines
-y continuidad en release con señal. No se implementa el siguiente hito aquí.
+y continuidad en release con señal. La señal nativa se aborda en etapa 8.
+
+## Plan posterior — definido el 2026-11-07
+
+- [x] Definir etapas 7–13, responsabilidades, dependencias y aceptación.
+- [x] Desglosar etapa 7 y fijar contrato propuesto de señal/transporte/WAV.
+- [x] Enlazar plan, roadmap, README y continuidad sin anunciar funciones inexistentes.
+
+## Etapa 7 — Oscilador offline y exportación WAV
+
+Estado: en curso; oscilador, render acotado y exportación implementados localmente.
+Detalle y cierre en [plan](plan-etapas-7-13.md) y [reporte](etapa-7-exportacion.md).
+
+- [x] 7.0: inspeccionar jobs de CI de 1ef9bd0; ambos success, evidencia en reporte.
+- [x] 7.1: concretar API/políticas; hound 3.5.1 elegido y fijado en CLI durante 7.3.
+- [x] 7.2: implementar oscilador opt-in en daw-engine con fase/transporte y pruebas.
+- [x] Conservar modo de silencio por defecto y verificar particiones 1/127/256/4096.
+- [x] 7.3: coordinar render acotado en daw-app y WAV float32 en CLI, sin hardware.
+- [x] Cubrir duración exacta/cero, metadatos, muestras, destino existente y errores de I/O.
+- [x] 7.4 local: cobertura WAV descubierta por check/CI, documentación real y checks/build correctos.
+- [ ] Confirmar CI remota de la revisión nueva; el éxito de la base no cubre cambios sin publicar.
+- [ ] 7.5: registrar evidencia local/remota y cerrar la etapa según aceptación.
+
+## Etapa 8 — Oscilador nativo, rampas y mediciones
+
+- [ ] Reutilizar oscilador por CPAL y exponer controles explícitos mediante aplicación/IPC/UI.
+- [ ] Probar rampas/transiciones y conservar lifecycle/errores.
+- [ ] Medir allocator, tiempos, carga y continuidad en release; registrar hardware y límites.
+
+## Etapa 9 — Sampler y voces
+
+- [ ] Implementar sampler con pool fijo y política de agotamiento definida.
+- [ ] Cargar/decodificar recursos fuera del callback y verificar propiedad/cierre.
+- [ ] Cerrar con fixtures deterministas y regresiones de tiempo real.
+
+## Etapa 10 — Mezclador de cuatro canales
+
+- [ ] Implementar gain/pan/mute y política de nivel de salida con pruebas.
+- [ ] Acumular medidores en motor y publicar telemetría acotada.
+- [ ] Integrar documento/aplicación/UI y validar cuatro canales con fixtures.
+
+## Etapa 11 — Secuenciador de 16 pasos
+
+- [ ] Modelar patrones y programar eventos a offsets dentro del bloque.
+- [ ] Definir redondeo/drift para tempos con frames fraccionales por paso.
+- [ ] Probar particiones, BPM y transporte sin duplicar/perder eventos de límite.
+
+## Etapa 12 — Persistencia y exportación de beat
+
+- [ ] Versionar documento y resolver migraciones/recursos relativos fuera del callback.
+- [ ] Implementar guardar/abrir y errores de versión, rutas y assets ausentes.
+- [ ] Verificar round-trip y exportación consistente de un beat completo.
+
+## Etapa 13 — Clips y escenas
+
+- [ ] Definir modelo, lanzamiento, cuantización y transición de clips/escenas.
+- [ ] Implementar coordinación y controles manteniendo documento/reproducción separados.
+- [ ] Probar cambios con distintos bloques/tempos antes de planificar timeline/piano roll/automatización.

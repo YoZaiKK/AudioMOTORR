@@ -1,9 +1,16 @@
 # Implemented architecture
 
-This describes the silence-only foundation completed on 2026-11-06. Future music
+This describes the foundation and local stage 7.2–7.3 offline extension as of
+2026-11-07. Desktop and smoke remain silent; export-wav writes signal. Future music
 features belong to the [roadmap](roadmap.md). The normative processing and queue
 rules are in the [realtime contract](realtime-contract.md); the rationale is in
 [ADR 0001](adr/0001-core-and-desktop-boundaries.md).
+
+The [offline oscillator contract](offline-oscillator.md) describes the optional
+sine module inside the engine, independent application offline coordination,
+and CLI WAV I/O. hound 3.5.1 is confined to CLI; neither the live service nor
+desktop enables the oscillator. The export branch runs before Application::new,
+so exporting creates no audio service thread.
 
 ## Package dependencies
 
@@ -16,6 +23,7 @@ flowchart TD
     Desktop --> App[daw-app: Application]
     CLI[daw-cli: smoke and native commands] --> App
     CLI --> Engine[daw-engine: rendering and transport]
+    CLI --> Hound[hound: WAV encoding and decoding]
     App --> Audio[daw-audio: service and backends]
     App --> Engine
     App --> Domain[daw-domain: editable Project and validated types]
@@ -39,6 +47,11 @@ registered commands; it does not implement another engine. A single virtual
 Cargo workspace, root lockfile, and target directory serve all six packages.
 
 ## Three distinct states
+
+Offline export uses `daw-app::offline::OfflineRender`, independent of the live
+Application/document. It constructs its own engine and bounded scratch buffer,
+renders complete blocks, then delivers samples to the CLI writer after render
+returns. File creation, encoding, seeking, and finalization stay in CLI.
 
 | State             | Owner                                       | Meaning                                                                                                        |
 | ----------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |

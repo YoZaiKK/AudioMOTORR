@@ -30,7 +30,38 @@ binario construido. Los datos son fixtures del ejecutor, no archivos musicales.
 La [salida esperada](test-files/expected-output.txt) sirve de ejemplo y no se usa
 como un reporte inventado de pruebas.
 
-## Salida nativa
+## Exportar una senoide a WAV sin hardware
+
+```powershell
+cargo run -p daw-cli --no-default-features --locked -- export-wav --output target/tono.wav --frames 48001 --block-size 127
+cargo run -p daw-cli --no-default-features --locked -- export-wav --output target/tono-mono.wav --frames 44100 --sample-rate 44100 --channels 1 --frequency 997.25 --amplitude 0.25
+```
+
+Usar nombres nuevos: el comando no sobrescribe archivos ni crea carpetas. La
+carpeta target existe después de compilar; si se elige otra ruta, preparar su
+directorio padre. No hay reproducción automática ni se abre un dispositivo.
+
+Se requieren --output y --frames. Defaults: 48000 Hz, dos canales, senoide de
+440 Hz, amplitud pico 0.1 y bloques de 256 frames. Opciones: --sample-rate,
+--channels (1 o 2), --frequency, --amplitude y --block-size (1–4096). No acepta
+--seconds. --frames 0 crea un WAV vacío válido; el bloque final puede ser parcial.
+
+Frecuencia finita, mayor que cero y menor que la mitad del sample rate; amplitud
+finita entre cero y uno. WAV es float32, no PCM entero. El número de frames y
+byte rate deben caber en sus campos RIFF; requests fuera de límite fallan antes
+de crear archivo. Ver [contrato y límites exactos](../docs/offline-oscillator.md).
+
+Esperar export-wav OK y exit code cero solo tras finalizar. Errores de creación,
+escritura o finalización dan código no cero. Un fallo posterior a crear el archivo
+puede dejar un resultado parcial en la ruta indicada; inspeccionarlo y quitarlo
+explícitamente antes de reutilizar el nombre. No se sobrescribe un destino existente.
+
+El motor produce las muestras, daw-app coordina bloques y la CLI escribe el WAV.
+El servicio de audio, transporte vivo y documento permanecen independientes.
+Los nueve fixtures JSON anteriores siguen probando solo smoke; la cobertura WAV
+está en tests Rust de CLI/aplicación, ejecutados también por check y CI.
+
+## Salida nativa (silencio)
 
 ```powershell
 cargo run -p daw-cli --features native-audio --locked -- devices

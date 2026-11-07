@@ -4,6 +4,12 @@ This is the principal contract for the implemented engine, audio service, and
 desktop observation boundary as of 2026-11-06. See [architecture](architecture.md)
 for package diagrams and [development](development.md) for verification scope.
 
+The [offline oscillator contract](offline-oscillator.md) describes the implemented
+stage 7.2 engine mode and stage 7.3 application/WAV export. The default service,
+desktop, and smoke paths retain silence. export-wav uses an independent engine
+and performs encoding/file I/O only after engine rendering returns, with no service
+initialization or native callback involvement.
+
 ## Ownership and data flow
 
 ```mermaid
@@ -32,8 +38,9 @@ serialization, application locks, and UI events stay outside the realtime proces
 The editable `Project` is independent of engine state. `Tempo` accepts finite
 20–300 BPM inclusive. Engine configuration accepts positive `u32` sample rates
 and positive `u16` channel counts; backends impose the tighter channel limit below.
-The caller owns interleaved `f32` output buffers. Rendering overwrites every
-sample with zero and permits variable-sized and empty buffers. Buffers must
+The caller owns interleaved `f32` output buffers. The default engine overwrites
+every sample with zero; `AudioEngine::with_sine` explicitly selects a sine signal
+while playing. Rendering permits variable-sized and empty buffers. Buffers must
 contain complete frames. Misalignment or checked counter overflow silences the
 whole buffer, returns `RenderError`, and leaves engine state unchanged.
 
@@ -41,8 +48,12 @@ Direct engine commands apply synchronously between render calls. Device frames
 advance on every valid rendered block; transport frames advance only while
 playing. Pause preserves position, Play resumes, and Stop resets transport
 position without resetting device frames. Tempo changes preserve both counters.
-There is no event scheduling or oscillator. At the service boundary, commands
-instead wait for the next callback, as specified below.
+The optional oscillator preserves phase across blocks and Pause, resets phase on
+Stop, and advances once per playing frame regardless of channel count. Stopped
+and paused output is silence. Invalid renders preserve phase as well as counters;
+empty buffers do not advance it. Frequency is independent of BPM. There is no
+event scheduling. At the service boundary, commands instead wait for the next
+callback, as specified below; service initialization still uses the silent constructor.
 
 ## Limits and overflow
 

@@ -98,8 +98,11 @@ Node is needed only for the fixture runner here; npm installation is unnecessary
 `cargo test --workspace` or workspace Clippy to claim dependency-free headless
 verification: desktop enables CPAL and requires native dependencies.
 
-No Linux or macOS build was run locally for this delivery. Linux CI targets
-Ubuntu 24.04 headless only; it installs no Tauri or CPAL system dependencies.
+No Linux or macOS build was run locally for this delivery. The hosted
+[baseline run](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42314334447)
+was inspected on 2026-11-07: both jobs passed for `1ef9bd0`. This verifies Ubuntu
+24.04 headless and Windows desktop checks for that revision only, not subsequent
+local changes. Linux CI installs no Tauri or CPAL system dependencies.
 Native Linux/macOS compilation, WebView integration, audio hosts, packaging, and
 device behavior remain unverified. Consult Tauri's official prerequisites when
 adding native coverage; no untested platform dependency recipe is claimed here.
@@ -134,3 +137,22 @@ Local closure commands and a criterion-by-criterion audit are recorded in
 [stage 6 closure](../progress/cierre-etapa-6.md). Real-time deadlines, allocator
 instrumentation, physical device removal, other hardware sample formats, and
 unverified platforms remain pending.
+
+## Stage 7 progress and next increment
+
+Stage 7.2 adds six offline oscillator behavior tests in
+`crates/daw-engine/tests/oscillator_contract.rs` plus overflow/phase regression
+coverage. Existing checks discover these tests automatically. The
+[execution plan](../progress/plan-etapas-7-13.md) and
+[contract](offline-oscillator.md) describe engine behavior and application/WAV
+export (7.3). New offline_contract and export_contract
+tests cover block reuse, live-state independence, exact reopened WAV samples,
+metadata, path/size errors, and injected writer failures. The nine silence cases
+remain regressions. WAV tests use exclusive temporary output directories.
+Native signal playback, ramps, and release deadline/allocation measurements
+belong to stage 8; no
+native oscillator control is available in desktop yet. The CLI export-wav
+command is device-free; hound 3.5.1 is pinned only there. Cargo.lock changes
+deliberately for this dependency; subsequent --locked checks must preserve the
+new hash. npm lockfile and generated bindings are unchanged. Local and remote
+evidence is separated in the [export report](../progress/etapa-7-exportacion.md).
