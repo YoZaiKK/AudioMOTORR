@@ -1,6 +1,7 @@
 # Implemented architecture
 
-This describes the foundation, offline export, and stage 8 extension as of
+This describes the foundation, offline export, native audition, and initial
+sampler PCM resources as of
 2026-11-08. Desktop defaults to silence and offers explicit native sine audition;
 ordinary smoke remains silent and export-wav writes signal. Future music
 features belong to the [roadmap](roadmap.md). The normative processing and queue
@@ -41,6 +42,13 @@ Tauri, or React. `daw-audio` owns scheduling and device lifetime, not project
 editing. Its manual backend drives the same realtime processor explicitly, with
 no timer and no audio device. CPAL is optional in audio, application, and CLI;
 desktop explicitly enables it. See the [platform/build matrix](development.md).
+
+Stage 9.1 adds engine-owned immutable SampleBuffer resources with bounded
+normalized PCM, metadata validation, and output compatibility checks. They are
+not connected to AudioEngine, the service, or desktop playback yet. Construction
+and destruction belong outside processing; the upcoming fixed bank will retain
+resources while voices hold only indices/cursors. See the
+[sampler contract](sampler-contract.md) for implemented APIs versus future voice policy.
 
 `daw-app::Application` owns the editable project and audio service and coordinates
 their use cases. The CLI uses this application for offline smoke and device/native

@@ -13,6 +13,19 @@ Necesita prerrequisitos desktop; las pruebas automáticas no abren audio real.
 
 ## Por capa
 
+La nueva base del sampler (9.1) se comprueba sin hardware ni archivos de audio:
+
+```powershell
+cargo test -p daw-engine --no-default-features --locked --test sample_resource_contract
+```
+
+Cuatro pruebas verifican recursos PCM mono/estéreo, bits y metadatos conservados,
+errores de entrada, límite por frames y compatibilidad de salida. Los fixtures
+son arrays/generadores en memoria; no son proyectos importables ni archivos que
+la interfaz pueda cargar. Aún no prueban voces o reproducción del sampler.
+Ver [reporte](../progress/etapa-9-sampler.md) y [contrato](../docs/sampler-contract.md).
+check y los jobs existentes descubren estas pruebas al seleccionar daw-engine.
+
 ```powershell
 npm run test:frontend
 npm run typecheck

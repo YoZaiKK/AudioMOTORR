@@ -175,3 +175,20 @@ package-lock.json remains unchanged. The [stage report](../progress/etapa-8.md)
 records local results, hardware identity, and publication/CI status separately.
 The implementation commit 1e6bca8 passed both hosted jobs in run 42524752652;
 the later documentation closure preserves that exact evidence without changing DSP.
+
+## Stage 9.1 resources
+
+Sample resource tests are discovered by existing headless/workspace checks:
+
+```powershell
+cargo test -p daw-engine --no-default-features --locked --test sample_resource_contract
+```
+
+Four tests cover exact PCM/metadata, invalid input, mono/stereo frame bounds,
+and output compatibility. The [contract](sampler-contract.md) contains reusable
+fixtures and future voice oracles; playback and decoding are not implemented.
+This increment changes no dependencies, lockfiles, DTOs, or UI. The
+[stage report](../progress/etapa-9-sampler.md) separates actual new checks from
+the prior implementation's hosted results. Stage 8 closure 80a2121 passed
+[run 42525499571](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42525499571);
+that result verifies the starting revision, not these later resource changes.

@@ -34,6 +34,7 @@ Technical documentation:
 - [Ordered roadmap and milestone acceptance](docs/roadmap.md).
 - [Offline oscillator and WAV contract](docs/offline-oscillator.md).
 - [Native audition, gain ramps, and measurement scope](docs/native-audition.md).
+- [Sampler PCM resources, ownership, voice policy, and fixtures](docs/sampler-contract.md).
 
 Stage 7 is complete (2026-11-07): the opt-in oscillator, bounded application render,
 and CLI float32 WAV export are published in `c6cf627` and passed
@@ -43,7 +44,11 @@ See the [closure report](progress/cierre-etapa-7.md) and
 mixer, sequencer, persistence/beat export, and clips/scenes, in that order.
 Stage 8 is complete and published in `1e6bca8`, with
 [Linux/Windows CI success](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
-Stages 9–13 remain planned. Desktop defaults to
+Stage 9.1 adds validated immutable PCM resources and sampler fixtures in the
+engine; [the contract](docs/sampler-contract.md) fixes the upcoming voice policy.
+Sampler playback/loading/UI remain unimplemented, and stages 10–13 remain planned.
+See the [stage 9 report](progress/etapa-9-sampler.md) for current evidence.
+Desktop defaults to
 silence and offers an explicit sine source, frequency, and volume control.
 Ordinary smoke commands retain silence; export-wav writes a sine to disk without hardware.
 The [export report](progress/etapa-7-exportacion.md) records evidence and limits;
@@ -65,6 +70,8 @@ Implemented capabilities:
 - Play, Pause, Stop, and tempo changes between processing blocks.
 - Separate device-frame and transport-position counters.
 - Small, copyable engine snapshots and explicit configuration/render errors.
+- Validated immutable mono/stereo PCM resources for the upcoming sampler, with
+  frame limits and explicit output compatibility checks.
 - A bounded control thread, realtime SPSC queues, and accepted/applied command IDs.
 - Device enumeration, supported output configurations, and explicit device selection.
 - Audio initialization, shutdown, failure reporting, and restart.
@@ -281,10 +288,10 @@ return `NativeAudioDisabled` instead of simulating a device.
 | `src/`               | React panels, domain hooks, central IPC client, and generated API types.      |
 | `src-tauri/`         | Tauri composition, IPC DTOs/commands, ACLs, and snapshot publisher.           |
 | `crates/daw-domain/` | Minimal project document, IDs, and validated tempo.                           |
-| `crates/daw-engine/` | Deterministic silence rendering, transport, and snapshots.                    |
+| `crates/daw-engine/` | Silence/sine rendering, gain ramps, transport, snapshots, and immutable PCM.  |
 | `crates/daw-audio/`  | Audio service, bounded queues, manual rendering, optional CPAL backend.       |
 | `crates/daw-app/`    | Project coordination and audio/transport use cases shared by desktop and CLI. |
-| `crates/daw-cli/`    | Offline smoke, output enumeration, and native smoke commands.                 |
+| `crates/daw-cli/`    | Offline smoke, WAV export, device/native checks, and release diagnostics.     |
 | `docs/`              | Architecture, realtime contract, ADR, development/CI, and roadmap.            |
 | `scripts/`           | Windows diagnostics and verification orchestration.                           |
 | `progress/`          | Requirements, implementation checklist, and verification log.                 |
@@ -431,6 +438,8 @@ cargo run -p daw-cli --release --features rt-diagnostics --locked -- engine-benc
 The sine smoke writes target/desktop-stage8.png and preserves the seven historical
 screenshots. Release diagnostics are opt-in and excluded from default desktop
 builds; hardware checks never run in CI. See the [contract](docs/native-audition.md)
-for measurement scope and the [plan](progress/plan-etapas-7-13.md) for stage 9:
-sampler resources prepared outside the callback and a fixed voice pool.
-Sampler, sequencer, and project persistence are not implemented yet.
+for measurement scope and the [plan](progress/plan-etapas-7-13.md) for stage 9.
+Stage 9.1 implements immutable SampleBuffer resources and validation. Next is
+9.2: the fixed bank and voice kernel, using exact fixtures before adding loading
+or native controls. Sampler playback, sequencer, and project persistence are not
+implemented yet.

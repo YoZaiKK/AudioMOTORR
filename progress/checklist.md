@@ -7,7 +7,9 @@ Estado actual (2026-11-08): etapas 1–8 completadas; etapa 8 publicada en 1e6bc
 con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
 Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
 publicada en c6cf627 con CI Ubuntu/Windows correcta; [cierre](cierre-etapa-7.md).
-Las etapas 9–13 siguen planificadas. Se conservan los reportes históricos.
+Etapa 9 en curso: 9.1 implementa recursos PCM/validación y fija contrato/fixtures;
+reproducción de samples aún pendiente. Ver [reporte actual](etapa-9-sampler.md).
+Las etapas 10–13 siguen planificadas. Se conservan los reportes históricos.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
 Registro actual: [continuidad tras etapa 6](continuidad-etapa-6.md).
 Git identifica las revisiones publicadas; consultar [Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
@@ -127,6 +129,11 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 
 ## Etapa 9 — Sampler y voces
 
+- [x] 9.1: fijar formato, límites, propiedad y política de 16 voces/agotamiento.
+- [x] Implementar SampleBuffer inmutable, validación y compatibilidad de salida.
+- [x] Añadir fixtures en memoria y cuatro pruebas de recursos (sin reproducción).
+- [x] Registrar check completo, build Windows, formato/enlaces y hashes de 9.1.
+- [ ] 9.2: implementar banco fijo y kernel de voces con oráculos de muestras/particiones.
 - [ ] Implementar sampler con pool fijo y política de agotamiento definida.
 - [ ] Cargar/decodificar recursos fuera del callback y verificar propiedad/cierre.
 - [ ] Cerrar con fixtures deterministas y regresiones de tiempo real.

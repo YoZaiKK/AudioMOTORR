@@ -61,3 +61,9 @@ Etapa 8 completada: reproducción nativa, rampas y mediciones release publicadas
 1e6bca8, con CI Linux/Windows correcta para ese SHA en run 42524752652.
 Ver [reporte actual](../progress/etapa-8.md) y
 [contrato técnico](../docs/native-audition.md), con estado de CI y límites explícitos.
+
+Etapa 9 iniciada: 9.1 añade recursos PCM inmutables validados y fixtures en memoria.
+Todavía no hay reproducción de samples ni carga de archivos en la app. Ver
+[contrato del sampler](../docs/sampler-contract.md) y
+[progreso actual](../progress/etapa-9-sampler.md). El siguiente incremento es 9.2,
+banco fijo y pool de voces dentro del motor.

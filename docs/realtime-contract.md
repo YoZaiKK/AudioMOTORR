@@ -61,6 +61,12 @@ immediate offline oscillator/export semantics above remain unchanged.
 
 ## Limits and overflow
 
+Stage 9.1 prepares immutable PCM resources outside processing; it adds no sampler
+command, queue payload, callback work, or desktop DTO. The
+[sampler contract](sampler-contract.md) defines implemented resource validation
+and the future fixed-bank/voice/reclamation/outcome requirements. Sine timing and
+allocation measurements do not establish sampler callback behavior.
+
 | Boundary                             | Capacity / policy                                                           |
 | ------------------------------------ | --------------------------------------------------------------------------- |
 | External control requests            | 32 queued requests; nonblocking submission returns `Busy` when full.        |

@@ -3,7 +3,10 @@
 Actualizado el 2026-11-08. Etapas 1–8 completadas; etapa 8 publicada en 1e6bca8:
 senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release. Ambos
 jobs de CI correctos en run 42524752652, inspeccionado para ese SHA exacto.
-El [reporte actual](etapa-8.md) registra verificación y publicación/CI del incremento.
+El [reporte de etapa 8](etapa-8.md) registra su verificación y publicación/CI.
+Estado actual: etapa 9 en curso; 9.1 añade SampleBuffer validado y fixtures,
+sin reproducción del sampler. Ver [reporte actual](etapa-9-sampler.md).
+La base 80a2121 pasó run 42525499571; no confundir esa evidencia con el código nuevo.
 Base publicada 818e84b; implementación de etapa 7 c6cf627 con CI Ubuntu/Windows
 correcta. El plan actual es [etapas 7–13](plan-etapas-7-13.md).
 Las referencias anteriores se conservan como historial fechado.
@@ -24,10 +27,12 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Comenzar 9.1 tras el cierre local/remoto de etapa 8 registrado en el reporte:
-contrato del sampler y fixtures en memoria. Fijar formato/rate/canales, propiedad
-inmutable, pool fijo y política de agotamiento antes de escribir reproducción
-en daw-engine. Preparar/decodificar recursos fuera del callback en otro incremento.
+Continuar 9.2: banco fijo y kernel de 16 voces dentro de daw-engine, usando el
+recurso inmutable y fixtures de 9.1. El contrato fija 16 slots, primera voz libre,
+rechazo del nuevo disparo al agotarse y conservación de PCM hasta cerrar sesión.
+Probar oráculos exactos, canales, superposición, reuse, vida útil y particiones;
+no cargar/decodificar ni integrar UI todavía. Ver el
+[contrato del sampler](../docs/sampler-contract.md) para límites y políticas.
 
 En 7.3, daw-app coordina render offline con buffers acotados y daw-cli escribe
 WAV float32 fuera del render con hound 3.5.1. El render_manual existente solo devuelve un reporte,

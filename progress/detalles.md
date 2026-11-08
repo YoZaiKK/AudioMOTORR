@@ -1,5 +1,17 @@
 # Detalles de implementación
 
+## Estado actual — Etapa 9.1, 2026-11-08
+
+Se inicia sampler con SampleBuffer inmutable dentro de daw-engine: PCM f32
+normalizado, mono/estéreo, límite por frames y comprobación de rate/mapeo de salida.
+Se añaden fixtures en memoria, cuatro tests y un contrato que fija banco/pool
+de 16, rechazo del nuevo disparo al agotarse y propiedad de recursos.
+No se añade reproducción, decodificador, UI/IPC ni dependencias. Ver
+[reporte de etapa 9](etapa-9-sampler.md) y [contrato](../docs/sampler-contract.md).
+El siguiente cambio es 9.2: banco fijo y kernel de voces con oráculos exactos.
+
+La sección de etapa 8 siguiente conserva su estado al cierre, anterior a 9.1.
+
 ## Estado actual — Etapa 8, 2026-11-08
 
 Etapa 8 cerrada y publicada en 1e6bca8, con headless-linux y desktop-windows

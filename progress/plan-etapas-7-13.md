@@ -8,6 +8,11 @@ para comprobaciones y estado de publicación/CI. Desktop conserva silencio inici
 y permite seleccionar senoide; los smoke ordinarios siguen en silencio.
 Los reportes de motor/WAV conservan sus resultados previos a la publicación.
 
+Etapa 9 en curso: 9.1 fija el [contrato del sampler](../docs/sampler-contract.md)
+y añade SampleBuffer/fixtures validados; 9.1 completada localmente con check y
+build correctos, todavía sin reproducir samples. El
+[reporte actual](etapa-9-sampler.md) registra comprobaciones y límites.
+
 El [checklist](checklist.md) registra el estado; el [roadmap técnico](../docs/roadmap.md)
 define los hitos y el [contrato](../docs/offline-oscillator.md) concreta
 la etapa 7. Las etapas 7–13 corresponden, en el mismo orden, a los siete hitos
@@ -15,15 +20,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                            |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | --------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta. |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta. |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Pendiente.                        |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                        |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                        |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                        |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                        |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                 |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | -------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.      |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.      |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: 9.1 recursos; 9.2 siguiente. |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                             |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                             |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                             |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                             |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -148,12 +153,32 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Etapa 8 cerrada; comenzar **9.1: contrato del sampler
-y fixtures en memoria**. Definir formato/rate/canales, propiedad inmutable,
-capacidad fija de voces, trigger/stop y política de agotamiento. Después implementar
-reproducción determinista en daw-engine; preparar/cargar/decodificar recursos fuera
-del callback mediante daw-app en otro incremento de etapa 9. No anticipar mezclador
-ni secuenciador.
+Continuar con **9.2: banco fijo y kernel de 16 voces** dentro de daw-engine,
+usando SampleBuffer y los fixtures de 9.1. Verificar salida exacta, canales,
+superposición, rechazo del disparo nuevo al agotar voces, reutilización, vida útil
+y particiones 1/127/256/4096. Después preparar recursos fuera del callback y
+conectar aplicación/servicio/UI. No anticipar mezclador ni secuenciador.
+
+## Etapa 9 — Desglose y aceptación
+
+- **9.1, contrato y recursos:** PCM f32 finito normalizado, mono/estéreo,
+  máximo 1048576 frames/recurso y rate igual al de salida. SampleBuffer posee
+  memoria inmutable; preparación/destrucción fuera del procesamiento. Fixtures
+  y cuatro tests de validación/compatibilidad implementados. Política fijada:
+  banco de 16 slots y 16 voces, elegir la primera libre y rechazar el nuevo
+  disparo al agotar el pool. La reproducción todavía no existe.
+- **9.2, motor:** implementar banco/kernel de one-shots, suma determinista,
+  fin exacto, reuse/agotamiento y oráculos del contrato. Verificar muestras y
+  estado entre particiones sin asignar ni liberar recursos en procesamiento.
+- **9.3, preparación:** carga/decodificación y presupuesto de memoria en
+  aplicación fuera del callback; errores de archivo/formato/rate/canales/longitud
+  y cierre seguro. No confundir el recurso PCM con un loader ya implementado.
+- **9.4, integración:** modo sampler con headroom 1/16 y transporte/rampas,
+  comandos y outcomes Copy, controles explícitos e IPC/frontend con mock.
+  Aceptar en cola no confirma disponibilidad de voces ni disparo exitoso.
+- **9.5, cierre:** check/build, mediciones del sampler nativo con allocator y
+  deallocaciones, tiempos/carga/continuidad y CI del SHA nuevo. La evidencia de
+  senoide en etapa 8 no valida el futuro sampler.
 
 ## Etapa 8 — Desglose ejecutado
 
