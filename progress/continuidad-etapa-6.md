@@ -4,12 +4,12 @@ Actualizado el 2026-11-08. Etapas 1–8 completadas; etapa 8 publicada en 1e6bca
 senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release. Ambos
 jobs de CI correctos en run 42524752652, inspeccionado para ese SHA exacto.
 El [reporte de etapa 8](etapa-8.md) registra su verificación y publicación/CI.
-Estado actual: etapa 9 en curso; 9.2 añade banco fijo y 16 voces raw en motor,
-sin carga de archivos, AudioEngine/servicio o UI de sampler todavía.
-Ver [reporte actual](etapa-9-voces.md). Base 5da0920 (9.1) con ambos jobs correctos
-en run 42528127881; no confundir esa evidencia con el código nuevo.
-Base publicada 818e84b; implementación de etapa 7 c6cf627 con CI Ubuntu/Windows
-correcta. El plan actual es [etapas 7–13](plan-etapas-7-13.md).
+Estado actual: incrementos 9.1–9.2 completados; kernel 9.2 publicado en 7acc1db
+con ambos jobs CI correctos en run 42530699397. Hay banco fijo y 16 voces raw en
+motor, sin carga de archivos, AudioEngine/servicio o UI de sampler todavía.
+Ver [reporte actual](etapa-9-voces.md) para SHA completo, enlaces de jobs y pruebas
+locales. La etapa 9 completa sigue abierta y 9.3 es el siguiente incremento.
+El plan actual es [etapas 7–13](plan-etapas-7-13.md).
 Las referencias anteriores se conservan como historial fechado.
 
 La etapa 6 añade documentación técnica y CI sin cambiar el producto. Consultar

@@ -2,6 +2,13 @@
 
 ## Estado actual — Etapa 9.2, 2026-11-08
 
+Implementación publicada en 7acc1db88915e5fe1b0c17db4837fc3b197d35ad; ambos jobs
+correctos en [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397),
+inspeccionado el 2026-11-08 a las 22:40:03 UTC. El reporte registra enlaces de
+jobs, 59 tests headless/64 workspace/15 audio instrumentados/13 frontend y nueve
+escenarios CLI, build Windows y focales release. La actualización de cierre
+documental posterior no cambia código, lockfiles, bindings ni capturas.
+
 Banco inmutable de 16 slots y kernel de 16 voces implementados en daw-engine.
 Reproduce PCM one-shot mono/estéreo, suma f32 por índice de voz, rechaza el nuevo
 disparo al agotarse y conserva recursos al terminar/vaciar voces. Nueve pruebas
@@ -22,7 +29,7 @@ El siguiente cambio es 9.2: banco fijo y kernel de voces con oráculos exactos.
 
 La sección de etapa 8 siguiente conserva su estado al cierre, anterior a 9.1.
 
-## Estado actual — Etapa 8, 2026-11-08
+## Etapa 8, 2026-11-08 — Cierre histórico
 
 Etapa 8 cerrada y publicada en 1e6bca8, con headless-linux y desktop-windows
 correctos en run 42524752652 (SHA exacto inspeccionado el 2026-11-08).

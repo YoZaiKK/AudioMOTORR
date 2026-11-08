@@ -6,19 +6,19 @@ can later evolve into a clip-based DAW.
 
 ## Current status
 
-Stages 1–6 are implemented and verified locally: project setup, a deterministic silence-rendering
-engine, manual and native CPAL backends, a functional desktop UI connected through
-Tauri IPC, technical documentation, and a locally validated CI workflow.
-The UI opens audio only on an explicit click, controls transport and BPM, and
-displays observed engine state. Browser mode disables native operations.
-Stage 8 now adds explicit native sine audition and 5 ms gain/transport ramps,
-with optional release diagnostics. See the [stage 8 report](progress/etapa-8.md)
-for current local results and the separate publication/CI status.
+Stages 1–8 and increments 9.1–9.2 are complete. The engine library now includes
+immutable PCM resources, a fixed 16-slot bank, and 16 one-shot sampler voices.
+Stage 9 remains in progress: file loading is next (9.3), followed by native
+sampler transport/service/UI integration (9.4) and final verification (9.5).
 
-This snapshot includes the desktop integration, verification guides, technical
-documentation, and CI completed after the stage 3 baseline (`69467ef`). See the
-[implementation log](progress/detalles.md), [current handoff](progress/continuidad-etapa-6.md),
-and [stage 6 requirements audit](progress/cierre-etapa-6.md).
+Desktop opens audio on an explicit click, offers silence or a sine source with
+5 ms gain/transport ramps, controls BPM, and displays observed state. Browser
+mode disables native operations. Sampler playback currently belongs to the
+engine library; desktop has no sample-loading or sampler controls yet.
+
+See the [current kernel report](progress/etapa-9-voces.md),
+[implementation log](progress/detalles.md), [handoff](progress/continuidad-etapa-6.md),
+and dated [stage 6 requirements audit](progress/cierre-etapa-6.md).
 The progress documents are in Spanish; this README and technical docs remain in
 English. Git history identifies published revisions; the
 [Actions page](https://github.com/YoZaiKK/AudioMOTORR/actions) reports hosted checks.
@@ -44,10 +44,12 @@ See the [closure report](progress/cierre-etapa-7.md) and
 mixer, sequencer, persistence/beat export, and clips/scenes, in that order.
 Stage 8 is complete and published in `1e6bca8`, with
 [Linux/Windows CI success](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
-Stages 9.1–9.2 add immutable PCM resources and a fixed 16-voice raw sampler kernel
-in the engine. It renders exact mono/stereo one-shots without allocating or
-freeing resources during processing. See the [contract](docs/sampler-contract.md)
-and [kernel report](progress/etapa-9-voces.md). File loading, AudioEngine/service
+The sampler kernel is published in `7acc1db` and passed
+[Linux/Windows CI](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
+It renders exact mono/stereo one-shots; local debug/release tests measured zero
+allocations and deallocations during processing. See the
+[contract](docs/sampler-contract.md) and [kernel report](progress/etapa-9-voces.md).
+File loading, AudioEngine/service
 integration, and sampler UI remain future work; stages 10–13 remain planned.
 Desktop defaults to
 silence and offers an explicit sine source, frequency, and volume control.

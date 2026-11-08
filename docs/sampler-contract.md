@@ -8,6 +8,12 @@ and sine only. See the [roadmap](roadmap.md),
 [current kernel report](../progress/etapa-9-voces.md), [resource report](../progress/etapa-9-sampler.md), and
 [realtime contract](realtime-contract.md).
 
+Implementation revision 7acc1db passed both hosted jobs in
+[run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
+Local debug/release memory results and the exact SHA/job links are recorded in
+the kernel report. Native sampler deadlines/continuity remain unverified until
+integration exists; hosted tests open no hardware.
+
 ## Implemented resource representation
 
 `daw-engine::SampleBuffer::new(config, samples)` consumes a `Vec<f32>`, validates

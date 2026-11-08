@@ -8,8 +8,10 @@ Stage 8 is complete: native audition, ramps, and bounded release measurements ar
 published in 1e6bca8 and passed both hosted jobs in
 [run 42524752652](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
 The [stage report](../progress/etapa-8.md) records hardware evidence and limits.
-Stage 9 is in progress: 9.1 supplies immutable PCM resources/fixtures and 9.2
-implements the fixed bank/raw voice kernel, with memory-lifetime tests. Loading
+Stage 9 is in progress: 9.1–9.2 are complete and published; 9.2 implementation
+7acc1db passed both hosted jobs in
+[run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
+This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests. Loading
 and native/desktop integration remain future work. Stages 10–13 remain planned.
 See the [current kernel report](../progress/etapa-9-voces.md) and
 [resource report](../progress/etapa-9-sampler.md).

@@ -59,7 +59,7 @@ Esta guía describe las funciones implementadas; sus nueve fixtures Node siguen
 siendo de silencio y los tests Rust cubren WAV. Ver [reporte WAV](../progress/etapa-7-exportacion.md).
 Etapa 8 completada: reproducción nativa, rampas y mediciones release publicadas en
 1e6bca8, con CI Linux/Windows correcta para ese SHA en run 42524752652.
-Ver [reporte actual](../progress/etapa-8.md) y
+Ver [reporte de etapa 8](../progress/etapa-8.md) y
 [contrato técnico](../docs/native-audition.md), con estado de CI y límites explícitos.
 
 Etapa 9 en curso: 9.1 aporta recursos PCM y 9.2 reproduce one-shots con un banco
@@ -68,3 +68,8 @@ ni reproducción de samples en la app de escritorio. Ver
 [contrato del sampler](../docs/sampler-contract.md) y
 [progreso actual](../progress/etapa-9-voces.md). El siguiente incremento es 9.3:
 preparación/carga y decodificación acotadas fuera del procesamiento.
+
+9.2 está publicada en 7acc1db y pasó
+[CI Linux/Windows, run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
+La etapa 9 completa sigue abierta; esa CI comprueba el kernel y el escritorio
+actual sin abrir hardware. El reporte separa sus resultados de las pruebas release locales.

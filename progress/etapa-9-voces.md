@@ -2,8 +2,9 @@
 
 Fecha: 2026-11-08. Base limpia 5da0920 (recursos PCM de 9.1), con ambos jobs
 correctos en [run 42528127881](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42528127881).
-La CI de esa base no valida automáticamente este incremento. La etapa 9 completa
-sigue abierta: 9.2 añade reproducción raw en biblioteca, sin cargar archivos ni
+9.2 está completada y publicada en 7acc1db, con ambos jobs CI correctos para ese
+SHA; la evidencia propia se detalla abajo. La etapa 9 completa sigue abierta:
+9.2 añade reproducción raw en biblioteca, sin cargar archivos ni
 abrir dispositivos o exponer un sampler en la UI.
 
 ## Implementación y aceptación
@@ -83,10 +84,33 @@ Hashes SHA-256 conservados:
 | package-lock.json               | ABCCDCEAE11E9A00DCF184D6039B2E55FC8397CDF4204C883DDEB2B61BA4CFBD |
 | src/shared/api/generated/api.ts | CD72C52812C3AD12D3845A127EB9B16C8B90A41640F2118A6C34B583573E26FE |
 
-9.2 queda completada localmente; la etapa 9 completa sigue abierta. check ya
+9.2 queda completada con evidencia local y remota; la etapa 9 completa sigue abierta. check ya
 ejecuta daw-audio con native-audio,rt-diagnostics y descubre el test de memoria
 sin abrir hardware. Linux headless ejecuta los tests del kernel y omite el test
 condicionado a esa feature. No se modifica workflow.
+
+## Publicación y CI de la implementación
+
+Commit publicado en main:
+[7acc1db88915e5fe1b0c17db4837fc3b197d35ad](https://github.com/YoZaiKK/AudioMOTORR/commit/7acc1db88915e5fe1b0c17db4837fc3b197d35ad).
+La [ejecución 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397)
+corresponde a ese SHA exacto. Resultado completed/success, inspeccionado por API
+oficial el 2026-11-08 a las 22:40:03 UTC:
+
+| Job             | Resultado         | Evidencia                                                                                               |
+| --------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
+| headless-linux  | completed/success | [Ubuntu 24.04](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397/job/128884026388)        |
+| desktop-windows | completed/success | [Windows Server 2022](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397/job/128884026489) |
+
+Windows ejecutó regeneración determinista de bindings, check completo (incluido
+el test de memoria instrumentado en debug) y build debug sin instalador. Linux
+ejecutó el núcleo headless sin features nativas, Clippy y los nueve escenarios CLI.
+Los tests focales release pertenecen a la verificación local descrita arriba.
+Ningún job abrió hardware ni midió deadlines/continuidad del sampler nativo.
+
+El cierre documental posterior actualiza Markdown y conserva este SHA de código
+como evidencia. Cada revisión posterior tendrá su propia ejecución de Actions;
+el éxito de 7acc1db no se atribuye automáticamente a otro commit.
 
 ## Documentación, alcance y continuidad
 

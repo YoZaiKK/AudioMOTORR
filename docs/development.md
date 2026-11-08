@@ -201,3 +201,11 @@ that result verifies the starting revision, not these later resource changes.
 Stage 9.1 revision 5da0920 passed
 [run 42528127881](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42528127881);
 the [current kernel report](../progress/etapa-9-voces.md) records 9.2 separately.
+
+Stage 9.2 implementation 7acc1db passed both hosted jobs in
+[run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397),
+inspected on 2026-11-08. Ubuntu verified headless behavior/Clippy/CLI scenarios;
+Windows verified deterministic bindings, the full check including instrumented
+kernel tests, and desktop debug build. Local release tests supplement that
+hosted debug coverage; no native sampler stream was opened. Documentation-only
+closure revisions have their own hosted runs and do not change the verified DSP.
