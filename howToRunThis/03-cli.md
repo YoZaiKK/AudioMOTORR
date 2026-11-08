@@ -1,5 +1,24 @@
 # CLI y archivos de prueba
 
+## Diagnóstico de señal nativa y rampas (etapa 8)
+
+```powershell
+cargo run -p daw-cli --release --features rt-diagnostics --locked -- engine-bench --block-size 127 --iterations 20000
+cargo run -p daw-cli --release --features rt-diagnostics --locked -- tone-check --seconds 2
+```
+
+engine-bench no abre hardware: mide bloques preasignados, asignaciones y tiempos
+del motor (bloque 1–4096; iteraciones 1–1000000). tone-check sí reproduce una senoide,
+cambia volumen, pausa/reanuda/para y reabre el mismo dispositivo. Admite duración
+1–60 segundos, --frequency y --device. Ambos rechazan builds debug y requieren
+la feature explícita; el desktop normal no lleva instrumentación.
+
+tone-check exige progreso, rampas asentadas, señal finita y no nula, cero
+asignaciones/excesos del presupuesto nominal y saltos de muestra acotados.
+No mide continuidad acústica, driver, jitter de llegada ni CPU global. Ver
+[contrato técnico](../docs/native-audition.md) y [mediciones reales](../progress/etapa-8.md).
+No forma parte de CI ni sustituye la exportación WAV determinista.
+
 ## Procesamiento offline
 
 ```powershell

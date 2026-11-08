@@ -1,16 +1,17 @@
 ﻿# Offline oscillator and WAV contract
 
 Updated 2026-11-07. Engine signal generation (7.2) and application/CLI export
-(7.3) are published in c6cf627 and verified locally and in hosted CI. Desktop,
-manual smoke, and native smoke retain
-silence. `export-wav` explicitly generates a sine signal without initializing
+(7.3) are published in c6cf627 and verified locally and in hosted CI. Manual smoke
+and native smoke retain silence; desktop now offers explicit stage 8
+[native audition](native-audition.md). `export-wav` explicitly generates a sine signal without initializing
 an audio service, opening a device, or modifying a project.
 
 The [realtime contract](realtime-contract.md) defines the engine/service boundary.
 The [roadmap](roadmap.md), [execution plan](../progress/plan-etapas-7-13.md), and
 [export report](../progress/etapa-7-exportacion.md) distinguish local evidence from
 hosted results. Stage 7 is closed with [acceptance and CI evidence](../progress/cierre-etapa-7.md)
-for the implementation SHA. Native playback/ramps remain stage 8 work.
+for the implementation SHA. Stage 8 adds a separate ramped constructor without
+changing the immediate offline/WAV behavior specified here.
 
 ## Ownership and responsibilities
 
@@ -19,7 +20,7 @@ for the implementation SHA. Native playback/ramps remain stage 8 work.
 | daw-engine          | Validated sine configuration, phase, transport, and interleaved f32 rendering into caller-owned buffers. No device, filesystem, JSON, or external dependency.                                                                                      |
 | daw-app             | offline::OfflineRender owns an independent engine and one scratch buffer, validates the request, renders exact blocks, then delivers samples to a fallible callback after render returns. No Application instance or live audio service is needed. |
 | daw-cli             | export-wav parses options, validates WAV arithmetic before file creation, uses create_new to protect existing paths, encodes with hound 3.5.1, explicitly finalizes, and reports failure with nonzero exit status.                                 |
-| daw-audio / desktop | Existing lifecycle, queues, DTOs, controls, and silence defaults are unchanged. Native signal playback/ramping belongs to stage 8.                                                                                                                 |
+| daw-audio / desktop | Silence defaults remain; explicit native sine/ramp controls are defined in the native audition contract. Offline export bypasses the live service.                                                                                                 |
 
 The manual backend's render_manual returns only a frames/silence report; it is
 not an export interface. Offline synthesis reuses AudioEngine, with no DSP copy

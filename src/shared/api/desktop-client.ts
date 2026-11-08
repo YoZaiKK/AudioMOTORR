@@ -44,8 +44,11 @@ export const desktopClient = {
   appInfo: () => call<AppInfoDto>("get_app_info"),
   project: () => call<ProjectSummaryDto>("get_project_summary"),
   devices: () => call<OutputDeviceDto[]>("list_output_devices"),
-  initialize: (deviceId: string | null) =>
-    call<ServiceSnapshotDto>("initialize_audio", { deviceId }),
+  initialize: (
+    deviceId: string | null,
+    sineFrequencyHz: number | null = null,
+  ) =>
+    call<ServiceSnapshotDto>("initialize_audio", { deviceId, sineFrequencyHz }),
   shutdown: () => call<void>("shutdown_audio"),
   snapshot: () => call<ServiceSnapshotDto>("get_engine_snapshot"),
   play: () => call<CommandAcceptedDto>("transport_play"),
@@ -53,6 +56,7 @@ export const desktopClient = {
   stop: () => call<CommandAcceptedDto>("transport_stop"),
   tempo: (bpm: number) =>
     call<CommandAcceptedDto>("transport_set_tempo", { bpm }),
+  gain: (gain: number) => call<CommandAcceptedDto>("signal_set_gain", { gain }),
   async snapshots(callback: (snapshot: ServiceSnapshotDto) => void) {
     if (!isTauri())
       throw {

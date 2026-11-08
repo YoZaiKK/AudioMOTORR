@@ -11,6 +11,9 @@ engine, manual and native CPAL backends, a functional desktop UI connected throu
 Tauri IPC, technical documentation, and a locally validated CI workflow.
 The UI opens audio only on an explicit click, controls transport and BPM, and
 displays observed engine state. Browser mode disables native operations.
+Stage 8 now adds explicit native sine audition and 5 ms gain/transport ramps,
+with optional release diagnostics. See the [stage 8 report](progress/etapa-8.md)
+for current local results and the separate publication/CI status.
 
 This snapshot includes the desktop integration, verification guides, technical
 documentation, and CI completed after the stage 3 baseline (`69467ef`). See the
@@ -30,6 +33,7 @@ Technical documentation:
 - [Development, platform evidence, and CI](docs/development.md).
 - [Ordered roadmap and milestone acceptance](docs/roadmap.md).
 - [Offline oscillator and WAV contract](docs/offline-oscillator.md).
+- [Native audition, gain ramps, and measurement scope](docs/native-audition.md).
 
 Stage 7 is complete (2026-11-07): the opt-in oscillator, bounded application render,
 and CLI float32 WAV export are published in `c6cf627` and passed
@@ -37,8 +41,9 @@ and CLI float32 WAV export are published in `c6cf627` and passed
 See the [closure report](progress/cierre-etapa-7.md) and
 [Spanish execution plan](progress/plan-etapas-7-13.md). Stages 8–13 cover native signal/ramps, sampler,
 mixer, sequencer, persistence/beat export, and clips/scenes, in that order.
-Those later stages remain planned. Desktop and smoke commands retain silence;
-the explicit export-wav command writes a sine signal to disk without hardware.
+Stage 8 is implemented locally; stages 9–13 remain planned. Desktop defaults to
+silence and offers an explicit sine source, frequency, and volume control.
+Ordinary smoke commands retain silence; export-wav writes a sine to disk without hardware.
 The [export report](progress/etapa-7-exportacion.md) records evidence and limits;
 the [oscillator report](progress/etapa-7-oscilador.md) preserves the prior increment.
 
@@ -62,8 +67,9 @@ Implemented capabilities:
 - Device enumeration, supported output configurations, and explicit device selection.
 - Audio initialization, shutdown, failure reporting, and restart.
 - CLI smoke checks and behavioral tests for rendering, queues, and service lifecycle.
-- Ten IPC commands with Rust DTOs and generated TypeScript declarations.
+- Eleven IPC commands with Rust DTOs and generated TypeScript declarations.
 - Audio-device selection, initialization/shutdown, Play/Pause/Stop, and BPM controls.
+- Explicit native sine audition, volume control, and per-frame 5 ms attack/release ramps.
 - State published below 15 Hz, with pending commands separated from applied state.
 
 Verified on Windows: reproducible npm installation, prerequisite diagnostics,
@@ -78,7 +84,7 @@ for baseline `1ef9bd0`; native Linux and all macOS builds remain unverified.
 
 Project tracking documents are currently maintained in Spanish:
 
-- [Six-stage implementation checklist](progress/checklist.md).
+- [Implementation checklist and musical stages](progress/checklist.md).
 - [Implementation log, versions, and verification results](progress/detalles.md).
 - [Original requirements](progress/rust-daw-bootstrap-prompt.md).
 
@@ -187,7 +193,7 @@ with `BigInt`. Components use domain hooks and a central `desktop-client.ts` rat
 than invoking Tauri directly. They register snapshot listeners before querying
 initial state, reject old sequences, and dispose asynchronous subscriptions.
 
-Ten application commands are registered through `ipc::configure`; build.rs
+Eleven application commands are registered through `ipc::configure`; build.rs
 generates their ACL permissions, granted only to the local `main` window along
 with event listen/unlisten. Generated permissions are build artifacts ignored by
 Git. Production CSP stays explicit; no remote capability or plugin is enabled.
@@ -325,7 +331,8 @@ half the sample rate; peak amplitude must be finite and within 0–1 inclusive.
 Invalid values return `OscillatorError`. Phase advances once per playing frame,
 is shared across channels, survives Pause, and resets on Stop. BPM does not retune
 the signal. See the [oscillator contract and API example](docs/offline-oscillator.md).
-The live service and smoke commands still use the silent constructor.
+The service can explicitly initialize the same oscillator with a ramped envelope;
+ordinary smoke commands retain silence. See the [native contract](docs/native-audition.md).
 
 ### Transport and snapshots
 
@@ -374,11 +381,11 @@ recovery, transport acknowledgements, and reopening on the same service:
 cargo test -p daw-audio --features native-audio --locked --test service_contract native_failure_recovery_and_restart_on_same_service -- --ignored
 ```
 
-The render path has been inspected for allocations and blocking operations.
-Allocator instrumentation and real-time deadline measurements have not been
-performed. Native smoke validates lifecycle and callbacks, not audible continuity
-or absence of dropouts. Physical device removal and other output formats have
-not been tested on hardware.
+Optional release instrumentation has measured the processing path on the local
+Realtek WASAPI device with zero allocations and zero nominal processing-budget
+overruns in the recorded short run. These results and their limits are in the
+[stage 8 report](progress/etapa-8.md). Physical loopback continuity, device removal,
+and other physical output formats remain unverified.
 
 Frontend tests cover initialization errors, pending/applied commands, events that
 arrive before invoke replies, stale observations, browser mode, and listener cleanup
@@ -408,9 +415,20 @@ implementation commit `c6cf627`. The [closure report](progress/cierre-etapa-7.md
 maps acceptance to code/tests and records the exact SHA, run, and job links.
 The [oscillator](progress/etapa-7-oscilador.md) and
 [export](progress/etapa-7-exportacion.md) reports preserve earlier local evidence.
-Next is stage 8: the same oscillator through CPAL, gain ramps, explicit desktop
-controls, and release measurements. See the [plan](progress/plan-etapas-7-13.md).
+Stage 8 adds native audition and ramps. Select Sine in desktop before initializing,
+then Play; volume is 0–1 on a fixed 0.1-peak voice. Pause/Stop release over 5 ms;
+snapshots distinguish requested and actual transport until the release completes.
+Run the optional real UI check after check and desktop build:
 
-Desktop and smoke output remain silent; export-wav writes signal offline.
-There are no native oscillator controls, sampler, sequencer, or project
-persistence yet. Native signal playback and gain ramps belong to stage 8.
+```powershell
+powershell -NoProfile -File scripts/desktop-smoke.ps1 -Sine
+cargo run -p daw-cli --release --features rt-diagnostics --locked -- tone-check --seconds 2
+cargo run -p daw-cli --release --features rt-diagnostics --locked -- engine-bench --block-size 127 --iterations 20000
+```
+
+The sine smoke writes target/desktop-stage8.png and preserves the seven historical
+screenshots. Release diagnostics are opt-in and excluded from default desktop
+builds; hardware checks never run in CI. See the [contract](docs/native-audition.md)
+for measurement scope and the [plan](progress/plan-etapas-7-13.md) for stage 9:
+sampler resources prepared outside the callback and a fixed voice pool.
+Sampler, sequencer, and project persistence are not implemented yet.

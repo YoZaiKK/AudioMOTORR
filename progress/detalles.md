@@ -1,5 +1,23 @@
 # Detalles de implementación
 
+## Estado actual — Etapa 8, 2026-11-08
+
+Senoide nativa explícita, rampas de 5 ms y volumen integrados de motor a React;
+silencio por defecto y WAV offline conservados. Ver [reporte completo](etapa-8.md)
+para implementación, mediciones release, resultados de check/build/smoke, hashes,
+límites y situación de publicación/CI del incremento. Se actualizan arquitectura,
+contrato realtime, contrato nativo nuevo, README, guías y roadmap.
+
+La instrumentación allocation-counter 0.8.1 es opcional; Cargo.lock y DTO/TS
+cambian deliberadamente. Los snapshots SPSC siguen siendo Copy; los snapshots
+de respuesta y el procesador manual se reservan al inicializar fuera del callback
+para mantener acotado el tamaño de los enums, sin silenciar Clippy.
+check prueba la variante instrumentada sin abrir hardware. El siguiente cambio
+después del cierre es 9.1: contrato del sampler y fixtures en memoria.
+
+Las secciones siguientes son el registro histórico de sus fechas; afirmaciones
+anteriores de silencio o mediciones pendientes no describen la app de etapa 8.
+
 Este archivo conserva el registro granular de cada etapa. El estado resumido se
 mantiene en [checklist.md](checklist.md). Los requisitos originales permanecen en
 [rust-daw-bootstrap-prompt.md](rust-daw-bootstrap-prompt.md).

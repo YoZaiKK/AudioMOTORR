@@ -2,9 +2,11 @@ use daw_app::Application;
 use daw_engine::EngineConfig;
 use std::{error::Error, process::ExitCode};
 
+#[cfg(feature = "rt-diagnostics")]
+mod diagnostics;
 mod export;
 
-const HELP: &str = "Usage: daw-cli smoke [--frames N | --seconds N] [--block-size 1..4096]\n       daw-cli export-wav --output PATH --frames N [--block-size 1..4096] [--sample-rate HZ] [--channels 1|2] [--frequency HZ] [--amplitude 0..1]\n       daw-cli devices\n       daw-cli live-smoke [--seconds 1..60] [--device ID]\nExport defaults: 48000 Hz, stereo, 440 Hz sine, peak amplitude 0.1, block 256, float32 WAV; never overwrites.\nNative commands require --features native-audio. Smoke uses 48000 Hz stereo.";
+const HELP: &str = "Usage: daw-cli smoke [--frames N | --seconds N] [--block-size 1..4096]\n       daw-cli export-wav --output PATH --frames N [--block-size 1..4096] [--sample-rate HZ] [--channels 1|2] [--frequency HZ] [--amplitude 0..1]\n       daw-cli devices\n       daw-cli live-smoke [--seconds 1..60] [--device ID]\nExport defaults: 48000 Hz, stereo, 440 Hz sine, peak amplitude 0.1, block 256, float32 WAV; never overwrites.\nNative commands require --features native-audio. Smoke uses 48000 Hz stereo.\nRelease diagnostics (--features rt-diagnostics):\n       daw-cli engine-bench [--block-size 1..4096] [--iterations N]\n       daw-cli tone-check [--seconds 1..60] [--frequency HZ] [--device ID]";
 
 fn main() -> ExitCode {
     match run(std::env::args().skip(1).collect()) {
@@ -27,6 +29,16 @@ fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
     }
     if command == "export-wav" {
         return export::run(&args[1..]);
+    }
+    if command == "tone-check" || command == "engine-bench" {
+        #[cfg(feature = "rt-diagnostics")]
+        {
+            return diagnostics::run(command, &args[1..]);
+        }
+        #[cfg(not(feature = "rt-diagnostics"))]
+        {
+            return Err("Diagnostic commands require --release --features rt-diagnostics".into());
+        }
     }
     let mut frames = None;
     let mut seconds = None;

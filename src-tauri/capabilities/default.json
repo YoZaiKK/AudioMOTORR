@@ -15,6 +15,7 @@
     "allow-transport-play",
     "allow-transport-pause",
     "allow-transport-stop",
-    "allow-transport-set-tempo"
+    "allow-transport-set-tempo",
+    "allow-signal-set-gain"
   ]
 }

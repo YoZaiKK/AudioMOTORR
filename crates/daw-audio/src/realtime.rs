@@ -23,6 +23,7 @@ pub(crate) struct AppliedSnapshot {
     pub engine: EngineSnapshot,
     pub callbacks: u64,
     pub last_applied: Option<u64>,
+    pub diagnostics: Option<crate::RealtimeMetrics>,
 }
 
 pub(crate) struct ControlQueues {
@@ -39,6 +40,10 @@ pub(crate) struct Realtime {
     failure: Arc<AtomicU8>,
     callbacks: u64,
     last_applied: Option<u64>,
+    #[cfg(feature = "rt-diagnostics")]
+    metrics: crate::RealtimeMetrics,
+    #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
+    previous_sample: f32,
 }
 
 impl Realtime {
@@ -59,6 +64,10 @@ impl Realtime {
                 failure,
                 callbacks: 0,
                 last_applied: None,
+                #[cfg(feature = "rt-diagnostics")]
+                metrics: Default::default(),
+                #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
+                previous_sample: 0.0,
             },
         )
     }
@@ -100,7 +109,67 @@ impl Realtime {
             engine: self.engine.snapshot(),
             callbacks: self.callbacks,
             last_applied: self.last_applied,
+            diagnostics: self.diagnostics(),
         });
+    }
+
+    fn diagnostics(&self) -> Option<crate::RealtimeMetrics> {
+        #[cfg(feature = "rt-diagnostics")]
+        {
+            Some(self.metrics)
+        }
+        #[cfg(not(feature = "rt-diagnostics"))]
+        {
+            None
+        }
+    }
+
+    #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
+    pub fn observe_samples(&mut self, output: &[f32], channels: usize) {
+        for frame in output.chunks_exact(channels) {
+            let sample = frame[0];
+            if !sample.is_finite() {
+                self.metrics.non_finite_samples = self.metrics.non_finite_samples.saturating_add(1);
+            }
+            self.metrics.signal_peak = self.metrics.signal_peak.max(sample.abs());
+            self.metrics.max_sample_jump = self
+                .metrics
+                .max_sample_jump
+                .max((sample - self.previous_sample).abs());
+            self.previous_sample = sample;
+        }
+    }
+
+    #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
+    pub fn record_processing(
+        &mut self,
+        elapsed_ns: u64,
+        frames: usize,
+        sample_rate: u32,
+        allocations: u64,
+        bytes: u64,
+    ) {
+        let frame_count = frames as u64;
+        self.metrics.min_callback_frames = if self.metrics.measured_callbacks == 0 {
+            frame_count
+        } else {
+            self.metrics.min_callback_frames.min(frame_count)
+        };
+        self.metrics.max_callback_frames = self.metrics.max_callback_frames.max(frame_count);
+        self.metrics.measured_callbacks = self.metrics.measured_callbacks.saturating_add(1);
+        self.metrics.max_processing_ns = self.metrics.max_processing_ns.max(elapsed_ns);
+        if frames != 0 {
+            let budget_ns = frames as f64 * 1e9 / f64::from(sample_rate);
+            self.metrics.max_load_ratio = self
+                .metrics
+                .max_load_ratio
+                .max(elapsed_ns as f64 / budget_ns);
+            if elapsed_ns as f64 > budget_ns {
+                self.metrics.deadline_misses = self.metrics.deadline_misses.saturating_add(1);
+            }
+        }
+        self.metrics.allocations = self.metrics.allocations.saturating_add(allocations);
+        self.metrics.allocated_bytes = self.metrics.allocated_bytes.saturating_add(bytes);
     }
 }
 

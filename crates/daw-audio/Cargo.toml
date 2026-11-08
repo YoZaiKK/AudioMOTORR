@@ -8,11 +8,13 @@ publish.workspace = true
 [features]
 default = []
 native-audio = ["dep:cpal"]
+rt-diagnostics = ["dep:allocation-counter"]
 
 [dependencies]
 daw-engine.workspace = true
 rtrb.workspace = true
 cpal = { workspace = true, optional = true }
+allocation-counter = { workspace = true, optional = true }
 
 [lints]
 workspace = true

@@ -6,7 +6,10 @@
 
 use std::fmt;
 
+mod gain;
 mod oscillator;
+use gain::GainRamp;
+pub use gain::{Gain, InvalidGain};
 pub use oscillator::OscillatorError;
 use oscillator::SineOscillator;
 
@@ -73,6 +76,7 @@ pub enum EngineCommand {
     Pause,
     Stop,
     SetTempo(Tempo),
+    SetGain(Gain),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -82,6 +86,12 @@ pub struct EngineSnapshot {
     pub transport: TransportState,
     pub device_frames: u64,
     pub transport_frames: u64,
+    pub requested_transport: TransportState,
+    pub sine_frequency_hz: Option<f64>,
+    pub sine_amplitude: Option<f64>,
+    pub gain: f64,
+    pub target_gain: f64,
+    pub ramp_remaining_frames: u32,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -104,6 +114,7 @@ impl std::error::Error for RenderError {}
 pub struct AudioEngine {
     state: EngineSnapshot,
     sine: Option<SineOscillator>,
+    ramp: Option<GainRamp>,
 }
 
 impl AudioEngine {
@@ -115,8 +126,15 @@ impl AudioEngine {
                 transport: TransportState::Stopped,
                 device_frames: 0,
                 transport_frames: 0,
+                requested_transport: TransportState::Stopped,
+                sine_frequency_hz: None,
+                sine_amplitude: None,
+                gain: 1.0,
+                target_gain: 1.0,
+                ramp_remaining_frames: 0,
             },
             sine: None,
+            ramp: None,
         }
     }
 
@@ -131,23 +149,78 @@ impl AudioEngine {
         let sine = SineOscillator::new(config.sample_rate(), frequency_hz, amplitude)?;
         let mut engine = Self::new(config, tempo);
         engine.sine = Some(sine);
+        engine.state.sine_frequency_hz = Some(frequency_hz);
+        engine.state.sine_amplitude = Some(amplitude);
         Ok(engine)
+    }
+
+    /// Live audition uses the same oscillator with 5 ms linear gain/transport ramps.
+    pub fn with_ramped_sine(
+        config: EngineConfig,
+        tempo: Tempo,
+        frequency_hz: f64,
+        amplitude: f64,
+    ) -> Result<Self, OscillatorError> {
+        let mut engine = Self::with_sine(config, tempo, frequency_hz, amplitude)?;
+        engine.ramp = Some(GainRamp::new(config.sample_rate()));
+        engine.sync_ramp();
+        Ok(engine)
+    }
+
+    fn sync_ramp(&mut self) {
+        if let Some(ramp) = self.ramp {
+            self.state.gain = ramp.current;
+            self.state.ramp_remaining_frames = ramp.remaining;
+        }
     }
 
     /// Aplica inmediatamente, entre renders. No implica aceptación en una cola.
     pub fn apply_command(&mut self, command: EngineCommand) {
         match command {
-            EngineCommand::Play => self.state.transport = TransportState::Playing,
-            EngineCommand::Pause => self.state.transport = TransportState::Paused,
+            EngineCommand::Play => {
+                self.state.requested_transport = TransportState::Playing;
+                self.state.transport = TransportState::Playing;
+                if let Some(ramp) = &mut self.ramp {
+                    ramp.retarget(self.state.target_gain);
+                }
+            }
+            EngineCommand::Pause => {
+                self.state.requested_transport = TransportState::Paused;
+                if let Some(ramp) = &mut self.ramp {
+                    ramp.retarget(0.0);
+                    if ramp.remaining == 0 {
+                        self.state.transport = TransportState::Paused;
+                    }
+                } else {
+                    self.state.transport = TransportState::Paused;
+                }
+            }
             EngineCommand::Stop => {
-                self.state.transport = TransportState::Stopped;
-                self.state.transport_frames = 0;
-                if let Some(sine) = &mut self.sine {
-                    sine.reset();
+                self.state.requested_transport = TransportState::Stopped;
+                if let Some(ramp) = &mut self.ramp {
+                    ramp.retarget(0.0);
+                }
+                if self.ramp.is_none_or(|ramp| ramp.remaining == 0) {
+                    self.state.transport = TransportState::Stopped;
+                    self.state.transport_frames = 0;
+                    if let Some(sine) = &mut self.sine {
+                        sine.reset();
+                    }
                 }
             }
             EngineCommand::SetTempo(tempo) => self.state.tempo = tempo,
+            EngineCommand::SetGain(gain) => {
+                self.state.target_gain = gain.value();
+                if let Some(ramp) = &mut self.ramp {
+                    if self.state.requested_transport == TransportState::Playing {
+                        ramp.retarget(gain.value());
+                    }
+                } else {
+                    self.state.gain = gain.value();
+                }
+            }
         }
+        self.sync_ramp();
     }
 
     pub const fn snapshot(&self) -> EngineSnapshot {
@@ -171,10 +244,21 @@ impl AudioEngine {
             .device_frames
             .checked_add(frames)
             .ok_or(RenderError::CounterOverflow)?;
-        let transport_frames = if self.state.transport == TransportState::Playing {
+        let releasing =
+            self.ramp.is_some() && self.state.requested_transport != TransportState::Playing;
+        let playing_frames = if self.state.transport == TransportState::Playing {
+            if releasing {
+                frames.min(u64::from(self.state.ramp_remaining_frames))
+            } else {
+                frames
+            }
+        } else {
+            0
+        };
+        let mut transport_frames = if self.state.transport == TransportState::Playing {
             self.state
                 .transport_frames
-                .checked_add(frames)
+                .checked_add(playing_frames)
                 .ok_or(RenderError::CounterOverflow)?
         } else {
             self.state.transport_frames
@@ -183,12 +267,24 @@ impl AudioEngine {
         if self.state.transport == TransportState::Playing
             && let Some(sine) = &mut self.sine
         {
-            for frame in output.chunks_exact_mut(channels) {
-                frame.fill(sine.next_sample());
+            for frame in output
+                .chunks_exact_mut(channels)
+                .take(playing_frames as usize)
+            {
+                let gain = self.ramp.as_mut().map_or(self.state.gain, GainRamp::next);
+                frame.fill(sine.next_sample() * gain as f32);
+            }
+            if releasing && self.ramp.is_some_and(|ramp| ramp.remaining == 0) {
+                self.state.transport = self.state.requested_transport;
+                if self.state.transport == TransportState::Stopped {
+                    transport_frames = 0;
+                    sine.reset();
+                }
             }
         }
         self.state.device_frames = device_frames;
         self.state.transport_frames = transport_frames;
+        self.sync_ramp();
         Ok(())
     }
 }
@@ -200,9 +296,11 @@ mod tests {
     #[test]
     fn overflow_silences_output_and_preserves_both_counters() {
         for (device_frames, transport_frames) in [(u64::MAX, 0), (0, u64::MAX)] {
-            for signal in [false, true] {
+            for signal in [0, 1, 2] {
                 let config = EngineConfig::new(48_000, 2).unwrap();
-                let mut engine = if signal {
+                let mut engine = if signal == 2 {
+                    AudioEngine::with_ramped_sine(config, Tempo::default(), 440.0, 0.1).unwrap()
+                } else if signal == 1 {
                     AudioEngine::with_sine(config, Tempo::default(), 440.0, 0.1).unwrap()
                 } else {
                     AudioEngine::new(config, Tempo::default())
@@ -213,6 +311,7 @@ mod tests {
                 engine.state.transport_frames = transport_frames;
                 let before = engine.snapshot();
                 let before_sine = engine.sine;
+                let before_ramp = engine.ramp;
                 let mut output = [1.0; 2];
                 assert_eq!(
                     engine.render_interleaved(&mut output),
@@ -221,6 +320,7 @@ mod tests {
                 assert_eq!(output, [0.0; 2]);
                 assert_eq!(engine.snapshot(), before);
                 assert_eq!(engine.sine, before_sine);
+                assert_eq!(engine.ramp, before_ramp);
                 assert_eq!(engine.render_interleaved(&mut []), Ok(()));
                 assert_eq!(engine.sine, before_sine);
             }

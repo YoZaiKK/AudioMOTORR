@@ -8,13 +8,17 @@ export function App() {
   return (
     <main className="workspace">
       <header>
-        <span className="eyebrow">AudioMOTORR · Etapa 4</span>
+        <span className="eyebrow">AudioMOTORR · Etapa 8</span>
         <h1>
           {session.info?.name ?? "Rust DAW"}{" "}
           <small>{session.info?.version}</small>
         </h1>
         <p>{session.project?.title ?? "Proyecto"}</p>
-        <p className="notice">Motor base: salida de silencio</p>
+        <p className="notice">
+          {session.snapshot?.engine?.sineFrequencyHz != null
+            ? `Senoide: ${session.snapshot.engine.sineFrequencyHz} Hz · rampas de 5 ms`
+            : "Salida de silencio · selecciona senoide para generar señal"}
+        </p>
       </header>
       {!session.native && (
         <p className="browser-notice">

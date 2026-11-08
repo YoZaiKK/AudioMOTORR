@@ -119,8 +119,11 @@ export function useDawSession() {
     ready,
     error: error ?? snapshot?.error ?? null,
     refresh: () => run(desktopClient.devices, setDevices),
-    initialize: (deviceId: string | null) =>
-      run(() => desktopClient.initialize(deviceId), observe),
+    initialize: (
+      deviceId: string | null,
+      sineFrequencyHz: number | null = null,
+    ) =>
+      run(() => desktopClient.initialize(deviceId, sineFrequencyHz), observe),
     shutdown: () =>
       run(async () => {
         await desktopClient.shutdown();
@@ -130,6 +133,7 @@ export function useDawSession() {
     pause: () => command(desktopClient.pause),
     stop: () => command(desktopClient.stop),
     setTempo: (bpm: number) => command(() => desktopClient.tempo(bpm)),
+    setGain: (gain: number) => command(() => desktopClient.gain(gain)),
   };
 }
 export type DawSession = ReturnType<typeof useDawSession>;

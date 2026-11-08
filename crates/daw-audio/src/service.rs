@@ -2,7 +2,7 @@ use crate::{
     realtime::{Command, ControlQueues, Realtime},
     *,
 };
-use daw_engine::{AudioEngine, EngineCommand, EngineConfig, Tempo};
+use daw_engine::{EngineCommand, EngineConfig, Tempo};
 use std::{
     sync::{
         atomic::Ordering,
@@ -18,8 +18,8 @@ const CONTROL_POLL: Duration = Duration::from_millis(5);
 
 enum Operation {
     Devices,
-    Manual(EngineConfig, Tempo),
-    Native(Option<String>, Tempo),
+    Manual(EngineConfig, Tempo, Option<f64>),
+    Native(Option<String>, Tempo, Option<f64>),
     Shutdown,
     Snapshot,
     Command(EngineCommand),
@@ -29,7 +29,7 @@ enum Operation {
 enum Response {
     #[cfg(feature = "native-audio")]
     Devices(Vec<OutputDevice>),
-    Snapshot(ServiceSnapshot),
+    Snapshot(Box<ServiceSnapshot>),
     Accepted(CommandAccepted),
     Render(RenderReport),
     Done,
@@ -122,7 +122,15 @@ impl AudioHandle {
         }
     }
     pub fn initialize_manual(&self, config: EngineConfig, tempo: Tempo) -> Result<ServiceSnapshot> {
-        self.snapshot_response(Operation::Manual(config, tempo))
+        self.snapshot_response(Operation::Manual(config, tempo, None))
+    }
+    pub fn initialize_manual_sine(
+        &self,
+        config: EngineConfig,
+        tempo: Tempo,
+        frequency_hz: f64,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::Manual(config, tempo, Some(frequency_hz)))
     }
     /// Opens the default output, or an ID from list_output_devices. No automatic fallback.
     pub fn initialize_native(
@@ -130,7 +138,21 @@ impl AudioHandle {
         device_id: Option<String>,
         tempo: Tempo,
     ) -> Result<ServiceSnapshot> {
-        self.snapshot_response(Operation::Native(device_id, tempo))
+        self.snapshot_response(Operation::Native(device_id, tempo, None))
+    }
+    pub fn initialize_native_sine(
+        &self,
+        device_id: Option<String>,
+        tempo: Tempo,
+        frequency_hz: f64,
+    ) -> Result<ServiceSnapshot> {
+        if !frequency_hz.is_finite() || frequency_hz <= 0.0 {
+            return Err(AudioError::new(
+                ErrorCode::InvalidArgument,
+                "Frequency must be finite and positive",
+            ));
+        }
+        self.snapshot_response(Operation::Native(device_id, tempo, Some(frequency_hz)))
     }
     pub fn shutdown(&self) -> Result<()> {
         match self.request(Operation::Shutdown)? {
@@ -143,7 +165,7 @@ impl AudioHandle {
     }
     fn snapshot_response(&self, operation: Operation) -> Result<ServiceSnapshot> {
         match self.request(operation)? {
-            Response::Snapshot(value) => Ok(value),
+            Response::Snapshot(value) => Ok(*value),
             _ => Err(protocol_error()),
         }
     }
@@ -168,13 +190,11 @@ fn protocol_error() -> AudioError {
 
 enum Running {
     Manual {
-        rt: Realtime,
+        rt: Box<Realtime>,
         scratch: Vec<f32>,
     },
     #[cfg(feature = "native-audio")]
-    Native {
-        _stream: cpal::Stream,
-    },
+    Native { _stream: cpal::Stream },
 }
 
 struct Controller {
@@ -199,6 +219,7 @@ impl Controller {
                 callbacks: 0,
                 last_applied_command: None,
                 error: None,
+                diagnostics: None,
             },
         }
     }
@@ -247,6 +268,7 @@ impl Controller {
                 self.snapshot.engine = Some(applied.engine);
                 self.snapshot.callbacks = applied.callbacks;
                 self.snapshot.last_applied_command = applied.last_applied;
+                self.snapshot.diagnostics = applied.diagnostics;
                 updated = true;
             }
             failure = queues.failure.load(Ordering::Relaxed);
@@ -282,6 +304,7 @@ impl Controller {
         self.snapshot.callbacks = 0;
         self.snapshot.last_applied_command = None;
         self.snapshot.error = None;
+        self.snapshot.diagnostics = None;
         self.changed();
     }
 
@@ -305,6 +328,7 @@ impl Controller {
         running: Running,
     ) {
         self.snapshot.state = AudioServiceState::Ready;
+        self.snapshot.diagnostics = None;
         self.snapshot.backend = Some(backend);
         self.snapshot.output = output;
         self.snapshot.engine = Some(engine);
@@ -331,10 +355,10 @@ impl Controller {
                     ))
                 }
             }
-            Operation::Manual(config, tempo) => {
+            Operation::Manual(config, tempo, frequency) => {
                 self.can_initialize()?;
                 validate_channels(config)?;
-                let engine = AudioEngine::new(config, tempo);
+                let engine = engine_for_signal(config, tempo, frequency)?;
                 let initial = engine.snapshot();
                 let (queues, rt) = Realtime::new(engine);
                 let scratch = vec![0.0; MANUAL_MAX_FRAMES * usize::from(config.channels())];
@@ -343,15 +367,18 @@ impl Controller {
                     Backend::Manual,
                     None,
                     queues,
-                    Running::Manual { rt, scratch },
+                    Running::Manual {
+                        rt: Box::new(rt),
+                        scratch,
+                    },
                 );
-                Ok(Response::Snapshot(self.snapshot.clone()))
+                Ok(Response::Snapshot(Box::new(self.snapshot.clone())))
             }
-            Operation::Native(device_id, tempo) => {
+            Operation::Native(device_id, tempo, frequency) => {
                 self.can_initialize()?;
                 #[cfg(feature = "native-audio")]
                 {
-                    match crate::native::open(device_id, tempo) {
+                    match crate::native::open(device_id, tempo, frequency) {
                         Ok(opened) => {
                             self.ready(
                                 opened.engine,
@@ -366,7 +393,7 @@ impl Controller {
                             if let Some(error) = &self.snapshot.error {
                                 return Err(error.clone());
                             }
-                            Ok(Response::Snapshot(self.snapshot.clone()))
+                            Ok(Response::Snapshot(Box::new(self.snapshot.clone())))
                         }
                         Err(error) => {
                             self.snapshot.state = AudioServiceState::Error;
@@ -383,7 +410,7 @@ impl Controller {
                 }
                 #[cfg(not(feature = "native-audio"))]
                 {
-                    let _ = (device_id, tempo);
+                    let _ = (device_id, tempo, frequency);
                     Err(AudioError::new(
                         ErrorCode::NativeAudioDisabled,
                         "Build with native-audio to open a device",
@@ -394,9 +421,20 @@ impl Controller {
                 self.stop();
                 Ok(Response::Done)
             }
-            Operation::Snapshot => Ok(Response::Snapshot(self.snapshot.clone())),
+            Operation::Snapshot => Ok(Response::Snapshot(Box::new(self.snapshot.clone()))),
             Operation::Command(command) => {
                 self.require_ready()?;
+                if matches!(command, EngineCommand::SetGain(_))
+                    && self
+                        .snapshot
+                        .engine
+                        .is_none_or(|engine| engine.sine_frequency_hz.is_none())
+                {
+                    return Err(AudioError::new(
+                        ErrorCode::InvalidArgument,
+                        "Gain requires an initialized sine source",
+                    ));
+                }
                 let id = self.next_command.checked_add(1).ok_or_else(|| {
                     AudioError::new(
                         ErrorCode::Busy,
@@ -472,7 +510,7 @@ mod tests {
         let mut control = Controller::new();
         let config = EngineConfig::new(48_000, 2).unwrap();
         control
-            .execute(Operation::Manual(config, Tempo::default()))
+            .execute(Operation::Manual(config, Tempo::default(), None))
             .unwrap();
         control
             .execute(Operation::Command(EngineCommand::Play))
@@ -491,7 +529,7 @@ mod tests {
         };
         assert_eq!(error.code, ErrorCode::StreamError);
         control
-            .execute(Operation::Manual(config, Tempo::default()))
+            .execute(Operation::Manual(config, Tempo::default(), None))
             .unwrap();
         assert_eq!(control.snapshot.state, AudioServiceState::Ready);
         assert_eq!(control.snapshot.last_applied_command, None);
@@ -518,7 +556,11 @@ mod tests {
         let (tx, rx) = mpsc::sync_channel(2);
         let (reply, result) = mpsc::sync_channel(1);
         tx.send(Request {
-            operation: Operation::Manual(EngineConfig::new(48_000, 2).unwrap(), Tempo::default()),
+            operation: Operation::Manual(
+                EngineConfig::new(48_000, 2).unwrap(),
+                Tempo::default(),
+                None,
+            ),
             deadline: Instant::now(),
             reply,
         })

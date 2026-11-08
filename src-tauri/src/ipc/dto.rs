@@ -129,6 +129,12 @@ pub struct EngineSnapshotDto {
     pub transport: TransportStateDto,
     pub device_frames: String,
     pub transport_frames: String,
+    pub requested_transport: TransportStateDto,
+    pub sine_frequency_hz: Option<f64>,
+    pub sine_amplitude: Option<f64>,
+    pub gain: f64,
+    pub target_gain: f64,
+    pub ramp_remaining_frames: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -183,6 +189,16 @@ impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
                 },
                 device_frames: e.device_frames.to_string(),
                 transport_frames: e.transport_frames.to_string(),
+                requested_transport: match e.requested_transport {
+                    daw_app::TransportState::Stopped => TransportStateDto::Stopped,
+                    daw_app::TransportState::Playing => TransportStateDto::Playing,
+                    daw_app::TransportState::Paused => TransportStateDto::Paused,
+                },
+                sine_frequency_hz: e.sine_frequency_hz,
+                sine_amplitude: e.sine_amplitude,
+                gain: e.gain,
+                target_gain: e.target_gain,
+                ramp_remaining_frames: e.ramp_remaining_frames,
             }),
             callbacks: value.callbacks.to_string(),
             last_applied_command: value.last_applied_command.map(|id| id.to_string()),

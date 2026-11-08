@@ -23,6 +23,7 @@ const client = vi.hoisted(() => ({
   pause: vi.fn(),
   stop: vi.fn(),
   tempo: vi.fn(),
+  gain: vi.fn(),
 }));
 vi.mock("../shared/api/desktop-client", async (original) => ({
   ...(await original<typeof import("../shared/api/desktop-client")>()),
@@ -52,6 +53,12 @@ const ready: ServiceSnapshotDto = {
     transport: "stopped",
     deviceFrames: "0",
     transportFrames: "0",
+    requestedTransport: "stopped",
+    sineFrequencyHz: null,
+    sineAmplitude: null,
+    gain: 1,
+    targetGain: 1,
+    rampRemainingFrames: 0,
   },
 };
 const listeners = new Set<(value: ServiceSnapshotDto) => void>();
@@ -86,6 +93,74 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("audio interface", () => {
+  it("selects a sine only on explicit initialization and observes gain ramps", async () => {
+    const sineReady: ServiceSnapshotDto = {
+      ...ready,
+      engine: {
+        ...ready.engine!,
+        sineFrequencyHz: 997,
+        sineAmplitude: 0.1,
+        gain: 0,
+      },
+    };
+    client.initialize.mockResolvedValue(sineReady);
+    client.gain.mockResolvedValue({ commandId: "12" });
+    render(<App />);
+    await connected();
+    fireEvent.change(screen.getByLabelText("Señal"), {
+      target: { value: "sine" },
+    });
+    fireEvent.change(screen.getByLabelText("Frecuencia (Hz)"), {
+      target: { value: "997" },
+    });
+    expect(client.initialize).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Inicializar audio" }));
+    await waitFor(() =>
+      expect(client.initialize).toHaveBeenCalledWith(null, 997),
+    );
+    await screen.findByLabelText("Volumen (0–1)");
+    expect(client.play).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Volumen (0–1)"), {
+      target: { value: "0.25" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Aplicar volumen" }));
+    await screen.findByText(/Comando 12 aceptado/);
+    expect(client.gain).toHaveBeenCalledWith(0.25);
+    expect(screen.getByText(/Ganancia observada:/).textContent).toContain(
+      "0.000",
+    );
+    emit({
+      ...sineReady,
+      sequence: "2",
+      lastAppliedCommand: "12",
+      engine: {
+        ...sineReady.engine!,
+        transport: "playing",
+        requestedTransport: "paused",
+        gain: 0.125,
+        targetGain: 0.25,
+        rampRemainingFrames: 120,
+      },
+    });
+    expect(screen.getByText(/Transición a Pausado/)).toBeTruthy();
+    expect(screen.getByText(/Ganancia observada:/).textContent).toContain(
+      "0.125",
+    );
+    emit({
+      ...sineReady,
+      sequence: "3",
+      lastAppliedCommand: "12",
+      engine: {
+        ...sineReady.engine!,
+        transport: "paused",
+        requestedTransport: "paused",
+        gain: 0,
+        targetGain: 0.25,
+      },
+    });
+    expect(screen.queryByText(/Transición a Pausado/)).toBeNull();
+  });
+
   it("recovers from initialization failure without starting playback", async () => {
     client.initialize
       .mockRejectedValueOnce({

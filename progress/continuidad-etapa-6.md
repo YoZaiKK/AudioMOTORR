@@ -1,10 +1,11 @@
 # Continuidad tras etapa 6
 
-Actualizado el 2026-11-07. Etapas 1–7 completadas. Implementación actual publicada:
-`c6cf627`, con núcleo Ubuntu y desktop Windows correctos en CI. El plan actual es
-[etapas 7–13](plan-etapas-7-13.md), con etapa 8 como siguiente trabajo.
-Ver [cierre de etapa 7](cierre-etapa-7.md); las referencias a entregas anteriores
-se conservan como historial, no como trabajo pendiente de publicación.
+Actualizado el 2026-11-08. Etapas 1–7 completadas; etapa 8 implementada localmente:
+senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release.
+El [reporte actual](etapa-8.md) registra verificación y publicación/CI del incremento.
+Base publicada 818e84b; implementación de etapa 7 c6cf627 con CI Ubuntu/Windows
+correcta. El plan actual es [etapas 7–13](plan-etapas-7-13.md).
+Las referencias anteriores se conservan como historial fechado.
 
 La etapa 6 añade documentación técnica y CI sin cambiar el producto. Consultar
 [cierre y auditoría](cierre-etapa-6.md), [checklist](checklist.md) y [detalles](detalles.md).
@@ -22,16 +23,17 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Etapa 8: conectar el mismo oscilador a CPAL con selección explícita mediante
-aplicación/IPC/UI; diseñar/probar rampas y medir en release con hardware identificado.
-Conservar el render offline para comparación y el modo silencio disponible.
-La etapa 7 ya tiene evidencia del SHA nuevo, no solo de la base 1ef9bd0.
+Completar el cierre local/CI de etapa 8 según el reporte y después comenzar 9.1:
+contrato del sampler y fixtures en memoria. Fijar formato/rate/canales, propiedad
+inmutable, pool fijo y política de agotamiento antes de escribir reproducción
+en daw-engine. Preparar/decodificar recursos fuera del callback en otro incremento.
 
 En 7.3, daw-app coordina render offline con buffers acotados y daw-cli escribe
 WAV float32 fuera del render con hound 3.5.1. El render_manual existente solo devuelve un reporte,
 no las muestras: no usarlo como si ya fuera un exportador. 7.4/7.5 integran pruebas,
 documentación y evidencia de cierre. Seguir el [contrato](../docs/offline-oscillator.md)
-y el [roadmap](../docs/roadmap.md); dejar CPAL con señal/rampas para etapa 8.
+y el [roadmap](../docs/roadmap.md). El [contrato nativo](../docs/native-audition.md)
+concreta los cambios de etapa 8 y los límites de sus mediciones.
 
 ## Cómo verificar
 
@@ -50,7 +52,9 @@ opcional requiere hardware y no pertenece a CI; no actualizar capturas salvo
 petición explícita. Pruebas IPC con mock pueden necesitar acceso a datos de app
 fuera del sandbox; eso no implica abrir audio real.
 
-Pendientes independientes: CI de nuevos cambios, Linux nativo/macOS,
-desconexión física, otros formatos de hardware y mediciones de allocator/deadlines
-y continuidad en release con señal. La documentación técnica es inglesa;
+Pendientes independientes: CI de nuevos cambios hasta publicar/inspeccionar el SHA,
+Linux nativo/macOS, desconexión física, otros formatos de hardware, loopback y
+estrés prolongado. Se midieron allocator y tiempo de procesamiento release sobre
+Realtek, sin inferir continuidad acústica ni garantía de deadlines del host.
+La documentación técnica es inglesa;
 progress y howToRunThis permanecen en español.

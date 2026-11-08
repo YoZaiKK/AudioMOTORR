@@ -3,10 +3,11 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-07): etapas 1–7 completadas. Etapa 7 implementada y
-publicada en `c6cf627`, con CI Ubuntu/Windows correcta para ese SHA.
-Ver [cierre y evidencia](cierre-etapa-7.md). Etapa 8 es la siguiente; 8–13
-siguen planificadas. Se conservan los reportes históricos de cada incremento.
+Estado actual (2026-11-08): etapas 1–7 completadas; etapa 8 implementada localmente
+con mediciones release sobre Realtek. Ver [reporte de etapa 8](etapa-8.md) para
+checks, build, smoke y estado de publicación/CI del incremento. Etapa 7 está
+publicada en c6cf627 con CI Ubuntu/Windows correcta; [cierre](cierre-etapa-7.md).
+Las etapas 9–13 siguen planificadas. Se conservan los reportes históricos.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
 Registro actual: [continuidad tras etapa 6](continuidad-etapa-6.md).
 Git identifica las revisiones publicadas; consultar [Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
@@ -87,9 +88,10 @@ Estado: completada y verificada (2026-11-06), incluido smoke real de ventana y a
 - [x] Ejecutar check completo y después build Windows; comprobar lockfiles/bindings intactos.
 
 Base CI 1ef9bd0 confirmada: Ubuntu headless y Windows desktop correctos.
-Pendientes explícitos: CI de cambios nuevos, Linux nativo/macOS,
+Pendientes al cierre histórico de etapa 6: CI de cambios nuevos, Linux nativo/macOS,
 desconexión física, otros formatos de hardware y mediciones de allocator/deadlines
-y continuidad en release con señal. La señal nativa se aborda en etapa 8.
+y continuidad en release con señal. El estado actual de señal/mediciones está
+en el [reporte de etapa 8](etapa-8.md).
 
 ## Plan posterior — definido el 2026-11-07
 
@@ -114,9 +116,14 @@ Detalle en [plan](plan-etapas-7-13.md) y [cierre](cierre-etapa-7.md).
 
 ## Etapa 8 — Oscilador nativo, rampas y mediciones
 
-- [ ] Reutilizar oscilador por CPAL y exponer controles explícitos mediante aplicación/IPC/UI.
-- [ ] Probar rampas/transiciones y conservar lifecycle/errores.
-- [ ] Medir allocator, tiempos, carga y continuidad en release; registrar hardware y límites.
+- [x] Reutilizar oscilador por CPAL y exponer controles explícitos mediante aplicación/IPC/UI.
+- [x] Probar rampas/transiciones y conservar lifecycle/errores.
+- [x] Medir allocator, tiempos, carga y continuidad de muestras en release; registrar hardware y límites.
+- [x] Registrar check completo, build Windows y smoke UI del incremento.
+- [ ] Registrar publicación/CI de la revisión nueva por separado de pruebas locales.
+
+No verificados: loopback acústico, unplug físico, estrés prolongado y plataformas
+nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 
 ## Etapa 9 — Sampler y voces
 

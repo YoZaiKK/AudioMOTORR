@@ -9,6 +9,10 @@ import os from "node:os";
 
 const port = Number(process.argv[2] ?? 9223);
 const updateDocs = process.argv.includes("--update-docs");
+const sine = process.argv.includes("--sine");
+const screenshotPath = sine
+  ? "target/desktop-stage8.png"
+  : "target/desktop-stage4.png";
 const captures = [];
 if (!Number.isInteger(port) || port < 1024 || port > 65535)
   throw new Error("Invalid local debug port");
@@ -143,6 +147,11 @@ try {
     "02-error-dispositivo",
     "Error real de IPC por ID inexistente; recuperación disponible.",
   );
+  if (sine) {
+    await evaluate(
+      "(() => { const input = document.querySelector('#signal-source'); input.value = 'sine'; input.dispatchEvent(new Event('change', { bubbles: true })); return true; })()",
+    );
+  }
   await click("Inicializar audio");
   await until(
     async () => (await technical("Servicio")) === "ready",
@@ -163,7 +172,7 @@ try {
   await until(
     () =>
       evaluate(
-        "document.querySelector('.tempo-form').textContent.includes('Aplicado: 137.5 BPM')",
+        "document.querySelector('#tempo').form.textContent.includes('Aplicado: 137.5 BPM')",
       ),
     "applied BPM in UI",
   );
@@ -171,6 +180,20 @@ try {
     "03-reproduciendo",
     "Play y 137.5 BPM aplicados; contadores reales.",
   );
+  if (sine) {
+    if ((await snapshot()).engine.sineFrequencyHz !== 440)
+      throw new Error("Native sine source was not applied");
+    await evaluate(
+      "(() => { const input = document.querySelector('#signal-gain'); input.value = '0.25'; input.form.requestSubmit(); return true; })()",
+    );
+    await until(
+      () =>
+        evaluate(
+          "document.querySelector('#signal-gain')?.form.textContent.includes('Ganancia observada: 0.250')",
+        ),
+      "observed native gain ramp in UI",
+    );
+  }
   await click("Pause");
   await until(
     async () => (await transport()) === "Pausado",
@@ -206,6 +229,11 @@ try {
     restarted.engine.transport !== "stopped"
   )
     throw new Error("Restart state mismatch");
+  if (
+    sine &&
+    (restarted.engine.sineFrequencyHz !== 440 || restarted.engine.gain !== 0)
+  )
+    throw new Error("Sine restart must be stopped at zero effective gain");
   await capture(
     "06-reiniciado",
     "Audio reiniciado, detenido y con callbacks; tempo conservado.",
@@ -223,10 +251,7 @@ try {
     },
   });
   await mkdir("target", { recursive: true });
-  await writeFile(
-    "target/desktop-stage4.png",
-    Buffer.from(screenshot.data, "base64"),
-  );
+  await writeFile(screenshotPath, Buffer.from(screenshot.data, "base64"));
   await click("Cerrar audio");
   await until(
     async () => (await technical("Servicio")) === "uninitialized",
@@ -261,7 +286,8 @@ try {
       output: observed.output,
       lastAppliedCommand: observed.lastAppliedCommand,
       restartTempo: restarted.engine.tempo,
-      screenshot: "target/desktop-stage4.png",
+      screenshot: screenshotPath,
+      source: sine ? "sine" : "silence",
     }),
   );
 } finally {

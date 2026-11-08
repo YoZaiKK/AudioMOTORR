@@ -133,6 +133,13 @@ select {
 input[type="number"] {
   width: 110px;
 }
+label[for="sine-frequency"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 16px;
+}
 .error,
 .browser-notice {
   padding: 16px;

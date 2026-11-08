@@ -134,9 +134,10 @@ dated record of local verification before the subsequent publication request;
 it does not establish remote CI success.
 
 Local closure commands and a criterion-by-criterion audit are recorded in
-[stage 6 closure](../progress/cierre-etapa-6.md). Real-time deadlines, allocator
-instrumentation, physical device removal, other hardware sample formats, and
-unverified platforms remain pending.
+[stage 6 closure](../progress/cierre-etapa-6.md). Physical device removal, loopback
+continuity, other hardware sample formats, and unverified platforms remain pending.
+Stage 8 records bounded release processing measurements, which do not establish
+a hard real-time guarantee.
 
 ## Stage 7 progress and next increment
 
@@ -149,14 +150,25 @@ export (7.3). New offline_contract and export_contract
 tests cover block reuse, live-state independence, exact reopened WAV samples,
 metadata, path/size errors, and injected writer failures. The nine silence cases
 remain regressions. WAV tests use exclusive temporary output directories.
-Native signal playback, ramps, and release deadline/allocation measurements
-belong to stage 8; no
-native oscillator control is available in desktop yet. The CLI export-wav
-command is device-free; hound 3.5.1 is pinned only there. Cargo.lock changes
-deliberately for this dependency; subsequent --locked checks must preserve the
-new hash. npm lockfile and generated bindings are unchanged. Local and remote
-evidence is separated in the [export report](../progress/etapa-7-exportacion.md).
+The CLI export-wav command is device-free; hound 3.5.1 is pinned only there.
+Local and remote evidence is separated in the [export report](../progress/etapa-7-exportacion.md).
 Stage 7 is closed: implementation c6cf627 passed both hosted jobs in
 [run 42419963899](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42419963899).
 The [closure audit](../progress/cierre-etapa-7.md) records that SHA's evidence;
 future changes require their own verification.
+
+## Stage 8 local verification
+
+Desktop now offers explicit sine initialization, frequency selection, and gain
+commands; silence remains the default. See [native audition](native-audition.md)
+for ramp semantics and reproducible release diagnostics. Run the real desktop
+smoke with `powershell -NoProfile -File scripts/desktop-smoke.ps1 -Sine` after
+check and desktop build. It writes target/desktop-stage8.png and rejects -UpdateDocs
+to preserve the historical captures.
+
+check additionally tests daw-audio with native-audio,rt-diagnostics and lints the
+diagnostic CLI; no hardware is opened. Cargo.lock deliberately adds the optional
+allocation-counter 0.8.1 dependency and generated DTOs deliberately change. After
+these changes, locked builds and regeneration must preserve their new hashes;
+package-lock.json remains unchanged. The [stage report](../progress/etapa-8.md)
+records local results, hardware identity, and publication/CI status separately.

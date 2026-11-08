@@ -19,6 +19,16 @@ it("uses Tauri command names, camelCase arguments and the snapshot event", async
   await desktopClient.initialize("device-id");
   expect(transport.invoke).toHaveBeenLastCalledWith("initialize_audio", {
     deviceId: "device-id",
+    sineFrequencyHz: null,
+  });
+  await desktopClient.initialize(null, 997);
+  expect(transport.invoke).toHaveBeenLastCalledWith("initialize_audio", {
+    deviceId: null,
+    sineFrequencyHz: 997,
+  });
+  await desktopClient.gain(0.25);
+  expect(transport.invoke).toHaveBeenLastCalledWith("signal_set_gain", {
+    gain: 0.25,
   });
   await desktopClient.tempo(123.5);
   expect(transport.invoke).toHaveBeenLastCalledWith("transport_set_tempo", {

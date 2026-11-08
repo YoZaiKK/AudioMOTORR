@@ -68,6 +68,33 @@ fn invokes_registered_commands_and_serializes_real_application_responses() {
     assert_eq!(applied["engine"]["transport"], "playing");
     assert_eq!(applied["engine"]["deviceFrames"], "128");
     assert!(invoke("shutdown_audio", json!({})).is_ok());
+    state
+        .access(|application| {
+            application
+                .initialize_manual_sine(daw_engine::EngineConfig::new(48_000, 2).unwrap(), 997.0)
+        })
+        .unwrap();
+    assert_eq!(
+        invoke("signal_set_gain", json!({"gain": 2.0})).unwrap_err()["code"],
+        "invalidArgument"
+    );
+    let gain = invoke("signal_set_gain", json!({"gain": 0.25})).unwrap();
+    assert!(gain["commandId"].is_string());
+    invoke("transport_play", json!({})).unwrap();
+    state
+        .access(|application| application.render_manual(480))
+        .unwrap();
+    let sine = invoke("get_engine_snapshot", json!({})).unwrap();
+    assert_eq!(sine["engine"]["sineFrequencyHz"], 997.0);
+    assert_eq!(sine["engine"]["gain"], 0.25);
+    invoke("transport_pause", json!({})).unwrap();
+    state
+        .access(|application| application.render_manual(17))
+        .unwrap();
+    let release = invoke("get_engine_snapshot", json!({})).unwrap();
+    assert_eq!(release["engine"]["requestedTransport"], "paused");
+    assert_eq!(release["engine"]["transport"], "playing");
+    invoke("shutdown_audio", json!({})).unwrap();
     state.close();
     assert_eq!(
         invoke("get_engine_snapshot", json!({})).unwrap_err()["code"],
@@ -88,10 +115,17 @@ fn large_counters_and_identifiers_cross_json_as_decimal_strings() {
             transport: daw_engine::TransportState::Playing,
             device_frames: u64::MAX,
             transport_frames: 9007199254740993,
+            requested_transport: daw_engine::TransportState::Playing,
+            sine_frequency_hz: Some(440.0),
+            sine_amplitude: Some(0.1),
+            gain: 0.5,
+            target_gain: 0.5,
+            ramp_remaining_frames: 0,
         }),
         callbacks: u64::MAX,
         last_applied_command: Some(u64::MAX),
         error: None,
+        diagnostics: None,
     };
     let wire = serde_json::to_value(ServiceSnapshotDto::from(value)).unwrap();
     for field in ["sequence", "callbacks", "lastAppliedCommand"] {

@@ -32,9 +32,19 @@ engine mode without changing these package, queue, or desktop decisions.
 
 Engine, service, application, CLI, React, and mock-runtime IPC tests cover these
 contracts. Windows native smoke evidence is dated in the
-[stage 5 report](../../howToRunThis/resultados.md). Inspection of the callback
-supports the no-allocation/no-blocking rule; allocator instrumentation, release
-deadline measurements, and physical unplug/replug remain pending.
+[stage 5 report](../../howToRunThis/resultados.md). At the ADR baseline, inspection
+supported the no-allocation/no-blocking rule; allocator instrumentation and
+release deadline measurements had not been performed. Physical unplug/replug
+remains unverified.
+
+Stage 8 addendum (2026-11-08): [native audition](../native-audition.md) reuses the
+same internal oscillator with a concrete per-frame envelope and explicit controls.
+allocation-counter 0.8.1 is optional in audio/CLI; default desktop has no probes
+and the engine retains no external dependency. Instrumented native processing
+and offline tests supplement inspection; release hardware measurements and their
+limits are in the [stage report](../../progress/etapa-8.md). Enlarged control
+responses and manual processor storage use Box outside the callback; SPSC
+payloads remain Copy. These changes preserve the decisions above.
 
 The [architecture](../architecture.md), [realtime contract](../realtime-contract.md),
 and [development guide](../development.md) describe the resulting implementation.

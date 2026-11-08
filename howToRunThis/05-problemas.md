@@ -9,7 +9,7 @@
 | DeviceAbsent                                  | Actualizar dispositivos, seleccionar una salida disponible y reintentar. El transporte debe seguir deshabilitado mientras el servicio no esté ready.           |
 | QueueFull o Busy                              | No se ha confirmado la acción rechazada. Esperar y consultar el estado antes de reintentar.                                                                    |
 | Comando aceptado pero pendiente               | Esperar el snapshot aplicado; si no hay callbacks, cerrar y reiniciar el audio. No asumir que Play ya se aplicó.                                               |
-| No se oye sonido                              | Es lo esperado: el motor actual escribe silencio. Verificar callbacks y frames en el panel técnico.                                                            |
+| No se oye sonido                              | Silencio es la fuente inicial. Para un tono, cerrar audio, seleccionar Senoide e inicializar; comprobar Play, volumen mayor que cero y salida física.          |
 | Access is denied en tests Tauri               | El mock runtime puede necesitar rutas de datos fuera del workspace. En entornos restringidos solicitar ejecución autorizada; no quitar las comprobaciones ACL. |
 | Cargo falla con Schannel SEC_E_NO_CREDENTIALS | Usar el mecanismo de aprobación del entorno para la descarga. No desactivar TLS.                                                                               |
 | npm falla con EPERM sobre su caché            | La caché está fuera del workspace; solicitar acceso mediante el entorno.                                                                                       |
@@ -26,6 +26,8 @@ Los tests de integración Windows usan manifiesto Common Controls v6. Si reapare
 STATUS_ENTRYPOINT_NOT_FOUND, revisar el build.rs y el manifiesto de los tests;
 no copiar DLL de sitios externos ni deshabilitar pruebas.
 
-El screenshot de un contador no prueba ausencia de dropouts. La continuidad se
-medirá con una señal en un hito posterior. No hay persistencia: cerrar la app
+El screenshot de un contador no prueba ausencia de dropouts. Etapa 8 mide muestras
+antes de conversión y tiempo de procesamiento, no continuidad acústica ni llegada
+puntual del callback. Ver [límites de medición](../progress/etapa-8.md).
+No hay persistencia: cerrar la app
 descarta el documento actual; cerrar/reabrir solo el servicio conserva su tempo.

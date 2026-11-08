@@ -1,12 +1,13 @@
 # Realtime contract
 
 This is the principal contract for the implemented engine, audio service, and
-desktop observation boundary as of 2026-11-06. See [architecture](architecture.md)
+desktop observation boundary as of 2026-11-08. See [architecture](architecture.md)
 for package diagrams and [development](development.md) for verification scope.
 
 The [offline oscillator contract](offline-oscillator.md) describes the implemented
-stage 7.2 engine mode and stage 7.3 application/WAV export. The default service,
-desktop, and smoke paths retain silence. export-wav uses an independent engine
+stage 7.2 engine mode and stage 7.3 application/WAV export. The service and desktop
+default to silence and now offer explicit [ramped native audition](native-audition.md).
+Ordinary smoke paths retain silence. export-wav uses an independent engine
 and performs encoding/file I/O only after engine rendering returns, with no service
 initialization or native callback involvement.
 
@@ -53,7 +54,10 @@ Stop, and advances once per playing frame regardless of channel count. Stopped
 and paused output is silence. Invalid renders preserve phase as well as counters;
 empty buffers do not advance it. Frequency is independent of BPM. There is no
 event scheduling. At the service boundary, commands instead wait for the next
-callback, as specified below; service initialization still uses the silent constructor.
+callback, as specified below. Service initialization defaults to silence and can
+explicitly select a ramped sine. The [native audition contract](native-audition.md)
+defines the 5 ms per-frame envelope, gain validation, and release tails. The
+immediate offline oscillator/export semantics above remain unchanged.
 
 ## Limits and overflow
 
@@ -108,6 +112,14 @@ accepted tempo and supplies it to the next initialization.
 
 ## Lifecycle and errors
 
+For a ramped sine, an applied Play/gain/Pause/Stop command sets a target at the
+callback boundary. Acknowledgement does not assert ramp completion. Snapshots
+also expose requested transport, effective/selected gain, and remaining ramp frames.
+Pause/Stop keep actual transport playing through the release tail; Stop resets
+phase/position only at zero gain. Shutdown and failure can drop a stream immediately,
+without completing a fade. Reinitialization starts the native voice at zero gain
+with selected gain one; signal settings do not change the project document.
+
 Service state is separate from transport state: `Uninitialized`, `Ready`, `Error`,
 and the internal `ShuttingDown` transition. Initializing a ready service returns
 `Busy`; shut it down first to switch outputs. Shutdown is synchronous and
@@ -154,7 +166,10 @@ TypeScript contract is `src/shared/api/generated/api.ts`; run
 `npm run bindings:generate` and `npm run bindings:check` on a desktop-capable host.
 Project IDs, command IDs, observation sequences, frame counts, callback counts,
 and nullable last-applied IDs use decimal strings. Rates, channels, and BPM remain
-JSON numbers. React uses `BigInt` for ordered IDs/sequences.
+JSON numbers. React uses `BigInt` for ordered IDs/sequences. Nullable sine frequency
+and amplitude, effective/target gain, and u32 remaining ramp frames are JSON numbers;
+requested transport uses the existing transport enum. Optional Rust diagnostics
+are deliberately absent from the desktop DTO and generated bindings.
 
 The controller drains telemetry outside the callback; the desktop publisher
 queries that observed state outside the callback and emits `engine-snapshot`
@@ -183,10 +198,15 @@ while preserving the document. Neither path waits for callback acknowledgement.
 
 ## Callback constraints and evidence
 
-The callback contains no application I/O, logging, serialization, Tauri calls,
-blocking locks, waits, or dynamic allocation. This is established by inspection,
-not allocator instrumentation or timing measurements. Producing silence does not
-demonstrate absence of audio dropouts.
+The normal callback contains no application I/O, logging, serialization, Tauri
+calls, blocking locks, waits, or dynamic allocation. Optional rt-diagnostics
+adds allocator/timing/sample probes. Release measurements on identified Windows
+hardware and an allocator-instrumented native chunk test supplement inspection;
+see the [stage 8 report](../progress/etapa-8.md). Diagnostic timing compares processing
+time with frames/sample-rate, excluding host/driver work and callback arrival
+jitter. It cannot establish absence of dropouts or acoustic continuity. The
+[native contract](native-audition.md) specifies metrics, one-callback publication
+lag, overhead, and explicit unverified cases.
 
 ## Dependency references
 

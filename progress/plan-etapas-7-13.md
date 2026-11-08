@@ -1,9 +1,10 @@
 # Plan de progreso — Etapas 7 a 13
 
-Fecha: 2026-11-07. Base publicada: `1ef9bd0` en main; etapas 1–6 completadas con
-evidencia local. Estado: **etapa 7 completada**, publicada en c6cf627 y verificada
-en Linux headless/Windows desktop por CI. Desktop/smoke siguen en silencio;
-export-wav genera señal offline. Evidencia actual: [cierre de etapa 7](cierre-etapa-7.md).
+Actualizado: 2026-11-08. Etapa 7 completada, publicada en c6cf627 y verificada
+en Linux headless/Windows desktop por CI. **Etapa 8 implementada localmente**:
+señal nativa explícita, rampas y mediciones release. Ver [reporte actual](etapa-8.md)
+para comprobaciones y estado de publicación/CI. Desktop conserva silencio inicial
+y permite seleccionar senoide; los smoke ordinarios siguen en silencio.
 Los reportes de motor/WAV conservan sus resultados previos a la publicación.
 
 El [checklist](checklist.md) registra el estado; el [roadmap técnico](../docs/roadmap.md)
@@ -13,15 +14,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                            |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | --------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta. |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Pendiente.                        |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Pendiente.                        |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                        |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                        |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                        |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                        |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | ------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.     |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Implementada localmente; ver reporte. |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Pendiente.                            |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                            |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                            |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                            |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                            |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -129,6 +130,9 @@ identificada; no se sustituye por afirmaciones de éxito.
 
 ## Etapas posteriores: responsabilidad y criterio de cierre
 
+La fila 8 registra el criterio acordado; su implementación y mediciones actuales
+se detallan en el reporte y en las subetapas siguientes.
+
 | Etapa | Responsabilidades                                                                                                                                             | Criterio de cierre                                                                                                                                                                                                                          |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 8     | daw-engine implementa rampas y transiciones; daw-audio conecta el mismo oscilador a CPAL; daw-app/IPC/React exponen el control explícito necesario.           | Señal nativa consistente con offline, rampas probadas, lifecycle y errores conservados. Medir carga, tiempos de callback, asignaciones y continuidad en release sobre hardware identificado; declarar pendientes de plataforma/dispositivo. |
@@ -143,7 +147,30 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Comenzar **etapa 8: mismo oscilador por CPAL, rampas y mediciones en release**.
-Conservar el render offline de referencia, definir el control explícito desde
-aplicación/IPC/UI y verificar transiciones/lifecycle antes de medir en hardware.
-No anticipar sampler, mezclador ni secuenciador; etapa 7 ya está cerrada.
+Tras completar las comprobaciones de etapa 8, comenzar **9.1: contrato del sampler
+y fixtures en memoria**. Definir formato/rate/canales, propiedad inmutable,
+capacidad fija de voces, trigger/stop y política de agotamiento. Después implementar
+reproducción determinista en daw-engine; preparar/cargar/decodificar recursos fuera
+del callback mediante daw-app en otro incremento de etapa 9. No anticipar mezclador
+ni secuenciador.
+
+## Etapa 8 — Desglose ejecutado
+
+- **8.1, motor:** Gain validado 0–1; constructor with_ramped_sine; rampas lineales
+  de ceil(sample_rate/200) frames, retarget desde nivel actual y transporte
+  solicitado distinto del observado durante release. Pause conserva fase tras la
+  cola y Stop reinicia al llegar a cero. Offline/WAV inmediato permanece igual.
+- **8.2, servicio/aplicación:** inicialización de senoide opcional y volumen en
+  FIFO existente; amplitud de voz fija 0.1; reinicio detenido con nivel efectivo
+  cero. Comparación de salida nativa por chunks con motor offline y presupuesto
+  de 32 comandos una vez por callback.
+- **8.3, desktop:** initialize_audio admite frecuencia opcional; undécimo comando
+  signal_set_gain, ACL, DTO regenerado y controles explícitos de fuente/frecuencia/
+  volumen. Pruebas IPC con mock y frontend sin hardware.
+- **8.4, mediciones:** feature rt-diagnostics opcional con allocation-counter
+  0.8.1; CLI engine-bench y tone-check solo release. Medición local Realtek y
+  microbench por cuatro particiones. No se infiere continuidad acústica ni
+  ausencia de dropouts del procesamiento medido.
+- **8.5, cierre:** check completo antes de build Windows y smoke WebView2;
+  enlaces/formato/documentación, hashes y reporte de CI del SHA nuevo por separado.
+  El [reporte](etapa-8.md) identifica resultados obtenidos y pendientes.

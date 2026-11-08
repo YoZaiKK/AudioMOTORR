@@ -59,6 +59,32 @@ const checks = [
   [
     "cargo",
     [
+      "test",
+      "-p",
+      "daw-audio",
+      "--features",
+      "native-audio,rt-diagnostics",
+      "--locked",
+    ],
+  ],
+  [
+    "cargo",
+    [
+      "clippy",
+      "-p",
+      "daw-cli",
+      "--features",
+      "rt-diagnostics",
+      "--all-targets",
+      "--locked",
+      "--",
+      "-D",
+      "warnings",
+    ],
+  ],
+  [
+    "cargo",
+    [
       "clippy",
       "--workspace",
       "--all-targets",

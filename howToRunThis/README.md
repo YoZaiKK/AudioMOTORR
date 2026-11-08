@@ -1,7 +1,8 @@
 # Cómo ejecutar y comprobar AudioMOTORR
 
-Guía en español para la base actual: motor de silencio, transporte y servicio de
-audio. Los comandos se ejecutan desde la raíz del repositorio en PowerShell.
+Guía en español para la app actual: silencio, senoide nativa explícita con rampas,
+transporte, servicio de audio y exportación WAV offline. Los comandos se ejecutan
+desde la raíz del repositorio en PowerShell.
 El README principal se mantiene en inglés.
 
 | Quiero…                                             | Guía                                         |
@@ -21,10 +22,11 @@ node howToRunThis/run-cli-cases.mjs
 npm run desktop:dev
 ```
 
-Inicializar audio abre una salida; Play inicia el transporte. **La salida desktop
-contiene silencio**. No hay instrumentos en la UI, secuenciador ni guardar/abrir
-proyectos. No se espera un tono al pulsar Play. La CLI sí permite exportar una
-senoide a WAV offline; ver [comando export-wav](03-cli.md).
+Inicializar audio abre una salida; Play inicia el transporte. **Silencio es la
+fuente predeterminada**. Seleccionar Senoide antes de inicializar permite reproducir
+un tono, ajustar frecuencia y aplicar volumen con rampas de 5 ms. Ver
+[walkthrough](02-interfaz.md). No hay sampler, secuenciador ni guardar/abrir
+proyectos. La CLI permite exportar una senoide offline; ver [export-wav](03-cli.md).
 
 Los [casos JSON](test-files/cli-cases.json) son datos para el ejecutor de pruebas,
 no proyectos que la aplicación pueda importar. La [salida de referencia](test-files/expected-output.txt)
@@ -50,9 +52,11 @@ de la revisión publicada.
 Plan del siguiente desarrollo (2026-11-07): [etapas 7–13](../progress/plan-etapas-7-13.md).
 La etapa 7 está cerrada: oscilador y exportación CLI publicados en c6cf627,
 con CI Linux/Windows correcta. Ver [cierre](../progress/cierre-etapa-7.md).
-Desktop y smoke conservan silencio; export-wav escribe señal a archivo. La
+Los smoke ordinarios conservan silencio; export-wav escribe señal a archivo. La
 [evidencia del incremento](../progress/etapa-7-oscilador.md) confirma la base CI
 en Ubuntu headless y Windows desktop, sin validar Linux nativo/macOS.
 Esta guía describe las funciones implementadas; sus nueve fixtures Node siguen
 siendo de silencio y los tests Rust cubren WAV. Ver [reporte WAV](../progress/etapa-7-exportacion.md).
-La reproducción nativa de señal llegará en etapa 8.
+Etapa 8 implementada localmente: reproducción nativa, rampas y mediciones release.
+Ver [reporte actual](../progress/etapa-8.md) y
+[contrato técnico](../docs/native-audition.md), con estado de CI y límites explícitos.

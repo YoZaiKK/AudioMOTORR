@@ -40,9 +40,14 @@ pub async fn list_output_devices(
 pub async fn initialize_audio(
     state: State<'_, Arc<DesktopState>>,
     device_id: Option<String>,
+    sine_frequency_hz: Option<f64>,
 ) -> Result<ServiceSnapshotDto, ApiError> {
     with_app(state, move |app| {
-        app.initialize_audio(device_id).map(Into::into)
+        match sine_frequency_hz {
+            Some(frequency) => app.initialize_audio_with_sine(device_id, frequency),
+            None => app.initialize_audio(device_id),
+        }
+        .map(Into::into)
     })
     .await
 }
@@ -83,4 +88,12 @@ pub async fn transport_set_tempo(
         app.transport_set_tempo(bpm).map(Into::into)
     })
     .await
+}
+
+#[tauri::command]
+pub async fn signal_set_gain(
+    state: State<'_, Arc<DesktopState>>,
+    gain: f64,
+) -> Result<CommandAcceptedDto, ApiError> {
+    with_app(state, move |app| app.signal_set_gain(gain).map(Into::into)).await
 }

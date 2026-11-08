@@ -22,5 +22,6 @@ pub fn configure<R: tauri::Runtime>(
             commands::transport_pause,
             commands::transport_stop,
             commands::transport_set_tempo,
+            commands::signal_set_gain,
         ])
 }

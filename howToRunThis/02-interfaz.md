@@ -1,5 +1,8 @@
 # Walkthrough de la interfaz
 
+Actualizado para etapa 8 el 2026-11-08. Las siete imágenes conservan la UI y
+evidencia histórica de etapa 5; no muestran los nuevos controles de senoide.
+
 ## 1. Navegador y escritorio
 
 ```powershell
@@ -69,6 +72,34 @@ ventana termina el publicador y el servicio; no se guarda el proyecto en disco.
 ![Servicio cerrado](screenshots/07-audio-cerrado.png)
 
 ## Regenerar estas capturas
+
+Para comprobar la senoide sin reemplazar las capturas históricas:
+
+1. Antes de inicializar, seleccionar **Senoide · amplitud máxima 0.1** y dejar
+   440 Hz (entrada UI: 1–20000 Hz; el dispositivo además exige frecuencia bajo Nyquist).
+2. Inicializar y pulsar Play. La voz arranca con rampa de 5 ms.
+3. Aplicar volumen 0.25. Esperar ganancia observada 0.250, sin confundir aceptación
+   del comando con final de rampa. El nivel es relativo a la voz de pico 0.1.
+4. Pause libera 5 ms antes de conservar fase/posición. Play reanuda con ataque;
+   Stop libera y después reinicia posición/fase. La UI puede omitir la transición
+   breve porque recibe snapshots a menos de 15 Hz.
+5. Para cambiar fuente/frecuencia, cerrar e inicializar. Reinicia detenido con
+   ganancia efectiva cero, objetivo uno y BPM conservado.
+
+```powershell
+npm run check
+npm run desktop:build -- --debug --no-bundle
+powershell -NoProfile -File scripts/desktop-smoke.ps1 -Sine
+```
+
+Este modo comprueba también error/recuperación, BPM, cierre/reapertura y guarda
+target/desktop-stage8.png. Rechaza combinar -Sine con -UpdateDocs. El
+[reporte](../progress/etapa-8.md) conserva el resultado real de cada verificación.
+La [captura nueva de etapa 8](../docs/screenshots/stage8-native-sine.png) y sus
+[metadatos](../docs/screenshots/stage8-native-sine.json) registran la UI nativa
+verificada el 2026-11-08 sin sustituir las imágenes anteriores.
+
+Para sustituir explícitamente las imágenes del recorrido histórico:
 
 ```powershell
 npm run check

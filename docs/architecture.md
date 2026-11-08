@@ -1,15 +1,17 @@
 # Implemented architecture
 
-This describes the foundation and local stage 7.2–7.3 offline extension as of
-2026-11-07. Desktop and smoke remain silent; export-wav writes signal. Future music
+This describes the foundation, offline export, and local stage 8 extension as of
+2026-11-08. Desktop defaults to silence and offers explicit native sine audition;
+ordinary smoke remains silent and export-wav writes signal. Future music
 features belong to the [roadmap](roadmap.md). The normative processing and queue
 rules are in the [realtime contract](realtime-contract.md); the rationale is in
 [ADR 0001](adr/0001-core-and-desktop-boundaries.md).
 
 The [offline oscillator contract](offline-oscillator.md) describes the optional
 sine module inside the engine, independent application offline coordination,
-and CLI WAV I/O. hound 3.5.1 is confined to CLI; neither the live service nor
-desktop enables the oscillator. The export branch runs before Application::new,
+and CLI WAV I/O. hound 3.5.1 is confined to CLI. The live service and desktop can
+explicitly initialize the same oscillator with gain ramps; see
+[native audition](native-audition.md). The export branch runs before Application::new,
 so exporting creates no audio service thread.
 
 ## Package dependencies
@@ -42,7 +44,7 @@ desktop explicitly enables it. See the [platform/build matrix](development.md).
 
 `daw-app::Application` owns the editable project and audio service and coordinates
 their use cases. The CLI uses this application for offline smoke and device/native
-diagnostics, plus engine configuration types. Desktop invokes the application through ten
+diagnostics, plus engine configuration types. Desktop invokes the application through eleven
 registered commands; it does not implement another engine. A single virtual
 Cargo workspace, root lockfile, and target directory serve all six packages.
 
@@ -91,6 +93,13 @@ sequenceDiagram
     Control-->>Pub: latest drained observation via Application
     Pub-->>UI: engine-snapshot event, at least 67 ms apart
 ```
+
+Native voice frequency and gain are playback state, outside the editable document.
+The engine owns per-frame ramps; the service selects the signal before starting
+the stream. Requested transport and actual transport differ while releasing.
+Optional allocator/timing diagnostics run only under rt-diagnostics; default
+desktop has no measurement instrumentation. Larger control responses box snapshots
+outside the callback while realtime SPSC payloads remain Copy.
 
 The event can arrive before the invoke reply; the hook reconciles the accepted
 ID against its latest observation. Listeners are registered before initial state

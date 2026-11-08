@@ -1,0 +1,22 @@
+{
+  "capturedAt": "2026-11-08T21:06:02.461Z",
+  "stage": 8,
+  "platform": "win32",
+  "release": "10.0.26200",
+  "cpu": "11th Gen Intel(R) Core(TM) i7-1185G7 @ 3.00GHz",
+  "source": "sine",
+  "frequencyHz": 440,
+  "voicePeak": 0.1,
+  "rampMs": 5,
+  "sampleRate": 48000,
+  "channels": 2,
+  "sampleFormat": "f32",
+  "output": "Speakers (2- Realtek(R) Audio)",
+  "state": "ready, stopped after reinitialization; gain 0, target gain 1, tempo 137.5",
+  "smokeBeforeShutdown": {
+    "callbacks": "48",
+    "lastAppliedCommand": "5"
+  },
+  "note": "Screenshot taken after restart; its counters differ from the earlier smoke observation. No acoustic/loopback measurement.",
+  "sha256": "22f22f5884fb5d226034b4b1545d6091fa6c021db556a3efe310d8f7f6145227"
+}

@@ -1,10 +1,11 @@
 # Roadmap after the silence foundation
 
-Updated 2026-11-07. Stages 1–6 are the implemented silence foundation, published
+Updated 2026-11-08. Stages 1–6 are the implemented silence foundation, published
 in baseline `1ef9bd0`. Stage 7 is complete: engine oscillator, bounded application
 rendering and WAV export are published in c6cf627 and passed hosted Linux/Windows
 checks. See [stage 7 closure](../progress/cierre-etapa-7.md) for the exact evidence.
-Stages 8–13 are planned, not implemented features.
+Stage 8 native audition and ramps are implemented locally, with release hardware
+measurements in the [stage report](../progress/etapa-8.md). Stages 9–13 remain planned.
 Stages 7–13 preserve the order of the original seven follow-up milestones.
 The [Spanish execution plan](../progress/plan-etapas-7-13.md) and
 [progress checklist](../progress/checklist.md) track their status.
@@ -43,10 +44,29 @@ run 42419963899 succeeded for c6cf627.
 | 7.4  | Integrate tests/fixtures/checks/CI and update runnable documentation.                    | Keep nine silence scenarios, add offline signal/export coverage, run headless/full checks and Windows debug build, and record hosted results separately.       |
 | 7.5  | Record evidence and close stage 7.                                                       | All deliverables/criteria are met, limitations are explicit, and the checklist reflects actual implementation.                                                 |
 
-Next is stage 8: connect the same oscillator to CPAL, add gain ramps and explicit
-application/IPC/UI controls, then measure in release on identified hardware.
-Keep offline rendering as the reference. Desktop and smoke still retain silence
-until that stage explicitly enables signal playback.
+## Stage 8 delivery and evidence
+
+| Step | Responsibility                                                                       | Evidence / acceptance                                                                                                                                                  |
+| ---- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 8.1  | Engine: validated gain, 5 ms per-frame envelope, requested/actual transport.         | Reference/partition/error/retarget tests; immediate offline constructor preserved.                                                                                     |
+| 8.2  | Audio/application: explicit manual/native sine initialization and queued gain.       | Same oscillator; fixed 0.1 voice peak; lifecycle/queue regression tests and native chunk equivalence.                                                                  |
+| 8.3  | Desktop: eleven IPC commands, regenerated DTOs, explicit source/frequency/volume UI. | Mock runtime and frontend behavior tests; browser operations disabled and initialization requires a click.                                                             |
+| 8.4  | Optional release diagnostics and real Windows verification.                          | Thread-local allocation counting, processing/buffer-duration ratio, sample continuity probes, hardware identity, and explicit limits. See report for commands/results. |
+| 8.5  | Local checks/build, documentation and publication evidence.                          | Record local results separately from any hosted CI for the new revision; preserve dated screenshots.                                                                   |
+
+The [native contract](native-audition.md) specifies ramp/acknowledgement semantics
+and diagnostic scope. Physical loopback, unplug, long stress runs, native Linux,
+and macOS remain separate unverified cases.
+
+## Next concrete increment: stage 9.1
+
+Define the sampler contract and deterministic in-memory fixtures before adding
+file loading or UI. Fix supported sample representation/rate/channels, immutable
+resource ownership, maximum voice count, trigger/stop behavior, and an explicit
+voice-exhaustion policy. Then implement bounded voice playback in daw-engine and
+test exact samples, overlapping voices, lifetime, and partition equivalence.
+Prepare/decode resources outside the callback through daw-app in a later stage 9
+increment. Do not build the mixer or sequencer before closing sampler acceptance.
 
 Recording, external MIDI, time stretching, VST/CLAP hosting, complex routing,
 latency compensation, and collaboration remain later work. These stages do not

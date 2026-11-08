@@ -8,11 +8,13 @@ publish.workspace = true
 [features]
 default = []
 native-audio = ["daw-app/native-audio"]
+rt-diagnostics = ["native-audio", "daw-app/rt-diagnostics", "dep:allocation-counter"]
 
 [dependencies]
 daw-app.workspace = true
 daw-engine.workspace = true
 hound = "=3.5.1"
+allocation-counter = { workspace = true, optional = true }
 
 [lints]
 workspace = true

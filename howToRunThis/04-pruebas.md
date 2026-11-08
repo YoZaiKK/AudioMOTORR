@@ -64,7 +64,7 @@ real. Ver [walkthrough](02-interfaz.md) para actualizar capturas explícitamente
 El reporte de etapa 5 está en [resultados](resultados.md); cuenta suites por
 separado, porque headless y workspace comparten pruebas. No sumar sus cantidades
 como si todas fueran pruebas distintas. Linux nativo/macOS, desconexión física y
-medición de deadlines siguen fuera de la evidencia. La base 1ef9bd0 ya tiene
+loopback acústico siguen fuera de la evidencia. La base 1ef9bd0 ya tiene
 [CI headless Ubuntu y desktop Windows correcta](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42314334447).
 
 ## Pruebas del oscilador de motor (7.2)
@@ -77,7 +77,8 @@ Seis pruebas verifican señal contra referencia, validación, fase/transporte,
 particiones, errores y BPM independiente. El overflow unitario también protege
 fase. npm run check ya descubre estos tests sin cambiar el workflow. El
 [reporte actual](../progress/etapa-7-oscilador.md) separa CI de la base de las
-pruebas locales nuevas. Desktop y smoke continúan en silencio.
+pruebas locales nuevas. Los smoke ordinarios continúan en silencio; desktop
+permite desde etapa 8 seleccionar explícitamente una senoide.
 
 ## Pruebas de exportación WAV (7.3)
 
@@ -106,6 +107,27 @@ las verificaciones locales. Los reportes previos conservan el estado observado
 al realizar cada incremento; su CI pendiente no describe el cierre actual.
 
 ## Automatización de etapa 6
+
+Etapa 8 añade cuatro pruebas de rampas en daw-engine, una de servicio de senoide,
+una del procesamiento nativo por chunks, y cobertura IPC/frontend de fuente y
+volumen. check descubre estas pruebas y además ejecuta daw-audio con
+native-audio,rt-diagnostics y Clippy del CLI diagnóstico. El test nativo compara
+muestras con referencia y cuenta asignaciones; no abre un dispositivo.
+
+Para verificar a mano la instrumentación y luego la UI real:
+
+```powershell
+cargo test -p daw-audio --features native-audio,rt-diagnostics --locked
+cargo clippy -p daw-cli --features rt-diagnostics --all-targets --locked -- -D warnings
+npm run check
+npm run desktop:build -- --debug --no-bundle
+powershell -NoProfile -File scripts/desktop-smoke.ps1 -Sine
+```
+
+Las mediciones release con hardware son opcionales y se describen en
+[CLI](03-cli.md); sus resultados actuales están en el [reporte de etapa 8](../progress/etapa-8.md).
+La nueva captura se guarda en target/desktop-stage8.png, sin sustituir las siete
+imágenes históricas. El backend, mock IPC y frontend son coberturas diferentes.
 
 El [workflow](../.github/workflows/ci.yml) comprueba el núcleo en Ubuntu 24.04 y
 frontend/desktop en Windows Server 2022. El job Windows usa el mock runtime

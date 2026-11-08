@@ -6,7 +6,7 @@ use cpal::{
     FromSample, SampleFormat, SizedSample,
     traits::{DeviceTrait, HostTrait, StreamTrait},
 };
-use daw_engine::{AudioEngine, EngineConfig, EngineSnapshot, Tempo};
+use daw_engine::{EngineConfig, EngineSnapshot, Tempo};
 use std::{
     sync::{Arc, atomic::Ordering},
     time::Duration,
@@ -50,7 +50,11 @@ pub(crate) struct Opened {
     pub output: OutputSelection,
 }
 
-pub(crate) fn open(device_id: Option<String>, tempo: Tempo) -> Result<Opened> {
+pub(crate) fn open(
+    device_id: Option<String>,
+    tempo: Tempo,
+    frequency: Option<f64>,
+) -> Result<Opened> {
     let host = cpal::default_host();
     let device = if let Some(id) = device_id {
         host.output_devices()
@@ -75,7 +79,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo) -> Result<Opened> {
         name: device.to_string(),
         sample_format: format.to_string(),
     };
-    let engine = AudioEngine::new(config, tempo);
+    let engine = engine_for_signal(config, tempo, frequency)?;
     let initial = engine.snapshot();
     let (queues, rt) = Realtime::new(engine);
     let stream = match format {
@@ -112,27 +116,30 @@ fn build<T: SizedSample + FromSample<f32>>(
     queues: &ControlQueues,
 ) -> Result<cpal::Stream> {
     let channels = usize::from(config.channels);
+    #[cfg(feature = "rt-diagnostics")]
+    let sample_rate = config.sample_rate;
     let mut scratch = vec![0.0f32; SCRATCH_FRAMES * channels];
     let failure = Arc::clone(&queues.failure);
     device
         .build_output_stream(
             config,
             move |output: &mut [T], _| {
-                output.fill(T::EQUILIBRIUM);
-                if !output.len().is_multiple_of(channels) {
-                    rt.fail();
-                    rt.end();
-                    return;
+                #[cfg(feature = "rt-diagnostics")]
+                {
+                    let start = std::time::Instant::now();
+                    let info = allocation_counter::measure(|| {
+                        process_output(&mut rt, output, &mut scratch, channels)
+                    });
+                    rt.record_processing(
+                        start.elapsed().as_nanos().min(u128::from(u64::MAX)) as u64,
+                        output.len() / channels,
+                        sample_rate,
+                        info.count_total,
+                        info.bytes_total,
+                    );
                 }
-                rt.begin();
-                for chunk in output.chunks_mut(scratch.len()) {
-                    let buffer = &mut scratch[..chunk.len()];
-                    rt.render(buffer);
-                    for (sample, &value) in chunk.iter_mut().zip(buffer.iter()) {
-                        *sample = T::from_sample(value);
-                    }
-                }
-                rt.end();
+                #[cfg(not(feature = "rt-diagnostics"))]
+                process_output(&mut rt, output, &mut scratch, channels);
             },
             move |_| {
                 failure.store(1, Ordering::Relaxed);
@@ -142,9 +149,93 @@ fn build<T: SizedSample + FromSample<f32>>(
         .map_err(stream_error)
 }
 
+fn process_output<T: SizedSample + FromSample<f32>>(
+    rt: &mut Realtime,
+    output: &mut [T],
+    scratch: &mut [f32],
+    channels: usize,
+) {
+    output.fill(T::EQUILIBRIUM);
+    if !output.len().is_multiple_of(channels) {
+        rt.fail();
+        rt.end();
+        return;
+    }
+    rt.begin();
+    for chunk in output.chunks_mut(scratch.len()) {
+        let buffer = &mut scratch[..chunk.len()];
+        rt.render(buffer);
+        #[cfg(feature = "rt-diagnostics")]
+        rt.observe_samples(buffer, channels);
+        for (sample, &value) in chunk.iter_mut().zip(buffer.iter()) {
+            *sample = T::from_sample(value);
+        }
+    }
+    rt.end();
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
     use cpal::Sample;
+    use daw_engine::{EngineCommand, Gain};
+
+    #[test]
+    fn native_chunks_match_offline_ramps_and_consume_commands_once_per_callback() {
+        let config = EngineConfig::new(48_000, 2).unwrap();
+        let engine = engine_for_signal(config, Tempo::default(), Some(440.0)).unwrap();
+        let (mut queues, mut realtime) = Realtime::new(engine);
+        queues
+            .commands
+            .push(crate::realtime::Command {
+                id: 1,
+                command: EngineCommand::Play,
+            })
+            .unwrap();
+        for id in 2..=32 {
+            queues
+                .commands
+                .push(crate::realtime::Command {
+                    id,
+                    command: EngineCommand::SetGain(Gain::new(0.5).unwrap()),
+                })
+                .unwrap();
+        }
+        queues
+            .commands
+            .push(crate::realtime::Command {
+                id: 33,
+                command: EngineCommand::Stop,
+            })
+            .unwrap();
+        let mut output = vec![1.0f32; 2001 * 2];
+        let mut scratch = vec![0.0; SCRATCH_FRAMES * 2];
+        #[cfg(feature = "rt-diagnostics")]
+        {
+            let allocations = allocation_counter::measure(|| {
+                process_output(&mut realtime, &mut output, &mut scratch, 2)
+            });
+            assert_eq!(allocations.count_total, 0);
+        }
+        #[cfg(not(feature = "rt-diagnostics"))]
+        process_output(&mut realtime, &mut output, &mut scratch, 2);
+        assert_eq!(queues.snapshots.pop().unwrap().last_applied, Some(32));
+        let mut reference = engine_for_signal(config, Tempo::default(), Some(440.0)).unwrap();
+        reference.apply_command(EngineCommand::Play);
+        reference.apply_command(EngineCommand::SetGain(Gain::new(0.5).unwrap()));
+        let mut expected = vec![0.0; output.len()];
+        reference.render_interleaved(&mut expected).unwrap();
+        assert_eq!(output, expected);
+        process_output(&mut realtime, &mut output, &mut scratch, 2);
+        let stopped = queues.snapshots.pop().unwrap();
+        assert_eq!(stopped.last_applied, Some(33));
+        assert_eq!(
+            stopped.engine.transport,
+            daw_engine::TransportState::Stopped
+        );
+        assert_eq!(stopped.engine.transport_frames, 0);
+        assert!(output[480..].iter().all(|sample| *sample == 0.0));
+    }
     #[test]
     fn unsigned_silence_uses_midpoint() {
         assert_eq!(u16::from_sample(0.0f32), u16::EQUILIBRIUM);

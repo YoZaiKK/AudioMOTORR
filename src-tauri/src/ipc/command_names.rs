@@ -9,4 +9,5 @@ pub const COMMANDS: &[&str] = &[
     "transport_pause",
     "transport_stop",
     "transport_set_tempo",
+    "signal_set_gain",
 ];

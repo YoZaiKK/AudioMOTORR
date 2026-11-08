@@ -3,12 +3,12 @@
 pub mod offline;
 
 pub use daw_audio::{
-    AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, OutputDevice, RenderReport,
-    Result, ServiceSnapshot,
+    AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, OutputDevice,
+    RealtimeMetrics, RenderReport, Result, ServiceSnapshot,
 };
 use daw_domain::{Project, ProjectId, Tempo};
 pub use daw_engine::TransportState;
-use daw_engine::{EngineCommand, EngineConfig};
+use daw_engine::{EngineCommand, EngineConfig, Gain};
 
 pub struct ProjectSummary {
     pub id: ProjectId,
@@ -47,6 +47,29 @@ impl Application {
         self.audio
             .handle()
             .initialize_manual(config, self.project.tempo())
+    }
+    pub fn initialize_audio_with_sine(
+        &self,
+        device_id: Option<String>,
+        frequency_hz: f64,
+    ) -> Result<ServiceSnapshot> {
+        self.audio
+            .handle()
+            .initialize_native_sine(device_id, self.project.tempo(), frequency_hz)
+    }
+    pub fn initialize_manual_sine(
+        &self,
+        config: EngineConfig,
+        frequency_hz: f64,
+    ) -> Result<ServiceSnapshot> {
+        self.audio
+            .handle()
+            .initialize_manual_sine(config, self.project.tempo(), frequency_hz)
+    }
+    pub fn signal_set_gain(&self, value: f64) -> Result<CommandAccepted> {
+        let gain = Gain::new(value)
+            .map_err(|error| AudioError::new(ErrorCode::InvalidArgument, error.to_string()))?;
+        self.audio.handle().command(EngineCommand::SetGain(gain))
     }
     pub fn shutdown_audio(&self) -> Result<()> {
         self.audio.handle().shutdown()

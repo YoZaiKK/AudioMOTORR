@@ -1,8 +1,10 @@
 //! Audio service: bounded control requests, SPSC queues, manual and optional CPAL backends.
+mod metrics;
 #[cfg(feature = "native-audio")]
 mod native;
 mod realtime;
 mod service;
+pub use metrics::RealtimeMetrics;
 
 use daw_engine::{EngineConfig, EngineSnapshot};
 use std::fmt;
@@ -81,6 +83,7 @@ pub struct ServiceSnapshot {
     pub callbacks: u64,
     pub last_applied_command: Option<u64>,
     pub error: Option<AudioError>,
+    pub diagnostics: Option<RealtimeMetrics>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -120,4 +123,16 @@ pub(crate) fn validate_channels(config: EngineConfig) -> Result<()> {
         ));
     }
     Ok(())
+}
+
+pub(crate) fn engine_for_signal(
+    config: EngineConfig,
+    tempo: daw_engine::Tempo,
+    frequency: Option<f64>,
+) -> Result<daw_engine::AudioEngine> {
+    match frequency {
+        None => Ok(daw_engine::AudioEngine::new(config, tempo)),
+        Some(hz) => daw_engine::AudioEngine::with_ramped_sine(config, tempo, hz, 0.1)
+            .map_err(|error| AudioError::new(ErrorCode::InvalidArgument, error.to_string())),
+    }
 }
