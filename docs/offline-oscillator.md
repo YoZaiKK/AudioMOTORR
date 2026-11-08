@@ -1,6 +1,6 @@
 ﻿# Offline oscillator and WAV contract
 
-Updated 2026-11-07. Engine signal generation (7.2) and application/CLI export
+Updated 2026-11-08. Engine signal generation (7.2) and application/CLI export
 (7.3) are published in c6cf627 and verified locally and in hosted CI. Manual smoke
 and native smoke retain silence; desktop now offers explicit stage 8
 [native audition](native-audition.md). `export-wav` explicitly generates a sine signal without initializing

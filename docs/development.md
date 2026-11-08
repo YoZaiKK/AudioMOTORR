@@ -99,10 +99,11 @@ Node is needed only for the fixture runner here; npm installation is unnecessary
 verification: desktop enables CPAL and requires native dependencies.
 
 No Linux or macOS build was run locally for this delivery. The hosted
-[baseline run](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42314334447)
-was inspected on 2026-11-07: both jobs passed for `1ef9bd0`. This verifies Ubuntu
-24.04 headless and Windows desktop checks for that revision only, not subsequent
-local changes. Linux CI installs no Tauri or CPAL system dependencies.
+[stage 8 run](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652)
+was inspected on 2026-11-08: both jobs passed for `1e6bca8`. This verifies Ubuntu
+24.04 headless and Windows desktop checks for that implementation revision only;
+later revisions require separate evidence. Linux CI installs no Tauri or CPAL
+system dependencies.
 Native Linux/macOS compilation, WebView integration, audio hosts, packaging, and
 device behavior remain unverified. Consult Tauri's official prerequisites when
 adding native coverage; no untested platform dependency recipe is claimed here.
@@ -157,7 +158,7 @@ Stage 7 is closed: implementation c6cf627 passed both hosted jobs in
 The [closure audit](../progress/cierre-etapa-7.md) records that SHA's evidence;
 future changes require their own verification.
 
-## Stage 8 local verification
+## Stage 8 verification
 
 Desktop now offers explicit sine initialization, frequency selection, and gain
 commands; silence remains the default. See [native audition](native-audition.md)
@@ -172,3 +173,5 @@ allocation-counter 0.8.1 dependency and generated DTOs deliberately change. Afte
 these changes, locked builds and regeneration must preserve their new hashes;
 package-lock.json remains unchanged. The [stage report](../progress/etapa-8.md)
 records local results, hardware identity, and publication/CI status separately.
+The implementation commit 1e6bca8 passed both hosted jobs in run 42524752652;
+the later documentation closure preserves that exact evidence without changing DSP.

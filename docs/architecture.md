@@ -1,6 +1,6 @@
 # Implemented architecture
 
-This describes the foundation, offline export, and local stage 8 extension as of
+This describes the foundation, offline export, and stage 8 extension as of
 2026-11-08. Desktop defaults to silence and offers explicit native sine audition;
 ordinary smoke remains silent and export-wav writes signal. Future music
 features belong to the [roadmap](roadmap.md). The normative processing and queue

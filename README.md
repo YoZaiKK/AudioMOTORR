@@ -41,7 +41,9 @@ and CLI float32 WAV export are published in `c6cf627` and passed
 See the [closure report](progress/cierre-etapa-7.md) and
 [Spanish execution plan](progress/plan-etapas-7-13.md). Stages 8–13 cover native signal/ramps, sampler,
 mixer, sequencer, persistence/beat export, and clips/scenes, in that order.
-Stage 8 is implemented locally; stages 9–13 remain planned. Desktop defaults to
+Stage 8 is complete and published in `1e6bca8`, with
+[Linux/Windows CI success](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
+Stages 9–13 remain planned. Desktop defaults to
 silence and offers an explicit sine source, frequency, and volume control.
 Ordinary smoke commands retain silence; export-wav writes a sine to disk without hardware.
 The [export report](progress/etapa-7-exportacion.md) records evidence and limits;

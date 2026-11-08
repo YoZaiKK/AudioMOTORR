@@ -49,7 +49,7 @@ para el relevo. Workflow validado localmente no significa CI remota satisfactori
 consultar los [resultados de Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
 de la revisión publicada.
 
-Plan del siguiente desarrollo (2026-11-07): [etapas 7–13](../progress/plan-etapas-7-13.md).
+Plan vigente (actualizado 2026-11-08): [etapas 7–13](../progress/plan-etapas-7-13.md).
 La etapa 7 está cerrada: oscilador y exportación CLI publicados en c6cf627,
 con CI Linux/Windows correcta. Ver [cierre](../progress/cierre-etapa-7.md).
 Los smoke ordinarios conservan silencio; export-wav escribe señal a archivo. La
@@ -57,6 +57,7 @@ Los smoke ordinarios conservan silencio; export-wav escribe señal a archivo. La
 en Ubuntu headless y Windows desktop, sin validar Linux nativo/macOS.
 Esta guía describe las funciones implementadas; sus nueve fixtures Node siguen
 siendo de silencio y los tests Rust cubren WAV. Ver [reporte WAV](../progress/etapa-7-exportacion.md).
-Etapa 8 implementada localmente: reproducción nativa, rampas y mediciones release.
+Etapa 8 completada: reproducción nativa, rampas y mediciones release publicadas en
+1e6bca8, con CI Linux/Windows correcta para ese SHA en run 42524752652.
 Ver [reporte actual](../progress/etapa-8.md) y
 [contrato técnico](../docs/native-audition.md), con estado de CI y límites explícitos.

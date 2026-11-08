@@ -1,6 +1,8 @@
 # Native sine audition and gain ramps
 
-Implemented locally in stage 8, 2026-11-08. This extends the
+Implemented in stage 8, 2026-11-08; published in 1e6bca8 with
+[Linux/Windows CI success](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
+This extends the
 [offline oscillator](offline-oscillator.md) through the existing service and CPAL
 backend. The [realtime contract](realtime-contract.md) governs queues, ownership,
 errors, and acknowledgement. The [stage report](../progress/etapa-8.md) records

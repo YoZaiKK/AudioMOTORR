@@ -1,8 +1,9 @@
 # Plan de progreso — Etapas 7 a 13
 
 Actualizado: 2026-11-08. Etapa 7 completada, publicada en c6cf627 y verificada
-en Linux headless/Windows desktop por CI. **Etapa 8 implementada localmente**:
-señal nativa explícita, rampas y mediciones release. Ver [reporte actual](etapa-8.md)
+en Linux headless/Windows desktop por CI. **Etapa 8 completada**, publicada en
+1e6bca8 con CI correcta en run 42524752652: señal nativa explícita, rampas y
+mediciones release. Ver [reporte actual](etapa-8.md)
 para comprobaciones y estado de publicación/CI. Desktop conserva silencio inicial
 y permite seleccionar senoide; los smoke ordinarios siguen en silencio.
 Los reportes de motor/WAV conservan sus resultados previos a la publicación.
@@ -14,15 +15,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                                |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | ------------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.     |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Implementada localmente; ver reporte. |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Pendiente.                            |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                            |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                            |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                            |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                            |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                            |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | --------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta. |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta. |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Pendiente.                        |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                        |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                        |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                        |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                        |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -147,7 +148,7 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Tras completar las comprobaciones de etapa 8, comenzar **9.1: contrato del sampler
+Etapa 8 cerrada; comenzar **9.1: contrato del sampler
 y fixtures en memoria**. Definir formato/rate/canales, propiedad inmutable,
 capacidad fija de voces, trigger/stop y política de agotamiento. Después implementar
 reproducción determinista en daw-engine; preparar/cargar/decodificar recursos fuera

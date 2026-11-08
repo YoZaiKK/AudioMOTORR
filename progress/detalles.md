@@ -2,6 +2,8 @@
 
 ## Estado actual — Etapa 8, 2026-11-08
 
+Etapa 8 cerrada y publicada en 1e6bca8, con headless-linux y desktop-windows
+correctos en run 42524752652 (SHA exacto inspeccionado el 2026-11-08).
 Senoide nativa explícita, rampas de 5 ms y volumen integrados de motor a React;
 silencio por defecto y WAV offline conservados. Ver [reporte completo](etapa-8.md)
 para implementación, mediciones release, resultados de check/build/smoke, hashes,

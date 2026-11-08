@@ -3,9 +3,9 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-08): etapas 1–7 completadas; etapa 8 implementada localmente
-con mediciones release sobre Realtek. Ver [reporte de etapa 8](etapa-8.md) para
-checks, build, smoke y estado de publicación/CI del incremento. Etapa 7 está
+Estado actual (2026-11-08): etapas 1–8 completadas; etapa 8 publicada en 1e6bca8,
+con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
+Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
 publicada en c6cf627 con CI Ubuntu/Windows correcta; [cierre](cierre-etapa-7.md).
 Las etapas 9–13 siguen planificadas. Se conservan los reportes históricos.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
@@ -120,7 +120,7 @@ Detalle en [plan](plan-etapas-7-13.md) y [cierre](cierre-etapa-7.md).
 - [x] Probar rampas/transiciones y conservar lifecycle/errores.
 - [x] Medir allocator, tiempos, carga y continuidad de muestras en release; registrar hardware y límites.
 - [x] Registrar check completo, build Windows y smoke UI del incremento.
-- [ ] Registrar publicación/CI de la revisión nueva por separado de pruebas locales.
+- [x] Registrar publicación/CI de 1e6bca8 por separado: run 42524752652, ambos jobs success.
 
 No verificados: loopback acústico, unplug físico, estrés prolongado y plataformas
 nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.

@@ -1,7 +1,8 @@
-# Continuidad tras etapa 6
+# Continuidad del proyecto
 
-Actualizado el 2026-11-08. Etapas 1–7 completadas; etapa 8 implementada localmente:
-senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release.
+Actualizado el 2026-11-08. Etapas 1–8 completadas; etapa 8 publicada en 1e6bca8:
+senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release. Ambos
+jobs de CI correctos en run 42524752652, inspeccionado para ese SHA exacto.
 El [reporte actual](etapa-8.md) registra verificación y publicación/CI del incremento.
 Base publicada 818e84b; implementación de etapa 7 c6cf627 con CI Ubuntu/Windows
 correcta. El plan actual es [etapas 7–13](plan-etapas-7-13.md).
@@ -23,7 +24,7 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Completar el cierre local/CI de etapa 8 según el reporte y después comenzar 9.1:
+Comenzar 9.1 tras el cierre local/remoto de etapa 8 registrado en el reporte:
 contrato del sampler y fixtures en memoria. Fijar formato/rate/canales, propiedad
 inmutable, pool fijo y política de agotamiento antes de escribir reproducción
 en daw-engine. Preparar/decodificar recursos fuera del callback en otro incremento.
@@ -52,7 +53,7 @@ opcional requiere hardware y no pertenece a CI; no actualizar capturas salvo
 petición explícita. Pruebas IPC con mock pueden necesitar acceso a datos de app
 fuera del sandbox; eso no implica abrir audio real.
 
-Pendientes independientes: CI de nuevos cambios hasta publicar/inspeccionar el SHA,
+Pendientes independientes: CI de futuros cambios hasta publicar/inspeccionar su SHA,
 Linux nativo/macOS, desconexión física, otros formatos de hardware, loopback y
 estrés prolongado. Se midieron allocator y tiempo de procesamiento release sobre
 Realtek, sin inferir continuidad acústica ni garantía de deadlines del host.

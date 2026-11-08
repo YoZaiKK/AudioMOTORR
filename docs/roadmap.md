@@ -4,8 +4,11 @@ Updated 2026-11-08. Stages 1–6 are the implemented silence foundation, publish
 in baseline `1ef9bd0`. Stage 7 is complete: engine oscillator, bounded application
 rendering and WAV export are published in c6cf627 and passed hosted Linux/Windows
 checks. See [stage 7 closure](../progress/cierre-etapa-7.md) for the exact evidence.
-Stage 8 native audition and ramps are implemented locally, with release hardware
-measurements in the [stage report](../progress/etapa-8.md). Stages 9–13 remain planned.
+Stage 8 is complete: native audition, ramps, and bounded release measurements are
+published in 1e6bca8 and passed both hosted jobs in
+[run 42524752652](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
+The [stage report](../progress/etapa-8.md) records hardware evidence and limits.
+Stages 9–13 remain planned.
 Stages 7–13 preserve the order of the original seven follow-up milestones.
 The [Spanish execution plan](../progress/plan-etapas-7-13.md) and
 [progress checklist](../progress/checklist.md) track their status.

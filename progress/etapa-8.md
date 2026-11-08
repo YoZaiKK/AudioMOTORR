@@ -2,8 +2,9 @@
 
 Fecha: 2026-11-08. Base: main 818e84b (cierre documental de etapa 7);
 implementación previa c6cf627, CI correcta en run 42419963899. El incremento
-actual está implementado y verificado localmente. Publicación y CI de estos
-cambios se registran por separado; los resultados de etapa 7 no verifican este código nuevo.
+actual está completado y publicado en 1e6bca8, con comprobaciones locales y ambos
+jobs CI correctos para ese SHA. Los resultados locales, físicos y remotos se
+detallan por separado; la evidencia de etapa 7 se conserva como historial.
 
 ## Implementación y aceptación
 
@@ -103,6 +104,24 @@ regeneración y check (package-lock.json además conserva su hash de etapa 7):
 | package-lock.json               | ABCCDCEAE11E9A00DCF184D6039B2E55FC8397CDF4204C883DDEB2B61BA4CFBD |
 | src/shared/api/generated/api.ts | CD72C52812C3AD12D3845A127EB9B16C8B90A41640F2118A6C34B583573E26FE |
 
+## Publicación y CI
+
+Implementación publicada en main:
+[1e6bca878b73c99e3c2342b7e6e18af2b0ba799d](https://github.com/YoZaiKK/AudioMOTORR/commit/1e6bca878b73c99e3c2342b7e6e18af2b0ba799d).
+La [ejecución 42524752652](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652)
+corresponde a ese SHA exacto. Ambos jobs terminaron completed/success;
+inspección por API oficial el 2026-11-08 a las 21:26:39 UTC:
+
+| Job             | Resultado | Evidencia                                                                                               |
+| --------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| headless-linux  | success   | [Ubuntu 24.04](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652/job/128865772078)        |
+| desktop-windows | success   | [Windows Server 2022](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652/job/128865771748) |
+
+CI ejecutó pruebas sin hardware y build desktop debug sin instalador. Las pruebas
+Realtek/WebView2 y mediciones release pertenecen al equipo local identificado
+arriba. Etapa 8 cerrada con estas limitaciones; el cierre documental posterior
+no cambia el código de audio y tendrá su propia ejecución remota.
+
 ## Límites y siguiente paso
 
 Los tiempos incluyen drenaje de comandos, DSP, conversión, probes y publicación
@@ -113,8 +132,8 @@ de salida. Las muestras observadas son f32 antes de conversión, primer canal
 idéntico al resto; el salto acotado no demuestra continuidad acústica.
 
 Pendientes: loopback/escucha controlada, desconexión física, estrés prolongado,
-otros dispositivos/formatos físicos, Linux nativo y macOS. La CI nueva solo
-puede declararse correcta al inspeccionar una ejecución del SHA publicado.
+otros dispositivos/formatos físicos, Linux nativo y macOS. La CI de futuros cambios
+solo puede declararse correcta al inspeccionar una ejecución del SHA publicado.
 Se conservan reportes y siete capturas históricas de etapa 5 con sus fechas.
 
 Captura nueva, 2026-11-08, después de reiniciar audio: servicio ready, senoide
