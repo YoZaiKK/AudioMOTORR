@@ -25,7 +25,7 @@ npm run desktop:dev
 Inicializar audio abre una salida; Play inicia el transporte. **Silencio es la
 fuente predeterminada**. Seleccionar Senoide antes de inicializar permite reproducir
 un tono, ajustar frecuencia y aplicar volumen con rampas de 5 ms. Ver
-[walkthrough](02-interfaz.md). No hay sampler, secuenciador ni guardar/abrir
+[walkthrough](02-interfaz.md). No hay sampler en la UI, secuenciador ni guardar/abrir
 proyectos. La CLI permite exportar una senoide offline; ver [export-wav](03-cli.md).
 
 Los [casos JSON](test-files/cli-cases.json) son datos para el ejecutor de pruebas,
@@ -62,8 +62,9 @@ Etapa 8 completada: reproducción nativa, rampas y mediciones release publicadas
 Ver [reporte actual](../progress/etapa-8.md) y
 [contrato técnico](../docs/native-audition.md), con estado de CI y límites explícitos.
 
-Etapa 9 iniciada: 9.1 añade recursos PCM inmutables validados y fixtures en memoria.
-Todavía no hay reproducción de samples ni carga de archivos en la app. Ver
+Etapa 9 en curso: 9.1 aporta recursos PCM y 9.2 reproduce one-shots con un banco
+de 16 slots y 16 voces en la biblioteca del motor. Todavía no hay carga de archivos
+ni reproducción de samples en la app de escritorio. Ver
 [contrato del sampler](../docs/sampler-contract.md) y
-[progreso actual](../progress/etapa-9-sampler.md). El siguiente incremento es 9.2,
-banco fijo y pool de voces dentro del motor.
+[progreso actual](../progress/etapa-9-voces.md). El siguiente incremento es 9.3:
+preparación/carga y decodificación acotadas fuera del procesamiento.

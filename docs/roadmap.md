@@ -8,9 +8,11 @@ Stage 8 is complete: native audition, ramps, and bounded release measurements ar
 published in 1e6bca8 and passed both hosted jobs in
 [run 42524752652](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
 The [stage report](../progress/etapa-8.md) records hardware evidence and limits.
-Stage 9 is in progress: 9.1 defines the sampler contract and implements immutable
-PCM resources/fixtures; voice playback and loading remain future work. Stages
-10–13 remain planned. See the [stage 9 report](../progress/etapa-9-sampler.md).
+Stage 9 is in progress: 9.1 supplies immutable PCM resources/fixtures and 9.2
+implements the fixed bank/raw voice kernel, with memory-lifetime tests. Loading
+and native/desktop integration remain future work. Stages 10–13 remain planned.
+See the [current kernel report](../progress/etapa-9-voces.md) and
+[resource report](../progress/etapa-9-sampler.md).
 Stages 7–13 preserve the order of the original seven follow-up milestones.
 The [Spanish execution plan](../progress/plan-etapas-7-13.md) and
 [progress checklist](../progress/checklist.md) track their status.
@@ -69,20 +71,22 @@ The [sampler contract](sampler-contract.md) distinguishes implemented resource
 APIs from the fixed playback policy. This stage does not introduce a generic
 instrument graph or implement the later four-channel mixer.
 
-| Step | Responsibility                                                                                    | Exit criterion / status                                                                                                                                                                         |
-| ---- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 9.1  | Engine PCM resource representation, ownership/limits, fixed voice policy, deterministic fixtures. | Resource validation and four tests implemented; contract defines 16 immutable bank slots, 16 voices, reject-newest overflow, transport/headroom and future raw output oracles. No playback yet. |
-| 9.2  | Engine bank and one-shot voice kernel.                                                            | Exact mono/stereo, overlapping voices, exhaustion/reuse, no callback allocation/deallocation, state preservation and partition equivalence 1/127/256/4096. Next concrete implementation.        |
-| 9.3  | Application resource preparation and bounded asset decoding outside processing.                   | Validate file format/size/rate/channel/working-memory limits before allocation, propagate errors, and move a complete immutable bank into the session with safe teardown.                       |
-| 9.4  | Integrated sampler transport/headroom, audio service outcomes, explicit desktop controls.         | Preserve silence/sine regressions; distinguish enqueued/processed/started or rejected triggers; mock IPC/frontend tests and real native audition.                                               |
-| 9.5  | Verification, evidence, documentation and closure.                                                | Full checks/build, instrumented native sampler timing/allocation/deallocation/continuity measurements and exact published-revision CI; record physical/platform limitations.                    |
+| Step | Responsibility                                                                                    | Exit criterion / status                                                                                                                                                                                 |
+| ---- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9.1  | Engine PCM resource representation, ownership/limits, fixed voice policy, deterministic fixtures. | Resource validation and four tests implemented; contract defines 16 immutable bank slots, 16 voices, reject-newest overflow, transport/headroom and future raw output oracles. Resource-only increment. |
+| 9.2  | Engine bank and one-shot voice kernel.                                                            | Implemented: exact mono/stereo, overlap, exhaustion/reuse, retained PCM, error rollback and partitions 1/127/256/4096; debug/release memory tests report zero allocations/deallocations.                |
+| 9.3  | Application resource preparation and bounded asset decoding outside processing.                   | Validate file format/size/rate/channel/working-memory limits before allocation, propagate errors, and move a complete immutable bank into the session with safe teardown.                               |
+| 9.4  | Integrated sampler transport/headroom, audio service outcomes, explicit desktop controls.         | Preserve silence/sine regressions; distinguish enqueued/processed/started or rejected triggers; mock IPC/frontend tests and real native audition.                                                       |
+| 9.5  | Verification, evidence, documentation and closure.                                                | Full checks/build, instrumented native sampler timing/allocation/deallocation/continuity measurements and exact published-revision CI; record physical/platform limitations.                            |
 
-## Next concrete increment: stage 9.2
+## Next concrete increment: stage 9.3
 
-Implement the fixed 16-slot bank and 16 one-shot voices in daw-engine. Reuse
-SampleBuffer and the in-memory fixtures, choose the lowest free voice, reject
-newest on exhaustion, and keep PCM alive through all voice completion/reset paths.
-Test raw output and partition equivalence before wiring loading, service, or UI.
+Prepare bounded asset loading/decoding outside processing through the application
+and an I/O adapter. Fix supported WAV encodings, encoded/decoded size and working
+memory limits, metadata/rate/channel errors, and cancellation/cleanup behavior.
+Build a complete validated immutable bank before starting processing; preserve
+existing resources on failure. Keep native sampler transport/headroom, commands,
+and UI for 9.4, then measure and close stage 9 in 9.5.
 
 Recording, external MIDI, time stretching, VST/CLAP hosting, complex routing,
 latency compensation, and collaboration remain later work. These stages do not

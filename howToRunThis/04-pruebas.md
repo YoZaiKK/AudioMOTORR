@@ -26,6 +26,22 @@ la interfaz pueda cargar. Aún no prueban voces o reproducción del sampler.
 Ver [reporte](../progress/etapa-9-sampler.md) y [contrato](../docs/sampler-contract.md).
 check y los jobs existentes descubren estas pruebas al seleccionar daw-engine.
 
+El kernel de voces (9.2) se verifica también sin dispositivos:
+
+```powershell
+cargo test -p daw-engine --no-default-features --locked --test sampler_contract
+cargo test -p daw-audio --features rt-diagnostics --locked --test sampler_memory_contract
+cargo test -p daw-audio --release --features rt-diagnostics --locked --test sampler_memory_contract
+```
+
+Ocho pruebas de kernel y una interna de overflow comprueban muestras exactas,
+suma por orden de voz, mapeo de canales, superposición, agotamiento, reutilización,
+clear/retrigger, errores y particiones. La prueba instrumentada mide asignaciones
+y liberaciones, con una destrucción separada que verifica que el contador sí
+detecta liberar recursos. No abre hardware ni demuestra deadlines nativos.
+check ya ejecuta la variante instrumentada; el job headless sin features la
+omite y sí ejecuta los tests de comportamiento. Ver [reporte 9.2](../progress/etapa-9-voces.md).
+
 ```powershell
 npm run test:frontend
 npm run typecheck

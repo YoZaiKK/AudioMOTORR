@@ -176,19 +176,28 @@ records local results, hardware identity, and publication/CI status separately.
 The implementation commit 1e6bca8 passed both hosted jobs in run 42524752652;
 the later documentation closure preserves that exact evidence without changing DSP.
 
-## Stage 9.1 resources
+## Stage 9 resources and voice kernel
 
 Sample resource tests are discovered by existing headless/workspace checks:
 
 ```powershell
 cargo test -p daw-engine --no-default-features --locked --test sample_resource_contract
+cargo test -p daw-engine --no-default-features --locked --test sampler_contract
+cargo test -p daw-audio --features rt-diagnostics --locked --test sampler_memory_contract
+cargo test -p daw-audio --release --features rt-diagnostics --locked --test sampler_memory_contract
 ```
 
 Four tests cover exact PCM/metadata, invalid input, mono/stereo frame bounds,
 and output compatibility. The [contract](sampler-contract.md) contains reusable
-fixtures and future voice oracles; playback and decoding are not implemented.
+fixtures. Stage 9.2 adds eight kernel behavior tests, an internal overflow test,
+and a feature-only allocation/deallocation test with a destruction positive control.
+It plays raw one-shots from memory; decoding and native sampler integration are
+not implemented. The existing check already runs the diagnostic feature suite.
 This increment changes no dependencies, lockfiles, DTOs, or UI. The
 [stage report](../progress/etapa-9-sampler.md) separates actual new checks from
 the prior implementation's hosted results. Stage 8 closure 80a2121 passed
 [run 42525499571](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42525499571);
 that result verifies the starting revision, not these later resource changes.
+Stage 9.1 revision 5da0920 passed
+[run 42528127881](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42528127881);
+the [current kernel report](../progress/etapa-9-voces.md) records 9.2 separately.

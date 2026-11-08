@@ -44,10 +44,11 @@ See the [closure report](progress/cierre-etapa-7.md) and
 mixer, sequencer, persistence/beat export, and clips/scenes, in that order.
 Stage 8 is complete and published in `1e6bca8`, with
 [Linux/Windows CI success](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42524752652).
-Stage 9.1 adds validated immutable PCM resources and sampler fixtures in the
-engine; [the contract](docs/sampler-contract.md) fixes the upcoming voice policy.
-Sampler playback/loading/UI remain unimplemented, and stages 10–13 remain planned.
-See the [stage 9 report](progress/etapa-9-sampler.md) for current evidence.
+Stages 9.1–9.2 add immutable PCM resources and a fixed 16-voice raw sampler kernel
+in the engine. It renders exact mono/stereo one-shots without allocating or
+freeing resources during processing. See the [contract](docs/sampler-contract.md)
+and [kernel report](progress/etapa-9-voces.md). File loading, AudioEngine/service
+integration, and sampler UI remain future work; stages 10–13 remain planned.
 Desktop defaults to
 silence and offers an explicit sine source, frequency, and volume control.
 Ordinary smoke commands retain silence; export-wav writes a sine to disk without hardware.
@@ -70,8 +71,10 @@ Implemented capabilities:
 - Play, Pause, Stop, and tempo changes between processing blocks.
 - Separate device-frame and transport-position counters.
 - Small, copyable engine snapshots and explicit configuration/render errors.
-- Validated immutable mono/stereo PCM resources for the upcoming sampler, with
+- Validated immutable mono/stereo PCM resources for the sampler kernel, with
   frame limits and explicit output compatibility checks.
+- A fixed 16-slot bank and 16 one-shot voices in the engine library: deterministic
+  gain/summing, reject-newest exhaustion, and retained PCM after completion/reset.
 - A bounded control thread, realtime SPSC queues, and accepted/applied command IDs.
 - Device enumeration, supported output configurations, and explicit device selection.
 - Audio initialization, shutdown, failure reporting, and restart.
@@ -439,7 +442,6 @@ The sine smoke writes target/desktop-stage8.png and preserves the seven historic
 screenshots. Release diagnostics are opt-in and excluded from default desktop
 builds; hardware checks never run in CI. See the [contract](docs/native-audition.md)
 for measurement scope and the [plan](progress/plan-etapas-7-13.md) for stage 9.
-Stage 9.1 implements immutable SampleBuffer resources and validation. Next is
-9.2: the fixed bank and voice kernel, using exact fixtures before adding loading
-or native controls. Sampler playback, sequencer, and project persistence are not
-implemented yet.
+Stages 9.1–9.2 implement immutable resources, a fixed bank, and raw voice playback
+in the engine library. Next is 9.3: bounded loading/decoding outside processing.
+Desktop sampler audition, sequencer, and project persistence are not implemented yet.

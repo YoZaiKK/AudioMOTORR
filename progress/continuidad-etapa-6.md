@@ -4,9 +4,10 @@ Actualizado el 2026-11-08. Etapas 1–8 completadas; etapa 8 publicada en 1e6bca
 senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release. Ambos
 jobs de CI correctos en run 42524752652, inspeccionado para ese SHA exacto.
 El [reporte de etapa 8](etapa-8.md) registra su verificación y publicación/CI.
-Estado actual: etapa 9 en curso; 9.1 añade SampleBuffer validado y fixtures,
-sin reproducción del sampler. Ver [reporte actual](etapa-9-sampler.md).
-La base 80a2121 pasó run 42525499571; no confundir esa evidencia con el código nuevo.
+Estado actual: etapa 9 en curso; 9.2 añade banco fijo y 16 voces raw en motor,
+sin carga de archivos, AudioEngine/servicio o UI de sampler todavía.
+Ver [reporte actual](etapa-9-voces.md). Base 5da0920 (9.1) con ambos jobs correctos
+en run 42528127881; no confundir esa evidencia con el código nuevo.
 Base publicada 818e84b; implementación de etapa 7 c6cf627 con CI Ubuntu/Windows
 correcta. El plan actual es [etapas 7–13](plan-etapas-7-13.md).
 Las referencias anteriores se conservan como historial fechado.
@@ -27,11 +28,11 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Continuar 9.2: banco fijo y kernel de 16 voces dentro de daw-engine, usando el
-recurso inmutable y fixtures de 9.1. El contrato fija 16 slots, primera voz libre,
-rechazo del nuevo disparo al agotarse y conservación de PCM hasta cerrar sesión.
-Probar oráculos exactos, canales, superposición, reuse, vida útil y particiones;
-no cargar/decodificar ni integrar UI todavía. Ver el
+Continuar 9.3: preparación/carga y decodificación acotadas fuera del procesamiento
+mediante aplicación/adaptador de I/O. Fijar encodings WAV, límites de bytes/frames
+y memoria temporal, errores de metadatos/rate/canales y cierre/cancelación seguros.
+Crear un banco completo validado antes de empezar; no modificar recursos vivos
+ante un fallo. Mantener integración nativa/IPC/UI para 9.4. Ver el
 [contrato del sampler](../docs/sampler-contract.md) para límites y políticas.
 
 En 7.3, daw-app coordina render offline con buffers acotados y daw-cli escribe

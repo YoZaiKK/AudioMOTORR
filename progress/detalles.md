@@ -1,6 +1,16 @@
 # Detalles de implementación
 
-## Estado actual — Etapa 9.1, 2026-11-08
+## Estado actual — Etapa 9.2, 2026-11-08
+
+Banco inmutable de 16 slots y kernel de 16 voces implementados en daw-engine.
+Reproduce PCM one-shot mono/estéreo, suma f32 por índice de voz, rechaza el nuevo
+disparo al agotarse y conserva recursos al terminar/vaciar voces. Nueve pruebas
+de comportamiento/overflow y una instrumentada cubren particiones, memoria y
+destrucción. No se añade loader ni integración con AudioEngine/servicio/IPC/UI.
+Ver [reporte actual](etapa-9-voces.md). Siguiente cambio: 9.3, preparación/carga y
+decodificación acotadas fuera del procesamiento. Los registros inferiores son históricos.
+
+## Etapa 9.1, 2026-11-08 — Registro histórico
 
 Se inicia sampler con SampleBuffer inmutable dentro de daw-engine: PCM f32
 normalizado, mono/estéreo, límite por frames y comprobación de rate/mapeo de salida.

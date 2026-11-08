@@ -7,8 +7,8 @@ Estado actual (2026-11-08): etapas 1–8 completadas; etapa 8 publicada en 1e6bc
 con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
 Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
 publicada en c6cf627 con CI Ubuntu/Windows correcta; [cierre](cierre-etapa-7.md).
-Etapa 9 en curso: 9.1 implementa recursos PCM/validación y fija contrato/fixtures;
-reproducción de samples aún pendiente. Ver [reporte actual](etapa-9-sampler.md).
+Etapa 9 en curso: 9.1 aporta PCM/fixtures y 9.2 implementa banco fijo y voces raw;
+carga de archivos e integración nativa/UI pendientes. Ver [reporte actual](etapa-9-voces.md).
 Las etapas 10–13 siguen planificadas. Se conservan los reportes históricos.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
 Registro actual: [continuidad tras etapa 6](continuidad-etapa-6.md).
@@ -133,10 +133,13 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] Implementar SampleBuffer inmutable, validación y compatibilidad de salida.
 - [x] Añadir fixtures en memoria y cuatro pruebas de recursos (sin reproducción).
 - [x] Registrar check completo, build Windows, formato/enlaces y hashes de 9.1.
-- [ ] 9.2: implementar banco fijo y kernel de voces con oráculos de muestras/particiones.
-- [ ] Implementar sampler con pool fijo y política de agotamiento definida.
-- [ ] Cargar/decodificar recursos fuera del callback y verificar propiedad/cierre.
-- [ ] Cerrar con fixtures deterministas y regresiones de tiempo real.
+- [x] 9.2: implementar banco fijo y kernel de voces con oráculos de muestras/particiones.
+- [x] Implementar kernel raw con pool fijo y rechazo del nuevo disparo al agotarse.
+- [x] Medir cero asignaciones/liberaciones en procesamiento, con control positivo de destrucción.
+- [x] Registrar check completo/build Windows y reproducibilidad del incremento 9.2.
+- [ ] 9.3: cargar/decodificar recursos fuera del callback y verificar propiedad/cierre.
+- [ ] 9.4: integrar transporte/headroom, outcomes del servicio e IPC/UI de sampler.
+- [ ] 9.5: cerrar con regresiones, mediciones nativas del sampler y CI del SHA publicado.
 
 ## Etapa 10 — Mezclador de cuatro canales
 

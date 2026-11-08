@@ -61,11 +61,12 @@ immediate offline oscillator/export semantics above remain unchanged.
 
 ## Limits and overflow
 
-Stage 9.1 prepares immutable PCM resources outside processing; it adds no sampler
-command, queue payload, callback work, or desktop DTO. The
-[sampler contract](sampler-contract.md) defines implemented resource validation
-and the future fixed-bank/voice/reclamation/outcome requirements. Sine timing and
-allocation measurements do not establish sampler callback behavior.
+Stages 9.1–9.2 add prepared immutable PCM and a standalone fixed voice kernel.
+They add no sampler service command, queue payload, CPAL callback source, or
+desktop DTO. The [sampler contract](sampler-contract.md) defines implemented
+bank/voice behavior and memory-lifetime tests versus future transport/outcome
+integration. Raw-kernel memory tests and sine timing measurements do not
+establish native sampler callback deadlines or physical continuity.
 
 | Boundary                             | Capacity / policy                                                           |
 | ------------------------------------ | --------------------------------------------------------------------------- |

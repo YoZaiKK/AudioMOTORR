@@ -1,5 +1,10 @@
 # Etapa 9 — Recursos PCM y contrato del sampler (9.1)
 
+Reporte histórico de 9.1, publicado en 5da0920 y verificado por ambos jobs en
+[run 42528127881](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42528127881).
+Las referencias a voces/reproducción pendientes describen ese incremento.
+El estado vigente de 9.2 se registra en el [reporte del kernel](etapa-9-voces.md).
+
 Fecha: 2026-11-08. Base limpia main 80a2121, cierre de etapa 8. Ese SHA pasó
 [CI Linux/Windows, run 42525499571](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42525499571).
 La evidencia de la base no verifica los cambios nuevos. Etapa 9 permanece en

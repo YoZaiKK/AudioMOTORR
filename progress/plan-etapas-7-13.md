@@ -8,10 +8,10 @@ para comprobaciones y estado de publicación/CI. Desktop conserva silencio inici
 y permite seleccionar senoide; los smoke ordinarios siguen en silencio.
 Los reportes de motor/WAV conservan sus resultados previos a la publicación.
 
-Etapa 9 en curso: 9.1 fija el [contrato del sampler](../docs/sampler-contract.md)
-y añade SampleBuffer/fixtures validados; 9.1 completada localmente con check y
-build correctos, todavía sin reproducir samples. El
-[reporte actual](etapa-9-sampler.md) registra comprobaciones y límites.
+Etapa 9 en curso: 9.1 aporta SampleBuffer/fixtures y 9.2 implementa banco fijo y
+16 voces raw con pruebas de memoria; todavía sin loader o reproducción nativa/UI.
+El [contrato](../docs/sampler-contract.md) y [reporte actual](etapa-9-voces.md)
+separan implementación, comprobaciones y límites.
 
 El [checklist](checklist.md) registra el estado; el [roadmap técnico](../docs/roadmap.md)
 define los hitos y el [contrato](../docs/offline-oscillator.md) concreta
@@ -20,15 +20,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                                 |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | -------------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.      |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.      |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: 9.1 recursos; 9.2 siguiente. |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                             |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                             |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                             |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                             |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                  |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | --------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.       |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.       |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: 9.2 voces raw; 9.3 siguiente. |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                              |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                              |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                              |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                              |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -153,11 +153,11 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Continuar con **9.2: banco fijo y kernel de 16 voces** dentro de daw-engine,
-usando SampleBuffer y los fixtures de 9.1. Verificar salida exacta, canales,
-superposición, rechazo del disparo nuevo al agotar voces, reutilización, vida útil
-y particiones 1/127/256/4096. Después preparar recursos fuera del callback y
-conectar aplicación/servicio/UI. No anticipar mezclador ni secuenciador.
+Continuar con **9.3: preparación/carga y decodificación acotadas** mediante la
+aplicación/adaptador de I/O, fuera del procesamiento. Fijar encodings WAV, límites
+de archivo/PCM/memoria temporal y errores claros; preparar un banco validado y
+cerrar recursos ante fallo/cancelación sin alterar una sesión viva. Después 9.4
+conectará transporte/headroom, servicio/IPC/UI. No anticipar mezclador ni secuenciador.
 
 ## Etapa 9 — Desglose y aceptación
 
@@ -166,10 +166,11 @@ conectar aplicación/servicio/UI. No anticipar mezclador ni secuenciador.
   memoria inmutable; preparación/destrucción fuera del procesamiento. Fixtures
   y cuatro tests de validación/compatibilidad implementados. Política fijada:
   banco de 16 slots y 16 voces, elegir la primera libre y rechazar el nuevo
-  disparo al agotar el pool. La reproducción todavía no existe.
-- **9.2, motor:** implementar banco/kernel de one-shots, suma determinista,
-  fin exacto, reuse/agotamiento y oráculos del contrato. Verificar muestras y
-  estado entre particiones sin asignar ni liberar recursos en procesamiento.
+  disparo al agotar el pool. El reporte de 9.1 conserva la evidencia de ese alcance.
+- **9.2, motor:** banco/kernel de one-shots implementados, suma determinista,
+  fin exacto, reuse/agotamiento y oráculos del contrato. Ocho tests, overflow
+  interno y prueba instrumentada verifican muestras/estado y vida útil sin
+  asignaciones/liberaciones en procesamiento. Sin transporte del AudioEngine aún.
 - **9.3, preparación:** carga/decodificación y presupuesto de memoria en
   aplicación fuera del callback; errores de archivo/formato/rate/canales/longitud
   y cierre seguro. No confundir el recurso PCM con un loader ya implementado.

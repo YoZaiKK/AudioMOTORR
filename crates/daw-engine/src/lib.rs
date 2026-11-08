@@ -9,11 +9,16 @@ use std::fmt;
 mod gain;
 mod oscillator;
 mod sample;
+mod sampler;
 use gain::GainRamp;
 pub use gain::{Gain, InvalidGain};
 pub use oscillator::OscillatorError;
 use oscillator::SineOscillator;
 pub use sample::{MAX_SAMPLE_FRAMES, SampleBuffer, SampleError};
+pub use sampler::{
+    SAMPLE_BANK_SLOTS, SAMPLER_VOICES, SampleBank, SampleBankError, Sampler, SamplerSnapshot,
+    TriggerError, VoiceSnapshot,
+};
 
 pub use daw_domain::Tempo;
 

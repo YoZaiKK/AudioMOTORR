@@ -1,10 +1,11 @@
 # Sampler contract and PCM resources
 
-Stage 9.1, 2026-11-08. Implemented now: immutable `SampleBuffer`, validation,
-output compatibility checks, and deterministic in-memory fixtures. Voice playback,
-asset loading, sampler IPC/UI, and native sampler audition remain later stage 9
-increments. The application still offers silence and sine only. See the
-[roadmap](roadmap.md), [stage report](../progress/etapa-9-sampler.md), and
+Stages 9.1–9.2, 2026-11-08. Implemented now: immutable SampleBuffer resources,
+a fixed SampleBank, and the 16-voice raw Sampler kernel with exact fixture tests.
+Asset loading, AudioEngine transport/headroom integration, sampler IPC/UI, and
+native sampler audition remain later increments. Desktop still offers silence
+and sine only. See the [roadmap](roadmap.md),
+[current kernel report](../progress/etapa-9-voces.md), [resource report](../progress/etapa-9-sampler.md), and
 [realtime contract](realtime-contract.md).
 
 ## Implemented resource representation
@@ -50,10 +51,23 @@ before calling it. A later loader must validate declared sizes, decoded frame
 counts, arithmetic, and its working-memory budget before allocating/decoding.
 No untrusted-file loader exists in this increment.
 
-## Fixed playback policy for stage 9.2 and integration
+## Implemented fixed bank and raw playback kernel (9.2)
 
-The following decisions define acceptance for upcoming code; they do not describe
-an implemented player or public API yet.
+SampleBank::new takes an output EngineConfig and an owned fixed array of
+16 Option<SampleBuffer> entries. It rejects output channels outside 1–2 and
+validates every occupied slot in ascending order, reporting its index and typed
+compatibility error. Empty slots/banks are valid. Read-only get/config methods
+expose resources; the bank has no mutator or Clone. Failed construction drops
+the input on the caller's thread, outside processing.
+
+Sampler::new takes ownership of that bank. trigger(slot, Gain) starts a one-shot
+and returns the lowest free voice index, or InvalidSlot, MissingAsset, PoolFull
+in that validation order. A returned index is reusable and is not a stable voice
+handle. Trigger rejection preserves all cursors/counters. Gain is quantized once
+to f32 per voice. render_interleaved overwrites caller-owned mono/stereo buffers;
+it neither gates transport nor applies envelopes/headroom. The first six rows
+below are implemented. Native headroom and the transport section remain future
+integration requirements.
 
 | Decision        | Required behavior                                                                                                                                                                                                                                                                                                                         |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -72,6 +86,31 @@ none may free resource storage. Stop retains the bank for later triggers. Replac
 resources requires shutdown and rebuilding the bank outside processing. A stream
 must stop using its engine before that bank is destroyed. Driver/backend teardown
 and destruction are separate from the processing callback's no-deallocation rule.
+
+clear_voices immediately clears fixed voice state without freeing PCM or resetting
+the raw rendered-frame counter. Calling it repeatedly is safe. The future
+transport adapter must call it after its master release; this method is not a
+new Stop command. A fresh Sampler starts with no voices and a zero counter.
+snapshot returns Copy inspection state: output config, cumulative rendered_frames,
+and 16 optional VoiceSnapshot entries (resource slot, next source frame, f32 gain).
+This is a kernel inspection API, not an added service snapshot or IPC DTO.
+
+```rust
+use daw_engine::{EngineConfig, Gain, SampleBank, SampleBuffer, Sampler, SAMPLE_BANK_SLOTS};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = EngineConfig::new(48_000, 1)?;
+    let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
+    slots[0] = Some(SampleBuffer::new(config, vec![0.5, 0.25, -0.25])?);
+    let mut sampler = Sampler::new(SampleBank::new(config, slots)?);
+    sampler.trigger(0, Gain::new(1.0)?)?;
+    let mut output = [0.0; 4];
+    sampler.render_interleaved(&mut output)?;
+    assert_eq!(output, [0.5, 0.25, -0.25, 0.0]);
+    assert_eq!(sampler.snapshot().active_voices(), 0);
+    Ok(())
+}
+```
 
 ### Transport and observations
 
@@ -101,49 +140,68 @@ started/rejected counters. Validate known asset/argument failures before enqueue
 where possible; check dynamic voice availability only in the processing owner.
 Snapshots can omit intermediate outcomes and are not a lossless per-trigger log;
 adapters must not infer an older command's result from a newer trigger outcome.
-These commands/fields/DTOs are acceptance requirements, not added in 9.1.
+These commands/fields/DTOs are acceptance requirements, not added in 9.1 or 9.2.
 
 Invalid render alignment or checked counter exhaustion must silence the whole
-output and preserve voice cursors, transport, master envelope, and counters.
-Empty buffers make no progress. Keep the 128-command FIFO and 32-command whole
-callback budget, including when a callback is split into scratch-sized chunks.
+output and preserve all state. The raw kernel already checks alignment and its
+u64 rendered-frame counter before advancing any voice; empty buffers make no
+progress. Later integration must also preserve transport/master envelope and
+the 128-command FIFO/32-command whole callback budget when chunking output.
 
-## Executable resource fixtures and future playback oracles
+## Executable fixtures and playback evidence
 
 [sampler_fixtures.rs](../crates/daw-engine/tests/support/sampler_fixtures.rs) contains
 small arrays and a bounded generator in Rust. They need no file, decoder, JSON,
 window, or audio hardware; all fractions are exactly representable in f32.
 The [resource tests](../crates/daw-engine/tests/sample_resource_contract.rs) already
-use them to verify ownership/data preservation and metadata. They do not claim
-voice, timing, or output-mapping playback coverage.
+use them to verify ownership/data preservation and metadata. Eight new
+[kernel tests](../crates/daw-engine/tests/sampler_contract.rs) exercise the raw
+playback oracles below, plus one internal overflow test. They do not establish
+native sampler timing or transport integration.
 
-| Fixture       | Metadata and PCM                                           | Planned raw-kernel oracle                                                                                                                      |
+| Fixture       | Metadata and PCM                                           | Raw-kernel oracle (tested in 9.2)                                                                                                              |
 | ------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | MONO_PULSE    | 48 kHz, mono, [1, 0, -0.5, 0.25, 0], 5 frames.             | Trigger at frame 0, gain 1, render 7 frames: [1, 0, -0.5, 0.25, 0, 0, 0]. Stereo duplicates each frame.                                        |
 | STEREO_STEPS  | 48 kHz, stereo, [0.25, -0.5, 0.5, -0.25, 0, 0], 3 frames.  | Left/right remain distinct; rendering 5 frames appends four zero samples.                                                                      |
 | MONO_TAIL     | 48 kHz, mono, [0.5, 0.25, -0.25], 3 frames.                | Following frame is zero despite the nonzero final sample; no invented release samples.                                                         |
 | partition_pcm | 48 kHz mono, 4103 frames; frame i = ((i mod 17) - 8) / 16. | Compare full output, state, and future tail for blocks 1/127/256/4096, splitting at scheduled commands and preserving the final partial block. |
 
-Additional voice acceptance cases fixed now:
+Additional voice cases now tested:
 
 - Two MONO_PULSE voices: gain 1 at frame 0 and gain 0.5 at frame 2.
   Raw mono frames 0–7 must be [1, 0, 0, 0.25, -0.25, 0.125, 0, 0].
 - Sixteen simultaneous full-gain MONO_PULSE voices produce raw
   [16, 0, -8, 4, 0]; a seventeenth trigger is rejected without changing them.
   Integrated headroom scales these samples by 1/16 before master gain.
-- Test final-frame slot reuse, missing assets, zero-gain occupancy, rejection
-  without cursor mutation, pause/resume/stop/restart, invalid render rollback,
-  exact channel mapping, and unsupported resource/output combinations.
-- Instrument steady processing, trigger bursts, natural completion, exhaustion,
-  and Stop for zero allocations and deallocations; allocation-only counts are
-  insufficient to prove safe resource reclamation. Repeat release timing/load
-  and continuity measurements on identified hardware when native sampler support
-  exists. Stage 8 sine measurements do not validate sampler processing.
+- Final-frame reuse, missing assets, zero-gain occupancy, first-free selection,
+  rejection without cursor mutation, clear/retrigger with retained PCM, invalid
+  render rollback, exact channel mapping, unsupported bank configurations, and
+  ascending f32 summation order (including a cancellation/rounding oracle).
+- Pause/resume/Stop/restart with master ramps remain integration acceptance.
+
+[sampler_memory_contract.rs](../crates/daw-audio/tests/sampler_memory_contract.rs)
+uses the existing optional allocation-counter dependency under rt-diagnostics;
+the engine gains no dependency. It preallocates resources/scratch, then measures
+100 rounds of full trigger bursts, exhaustion/missing/invalid rejection, empty
+and variable blocks, natural completion, invalid blocks, inspection, and clear.
+Zero total allocations plus zero signed net count/bytes establishes zero
+deallocations within that measured region. A separate destruction measurement
+must report exactly four frees and the retained PCM bytes as a positive control.
+Assertions run in debug and release without opening hardware. Windows check/CI
+already exercises the feature; default headless suites skip this feature-only
+test while running all kernel behavior tests.
+
+The positive-control destruction is deliberately outside processing. These
+thread-local memory measurements do not measure callback arrival/deadlines,
+physical continuity, or native sampler load. Repeat native release timing/load
+and continuity checks when integration exists; stage 8 sine evidence does not
+validate sampler callbacks.
 
 ## Delivery boundaries
 
 9.1 implements resource validation and fixtures and fixes these decisions.
-9.2 implements the bank and fixed voice kernel with the raw oracles above.
+9.2 implements the bank and fixed voice kernel with the raw oracles above,
+including invalid-render rollback and instrumented memory lifetime tests.
 9.3 prepares bounded application-side loading/decoding and resource lifetime.
 9.4 integrates sampler mode, transport/headroom, service outcomes, and explicit
 desktop controls. 9.5 verifies full checks/build, native sampler measurements,
