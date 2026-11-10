@@ -21,7 +21,8 @@ initialization validates against the negotiated sample rate; frequency must be
 finite, positive, and strictly below Nyquist. Voice peak amplitude is fixed at
 0.1 by the service. The application exposes `initialize_audio_with_sine`,
 `initialize_manual_sine`, and `signal_set_gain`. Gain is finite and within 0–1;
-the service rejects gain commands when the current engine has no sine.
+the service rejects gain commands for silence. Stage 9.4 extends this same master
+gain control to [sampler sessions](sampler-service.md).
 Validation/queue rejection does not consume a command ID. Signal settings are
 session playback state, not edits to the minimal project document.
 
@@ -110,8 +111,10 @@ Native measurement surrounds command drain, rendering, sample conversion, and
 snapshot publication. It includes diagnostic overhead and excludes CPAL host,
 driver, other threads, callback arrival jitter, and physical output. The nominal
 budget is callback frames / sample rate. `maxLoadRatio` measures processing load,
-not total CPU utilization. Probe samples are pre-conversion first-channel f32;
-all generated channels are identical. Maximum adjacent-sample jump includes
+not total CPU utilization. Stage 8 probes were pre-conversion first-channel f32;
+all generated sine channels are identical. Stage 9.5.a [sampler diagnostics](sampler-diagnostics.md)
+now probe every channel, count frees and add fixed histogram observations; historical
+stage 8 measurements retain their original scope. Maximum adjacent-sample jump includes
 chunk/callback boundaries and is compared to the sine derivative bound plus
 the maximum envelope step. It does not establish acoustic continuity or absence
 of dropouts. Timing/allocation aggregates publish on the next callback (one

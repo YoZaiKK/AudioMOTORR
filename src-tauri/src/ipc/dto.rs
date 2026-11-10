@@ -156,6 +156,7 @@ pub struct ServiceSnapshotDto {
     pub callbacks: String,
     pub last_applied_command: Option<String>,
     pub error: Option<ApiError>,
+    pub sampler: Option<SamplerTelemetryDto>,
 }
 
 impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
@@ -203,6 +204,37 @@ impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
             callbacks: value.callbacks.to_string(),
             last_applied_command: value.last_applied_command.map(|id| id.to_string()),
             error: value.error.map(Into::into),
+            sampler: value.sampler.map(|sampler| SamplerTelemetryDto {
+                occupied_slots: sampler.occupied_slots,
+                active_voices: sampler.active_voices as u8,
+                started: sampler.started.to_string(),
+                rejected: sampler.rejected.to_string(),
+                last_trigger: sampler.last_trigger.map(|report| TriggerReportDto {
+                    command_id: report.command_id.to_string(),
+                    outcome: match report.result {
+                        Ok(voice) => TriggerOutcomeDto::Started { voice: voice as u8 },
+                        Err(error) => TriggerOutcomeDto::Rejected {
+                            reason: match error {
+                                daw_app::SamplerTriggerError::NoSampler => {
+                                    TriggerRejectionDto::NoSampler
+                                }
+                                daw_app::SamplerTriggerError::InvalidSlot => {
+                                    TriggerRejectionDto::InvalidSlot
+                                }
+                                daw_app::SamplerTriggerError::MissingAsset => {
+                                    TriggerRejectionDto::MissingAsset
+                                }
+                                daw_app::SamplerTriggerError::NotPlaying => {
+                                    TriggerRejectionDto::NotPlaying
+                                }
+                                daw_app::SamplerTriggerError::PoolFull => {
+                                    TriggerRejectionDto::PoolFull
+                                }
+                            },
+                        },
+                    },
+                }),
+            }),
         }
     }
 }
@@ -261,9 +293,103 @@ pub fn bindings_text() -> String {
         ServiceSnapshotDto::decl(&cfg),
         OutputConfigDto::decl(&cfg),
         OutputDeviceDto::decl(&cfg),
+        TriggerOutcomeDto::decl(&cfg),
+        TriggerRejectionDto::decl(&cfg),
+        TriggerReportDto::decl(&cfg),
+        SamplerTelemetryDto::decl(&cfg),
+        SampleFileDto::decl(&cfg),
+        PreparationStateDto::decl(&cfg),
+        PreparationSnapshotDto::decl(&cfg),
     ];
     format!(
         "// Generated from Rust DTOs by ts-rs. Run npm run bindings:generate.\n{}\n",
         declarations.map(|d| format!("export {d}")).join("\n")
     )
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(tag = "status", rename_all = "camelCase")]
+pub enum TriggerOutcomeDto {
+    Started { voice: u8 },
+    Rejected { reason: TriggerRejectionDto },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub enum TriggerRejectionDto {
+    NoSampler,
+    InvalidSlot,
+    MissingAsset,
+    NotPlaying,
+    PoolFull,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct TriggerReportDto {
+    pub command_id: String,
+    pub outcome: TriggerOutcomeDto,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct SamplerTelemetryDto {
+    pub occupied_slots: u16,
+    pub active_voices: u8,
+    pub started: String,
+    pub rejected: String,
+    pub last_trigger: Option<TriggerReportDto>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SampleFileDto {
+    pub slot: u8,
+    pub path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub enum PreparationStateDto {
+    Idle,
+    Loading,
+    Cancelling,
+    Ready,
+    Cancelled,
+    Error,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct PreparationSnapshotDto {
+    pub sequence: String,
+    pub preparation_id: Option<String>,
+    pub state: PreparationStateDto,
+    pub sample_rate: Option<u32>,
+    pub channels: Option<u16>,
+    pub occupied_slots: u16,
+    pub retained_pcm_bytes: String,
+    pub error: Option<String>,
+}
+impl From<daw_app::sampler_session::PreparationSnapshot> for PreparationSnapshotDto {
+    fn from(value: daw_app::sampler_session::PreparationSnapshot) -> Self {
+        use daw_app::sampler_session::PreparationState as S;
+        Self {
+            sequence: value.sequence.to_string(),
+            preparation_id: value.preparation_id.map(|id| id.to_string()),
+            state: match value.state {
+                S::Idle => PreparationStateDto::Idle,
+                S::Loading => PreparationStateDto::Loading,
+                S::Cancelling => PreparationStateDto::Cancelling,
+                S::Ready => PreparationStateDto::Ready,
+                S::Cancelled => PreparationStateDto::Cancelled,
+                S::Error => PreparationStateDto::Error,
+            },
+            sample_rate: value.config.map(|config| config.sample_rate()),
+            channels: value.config.map(|config| config.channels()),
+            occupied_slots: value.occupied_slots,
+            retained_pcm_bytes: value.retained_pcm_bytes.to_string(),
+            error: value.error,
+        }
+    }
 }

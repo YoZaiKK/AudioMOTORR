@@ -16,6 +16,11 @@
     "allow-transport-pause",
     "allow-transport-stop",
     "allow-transport-set-tempo",
-    "allow-signal-set-gain"
+    "allow-signal-set-gain",
+    "allow-prepare-samples",
+    "allow-get-sample-preparation",
+    "allow-cancel-sample-preparation",
+    "allow-initialize-sampler",
+    "allow-trigger-sample"
   ]
 }

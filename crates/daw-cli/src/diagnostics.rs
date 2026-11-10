@@ -6,12 +6,20 @@ use std::{
     hint::black_box,
     time::{Duration, Instant},
 };
+mod sampler;
+mod sampler_native;
 
 pub fn run(command: &str, args: &[String]) -> Result<(), Box<dyn Error>> {
     if cfg!(debug_assertions) {
         return Err(
             "Diagnostics require cargo run --release with --features rt-diagnostics".into(),
         );
+    }
+    if command == "sampler-bench" {
+        return sampler::run(args);
+    }
+    if command == "sampler-native-check" {
+        return sampler_native::run(args);
     }
     let (mut seconds, mut block, mut iterations, mut frequency) =
         (2u64, 127usize, 20_000usize, 440.0f64);
@@ -108,6 +116,7 @@ pub fn run(command: &str, args: &[String]) -> Result<(), Box<dyn Error>> {
                 as f32;
             if metrics.measured_callbacks == 0
                 || metrics.allocations != 0
+                || metrics.deallocations != 0
                 || metrics.deadline_misses != 0
                 || metrics.non_finite_samples != 0
                 || metrics.signal_peak <= 0.0

@@ -1,7 +1,7 @@
 # Realtime contract
 
 This is the principal contract for the implemented engine, audio service, and
-desktop observation boundary as of 2026-11-08. See [architecture](architecture.md)
+desktop observation boundary as of 2026-11-09. See [architecture](architecture.md)
 for package diagrams and [development](development.md) for verification scope.
 
 The [offline oscillator contract](offline-oscillator.md) describes the implemented
@@ -27,6 +27,14 @@ and destruction occur on the control thread. The native callback owns the engine
 the command consumer, the snapshot producer, and its preallocated conversion
 scratch buffer. The manual backend drives the same realtime processor only when
 explicitly asked to render; it has no timer or fake device.
+
+Sampler sessions added in 9.4.b move a prepared bank through the ordinary control
+request channel, never the realtime FIFO. A native stream guard closes CPAL then
+reclaims the owning processor via a one-slot teardown mailbox, so PCM destruction
+occurs on the control owner even if CPAL destroys its callback closure on a worker.
+This mailbox is used only by closure teardown, outside processing. Teardown can
+wait for the backend; the request deadline does not bound driver destruction.
+See [sampler sessions/outcomes](sampler-service.md) for lifecycle and evidence limits.
 
 The engine depends on domain types only. CPAL is confined to `daw-audio` behind
 `native-audio`. The feature propagates through `daw-app` and `daw-cli`; desktop
@@ -59,13 +67,18 @@ explicitly select a ramped sine. The [native audition contract](native-audition.
 defines the 5 ms per-frame envelope, gain validation, and release tails. The
 immediate offline oscillator/export semantics above remain unchanged.
 
+The audio-library API can also initialize an owning sampler engine manually or
+through CPAL, with matching bank/device rate and channels, master ramps and fixed
+headroom. Desktop initialization/trigger DTOs are implemented in
+[stage 9.4.c](sampler-desktop.md), with explicit preparation/session controls.
+
 ## Limits and overflow
 
-Stages 9.1–9.2 add prepared immutable PCM and a standalone fixed voice kernel.
-They add no sampler service command, queue payload, CPAL callback source, or
-desktop DTO. The [sampler contract](sampler-contract.md) defines implemented
-bank/voice behavior and memory-lifetime tests versus future transport/outcome
-integration. Raw-kernel memory tests and sine timing measurements do not
+Stages 9.1–9.3 add PCM, fixed voices and bounded bank preparation. 9.4.a–b connect
+sampler transport/headroom, sessions and Copy trigger outcomes through the existing
+FIFO. The [sampler contract](sampler-contract.md) and [session contract](sampler-service.md)
+define implementation and verification limits; [9.4.c](sampler-desktop.md) adds desktop DTO/UI wiring.
+Raw-kernel/adapter memory tests and sine timing measurements do not
 establish native sampler callback deadlines or physical continuity.
 
 | Boundary                             | Capacity / policy                                                           |
@@ -86,6 +99,13 @@ The 32-command budget applies to the entire callback, not each chunk. Every
 callback retries snapshot publication using its current cumulative state and
 last applied command. Consequently, once space becomes available, later callbacks
 recover the newest acknowledgement even if an earlier publication was skipped.
+Native preflight validates the whole output sample count after command processing
+and before any scratch chunk renders, preventing partial frame advancement on
+a later counter overflow. Sampler observations include an exact last-trigger ID,
+Copy result, voice count and saturating started/rejected counters. Intermediate
+outcomes can be lost; a cumulative processed acknowledgement is not proof that
+each trigger started. Match exact outcome IDs; do not infer an older result from
+a newer trigger. Stage 9.4.c exposes these observations through generated DTOs with exact-ID outcome matching and Unknown for lost results.
 No guarantee is made about telemetry delivery after callbacks stop permanently;
 the service reports a signaled stream failure without waiting for an acknowledgement.
 

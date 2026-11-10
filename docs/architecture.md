@@ -1,8 +1,8 @@
 # Implemented architecture
 
 This describes the foundation, offline export, native audition, and initial
-sampler resources and raw voice kernel as of
-2026-11-08. Desktop defaults to silence and offers explicit native sine audition;
+sampler resources, raw voice kernel, WAV preparation, AudioEngine sessions and desktop controls as of
+2026-11-09. Desktop defaults to silence and offers explicit sine and WAV sampler controls;
 ordinary smoke remains silent and export-wav writes signal. Future music
 features belong to the [roadmap](roadmap.md). The normative processing and queue
 rules are in the [realtime contract](realtime-contract.md); the rationale is in
@@ -51,9 +51,46 @@ outside processing. Allocation/deallocation tests reuse daw-audio's optional
 diagnostic dependency; engine/domain still have no external dependencies. See the
 [sampler contract](sampler-contract.md) for implemented versus future integration.
 
+Stage 9.3.b adds daw-app::sample_loading, a synchronous standard-library adapter
+for bounded WAV preflight/decoding to a single SampleBuffer. It owns its reader,
+checks cancellation, and does not instantiate Application or audio. No decoder
+dependency or engine filesystem access is introduced. Stage 9.3.c adds the
+BankPreparationCoordinator: ordered loading into an entirely new SampleBank,
+checked aggregate payload/buffer budgets and one permit shared by coordinator
+clones. PreparedBank retains the permit until discarded or moved into a
+caller-owned bank holder; no stream/service installation occurs. The active
+bank is borrowed for PCM accounting and preserved throughout preparation.
+No sampler command or UI source is added. See the [loading contract](sample-loading-contract.md).
+Stage 9.3.d extends the existing private adapter seams to synchronize bank
+construction in tests, verifying the final cancellation check and cleanup
+ownership across preparation/receiving threads. These seams add no public
+instrumentation API and no hook in audio processing.
+Stage 9.3.e tests filesystem WAV → prepared bank → raw Sampler using independent
+integer sample oracles. All source files are removed before playback, demonstrating
+the existing resource ownership boundary. The
+[acceptance matrix](sample-loading-acceptance.md) maps coverage and limitations;
+no production, dependency, service or UI change is introduced by these fixtures.
+Preparation is closed locally by the [9.3.f audit](../progress/cierre-preparacion-9.3.md).
+PreparedBank::install transfers ownership to a caller's bank holder; it does not
+install a session into the audio service. 9.4.a now adds AudioEngine::with_sampler:
+owning bank, 1/16 headroom, shared 5 ms master envelope and transport. Direct
+trigger_sample returns Copy typed success/rejection, and sampler() offers read-only
+resource/voice inspection. EngineCommand/EngineSnapshot and IPC DTOs do not change.
+9.4.b connects manual/CPAL sessions and a shared Copy FIFO for controls/triggers.
+Rust ServiceSnapshot.sampler observes exact-ID results and cumulative counts.
+A teardown-only return mailbox moves the owning processor from a destroyed CPAL
+closure to its stream owner after close; audio processing never touches that
+mailbox. Full-callback preflight precedes native chunking. See
+[session ownership and observations](sampler-service.md). [9.4.c](sampler-desktop.md)
+adds Application preparation/session use cases, DTOs/IPC and explicit UI controls.
+One preparation worker performs I/O outside the Application mutex/controller/RT.
+Audio must be closed before preparing or installing a bank. Cancellation and
+application destruction reclaim/join worker ownership outside processing; blocked
+OS I/O is not interruptible. Native hardware evidence is still pending.
+
 `daw-app::Application` owns the editable project and audio service and coordinates
 their use cases. The CLI uses this application for offline smoke and device/native
-diagnostics, plus engine configuration types. Desktop invokes the application through eleven
+diagnostics, plus engine configuration types. Desktop invokes the application through sixteen
 registered commands; it does not implement another engine. A single virtual
 Cargo workspace, root lockfile, and target directory serve all six packages.
 

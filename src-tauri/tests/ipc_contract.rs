@@ -6,6 +6,10 @@ use tauri::{
     test::{INVOKE_KEY, get_ipc_response, mock_builder},
     webview::InvokeRequest,
 };
+#[path = "../../crates/daw-app/tests/support/sample_files.rs"]
+mod sample_files;
+#[path = "../../crates/daw-app/tests/support/wav_fixtures.rs"]
+mod wav_fixtures;
 
 #[test]
 fn invokes_registered_commands_and_serializes_real_application_responses() {
@@ -95,6 +99,93 @@ fn invokes_registered_commands_and_serializes_real_application_responses() {
     assert_eq!(release["engine"]["requestedTransport"], "paused");
     assert_eq!(release["engine"]["transport"], "playing");
     invoke("shutdown_audio", json!({})).unwrap();
+    let files = sample_files::SampleFiles::new();
+    let path = files.write("ipc.wav", &wav_fixtures::wav(1, 16, 1, &[0; 2048], false));
+    assert_eq!(
+        invoke(
+            "prepare_samples",
+            json!({"sampleRate":48000,"channels":2,
+        "files":[{"slot":16,"path":path.to_str().unwrap()}]})
+        )
+        .unwrap_err()["code"],
+        "invalidArgument"
+    );
+    let loading = invoke(
+        "prepare_samples",
+        json!({"sampleRate":48000,"channels":2,
+        "files":[{"slot":0,"path":path.to_str().unwrap()}]}),
+    )
+    .unwrap();
+    assert_eq!(loading["state"], "loading");
+    let id = loading["preparationId"].as_str().unwrap();
+    assert_eq!(
+        invoke("cancel_sample_preparation", json!({"preparationId":"01"})).unwrap_err()["code"],
+        "invalidArgument"
+    );
+    assert_eq!(
+        invoke(
+            "initialize_sampler",
+            json!({"preparationId":"999","deviceId":null})
+        )
+        .unwrap_err()["code"],
+        "invalidArgument"
+    );
+    assert!(invoke("cancel_sample_preparation", json!({"preparationId":1})).is_err());
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    loop {
+        let prepared = invoke("get_sample_preparation", json!({})).unwrap();
+        if prepared["state"] == "ready" {
+            assert_eq!(prepared["retainedPcmBytes"], "4096");
+            break;
+        }
+        assert!(std::time::Instant::now() < deadline);
+        std::thread::yield_now();
+    }
+    // Native initialization is deliberately not invoked: mock runtime uses a manual session.
+    state
+        .access(|application| application.initialize_manual_sampler(id.parse().unwrap()))
+        .unwrap();
+    let trigger = invoke("trigger_sample", json!({"slot":0,"gain":1.0})).unwrap();
+    state
+        .access(|application| application.render_manual(1))
+        .unwrap();
+    let observed = invoke("get_engine_snapshot", json!({})).unwrap();
+    assert_eq!(
+        observed["sampler"]["lastTrigger"]["commandId"],
+        trigger["commandId"]
+    );
+    assert_eq!(
+        observed["sampler"]["lastTrigger"]["outcome"],
+        json!({"status":"rejected","reason":"notPlaying"})
+    );
+    invoke("transport_play", json!({})).unwrap();
+    let trigger = invoke("trigger_sample", json!({"slot":0,"gain":0.5})).unwrap();
+    state
+        .access(|application| application.render_manual(1))
+        .unwrap();
+    let observed = invoke("get_engine_snapshot", json!({})).unwrap();
+    assert_eq!(
+        observed["sampler"]["lastTrigger"]["commandId"],
+        trigger["commandId"]
+    );
+    assert_eq!(
+        observed["sampler"]["lastTrigger"]["outcome"],
+        json!({"status":"started","voice":0})
+    );
+    assert_eq!(observed["sampler"]["started"], "1");
+    assert_eq!(observed["sampler"]["rejected"], "1");
+    invoke("shutdown_audio", json!({})).unwrap();
+    let loading = invoke(
+        "prepare_samples",
+        json!({"sampleRate":48000,"channels":2,"files":[]}),
+    )
+    .unwrap();
+    let cancelled = invoke(
+        "cancel_sample_preparation",
+        json!({"preparationId":loading["preparationId"]}),
+    )
+    .unwrap();
+    assert!(cancelled["state"] == "cancelling" || cancelled["state"] == "cancelled");
     state.close();
     assert_eq!(
         invoke("get_engine_snapshot", json!({})).unwrap_err()["code"],
@@ -126,6 +217,16 @@ fn large_counters_and_identifiers_cross_json_as_decimal_strings() {
         last_applied_command: Some(u64::MAX),
         error: None,
         diagnostics: None,
+        sampler: Some(daw_app::SamplerTelemetry {
+            occupied_slots: u16::MAX,
+            active_voices: 16,
+            started: u64::MAX,
+            rejected: 9007199254740993,
+            last_trigger: Some(daw_app::TriggerReport {
+                command_id: u64::MAX,
+                result: Ok(15),
+            }),
+        }),
     };
     let wire = serde_json::to_value(ServiceSnapshotDto::from(value)).unwrap();
     for field in ["sequence", "callbacks", "lastAppliedCommand"] {
@@ -133,6 +234,27 @@ fn large_counters_and_identifiers_cross_json_as_decimal_strings() {
     }
     assert_eq!(wire["engine"]["deviceFrames"], u64::MAX.to_string());
     assert_eq!(wire["engine"]["transportFrames"], "9007199254740993");
+    assert_eq!(wire["sampler"]["started"], u64::MAX.to_string());
+    assert_eq!(wire["sampler"]["rejected"], "9007199254740993");
+    assert_eq!(
+        wire["sampler"]["lastTrigger"]["commandId"],
+        u64::MAX.to_string()
+    );
+    let preparation = serde_json::to_value(PreparationSnapshotDto::from(
+        daw_app::sampler_session::PreparationSnapshot {
+            sequence: u64::MAX,
+            preparation_id: Some(u64::MAX),
+            state: daw_app::sampler_session::PreparationState::Ready,
+            config: Some(daw_engine::EngineConfig::new(48_000, 2).unwrap()),
+            occupied_slots: 1,
+            retained_pcm_bytes: 4,
+            error: None,
+        },
+    ))
+    .unwrap();
+    assert_eq!(preparation["sequence"], u64::MAX.to_string());
+    assert_eq!(preparation["preparationId"], u64::MAX.to_string());
+    assert_eq!(preparation["retainedPcmBytes"], "4");
     assert_eq!(
         serde_json::to_value(CommandAcceptedDto::from(daw_app::CommandAccepted {
             command_id: u64::MAX
@@ -151,18 +273,27 @@ fn app_acl_does_not_grant_commands_to_other_windows() {
     let other = tauri::WebviewWindowBuilder::new(&app, "other", Default::default())
         .build()
         .unwrap();
-    let result = get_ipc_response(
-        &other,
-        InvokeRequest {
-            cmd: "get_app_info".into(),
-            callback: CallbackFn(0),
-            error: CallbackFn(1),
-            url: "http://tauri.localhost".parse().unwrap(),
-            body: InvokeBody::Json(json!({})),
-            headers: Default::default(),
-            invoke_key: INVOKE_KEY.to_owned(),
-        },
-    );
-    assert!(result.is_err());
+    for command in [
+        "get_app_info",
+        "prepare_samples",
+        "get_sample_preparation",
+        "cancel_sample_preparation",
+        "initialize_sampler",
+        "trigger_sample",
+    ] {
+        let result = get_ipc_response(
+            &other,
+            InvokeRequest {
+                cmd: command.into(),
+                callback: CallbackFn(0),
+                error: CallbackFn(1),
+                url: "http://tauri.localhost".parse().unwrap(),
+                body: InvokeBody::Json(json!({})),
+                headers: Default::default(),
+                invoke_key: INVOKE_KEY.to_owned(),
+            },
+        );
+        assert!(result.is_err());
+    }
     state.close();
 }

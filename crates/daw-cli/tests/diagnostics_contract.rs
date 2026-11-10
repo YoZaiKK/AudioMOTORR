@@ -1,0 +1,82 @@
+use std::process::Command;
+fn run(args: &[&str]) -> std::process::Output {
+    Command::new(env!("CARGO_BIN_EXE_daw-cli"))
+        .args(args)
+        .output()
+        .unwrap()
+}
+#[test]
+fn diagnostic_help_and_feature_or_profile_gates_do_not_open_hardware() {
+    let help = run(&["--help"]);
+    let text = String::from_utf8_lossy(&help.stdout);
+    assert!(
+        help.status.success()
+            && text.contains("sampler-bench")
+            && text.contains("sampler-native-check")
+    );
+    #[cfg(not(any(feature = "offline-diagnostics", feature = "rt-diagnostics")))]
+    for name in ["sampler-bench", "sampler-native-check"] {
+        let output = run(&[name]);
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("Diagnostic commands require"));
+    }
+    #[cfg(all(
+        debug_assertions,
+        any(feature = "offline-diagnostics", feature = "rt-diagnostics")
+    ))]
+    {
+        let output = run(&["sampler-bench"]);
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("Diagnostics require"));
+    }
+}
+#[cfg(all(not(debug_assertions), feature = "offline-diagnostics"))]
+#[test]
+fn release_cli_reports_offline_matrix_and_rejects_bad_options_before_io() {
+    let output = run(&["sampler-bench", "--iterations", "9"]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let text = String::from_utf8_lossy(&output.stdout);
+    assert_eq!(
+        text.lines()
+            .filter(|line| line.starts_with("sampler-bench completed:"))
+            .count(),
+        12
+    );
+    assert!(
+        text.contains("allocations: 0")
+            && text.contains("deallocations: 0")
+            && text.contains("voices=16")
+            && text.contains("p99_ns=")
+    );
+    for args in [
+        vec!["sampler-bench", "--voices", "2"],
+        vec!["sampler-native-check", "--input", "does-not-exist.wav"],
+        vec![
+            "sampler-native-check",
+            "--input",
+            "x",
+            "--device",
+            "x",
+            "--seconds",
+            "6",
+        ],
+    ] {
+        assert!(!run(&args).status.success());
+    }
+    #[cfg(not(feature = "native-audio"))]
+    {
+        let output = run(&[
+            "sampler-native-check",
+            "--input",
+            "does-not-exist.wav",
+            "--device",
+            "does-not-exist",
+        ]);
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("NativeAudioDisabled"));
+    }
+}

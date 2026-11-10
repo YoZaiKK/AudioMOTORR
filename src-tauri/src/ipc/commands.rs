@@ -97,3 +97,82 @@ pub async fn signal_set_gain(
 ) -> Result<CommandAcceptedDto, ApiError> {
     with_app(state, move |app| app.signal_set_gain(gain).map(Into::into)).await
 }
+
+fn preparation_id(value: &str) -> daw_app::Result<u64> {
+    value
+        .parse::<u64>()
+        .ok()
+        .filter(|id| id.to_string() == value)
+        .ok_or_else(|| {
+            daw_app::AudioError::new(
+                daw_app::ErrorCode::InvalidArgument,
+                "Expected a canonical decimal preparation ID",
+            )
+        })
+}
+
+#[tauri::command]
+pub async fn prepare_samples(
+    state: State<'_, Arc<DesktopState>>,
+    sample_rate: u32,
+    channels: u16,
+    files: Vec<SampleFileDto>,
+) -> Result<PreparationSnapshotDto, ApiError> {
+    with_app(state, move |app| {
+        let config = daw_app::EngineConfig::new(sample_rate, channels).map_err(|error| {
+            daw_app::AudioError::new(daw_app::ErrorCode::InvalidArgument, error.to_string())
+        })?;
+        app.prepare_samples(
+            config,
+            files
+                .into_iter()
+                .map(|file| daw_app::sampler_session::SampleFileSelection {
+                    slot: usize::from(file.slot),
+                    path: file.path.into(),
+                })
+                .collect(),
+        )
+        .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn get_sample_preparation(
+    state: State<'_, Arc<DesktopState>>,
+) -> Result<PreparationSnapshotDto, ApiError> {
+    with_app(state, |app| Ok(app.sample_preparation().into())).await
+}
+#[tauri::command]
+pub async fn cancel_sample_preparation(
+    state: State<'_, Arc<DesktopState>>,
+    preparation_id: String,
+) -> Result<PreparationSnapshotDto, ApiError> {
+    with_app(state, move |app| {
+        app.cancel_sample_preparation(self::preparation_id(&preparation_id)?)
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn initialize_sampler(
+    state: State<'_, Arc<DesktopState>>,
+    preparation_id: String,
+    device_id: Option<String>,
+) -> Result<ServiceSnapshotDto, ApiError> {
+    with_app(state, move |app| {
+        app.initialize_sampler(self::preparation_id(&preparation_id)?, device_id)
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn trigger_sample(
+    state: State<'_, Arc<DesktopState>>,
+    slot: u8,
+    gain: f64,
+) -> Result<CommandAcceptedDto, ApiError> {
+    with_app(state, move |app| {
+        app.trigger_sample(usize::from(slot), gain).map(Into::into)
+    })
+    .await
+}

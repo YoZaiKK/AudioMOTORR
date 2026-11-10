@@ -85,6 +85,34 @@ const checks = [
   [
     "cargo",
     [
+      "test",
+      "-p",
+      "daw-cli",
+      "--features",
+      "offline-diagnostics",
+      "--locked",
+      "--bin",
+      "daw-cli",
+      "--test",
+      "diagnostics_contract",
+    ],
+  ],
+  [
+    "cargo",
+    [
+      "test",
+      "-p",
+      "daw-cli",
+      "--features",
+      "rt-diagnostics",
+      "--locked",
+      "--test",
+      "sample_loading_memory_contract",
+    ],
+  ],
+  [
+    "cargo",
+    [
       "clippy",
       "--workspace",
       "--all-targets",

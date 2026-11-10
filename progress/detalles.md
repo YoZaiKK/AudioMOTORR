@@ -1,5 +1,142 @@
 # Detalles de implementación
 
+## Diagnósticos sampler 9.5.a — 2026-11-10
+
+CLI añade sampler-bench y sampler-native-check, con offline-diagnostics sin CPAL
+y release obligatorio. Banco/buffers/timing preasignados, oráculo estéreo distinto,
+actividad 0/1/16 y control positivo de liberación PCM fuera de procesamiento.
+Instrumentación opcional suma liberaciones, todos los canales e histograma fijo.
+Runner nativo usa Application y dispositivo/WAV explícitos; su lifecycle se
+verifica con WAV real y servicio manual, sin hardware. Benchmark release de 24
+casos mono/estéreo correcto. Ver [reporte](etapa-9-diagnosticos-sampler.md).
+Siguiente 9.5.b: mediciones/audición físicas. No hay commit/push o CI nuevos.
+
+## Cierre local de integración 9.4.d — 2026-11-09
+
+Auditoría de dieciséis criterios contra código/pruebas, con límites por capa.
+Se corrigen dos defectos del hook: fallo de enumeración impedía consultar banco,
+y cambios de efecto permitían solapar polls pendientes. Tres casos reproducen
+fallo antes y pasan después; 24 pruebas frontend. No cambia audio/DTO/dependencias.
+Se documenta protocolo 9.5: el runner sampler todavía falta y la telemetría actual
+no expone liberaciones. Siguiente 9.5.a: benchmark offline y runner native opt-in,
+con buffers acotados y tests sin hardware. Ver [cierre](cierre-integracion-9.4.md).
+No hay hardware, capturas, commit/push o CI nuevos. Historial inferior conservado.
+
+## Sampler en Application/IPC/UI 9.4.c — 2026-11-09
+
+Application añade worker de carga/cancelación y entrega por ID a sesión; el
+decoder no usa el mutex de aplicación ni controlador/RT. Cerrar audio precede
+a cargar/instalar; fallo de apertura consume el banco. Cinco comandos nuevos,
+ACL local main y DTOs/TS generados exponen preparación y telemetría sampler con
+IDs/counters string y rechazo tipado. UI añade rutas WAV, carga/descarte, salida,
+inicialización y disparo explícitos, master gain y resultado exacto/desconocido.
+Ver [reporte actual](etapa-9-aplicacion-sampler.md). Siguiente: auditoría 9.4.d;
+mediciones nativas/cierre siguen en 9.5. Los apartados inferiores son históricos.
+
+## Sesiones/outcomes de sampler 9.4.b — 2026-11-09
+
+AudioHandle añade sesiones manual/CPAL con banco propietario y trigger en FIFO
+Copy compartida. ServiceSnapshot Rust observa último ID/result exacto y contadores
+saturantes; DTO/IPC/UI siguen en 9.4.c. Native valida configuración exacta y todo
+el bloque antes de chunking. Un guard cierra el stream y recupera Box<Realtime>
+por buzón exclusivo de teardown para destruir PCM en propietario. Once pruebas
+nuevas cubren sesión, límites, pérdidas de telemetría, fallo/reinicio, banco
+expirado y retorno desde worker; release/Clippy correctos. Ver
+[reporte actual](etapa-9-sesiones-sampler.md). Siguiente 9.4.c: Application, DTO,
+bindings, IPC/ACL y UI con mocks, manteniendo IDs/counters como strings.
+
+## Sampler en AudioEngine 9.4.a — 2026-11-09
+
+Motor con banco propietario, headroom 1/16 y GainRamp master de 5 ms, transporte
+y trigger_sample con resultado Copy tipado. Pause congela después de release;
+Stop limpia voces sin liberar PCM. Errores conservan voces/envolvente/contadores.
+Siete pruebas de integración, overflow raw interno, WAV → AudioEngine y medición
+integrada sin asignaciones/liberaciones pasan debug/release; regresiones correctas.
+Ver [reporte actual](etapa-9-integracion-motor.md). No cambia EngineCommand,
+EngineSnapshot, DTO, bindings, dependencias o UI. Siguiente 9.4.b: sesiones
+manual/CPAL y outcomes en cola. El manifiesto 9.3 se conserva como histórico.
+
+## Cierre local de preparación 9.3.f — 2026-11-09
+
+Auditoría de 9.3.a–e contra implementación, suites y matriz: se cierra
+preparación 9.3 localmente. Se distingue entrega a un holder de banco de la
+instalación en AudioEngine/servicio, pendiente de 9.4. Ver
+[cierre y criterios](cierre-preparacion-9.3.md) y
+[manifiesto de 110 archivos](evidencia-preparacion-9.3.json). La huella identifica
+bytes locales, no un commit nuevo o CI remota.
+
+Se reutilizan check/build correctos de 9.3.e (85 headless/90 workspace/ocho memoria,
+15 audio instrumentadas/13 frontend/nueve escenarios CLI); no cambia código o
+configuración. Se verifican documentación y hashes durante el cierre. Siguiente
+9.4.a: modo sampler en AudioEngine con headroom 1/16, rampas/transporte y outcomes
+tipados, primero sin dispositivo/IPC/UI. Etapa 9 completa sigue abierta.
+
+## Fixtures de carga/reproducción 9.3.e — 2026-11-09
+
+Cuatro pruebas nuevas recorren archivo WAV → banco → kernel Sampler: 18
+combinaciones de encoding/header/canales sobre cuatro particiones, 65536 códigos
+PCM16 a 44.1 kHz, banco vacío/completo y límites reales exactos/un exceso.
+Los archivos se borran antes del render; oráculos enteros y muestras exactas
+comprueban propiedad y reproducción raw. Debug/release y Clippy correctos;
+ver [reporte actual](etapa-9-fixtures-integracion.md) para resultados completos
+y [matriz de aceptación](../docs/sample-loading-acceptance.md) para criterios,
+evidencia y límites. Solo pruebas/docs, sin cambios de producción o UI.
+Siguiente 9.3.f: auditoría/cierre de preparación; nativo/servicio/IPC/UI en 9.4.
+
+## Fallos, cancelación y cierre 9.3.d — 2026-11-09
+
+Cuatro pruebas internas amplían cobertura con 17 fallos/cancelaciones del segundo
+asset, sincronización antes/después del retorno y Read bloqueado, y prioridad de
+errores por checkpoint. Se observan cierre en trabajador, Busy durante cierre,
+banco activo conservado y permiso reutilizable. Tres pruebas instrumentadas nuevas
+comprueban saldo de memoria en trabajador y receptor tras fallo/cancelación o
+entrega/descarte. Focales debug/release y Clippy correctos; ver
+[reporte actual](etapa-9-fallos-cancelacion.md) para resultados completos y límites.
+Solo se amplía una costura privada del coordinador; API, motor, audio e IPC/UI
+conservan su comportamiento. Siguiente 9.3.e: fixtures WAV → banco → Sampler offline.
+
+## Preparación de banco 9.3.c — 2026-11-09
+
+Coordinador síncrono en daw-app: valida slots antes de I/O y carga secuencialmente
+un banco completo. Permiso compartido entre clones, mantenido por el resultado
+hasta entrega/descarte, y presupuesto agregado comprobado antes de cada reserva.
+Seis pruebas públicas, dos internas y dos instrumentadas nuevas pasan en debug
+y release, incluida coexistencia de bancos estéreo de 128 MiB cada uno y limpieza
+tras fallo en el octavo asset. Ver [reporte actual](etapa-9-preparacion-banco.md)
+para check/build y alcance exacto de medición. No hay dependencias, DTO o UI nuevos.
+Siguiente 9.3.d: matriz ampliada de fallo/cancelación/cierre; sampler nativo en 9.4.
+Los registros de 9.3.b y anteriores se conservan como evidencia de cada incremento.
+
+## Lector WAV 9.3.b — 2026-11-09
+
+Adaptador estándar Rust en daw-app para preflight/decodificación individual;
+sin dependencias ni cambios del motor/UI. Ocho pruebas, reserva fallida inyectada,
+round-trip del exportador real y tres pruebas instrumentadas debug/release
+verifican límites, cancelación y propiedad. check añade la suite de memoria del
+CLI; ver [reporte actual](etapa-9-lectura-wav.md) para resultados finales y límites.
+Se conservan los cambios locales de 9.3.a y auditoría. Siguiente 9.3.c: banco y
+permiso/presupuesto agregado, sin atribuir a este código la CI histórica de 9.2.
+
+## Contrato de carga 9.3.a — 2026-11-09
+
+Se completa la especificación previa al loader: PCM16/float32 clásico/extensible,
+16 MiB por archivo, hasta 4096 chunks, 64 KiB de buffers y presupuesto de una
+preparación más banco activo. Se definen preflight, errores, cancelación cada
+256 frames y entrega atómica del banco. Ver [reporte](etapa-9-contrato-carga.md)
+y [contrato en inglés](../docs/sample-loading-contract.md). Se conservan las
+ediciones locales de planificación anteriores. Solo documentación: no decoder,
+garantía de memoria medida, nuevas dependencias ni cambios de UI. Siguiente 9.3.b.
+
+## Revisión del plan y objetivos — 2026-11-08
+
+Se contrasta 1002efa con código/evidencia de 7acc1db: etapas 1–8 y 9.1–9.2
+completadas; carga/integración/cierre del sampler pendientes. Se define el
+objetivo groovebox en 9–11, guardar/reabrir/exportar en 12 y clips en 13.
+Se detallan 9.3.a–f, su aceptación y el presupuesto adicional aún por fijar,
+separándolo del límite PCM implementado. Ver
+[auditoría y siguiente etapa](estado-y-siguiente-etapa.md). Esta revisión actualiza
+documentación y no implementa loader ni modifica el motor/UI.
+
 ## Estado actual — Etapa 9.2, 2026-11-08
 
 Implementación publicada en 7acc1db88915e5fe1b0c17db4837fc3b197d35ad; ambos jobs

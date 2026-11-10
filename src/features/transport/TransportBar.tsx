@@ -46,29 +46,30 @@ export function TransportBar({ session }: { session: DawSession }) {
           Transición a {labels[engine.requestedTransport]} · rampa pendiente
         </p>
       )}
-      {engine?.sineFrequencyHz != null && (
-        <form onSubmit={gainSubmit} className="tempo-form">
-          <label htmlFor="signal-gain">Volumen (0–1)</label>
-          <input
-            key={engine.targetGain}
-            id="signal-gain"
-            name="gain"
-            type="number"
-            min="0"
-            max="1"
-            step="0.01"
-            required
-            defaultValue={engine.targetGain}
-            disabled={disabled}
-          />
-          <button type="submit" disabled={disabled}>
-            Aplicar volumen
-          </button>
-          <span className="muted">
-            Ganancia observada: {engine.gain.toFixed(3)}
-          </span>
-        </form>
-      )}
+      {(engine?.sineFrequencyHz != null || session.snapshot?.sampler != null) &&
+        engine && (
+          <form onSubmit={gainSubmit} className="tempo-form">
+            <label htmlFor="signal-gain">Volumen (0–1)</label>
+            <input
+              key={engine.targetGain}
+              id="signal-gain"
+              name="gain"
+              type="number"
+              min="0"
+              max="1"
+              step="0.01"
+              required
+              defaultValue={engine.targetGain}
+              disabled={disabled}
+            />
+            <button type="submit" disabled={disabled}>
+              Aplicar volumen
+            </button>
+            <span className="muted">
+              Ganancia observada: {engine.gain.toFixed(3)}
+            </span>
+          </form>
+        )}
       <form onSubmit={submit} className="tempo-form">
         <label htmlFor="tempo">BPM</label>
         <input

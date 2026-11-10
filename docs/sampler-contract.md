@@ -2,11 +2,26 @@
 
 Stages 9.1–9.2, 2026-11-08. Implemented now: immutable SampleBuffer resources,
 a fixed SampleBank, and the 16-voice raw Sampler kernel with exact fixture tests.
-Asset loading, AudioEngine transport/headroom integration, sampler IPC/UI, and
-native sampler audition remain later increments. Desktop still offers silence
-and sine only. See the [roadmap](roadmap.md),
+Stage 9.4.a, 2026-11-09, integrates the owning sampler into AudioEngine with
+transport, fixed headroom and the existing master envelope, verified offline.
+9.4.b adds manual/CPAL sessions, shared-FIFO triggers and Copy outcome telemetry,
+verified with offline/native-adapter tests. 9.4.c now adds sampler Application,
+DTO/IPC and UI with mock verification. Physical native audition remains pending;
+see the [desktop contract](sampler-desktop.md). See the [roadmap](roadmap.md),
 [current kernel report](../progress/etapa-9-voces.md), [resource report](../progress/etapa-9-sampler.md), and
 [realtime contract](realtime-contract.md).
+
+The [loading contract](sample-loading-contract.md), specified in 9.3.a on
+2026-11-09, now fixes WAV formats, resource/working-memory caps, cancellation
+and publication semantics. 9.3.b–c implement the per-resource reader/decoder,
+complete-bank coordination, permits and aggregate budgets. 9.3.d verifies
+fault/cancellation/publication and cleanup-thread ownership. 9.3.e verifies
+end-to-end loaded-bank playback with exact oracles; see the
+[acceptance matrix](sample-loading-acceptance.md). Preparation is closed locally
+in [9.3.f](../progress/cierre-preparacion-9.3.md); 9.4.a implements AudioEngine
+integration. 9.4.b now implements [sessions/outcomes](sampler-service.md);
+9.4.c wires application/DTO/IPC/UI; the [9.4.d audit](sampler-integration-acceptance.md) closes integration locally. [9.5.a diagnostics](sampler-diagnostics.md) are implemented; next is physical verification 9.5.b. The existing
+kernel behavior below is unchanged.
 
 Implementation revision 7acc1db passed both hosted jobs in
 [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
@@ -53,9 +68,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 The constructor's bound cannot prevent a caller from allocating an oversized Vec
-before calling it. A later loader must validate declared sizes, decoded frame
-counts, arithmetic, and its working-memory budget before allocating/decoding.
-No untrusted-file loader exists in this increment.
+before calling it. The 9.3 application loader validates declared sizes, decoded
+frame counts, arithmetic and working-memory budgets before allocating PCM;
+the engine constructor itself accepts only prepared memory, without file I/O.
 
 ## Implemented fixed bank and raw playback kernel (9.2)
 
@@ -71,19 +86,19 @@ and returns the lowest free voice index, or InvalidSlot, MissingAsset, PoolFull
 in that validation order. A returned index is reusable and is not a stable voice
 handle. Trigger rejection preserves all cursors/counters. Gain is quantized once
 to f32 per voice. render_interleaved overwrites caller-owned mono/stereo buffers;
-it neither gates transport nor applies envelopes/headroom. The first six rows
-below are implemented. Native headroom and the transport section remain future
-integration requirements.
+it neither gates transport nor applies envelopes/headroom. AudioEngine's sampler
+mode adds the headroom and transport described below; connection to native
+sessions remains future work.
 
-| Decision        | Required behavior                                                                                                                                                                                                                                                                                                                         |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Bank            | 16 fixed resource slots, immutable for one initialized session. Prepare/validate outside processing, then move the owning bank into the engine before starting callbacks. Missing slots reject triggers. Maximum retained PCM payload is 128 MiB for 16 maximum-size stereo resources; decoding/transient memory needs a separate budget. |
-| Voices          | 16 fixed one-shot voices, allocated before processing. A voice stores only a slot index, frame cursor, active flag, and validated constant Gain in 0–1. Multiple voices may read the same retained resource.                                                                                                                              |
-| Exhaustion      | Reject the newest trigger when all voices are active. Do not steal, restart, fade, or modify an existing voice. Allocate the lowest free voice index deterministically; process triggers in FIFO order. A zero-gain voice still occupies a slot until its one-shot ends or transport clears it.                                           |
-| Timing          | A successful trigger starts with resource frame zero at the next rendered frame after command application. Commands apply between blocks / at callback start. Within-block event scheduling belongs to stage 11. Fixtures split blocks at explicit trigger positions.                                                                     |
-| End             | Consume exactly the resource frame count, release the voice after its last frame, and render zero thereafter. No loop, interpolation, per-voice envelope, or automatic retrigger. Natural end can contain a discontinuity if the final PCM sample is nonzero.                                                                             |
-| Sum             | The voice kernel sums sample × voice gain in ascending voice-index order, preserving stereo and duplicating mono. Its f32 output is not clipped; exact fixtures may exceed 1.                                                                                                                                                             |
-| Native headroom | The later AudioEngine sampler mode applies fixed 1/16 headroom after voice summing, then the master gain envelope. Normalized resources and 16 voices bound full-scale summing. This is a temporary sampler output policy, not the four-channel mixer/pan/limiter planned for stage 10.                                                   |
+| Decision            | Required behavior                                                                                                                                                                                                                                                                                                                         |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bank                | 16 fixed resource slots, immutable for one initialized session. Prepare/validate outside processing, then move the owning bank into the engine before starting callbacks. Missing slots reject triggers. Maximum retained PCM payload is 128 MiB for 16 maximum-size stereo resources; decoding/transient memory needs a separate budget. |
+| Voices              | 16 fixed one-shot voices, allocated before processing. A voice stores only a slot index, frame cursor, active flag, and validated constant Gain in 0–1. Multiple voices may read the same retained resource.                                                                                                                              |
+| Exhaustion          | Reject the newest trigger when all voices are active. Do not steal, restart, fade, or modify an existing voice. Allocate the lowest free voice index deterministically; process triggers in FIFO order. A zero-gain voice still occupies a slot until its one-shot ends or transport clears it.                                           |
+| Timing              | A successful trigger starts with resource frame zero at the next rendered frame after command application. Commands apply between blocks / at callback start. Within-block event scheduling belongs to stage 11. Fixtures split blocks at explicit trigger positions.                                                                     |
+| End                 | Consume exactly the resource frame count, release the voice after its last frame, and render zero thereafter. No loop, interpolation, per-voice envelope, or automatic retrigger. Natural end can contain a discontinuity if the final PCM sample is nonzero.                                                                             |
+| Sum                 | The voice kernel sums sample × voice gain in ascending voice-index order, preserving stereo and duplicating mono. Its f32 output is not clipped; exact fixtures may exceed 1.                                                                                                                                                             |
+| Integrated headroom | AudioEngine sampler mode applies fixed 1/16 headroom after raw voice summing, then the master gain envelope. Normalized resources and 16 voices bound full scale. Implemented offline in 9.4.a; native session wiring follows in 9.4.b.                                                                                                   |
 
 The owning bank outlives every voice, including paused or finishing voices.
 Voices never own/clone/drop PCM, Arc, Vec, Box, or other heap-backed payloads.
@@ -94,8 +109,8 @@ must stop using its engine before that bank is destroyed. Driver/backend teardow
 and destruction are separate from the processing callback's no-deallocation rule.
 
 clear_voices immediately clears fixed voice state without freeing PCM or resetting
-the raw rendered-frame counter. Calling it repeatedly is safe. The future
-transport adapter must call it after its master release; this method is not a
+the raw rendered-frame counter. Calling it repeatedly is safe. AudioEngine
+calls it after its master Stop release; this raw method is not a
 new Stop command. A fresh Sampler starts with no voices and a zero counter.
 snapshot returns Copy inspection state: output config, cumulative rendered_frames,
 and 16 optional VoiceSnapshot entries (resource slot, next source frame, f32 gain).
@@ -120,8 +135,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Transport and observations
 
-The later integrated sampler mode must retain stage 8's 5 ms master attack/release
-and requested/actual transport distinction:
+AudioEngine::with_sampler(bank, tempo) is implemented in 9.4.a. It consumes the
+validated bank and derives its output configuration, with no additional decoding
+or bank copy. The raw Sampler remains separately usable. The engine uses fixed
+SAMPLER_HEADROOM = 1/16 after the ascending voice sum and before the shared master
+gain, stepped once per frame. Construction/destruction stay outside processing.
+sampler() exposes read-only bank/voice inspection; EngineSnapshot is unchanged.
+
+trigger_sample(slot, Gain) returns Copy Result<usize, SamplerTriggerError> directly
+to the processing owner. Ok(index) starts the lowest free voice on the next
+rendered playing frame; the index is reusable, not a stable voice handle. Checks
+run in order: NoSampler, InvalidSlot, MissingAsset, NotPlaying, PoolFull. Rejection
+does not mutate state. EngineCommand/EngineSnapshot remain unchanged. 9.4.b's
+private audio command wraps either an engine command or a trigger in the same
+FIFO and publishes Rust sampler observations; DTO/IPC exposure is implemented in [9.4.c](sampler-desktop.md).
+
+The implemented engine mode retains stage 8's 5 ms master attack/release
+and requested/actual transport distinction (ceil(sample_rate / 200) frames):
 
 - Initialization is stopped with no active voices, effective master gain zero,
   and selected master gain one. Play alone does not create or retrigger voices.
@@ -135,24 +165,38 @@ and requested/actual transport distinction:
   transport position; it does not destroy PCM. At zero gain, Stop can clear immediately.
 - Master gain changes use the existing retarget policy. Voice gain stays constant
   for that one-shot. BPM does not alter sample rate, cursor speed, or sample pitch.
-- Shutdown/failure may close without finishing a fade. Restart begins with no
-  voices; session resource settings do not become project persistence implicitly.
+- A fresh sampler engine starts with no voices. Service shutdown/failure may close
+  without finishing a fade; 9.4.b closes/reclaims resources on the stream owner.
+  Session resource settings do not become project persistence implicitly.
 
 Queue acceptance confirms enqueueing, not available voices or successful triggering.
-When sampler commands reach the service, cumulative acknowledgement must still mean
-the command was processed. Add explicit bounded Copy trigger outcome telemetry:
+At the service, cumulative acknowledgement means the command was processed.
+9.4.b publishes bounded Copy trigger outcome telemetry:
 last trigger command ID and Started/PoolFull/MissingAsset/NotPlaying outcome, plus
 started/rejected counters. Validate known asset/argument failures before enqueueing
 where possible; check dynamic voice availability only in the processing owner.
 Snapshots can omit intermediate outcomes and are not a lossless per-trigger log;
 adapters must not infer an older command's result from a newer trigger outcome.
-These commands/fields/DTOs are acceptance requirements, not added in 9.1 or 9.2.
+These fields are Rust ServiceSnapshot.sampler observations. Queue processing and
+session wiring are implemented in 9.4.b; DTOs/UI are implemented in 9.4.c. See the
+[service contract](sampler-service.md) for exact-ID and saturating-count semantics.
 
 Invalid render alignment or checked counter exhaustion must silence the whole
-output and preserve all state. The raw kernel already checks alignment and its
-u64 rendered-frame counter before advancing any voice; empty buffers make no
-progress. Later integration must also preserve transport/master envelope and
-the 128-command FIFO/32-command whole callback budget when chunking output.
+output and preserve all state. AudioEngine preflights device/transport counters;
+the raw sampler preflights its own cumulative clock before touching voices or
+the master envelope. Empty buffers make no progress. All clocks, envelope and
+voices remain unchanged on render failure. AudioEngine::validate_render allows
+9.4.b to validate the whole native callback before scratch chunking; rendering
+preserves post-command state on failure. The FIFO remains 128 commands, processed
+at most 32 once per whole callback, including both controls and triggers.
+
+Seven [engine integration tests](../crates/daw-engine/tests/sampler_engine_contract.rs),
+an internal raw-clock-overflow test, a prepared-WAV/AudioEngine test and an added
+instrumented processing test cover this mode in debug/release. The allocator
+observes zero allocations/deallocations during trigger/render/transport, with
+PCM destruction measured separately as a positive control. This is offline
+processing evidence, not native callback timing. See the
+[9.4.a report](../progress/etapa-9-integracion-motor.md).
 
 ## Executable fixtures and playback evidence
 

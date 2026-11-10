@@ -1,5 +1,106 @@
 # Ejecutar las pruebas
 
+## Diagnósticos sampler 9.5.a
+
+```powershell
+cargo test -p daw-cli --features offline-diagnostics --locked --bin daw-cli --test diagnostics_contract
+cargo test -p daw-cli --release --features offline-diagnostics --locked --bin daw-cli --test diagnostics_contract
+cargo test -p daw-audio --features native-audio,rt-diagnostics --locked
+cargo build -p daw-cli --release --features rt-diagnostics --locked
+npm run check
+npm run desktop:build -- --debug --no-bundle
+```
+
+Prueban oráculo estéreo distinto, actividad/retrigger, allocator/free, metadatos
+del banco preparado, recorrido manual y validaciones antes de I/O/hardware.
+check ejecuta también la variante offline-diagnostics; release verifica la CLI
+real y el gate NativeAudioDisabled. No abre hardware. Ver
+[reporte actual](../progress/etapa-9-diagnosticos-sampler.md) y [CLI](03-cli.md).
+
+## Sampler en Application/IPC/UI 9.4.c
+
+```powershell
+cargo test -p daw-app --no-default-features --locked --lib --test sampler_application_contract
+cargo test -p rust-daw-desktop --locked --test ipc_contract
+npm run bindings:generate
+npm run bindings:check
+npm run test:frontend
+npm run check
+npm run desktop:build -- --debug --no-bundle
+```
+
+Comprueban worker de WAV real, banco/sesión manual, cancelación/IDs obsoletos,
+fallos, cierre, resultados exactos, DTO/strings, ACL y carreras de frontend.
+No abren hardware. Los tipos generados cambian deliberadamente; los lockfiles
+deben mantenerse. Ver [reporte actual](../progress/etapa-9-aplicacion-sampler.md),
+[contrato](../docs/sampler-desktop.md) y [uso del sampler](06-sampler.md).
+La [auditoría 9.4.d](../progress/cierre-integracion-9.4.md) cierra integración local
+y añade tres regresiones de recuperación de dispositivos/polling. Siguiente:
+runner diagnóstico 9.5.a implementado; mediciones físicas 9.5.b y cierre 9.5.c pendientes.
+
+## Sesiones y outcomes 9.4.b
+
+```powershell
+cargo test -p daw-audio --no-default-features --locked --test sampler_service_contract
+cargo test -p daw-audio --features native-audio,rt-diagnostics --locked
+cargo test -p daw-audio --release --features native-audio,rt-diagnostics --locked
+```
+
+Comprueban encolado/procesado/inicio o rechazo, límites e IDs, shutdown/fallo/
+reinicio, banco expirado, configuración exacta, equivalencia de chunks y cierre
+de PCM en propietario. Native aquí prueba adaptadores y teardown simulado, sin
+abrir dispositivos; la prueba física existente sigue ignorada. Ver
+[reporte actual](../progress/etapa-9-sesiones-sampler.md) y
+[contrato técnico](../docs/sampler-service.md). DTO/IPC/UI se incorporan en 9.4.c.
+
+## Sampler en AudioEngine 9.4.a
+
+```powershell
+cargo test -p daw-engine --no-default-features --locked --lib --test sampler_engine_contract
+cargo test -p daw-engine --release --no-default-features --locked --lib --test sampler_engine_contract
+cargo test -p daw-audio --features rt-diagnostics --locked --test sampler_memory_contract
+cargo test -p daw-audio --release --features rt-diagnostics --locked --test sampler_memory_contract
+```
+
+Siete pruebas de motor más overflow interno, caso WAV → AudioEngine y medición
+de cero asignaciones/liberaciones durante procesamiento. Son pruebas offline;
+sesiones y disparos en cola del servicio ya se conectan en 9.4.b. Ver
+[reporte actual](../progress/etapa-9-integracion-motor.md).
+
+## Lector WAV, banco y reproducción offline 9.3.b–e
+
+```powershell
+cargo test -p daw-app --no-default-features --locked --test sample_loading_contract
+cargo test -p daw-app --no-default-features --locked --lib --test bank_preparation_contract
+cargo test -p daw-app --release --no-default-features --locked --lib --test bank_preparation_contract
+cargo test -p daw-app --no-default-features --locked --test loaded_sampler_contract
+cargo test -p daw-app --release --no-default-features --locked --test loaded_sampler_contract
+cargo test -p daw-cli --no-default-features --locked --test export_contract
+cargo test -p daw-cli --features rt-diagnostics --locked --test sample_loading_memory_contract
+```
+
+Comprueban formatos y contenedor, límites, fallos/cancelación/cierre, carga exacta
+de los WAV del exportador y memoria del decoder/banco. Se añaden validación de
+slots, orden, permiso compartido, resultado pendiente y coexistencia de bancos
+estéreo máximos. 9.3.d añade 17 casos de fallo/cancelación, entrega sincronizada
+y Read suspendido. check ejecuta las ocho pruebas instrumentadas explícitamente,
+incluida liberación de PCM en trabajador/receptor.
+No hay comando CLI de importar ni control de UI nuevo; son APIs de biblioteca.
+Ver [reporte del lector](../progress/etapa-9-lectura-wav.md) y
+[reporte del banco](../progress/etapa-9-preparacion-banco.md) y
+[reporte de fallos/cierre](../progress/etapa-9-fallos-cancelacion.md).
+9.3.e verifica 18 combinaciones formato/header/canales sobre cuatro particiones,
+todos los códigos PCM16, bancos y límites con archivos reales; ver
+[reporte actual](../progress/etapa-9-fixtures-integracion.md) y
+[matriz de aceptación](../docs/sample-loading-acceptance.md). Preparación cerrada
+localmente en [9.3.f](../progress/cierre-preparacion-9.3.md). AudioEngine integrado
+offline en 9.4.a; servicio/desktop siguen en 9.4.b–d.
+
+El cierre conserva [hashes de código/configuración](../progress/evidencia-preparacion-9.3.json)
+y reutiliza check/build de 9.3.e, ya que solo cambió documentación. Es evidencia
+histórica: ese manifiesto ya no coincide con los fuentes posteriores de 9.4.a.
+El reporte nuevo registra sus checks; CI nueva requiere publicar/inspeccionar.
+
 ## Comprobación completa
 
 ```powershell

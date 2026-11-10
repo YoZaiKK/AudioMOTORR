@@ -7,6 +7,8 @@ import type {
   OutputDeviceDto,
   ServiceSnapshotDto,
   CommandAcceptedDto,
+  PreparationSnapshotDto,
+  SampleFileDto,
 } from "./generated/api";
 
 export function apiError(error: unknown): ApiError {
@@ -57,6 +59,25 @@ export const desktopClient = {
   tempo: (bpm: number) =>
     call<CommandAcceptedDto>("transport_set_tempo", { bpm }),
   gain: (gain: number) => call<CommandAcceptedDto>("signal_set_gain", { gain }),
+  prepareSamples: (
+    sampleRate: number,
+    channels: number,
+    files: SampleFileDto[],
+  ) =>
+    call<PreparationSnapshotDto>("prepare_samples", {
+      sampleRate,
+      channels,
+      files,
+    }),
+  preparation: () => call<PreparationSnapshotDto>("get_sample_preparation"),
+  cancelPreparation: (preparationId: string) =>
+    call<PreparationSnapshotDto>("cancel_sample_preparation", {
+      preparationId,
+    }),
+  initializeSampler: (preparationId: string, deviceId: string | null) =>
+    call<ServiceSnapshotDto>("initialize_sampler", { preparationId, deviceId }),
+  triggerSample: (slot: number, gain: number) =>
+    call<CommandAcceptedDto>("trigger_sample", { slot, gain }),
   async snapshots(callback: (snapshot: ServiceSnapshotDto) => void) {
     if (!isTauri())
       throw {

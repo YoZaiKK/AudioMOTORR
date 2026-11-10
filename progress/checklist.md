@@ -3,16 +3,31 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-08): etapas 1–8 completadas; etapa 8 publicada en 1e6bca8,
+Estado actual (2026-11-10): etapas 1–8 completadas; etapa 8 publicada en 1e6bca8,
 con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
 Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
 publicada en c6cf627 con CI Ubuntu/Windows correcta; [cierre](cierre-etapa-7.md).
 Etapa 9 en curso: 9.1–9.2 completadas; implementación 7acc1db con ambos jobs CI
 correctos en run 42530699397. Se dispone de PCM/fixtures, banco fijo y voces raw;
-carga de archivos e integración nativa/UI pendientes. Ver [reporte actual](etapa-9-voces.md).
+preparación cerrada en 9.3 y sesiones manual/CPAL en 9.4.b verificadas sin hardware;
+app/IPC/UI implementados en 9.4.c con mocks; integración auditada localmente en
+9.4.d. Evidencia física/mediciones pendientes en 9.5.
+Ver [reporte del kernel](etapa-9-voces.md).
+9.3.a fija el contrato; 9.3.b implementa lectura/decodificación de recursos
+individuales; 9.3.c implementa banco completo/permisos/presupuesto agregado.
+9.3.d verifica fallos/cancelación/cierre y propiedad entre hilos.
+9.3.e verifica fixtures WAV → banco → Sampler offline y matriz de aceptación.
+9.3.f cierra preparación localmente. 9.4.a integra sampler en AudioEngine con
+transporte/headroom/rampas, verificado offline. 9.4.b conecta sesiones/outcomes
+en audio. 9.4.c conecta Application/DTO/IPC/UI con mocks; 9.4.d audita/cierra
+integración local y corrige recuperación/polling. 9.5.a implementa diagnósticos
+sampler y benchmark offline sin CPAL. Siguiente 9.5.b: ejecución física.
+Ver [reporte actual](etapa-9-diagnosticos-sampler.md).
 Las etapas 10–13 siguen planificadas. Se conservan los reportes históricos.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
 Registro actual: [continuidad del proyecto](continuidad-etapa-6.md).
+Auditoría de objetivos, evidencia y plan detallado de 9.3:
+[estado y siguiente etapa](estado-y-siguiente-etapa.md).
 Git identifica las revisiones publicadas; consultar [Actions](https://github.com/YoZaiKK/AudioMOTORR/actions/workflows/ci.yml)
 para el resultado remoto. CI creada y validada localmente no implica CI remota satisfactoria.
 
@@ -139,9 +154,31 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] Medir cero asignaciones/liberaciones en procesamiento, con control positivo de destrucción.
 - [x] Registrar check completo/build Windows y reproducibilidad del incremento 9.2.
 - [x] Publicar 7acc1db y verificar CI Linux/Windows del SHA exacto: run 42530699397.
-- [ ] 9.3: cargar/decodificar recursos fuera del callback y verificar propiedad/cierre.
-- [ ] 9.4: integrar transporte/headroom, outcomes del servicio e IPC/UI de sampler.
-- [ ] 9.5: cerrar con regresiones, mediciones nativas del sampler y CI del SHA publicado.
+- [x] 9.3 local: cargar/decodificar recursos fuera del callback y verificar propiedad/cierre; publicación/CI propia pendientes.
+- [x] 9.3.a: fijar formatos, 16 MiB/archivo, presupuestos de preparación/coexistencia y cancelación; aplicados en 9.3.b–c.
+- [x] 9.3.b: lector/preflight y decoder de recurso individual, con fixtures y medición de reservas.
+- [x] Registrar check completo/build y reproducibilidad del lector 9.3.b.
+- [x] 9.3.c: banco completo, permiso compartido hasta entrega/descarte y presupuesto agregado.
+- [x] Registrar check completo/build y reproducibilidad del coordinador 9.3.c.
+- [x] 9.3.d: matriz de fallos/cancelación, cierre en preparación e interleavings de entrega; memoria entre hilos.
+- [x] Registrar check completo/build y reproducibilidad de 9.3.d.
+- [x] 9.3.e: fixtures WAV → banco → Sampler offline y matriz de aceptación de formatos/límites.
+- [x] Registrar check completo/build y reproducibilidad de 9.3.e.
+- [x] 9.3.f: auditar aceptación y cerrar preparación local; checks/build 9.3.e y manifiesto de código/configuración.
+- [ ] Publicar/inspeccionar CI de revisión exacta de 9.3 cuando se solicite; no inferir éxito remoto.
+- [x] 9.4: integración local de transporte/headroom, outcomes del servicio e IPC/UI; aceptación física pendiente en 9.5.
+- [x] 9.4.a: AudioEngine con sampler/headroom 1/16, rampas y transporte, resultados directos Copy y pruebas sin dispositivo.
+- [x] Registrar check completo/build y evidencia de 9.4.a.
+- [x] 9.4.b: sesiones manual/CPAL, propiedad/cierre del banco y outcomes acotados en servicio; hardware no abierto.
+- [x] Registrar check completo/build y evidencia de 9.4.b.
+- [x] 9.4.c: aplicación, worker de preparación/cancelación, DTO generados, IPC/ACL y controles UI con pruebas mock.
+- [x] Registrar check completo/build Windows y manifiesto de 116 archivos de 9.4.c; hardware y CI nueva pendientes.
+- [x] 9.4.d: auditoría por criterio, regresiones de enumeración/polling y protocolo 9.5; cierre local de integración.
+- [x] Registrar check/build Windows de 9.4.d, 24 pruebas frontend y manifiesto de 116 archivos; sin CI remota ni hardware nuevos.
+- [x] 9.5.a: sampler-bench y sampler-native-check opt-in, feature offline sin CPAL, contadores de asignaciones/liberaciones, probes todos los canales e histograma fijo; tests sin hardware.
+- [x] Registrar check/build Windows, release focal/CLI nativa compilada, benchmarks offline de 24 casos y manifiesto de 119 archivos; sin medición física nueva.
+- [ ] 9.5.b: mediciones release y audición física del sampler en dispositivo/config identificados, cierre/reapertura y evidencia.
+- [ ] 9.5.c: cierre con regresiones, límites y CI del SHA publicado.
 
 ## Etapa 10 — Mezclador de cuatro canales
 

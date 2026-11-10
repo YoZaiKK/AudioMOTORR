@@ -1,14 +1,17 @@
 //! Application use cases shared by desktop and CLI, independent of Tauri.
 
 pub mod offline;
+pub mod sample_loading;
+pub mod sampler_session;
 
 pub use daw_audio::{
-    AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, OutputDevice,
-    RealtimeMetrics, RenderReport, Result, ServiceSnapshot,
+    AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, MemoryActivity,
+    OutputDevice, RealtimeMetrics, RenderReport, Result, SamplerTelemetry, ServiceSnapshot,
+    TriggerReport,
 };
 use daw_domain::{Project, ProjectId, Tempo};
-pub use daw_engine::TransportState;
-use daw_engine::{EngineCommand, EngineConfig, Gain};
+use daw_engine::{EngineCommand, Gain};
+pub use daw_engine::{EngineConfig, SamplerTriggerError, TransportState};
 
 pub struct ProjectSummary {
     pub id: ProjectId,
@@ -19,6 +22,7 @@ pub struct ProjectSummary {
 pub struct Application {
     project: Project,
     audio: daw_audio::AudioService,
+    samples: sampler_session::SamplePreparation,
 }
 
 impl Application {
@@ -26,6 +30,7 @@ impl Application {
         Ok(Self {
             project: Project::default(),
             audio: daw_audio::AudioService::new()?,
+            samples: sampler_session::SamplePreparation::default(),
         })
     }
     pub fn get_project_summary(&self) -> ProjectSummary {
@@ -39,11 +44,13 @@ impl Application {
         self.audio.handle().list_output_devices()
     }
     pub fn initialize_audio(&self, device_id: Option<String>) -> Result<ServiceSnapshot> {
+        self.samples.ensure_idle()?;
         self.audio
             .handle()
             .initialize_native(device_id, self.project.tempo())
     }
     pub fn initialize_manual(&self, config: EngineConfig) -> Result<ServiceSnapshot> {
+        self.samples.ensure_idle()?;
         self.audio
             .handle()
             .initialize_manual(config, self.project.tempo())
@@ -53,6 +60,7 @@ impl Application {
         device_id: Option<String>,
         frequency_hz: f64,
     ) -> Result<ServiceSnapshot> {
+        self.samples.ensure_idle()?;
         self.audio
             .handle()
             .initialize_native_sine(device_id, self.project.tempo(), frequency_hz)
@@ -62,6 +70,7 @@ impl Application {
         config: EngineConfig,
         frequency_hz: f64,
     ) -> Result<ServiceSnapshot> {
+        self.samples.ensure_idle()?;
         self.audio
             .handle()
             .initialize_manual_sine(config, self.project.tempo(), frequency_hz)

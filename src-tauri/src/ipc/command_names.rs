@@ -10,4 +10,9 @@ pub const COMMANDS: &[&str] = &[
     "transport_stop",
     "transport_set_tempo",
     "signal_set_gain",
+    "prepare_samples",
+    "get_sample_preparation",
+    "cancel_sample_preparation",
+    "initialize_sampler",
+    "trigger_sample",
 ];

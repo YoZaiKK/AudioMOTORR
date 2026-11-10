@@ -23,5 +23,10 @@ pub fn configure<R: tauri::Runtime>(
             commands::transport_stop,
             commands::transport_set_tempo,
             commands::signal_set_gain,
+            commands::prepare_samples,
+            commands::get_sample_preparation,
+            commands::cancel_sample_preparation,
+            commands::initialize_sampler,
+            commands::trigger_sample,
         ])
 }

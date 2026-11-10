@@ -1,7 +1,21 @@
 # Cómo ejecutar y comprobar AudioMOTORR
 
+Actualización 2026-11-10: 9.3.a fija el
+[contrato de carga WAV](../docs/sample-loading-contract.md) y los presupuestos;
+9.3.b ya carga un recurso individual desde Rust con preflight/decodificación
+acotados y cancelación. 9.3.c prepara bancos con permiso compartido y presupuesto
+agregado; 9.3.d verifica fallos/cancelación y cierre entre hilos.
+9.3.e ya verifica fixtures WAV → banco → Sampler offline y 9.3.f cierra
+preparación localmente. 9.4.a integra sampler en AudioEngine, verificado offline.
+9.4.b conecta sesiones/outcomes y 9.4.c añade Application, DTO/IPC y UI de sampler,
+con carga/cancelación en worker y pruebas mock. 9.4.d cierra la integración
+local y corrige recuperación de dispositivos/polls solapados. 9.5.a implementa
+diagnósticos sampler y benchmark sin CPAL; siguiente verificación física 9.5.b. Ver
+[reporte actual](../progress/etapa-9-diagnosticos-sampler.md) y
+[guía del sampler](06-sampler.md); no se añade evidencia física en esta entrega.
+
 Guía en español para la app actual: silencio, senoide nativa explícita con rampas,
-transporte, servicio de audio y exportación WAV offline. Los comandos se ejecutan
+sampler WAV one-shot, transporte, servicio de audio y exportación de senoide WAV offline. Los comandos se ejecutan
 desde la raíz del repositorio en PowerShell.
 El README principal se mantiene en inglés.
 
@@ -25,8 +39,8 @@ npm run desktop:dev
 Inicializar audio abre una salida; Play inicia el transporte. **Silencio es la
 fuente predeterminada**. Seleccionar Senoide antes de inicializar permite reproducir
 un tono, ajustar frecuencia y aplicar volumen con rampas de 5 ms. Ver
-[walkthrough](02-interfaz.md). No hay sampler en la UI, secuenciador ni guardar/abrir
-proyectos. La CLI permite exportar una senoide offline; ver [export-wav](03-cli.md).
+[walkthrough](02-interfaz.md). El [sampler](06-sampler.md) permite cargar un banco
+y dispararlo explícitamente. No hay secuenciador ni guardar/abrir proyectos. La CLI permite exportar una senoide offline; ver [export-wav](03-cli.md).
 
 Los [casos JSON](test-files/cli-cases.json) son datos para el ejecutor de pruebas,
 no proyectos que la aplicación pueda importar. La [salida de referencia](test-files/expected-output.txt)
@@ -66,8 +80,10 @@ Etapa 9 en curso: 9.1 aporta recursos PCM y 9.2 reproduce one-shots con un banco
 de 16 slots y 16 voces en la biblioteca del motor. Todavía no hay carga de archivos
 ni reproducción de samples en la app de escritorio. Ver
 [contrato del sampler](../docs/sampler-contract.md) y
-[progreso actual](../progress/etapa-9-voces.md). El siguiente incremento es 9.3:
-preparación/carga y decodificación acotadas fuera del procesamiento.
+[progreso del kernel](../progress/etapa-9-voces.md). 9.3.b–c ya decodifican WAV
+y preparan bancos completos fuera del procesamiento. El siguiente incremento
+es 9.4.c: Application/DTO/IPC/UI, tras conectar sesiones en 9.4.b; ver
+[reporte actual](../progress/etapa-9-sesiones-sampler.md).
 
 9.2 está publicada en 7acc1db y pasó
 [CI Linux/Windows, run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).

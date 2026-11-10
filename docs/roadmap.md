@@ -1,6 +1,6 @@
 # Roadmap after the silence foundation
 
-Updated 2026-11-08. Stages 1–6 are the implemented silence foundation, published
+Updated 2026-11-10. Stages 1–6 are the implemented silence foundation, published
 in baseline `1ef9bd0`. Stage 7 is complete: engine oscillator, bounded application
 rendering and WAV export are published in c6cf627 and passed hosted Linux/Windows
 checks. See [stage 7 closure](../progress/cierre-etapa-7.md) for the exact evidence.
@@ -11,13 +11,51 @@ The [stage report](../progress/etapa-8.md) records hardware evidence and limits.
 Stage 9 is in progress: 9.1–9.2 are complete and published; 9.2 implementation
 7acc1db passed both hosted jobs in
 [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
-This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests. Loading
-and native/desktop integration remain future work. Stages 10–13 remain planned.
+This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests.
+Native sessions and desktop integration are implemented locally through 9.4.c; physical verification remains pending. Stages 10–13 remain planned.
 See the [current kernel report](../progress/etapa-9-voces.md) and
 [resource report](../progress/etapa-9-sampler.md).
+9.3.a now specifies the [loading contract](sample-loading-contract.md), including
+encoded-file/working-data caps and cancellation. 9.3.b now implements bounded
+single-resource preflight/decoding and memory tests. 9.3.c implements complete-bank
+coordination, permits and aggregate accounting, with maximum-bank coexistence
+tests. 9.3.d verifies injected failures, synchronized cancellation and cleanup
+ownership across threads. 9.3.e verifies end-to-end WAV/bank/offline-sampler
+fixtures and consolidates the [acceptance matrix](sample-loading-acceptance.md).
+9.3.f closes preparation locally; 9.4.a integrates the sampler into AudioEngine
+with headroom/transport/ramps and direct Copy trigger results, verified offline.
+9.4.b now connects manual/CPAL sessions, shared-FIFO triggers and lossy Copy
+outcome observations, with owner-side PCM reclamation after closing the stream.
+9.4.c adds application/DTO/IPC/frontend with mock verification. 9.4.d now closes
+integration locally with an [acceptance audit](sampler-integration-acceptance.md)
+and UI recovery/polling fixes. 9.5.a implements the [sampler diagnostic runner](sampler-diagnostics.md),
+with device-free tests/measurements. Next is 9.5.b, hardware verification under
+the [native protocol](sampler-native-verification.md). The
+[engine report](../progress/etapa-9-integracion-motor.md) records new local evidence.
+The [session report](../progress/etapa-9-sesiones-sampler.md) and
+[service contract](sampler-service.md) describe the newer integration and limits.
+See the [closure audit](../progress/cierre-preparacion-9.3.md) and the
+[reader report](../progress/etapa-9-lectura-wav.md) and
+[bank report](../progress/etapa-9-preparacion-banco.md) and
+[fault/cleanup report](../progress/etapa-9-fallos-cancelacion.md).
+The [loaded-sampler report](../progress/etapa-9-fixtures-integracion.md) records 9.3.e.
 Stages 7–13 preserve the order of the original seven follow-up milestones.
 The [Spanish execution plan](../progress/plan-etapas-7-13.md) and
 [progress checklist](../progress/checklist.md) track their status.
+The [status/objectives audit](../progress/estado-y-siguiente-etapa.md) compares
+these milestones with implemented code and details the next increment.
+
+## Product objectives and release boundaries
+
+The foundation is delivered (1–6), signal generation/audition is delivered (7–8),
+and sampler resources/raw voices are delivered (9.1–9.2). Loading (9.3) and
+engine/session/desktop integration (9.4.a–c) are implemented locally. Integration
+audit (9.4.d) is complete locally; native verification/closure (9.5) remains pending. The four-channel,
+16-step groovebox requires stages 9–11; saving/reopening/exporting the beat requires 12. Clips/scenes in 13 extend that product. The current sine WAV command is not
+project/beat export. These are scope boundaries, not delivery dates or claims
+of completed UI features.
+The 16 playback voices are independent of the four musical mixer channels and
+16 sequencer steps; mono/stereo describes PCM input/output channel layout.
 
 Each stage depends on closing the previous one with behavior tests, documentation,
 and recorded evidence. Add concrete types and dependencies only when needed.
@@ -73,22 +111,79 @@ The [sampler contract](sampler-contract.md) distinguishes implemented resource
 APIs from the fixed playback policy. This stage does not introduce a generic
 instrument graph or implement the later four-channel mixer.
 
-| Step | Responsibility                                                                                    | Exit criterion / status                                                                                                                                                                                 |
-| ---- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 9.1  | Engine PCM resource representation, ownership/limits, fixed voice policy, deterministic fixtures. | Resource validation and four tests implemented; contract defines 16 immutable bank slots, 16 voices, reject-newest overflow, transport/headroom and future raw output oracles. Resource-only increment. |
-| 9.2  | Engine bank and one-shot voice kernel.                                                            | Implemented: exact mono/stereo, overlap, exhaustion/reuse, retained PCM, error rollback and partitions 1/127/256/4096; debug/release memory tests report zero allocations/deallocations.                |
-| 9.3  | Application resource preparation and bounded asset decoding outside processing.                   | Validate file format/size/rate/channel/working-memory limits before allocation, propagate errors, and move a complete immutable bank into the session with safe teardown.                               |
-| 9.4  | Integrated sampler transport/headroom, audio service outcomes, explicit desktop controls.         | Preserve silence/sine regressions; distinguish enqueued/processed/started or rejected triggers; mock IPC/frontend tests and real native audition.                                                       |
-| 9.5  | Verification, evidence, documentation and closure.                                                | Full checks/build, instrumented native sampler timing/allocation/deallocation/continuity measurements and exact published-revision CI; record physical/platform limitations.                            |
+| Step | Responsibility                                                                                    | Exit criterion / status                                                                                                                                                                                                    |
+| ---- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9.1  | Engine PCM resource representation, ownership/limits, fixed voice policy, deterministic fixtures. | Resource validation and four tests implemented; contract defines 16 immutable bank slots, 16 voices, reject-newest overflow, transport/headroom and future raw output oracles. Resource-only increment.                    |
+| 9.2  | Engine bank and one-shot voice kernel.                                                            | Implemented: exact mono/stereo, overlap, exhaustion/reuse, retained PCM, error rollback and partitions 1/127/256/4096; debug/release memory tests report zero allocations/deallocations.                                   |
+| 9.3  | Application resource preparation and bounded asset decoding outside processing.                   | Closed locally: validated owning bank and handoff to a caller-owned holder, bounded payload/buffers, cleanup and offline playback evidence. Service session installation remains 9.4; hosted CI for this worktree pending. |
+| 9.4  | Integrated sampler transport/headroom, audio service outcomes, explicit desktop controls.         | Preserve silence/sine regressions; distinguish enqueued/processed/started or rejected triggers; mock IPC/frontend tests and real native audition.                                                                          |
+| 9.5  | Verification, evidence, documentation and closure.                                                | Full checks/build, instrumented native sampler timing/allocation/deallocation/continuity measurements and exact published-revision CI; record physical/platform limitations.                                               |
 
-## Next concrete increment: stage 9.3
+## Stage 9.3 — closed locally; engine integration 9.4.a implemented
 
-Prepare bounded asset loading/decoding outside processing through the application
-and an I/O adapter. Fix supported WAV encodings, encoded/decoded size and working
-memory limits, metadata/rate/channel errors, and cancellation/cleanup behavior.
-Build a complete validated immutable bank before starting processing; preserve
-existing resources on failure. Keep native sampler transport/headroom, commands,
-and UI for 9.4, then measure and close stage 9 in 9.5.
+Delivers a validated immutable SampleBank prepared from WAV files outside
+processing. Application policy and an I/O adapter own preparation/decoding;
+the engine receives only validated PCM. PreparedBank transfers ownership to a
+caller-owned bank holder; service session installation and desktop playback
+arrive in 9.4. Closure is local, with hosted CI pending publication/inspection.
+
+| Step  | Work                                                        | Acceptance                                                                                                                                                                              |
+| ----- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9.3.a | Input/format and memory contract specified 2026-11-09.      | PCM16/float32 classic/extensible WAV; per-input limits implemented in 9.3.b and aggregate budgets/permits implemented in 9.3.c.                                                         |
+| 9.3.b | Single-resource reader/decoder implemented locally.         | Bounded standard-library preflight, PCM16/float32 classic/extensible, exact reservations, cancellation, ownership and debug/release memory/fixture coverage.                            |
+| 9.3.c | Complete-bank coordinator implemented locally.              | Validated selections, ordered loading, shared permit through pending-result lifetime, checked aggregate budgets and debug/release maximum-bank memory tests.                            |
+| 9.3.d | Fault/cancellation/cleanup verified locally.                | 17 second-asset fault/cancellation cases, synchronized publication/blocked reads, reader ownership traces and worker/receiving-thread allocator checks pass debug/release.              |
+| 9.3.e | End-to-end fixtures and acceptance matrix verified locally. | Four tests pass debug/release: 18 format/header/channel combinations × four partitions, all PCM16 codes, empty/full banks and real-file exact/excess limits.                            |
+| 9.3.f | Local preparation closure completed.                        | Acceptance audited against code/tests, 9.3.e checks/build reused, 110 source/configuration files fingerprinted; publication/platform limits explicit. Stage 9 remains open for 9.4–9.5. |
+
+Existing limits remain 1048576 frames per resource (4 MiB mono / 8 MiB stereo),
+16 slots and at most 128 MiB retained PCM per bank. The specified 9.3.a limits are
+16 MiB per encoded file, 4096 chunks, 64 KiB combined decoder buffers, and one
+extra 8 MiB PCM allocation for finalization. Preparation data is capped at
+136 MiB + 64 KiB, or 264 MiB + 64 KiB including one old active bank. These are
+managed payload/buffer budgets, not process RSS. Per-file/frame/buffer limits
+and exact PCM reservation are implemented/tested in 9.3.b; aggregate accounting
+and the coordinator permit are implemented/tested in 9.3.c. 9.3.d verifies
+injected faults, cancellation/publication and cleanup thread ownership.
+9.3.e verifies end-to-end loaded-bank playback fixtures and maps format/limit
+coverage. 9.3.f reviewed criteria, dated checks and outstanding platform/publication
+limits and closed preparation locally; native/service/UI integration remains 9.4.
+One coordinator admits a single preparation/result; Busy rejects another until
+the result is installed/discarded. Cancellation checks occur at most every 256
+decoded frames and before publication; a completed bank is not retroactively revoked.
+PCM16/float32 classic/extensible WAV is the fixed initial subset; PCM24/32,
+compressed formats and resampling require a later explicit contract revision.
+See [format/error/cleanup details](sample-loading-contract.md). The 9.3.b adapter
+uses standard-library Rust without a new decoder dependency or engine file I/O.
+
+## Stage 9.4 — integration closed locally; diagnostics 9.5.a implemented; next: 9.5.b
+
+9.4.a–d are implemented/audited locally with offline/adapter/mock evidence.
+Physical sampler acceptance and measurements remain pending in 9.5. The existing
+[sampler transport/outcome contract](sampler-contract.md) defines behavior;
+engine implements transport/headroom, and the service implements sampler sessions
+and queued exact-ID outcomes. Application/DTO/frontend exposure is implemented
+in [9.4.c](sampler-desktop.md); physical sampler hardware/performance remains unverified.
+
+| Step  | Responsibility                                                                                                                               | Acceptance                                                                                                                                                                                                                                        |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9.4.a | Implemented offline: owning AudioEngine sampler mode, headroom 1/16, 5 ms envelope, transport and direct typed Copy trigger result.          | Seven integration tests, internal overflow, WAV-to-engine fixture and zero-allocation/deallocation processing test pass debug/release. Audio sessions/queued telemetry are supplied by 9.4.b.                                                     |
+| 9.4.b | Implemented: manual/CPAL sessions, shared-FIFO triggers, exact-ID Copy observations and owner-side processor reclamation after stream close. | Session/queue limits, telemetry loss/saturation, whole-callback chunk equivalence, failure/restart/expired requests and simulated teardown pass debug/release. Hardware/native timing unverified; UI/DTOs are supplied by 9.4.c.                  |
+| 9.4.c | Implemented: application use cases, worker preparation/cancellation and explicit desktop controls with generated DTOs and IPC/ACL.           | Loading/cancellation/initialization/trigger flows and pending/final outcomes verified with mock runtime/frontend tests. Paths/decoders/PCM remain outside realtime queues; editable project persistence stays in stage 12.                        |
+| 9.4.d | Completed locally: acceptance audit, device-list recovery and bounded polling fixes, regression/evidence and native protocol.                | Headless/full checks, Windows build, documented real audition where performed, and explicit platform/hardware limits. Publication/CI belongs to its exact revision; native sampler performance measurements and final stage 9 closure remain 9.5. |
+
+Measure native sampler behavior and close stage 9 in 9.5. The
+[native protocol](sampler-native-verification.md) defines the following sequence:
+
+| Step  | Responsibility                                                                                            | Acceptance                                                                                                                                                                                                                                                          |
+| ----- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9.5.a | Implemented locally: sampler benchmark and opt-in native diagnostic runner, offline feature without CPAL. | Existing application/service APIs; bounded preallocated measurements for 0/1/16 voices; allocation/deallocation accounting and offline/error tests. Offline oracle/manual lifecycle, all-channel probes and histogram tests pass; physical execution remains 9.5.b. |
+| 9.5.b | Execute controlled release hardware verification on an identified device/config.                          | Exact-ID outcomes, voice activity, transport/gain, finite output, processing budget, zero measured allocation/free, orderly shutdown/reopen; raw logs and scope.                                                                                                    |
+| 9.5.c | Consolidate sampler closure evidence and revision-specific CI.                                            | Full checks/build, documented audition/limits, unchanged historical evidence and inspected hosted jobs for the published revision; unsupported/unperformed platforms remain explicit.                                                                               |
+
+The detailed
+[Spanish audit and next-stage plan](../progress/estado-y-siguiente-etapa.md)
+records completed evidence, remaining objectives and acceptance.
 
 Recording, external MIDI, time stretching, VST/CLAP hosting, complex routing,
 latency compensation, and collaboration remain later work. These stages do not

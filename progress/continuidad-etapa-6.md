@@ -1,14 +1,26 @@
 # Continuidad del proyecto
 
-Actualizado el 2026-11-08. Etapas 1–8 completadas; etapa 8 publicada en 1e6bca8:
+Actualizado el 2026-11-10. Etapas 1–8 completadas; etapa 8 publicada en 1e6bca8:
 senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release. Ambos
 jobs de CI correctos en run 42524752652, inspeccionado para ese SHA exacto.
 El [reporte de etapa 8](etapa-8.md) registra su verificación y publicación/CI.
 Estado actual: incrementos 9.1–9.2 completados; kernel 9.2 publicado en 7acc1db
 con ambos jobs CI correctos en run 42530699397. Hay banco fijo y 16 voces raw en
-motor, sin carga de archivos, AudioEngine/servicio o UI de sampler todavía.
+motor. 9.4.a integra AudioEngine con transporte/rampas/headroom; sesiones de
+audio conectadas en 9.4.b con pruebas de adaptador. 9.4.c añade Application/DTO/IPC/UI
+con mocks; 9.4.d audita/cierra integración local y corrige recuperación/polling.
+Mediciones/audición física y cierre completo siguen pendientes en 9.5.
 Ver [reporte actual](etapa-9-voces.md) para SHA completo, enlaces de jobs y pruebas
-locales. La etapa 9 completa sigue abierta y 9.3 es el siguiente incremento.
+locales. La etapa 9 completa sigue abierta. 9.3.b carga recursos WAV individuales;
+9.3.c prepara bancos con permiso compartido y presupuesto agregado; 9.3.d verifica
+fallos/cancelación/cierre entre hilos y junto a la entrega; 9.3.e verifica fixtures
+WAV → banco → Sampler offline y matriz de aceptación. 9.3.f cierra preparación
+localmente. 9.4.a integra motor y 9.4.b conecta sesiones manual/CPAL y outcomes,
+sin abrir hardware en pruebas. 9.4.c añade preparación/cancelación en worker y
+controles explícitos. 9.4.d cierra integración local; 9.5.a entrega diagnósticos
+sampler y benchmarks sin dispositivo. Siguiente 9.5.b: mediciones físicas. Ver
+[reporte actual](etapa-9-diagnosticos-sampler.md); sigue sin publicación/CI propia.
+El manifiesto 9.3 se conserva como histórico, sin coincidir con este nuevo motor.
 El plan actual es [etapas 7–13](plan-etapas-7-13.md).
 Las referencias anteriores se conservan como historial fechado.
 
@@ -28,12 +40,28 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Continuar 9.3: preparación/carga y decodificación acotadas fuera del procesamiento
-mediante aplicación/adaptador de I/O. Fijar encodings WAV, límites de bytes/frames
-y memoria temporal, errores de metadatos/rate/canales y cierre/cancelación seguros.
-Crear un banco completo validado antes de empezar; no modificar recursos vivos
-ante un fallo. Mantener integración nativa/IPC/UI para 9.4. Ver el
-[contrato del sampler](../docs/sampler-contract.md) para límites y políticas.
+Continuar 9.5.b: ejecutar sampler-native-check release en dispositivo/config
+identificados, WAV compatibles de seconds+4 a 15 segundos y hashes antes/después.
+Registrar ventanas 0/1/16, IDs exactos, voz/frames reales, memoria/tiempos/histogramas,
+transporte, finalización, cierre/reapertura y resultados inconclusos. Seguir el
+[contrato](../docs/sampler-diagnostics.md) y [protocolo](../docs/sampler-native-verification.md).
+La invocación abre audio real; en 9.5.a solo se compiló y probó con backend manual.
+
+9.5.a implementa sampler-bench (matriz 12, mono/estéreo distinto) y sampler-native-check.
+offline-diagnostics excluye CPAL, rt-diagnostics conserva audio nativo. MemoryActivity
+cuenta asignaciones/liberaciones; callbacks observan todos los canales y un
+histograma fijo con percentiles aproximados. Application expone metadatos Rust
+del recurso preparado; DTO/IPC/UI, locks y workflow no cambian. El benchmark
+release mide CPU offline, sin garantía de deadlines o continuidad física.
+Ver [reporte actual](etapa-9-diagnosticos-sampler.md); ahí se registra check/build
+y el [nuevo manifiesto](evidencia-diagnosticos-9.5a.json) de 119 archivos.
+Check/build correctos: 108 headless/114 workspace/29 audio/nueve diagnósticos CLI/
+ocho memoria/24 frontend/nueve escenarios. Release focal y matrices mono/estéreo
+correctos, sin abrir hardware. Reportes/manifiestos anteriores conservados como históricos.
+
+9.5.c consolidará cierre y CI del SHA publicado. Siguen pendientes audición,
+unplug, loopback, estrés y plataformas nativas no verificadas. No se adelantan
+mezclador/secuenciador/persistencia de etapas 10–12.
 
 En 7.3, daw-app coordina render offline con buffers acotados y daw-cli escribe
 WAV float32 fuera del render con hound 3.5.1. El render_manual existente solo devuelve un reporte,

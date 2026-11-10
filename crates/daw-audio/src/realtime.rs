@@ -1,5 +1,6 @@
 //! Only Copy payloads cross these queues. This module never formats errors.
-use daw_engine::{AudioEngine, EngineCommand, EngineSnapshot};
+use crate::{SamplerTelemetry, TriggerReport};
+use daw_engine::{AudioEngine, EngineCommand, EngineSnapshot, Gain};
 use rtrb::{Consumer, Producer, RingBuffer};
 use std::sync::{
     Arc,
@@ -15,7 +16,18 @@ pub(crate) const SCRATCH_FRAMES: usize = 256;
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct Command {
     pub id: u64,
-    pub command: EngineCommand,
+    pub command: RealtimeCommand,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum RealtimeCommand {
+    Engine(EngineCommand),
+    Trigger { slot: usize, gain: Gain },
+}
+impl From<EngineCommand> for RealtimeCommand {
+    fn from(value: EngineCommand) -> Self {
+        Self::Engine(value)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -24,6 +36,7 @@ pub(crate) struct AppliedSnapshot {
     pub callbacks: u64,
     pub last_applied: Option<u64>,
     pub diagnostics: Option<crate::RealtimeMetrics>,
+    pub sampler: Option<SamplerTelemetry>,
 }
 
 pub(crate) struct ControlQueues {
@@ -40,14 +53,16 @@ pub(crate) struct Realtime {
     failure: Arc<AtomicU8>,
     callbacks: u64,
     last_applied: Option<u64>,
+    sampler: Option<SamplerTelemetry>,
     #[cfg(feature = "rt-diagnostics")]
     metrics: crate::RealtimeMetrics,
     #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
-    previous_sample: f32,
+    previous_sample: [f32; crate::MAX_CHANNELS as usize],
 }
 
 impl Realtime {
     pub fn new(engine: AudioEngine) -> (ControlQueues, Self) {
+        let sampler = SamplerTelemetry::for_engine(&engine);
         let (commands_tx, commands) = RingBuffer::new(COMMAND_CAPACITY);
         let (snapshots, snapshots_rx) = RingBuffer::new(SNAPSHOT_CAPACITY);
         let failure = Arc::new(AtomicU8::new(0));
@@ -64,10 +79,11 @@ impl Realtime {
                 failure,
                 callbacks: 0,
                 last_applied: None,
+                sampler,
                 #[cfg(feature = "rt-diagnostics")]
                 metrics: Default::default(),
                 #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
-                previous_sample: 0.0,
+                previous_sample: [0.0; crate::MAX_CHANNELS as usize],
             },
         )
     }
@@ -80,7 +96,23 @@ impl Realtime {
             let Ok(command) = self.commands.pop() else {
                 break;
             };
-            self.engine.apply_command(command.command);
+            match command.command {
+                RealtimeCommand::Engine(command) => self.engine.apply_command(command),
+                RealtimeCommand::Trigger { slot, gain } => {
+                    let result = self.engine.trigger_sample(slot, gain);
+                    if let Some(sampler) = &mut self.sampler {
+                        sampler.last_trigger = Some(TriggerReport {
+                            command_id: command.id,
+                            result,
+                        });
+                        if result.is_ok() {
+                            sampler.started = sampler.started.saturating_add(1);
+                        } else {
+                            sampler.rejected = sampler.rejected.saturating_add(1);
+                        }
+                    }
+                }
+            }
             self.last_applied = Some(command.id);
         }
     }
@@ -93,11 +125,29 @@ impl Realtime {
         }
     }
 
+    #[cfg(feature = "native-audio")]
+    pub fn validate_output_len(&self, samples: usize) -> bool {
+        if self.failure.load(Ordering::Relaxed) != 0 {
+            return false;
+        }
+        if self.engine.validate_render(samples).is_err() {
+            self.fail();
+            return false;
+        }
+        true
+    }
+
     pub fn fail(&self) {
         self.failure.store(2, Ordering::Relaxed);
     }
 
     pub fn end(&mut self) {
+        if let Some(sampler) = &mut self.sampler {
+            sampler.active_voices = self
+                .engine
+                .sampler()
+                .map_or(0, |source| source.snapshot().active_voices());
+        }
         if let Some(next) = self.callbacks.checked_add(1) {
             self.callbacks = next;
         } else {
@@ -110,6 +160,7 @@ impl Realtime {
             callbacks: self.callbacks,
             last_applied: self.last_applied,
             diagnostics: self.diagnostics(),
+            sampler: self.sampler,
         });
     }
 
@@ -127,16 +178,22 @@ impl Realtime {
     #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
     pub fn observe_samples(&mut self, output: &[f32], channels: usize) {
         for frame in output.chunks_exact(channels) {
-            let sample = frame[0];
-            if !sample.is_finite() {
-                self.metrics.non_finite_samples = self.metrics.non_finite_samples.saturating_add(1);
+            for (channel, &sample) in frame.iter().enumerate() {
+                if !sample.is_finite() {
+                    self.metrics.non_finite_samples =
+                        self.metrics.non_finite_samples.saturating_add(1);
+                }
+                self.metrics.signal_peak = self.metrics.signal_peak.max(sample.abs());
+                self.metrics.channel_peaks[channel] =
+                    self.metrics.channel_peaks[channel].max(sample.abs());
+                self.metrics.sample_values_observed =
+                    self.metrics.sample_values_observed.saturating_add(1);
+                self.metrics.max_sample_jump = self
+                    .metrics
+                    .max_sample_jump
+                    .max((sample - self.previous_sample[channel]).abs());
+                self.previous_sample[channel] = sample;
             }
-            self.metrics.signal_peak = self.metrics.signal_peak.max(sample.abs());
-            self.metrics.max_sample_jump = self
-                .metrics
-                .max_sample_jump
-                .max((sample - self.previous_sample).abs());
-            self.previous_sample = sample;
         }
     }
 
@@ -146,8 +203,7 @@ impl Realtime {
         elapsed_ns: u64,
         frames: usize,
         sample_rate: u32,
-        allocations: u64,
-        bytes: u64,
+        memory: crate::MemoryActivity,
     ) {
         let frame_count = frames as u64;
         self.metrics.min_callback_frames = if self.metrics.measured_callbacks == 0 {
@@ -157,6 +213,14 @@ impl Realtime {
         };
         self.metrics.max_callback_frames = self.metrics.max_callback_frames.max(frame_count);
         self.metrics.measured_callbacks = self.metrics.measured_callbacks.saturating_add(1);
+        self.metrics.measured_frames = self.metrics.measured_frames.saturating_add(frame_count);
+        let bucket = if elapsed_ns == 0 {
+            0
+        } else {
+            63 - elapsed_ns.leading_zeros() as usize
+        };
+        self.metrics.processing_time_histogram[bucket] =
+            self.metrics.processing_time_histogram[bucket].saturating_add(1);
         self.metrics.max_processing_ns = self.metrics.max_processing_ns.max(elapsed_ns);
         if frames != 0 {
             let budget_ns = frames as f64 * 1e9 / f64::from(sample_rate);
@@ -168,8 +232,16 @@ impl Realtime {
                 self.metrics.deadline_misses = self.metrics.deadline_misses.saturating_add(1);
             }
         }
-        self.metrics.allocations = self.metrics.allocations.saturating_add(allocations);
-        self.metrics.allocated_bytes = self.metrics.allocated_bytes.saturating_add(bytes);
+        self.metrics.allocations = self.metrics.allocations.saturating_add(memory.allocations);
+        self.metrics.allocated_bytes = self
+            .metrics
+            .allocated_bytes
+            .saturating_add(memory.allocated_bytes);
+        self.metrics.deallocations = self
+            .metrics
+            .deallocations
+            .saturating_add(memory.deallocations);
+        self.metrics.freed_bytes = self.metrics.freed_bytes.saturating_add(memory.freed_bytes);
     }
 }
 
@@ -177,6 +249,119 @@ impl Realtime {
 mod tests {
     use super::*;
     use daw_engine::EngineConfig;
+    #[cfg(all(feature = "native-audio", feature = "rt-diagnostics"))]
+    #[test]
+    fn diagnostics_cover_every_channel_and_record_bounded_duration_and_free_counts() {
+        let (_, mut rt) = setup();
+        rt.observe_samples(&[0.125, -0.5, 0.25, f32::NAN], 2);
+        rt.observe_samples(&[0.0, 0.75], 2);
+        rt.record_processing(
+            7,
+            3,
+            48_000,
+            crate::MemoryActivity {
+                deallocations: 1,
+                freed_bytes: 8192,
+                ..Default::default()
+            },
+        );
+        let m = rt.diagnostics().unwrap();
+        assert_eq!(m.sample_values_observed, 6);
+        assert_eq!(m.non_finite_samples, 1);
+        assert_eq!(&m.channel_peaks[..2], &[0.25, 0.75]);
+        assert_eq!(m.deallocations, 1);
+        assert_eq!(m.freed_bytes, 8192);
+        assert_eq!(m.measured_frames, 3);
+        assert_eq!(m.processing_time_histogram[2], 1);
+        assert_eq!(m.percentile_upper_ns(99), Some(7));
+    }
+
+    #[test]
+    fn lost_sampler_telemetry_recovers_latest_id_and_counts_saturate() {
+        use daw_engine::{SAMPLE_BANK_SLOTS, SampleBank, SampleBuffer, SamplerTriggerError};
+        let config = EngineConfig::new(800, 1).unwrap();
+        let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
+        slots[0] = Some(SampleBuffer::new(config, vec![0.5; 1000]).unwrap());
+        let (mut queues, mut rt) = Realtime::new(AudioEngine::with_sampler(
+            SampleBank::new(config, slots).unwrap(),
+            Default::default(),
+        ));
+        for _ in 0..SNAPSHOT_CAPACITY {
+            rt.begin();
+            rt.render(&mut [0.0]);
+            rt.end();
+        }
+        queues
+            .commands
+            .push(Command {
+                id: 1,
+                command: EngineCommand::Play.into(),
+            })
+            .unwrap();
+        queues
+            .commands
+            .push(Command {
+                id: 2,
+                command: RealtimeCommand::Trigger {
+                    slot: 0,
+                    gain: Gain::new(1.0).unwrap(),
+                },
+            })
+            .unwrap();
+        rt.begin();
+        rt.render(&mut [0.0]);
+        rt.end();
+        for _ in 0..SNAPSHOT_CAPACITY {
+            assert!(
+                queues
+                    .snapshots
+                    .pop()
+                    .unwrap()
+                    .sampler
+                    .unwrap()
+                    .last_trigger
+                    .is_none()
+            );
+        }
+        queues
+            .commands
+            .push(Command {
+                id: 3,
+                command: EngineCommand::Pause.into(),
+            })
+            .unwrap();
+        rt.begin();
+        rt.render(&mut [0.0]);
+        rt.end();
+        let latest = queues.snapshots.pop().unwrap();
+        assert_eq!(latest.last_applied, Some(3));
+        assert_eq!(latest.sampler.unwrap().last_trigger.unwrap().command_id, 2);
+        assert_eq!(latest.sampler.unwrap().started, 1);
+        rt.sampler.as_mut().unwrap().started = u64::MAX;
+        rt.sampler.as_mut().unwrap().rejected = u64::MAX;
+        rt.engine.apply_command(EngineCommand::Play);
+        for (id, slot) in [(4, 0), (5, usize::MAX)] {
+            queues
+                .commands
+                .push(Command {
+                    id,
+                    command: RealtimeCommand::Trigger {
+                        slot,
+                        gain: Gain::new(1.0).unwrap(),
+                    },
+                })
+                .unwrap();
+        }
+        rt.begin();
+        rt.render(&mut [0.0]);
+        rt.end();
+        let latest = queues.snapshots.pop().unwrap().sampler.unwrap();
+        assert_eq!((latest.started, latest.rejected), (u64::MAX, u64::MAX));
+        assert_eq!(
+            latest.last_trigger.unwrap().result,
+            Err(SamplerTriggerError::InvalidSlot)
+        );
+    }
 
     fn setup() -> (ControlQueues, Realtime) {
         Realtime::new(AudioEngine::new(
@@ -193,7 +378,7 @@ mod tests {
                 .commands
                 .push(Command {
                     id,
-                    command: EngineCommand::Play,
+                    command: EngineCommand::Play.into(),
                 })
                 .unwrap();
         }
@@ -202,7 +387,7 @@ mod tests {
                 .commands
                 .push(Command {
                     id: 999,
-                    command: EngineCommand::Stop
+                    command: EngineCommand::Stop.into()
                 })
                 .is_err()
         );
@@ -230,7 +415,7 @@ mod tests {
             .commands
             .push(Command {
                 id: 1,
-                command: EngineCommand::Play,
+                command: EngineCommand::Play.into(),
             })
             .unwrap();
         rt.begin();

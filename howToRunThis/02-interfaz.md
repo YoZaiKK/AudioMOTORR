@@ -3,6 +3,9 @@
 Actualizado para etapa 8 el 2026-11-08. Las siete imágenes conservan la UI y
 evidencia histórica de etapa 5; no muestran los nuevos controles de senoide.
 
+La etapa 9.4.c (2026-11-09) añade carga WAV y controles sampler. Consulta la
+[guía del sampler](06-sampler.md) para ese flujo; las capturas se conservan.
+
 ## 1. Navegador y escritorio
 
 ```powershell

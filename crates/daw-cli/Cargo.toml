@@ -8,7 +8,8 @@ publish.workspace = true
 [features]
 default = []
 native-audio = ["daw-app/native-audio"]
-rt-diagnostics = ["native-audio", "daw-app/rt-diagnostics", "dep:allocation-counter"]
+offline-diagnostics = ["daw-app/rt-diagnostics", "dep:allocation-counter"]
+rt-diagnostics = ["native-audio", "offline-diagnostics"]
 
 [dependencies]
 daw-app.workspace = true

@@ -1,5 +1,97 @@
 # Development, platforms, and CI
 
+Stage 9.5.a (2026-11-10) adds [sampler diagnostics](sampler-diagnostics.md):
+offline-diagnostics avoids CPAL while rt-diagnostics retains native audio.
+check now runs the diagnostic CLI unit/process tests with offline-diagnostics,
+alongside existing instrumented audio and decoder tests. The
+[report](../progress/etapa-9-diagnosticos-sampler.md) separates release CPU
+measurements from the unperformed native hardware run. Default desktop has no
+diagnostic instrumentation/IPC; dependencies, lockfiles and generated types stay fixed.
+
+Stage 9.4.d closes the [integration acceptance audit](sampler-integration-acceptance.md)
+locally. It fixes independent startup queries and automatic polling overlap in
+React, with three reproduced regressions. The [closure report](../progress/cierre-integracion-9.4.md)
+records verification; the [native protocol](sampler-native-verification.md) identifies
+the sampler benchmark/runner delivered in 9.5.a. This adds no hardware measurements.
+
+Stage 9.4.c (2026-11-09) adds [application/IPC/UI sampler integration](sampler-desktop.md).
+Run the application worker/session and desktop mock contracts without opening hardware:
+
+```powershell
+cargo test -p daw-app --no-default-features --locked --lib --test sampler_application_contract
+cargo test -p rust-daw-desktop --locked --test ipc_contract
+npm run bindings:generate
+npm run bindings:check
+npm run test:frontend
+npm run check
+npm run desktop:build -- --debug --no-bundle
+```
+
+DTOs/generated TypeScript intentionally change in this increment; dependencies and
+lockfiles do not. The [current report](../progress/etapa-9-aplicacion-sampler.md)
+separates local check/build evidence from pending hosted CI and physical audition.
+Preparation runs on an Application-owned worker outside its mutex. Cancel/poll do
+not wait for a running decoder; exit cancels/joins it and cannot interrupt blocked
+OS I/O. Read the [practical guide](../howToRunThis/06-sampler.md) for explicit controls.
+The reports and manifests below retain their dated verification scope.
+
+Stage 9.3 (2026-11-09) specifies and implements per-resource and complete-bank
+[WAV loading](sample-loading-contract.md). The
+[reader report](../progress/etapa-9-lectura-wav.md) and
+[bank preparation report](../progress/etapa-9-preparacion-banco.md) record new local results
+separately from older hosted CI. Complete-bank/permit/aggregate-budget enforcement
+is implemented; 9.3.d adds deterministic injected fault/cancellation/publication
+tests plus worker/receiving-thread allocator checks. The
+[fault/cleanup report](../progress/etapa-9-fallos-cancelacion.md) records their
+scope. 9.3.e adds end-to-end WAV/bank/offline-sampler fixtures, documented in the
+[acceptance matrix](sample-loading-acceptance.md) and
+[loaded-sampler report](../progress/etapa-9-fixtures-integracion.md).
+Preparation is closed locally in 9.3.f; the
+[closure audit](../progress/cierre-preparacion-9.3.md) and
+[source/configuration manifest](../progress/evidencia-preparacion-9.3.json) identify
+the evidence. This documentation-only closure reuses 9.3.e check/build results
+and verifies that recorded code/configuration files retain their hashes.
+The dated 9.3 manifest is retained as historical evidence; its source hashes no
+longer match the newer engine. 9.4.a implements AudioEngine sampler integration
+offline; see the [engine report](../progress/etapa-9-integracion-motor.md) and
+[9.4.a source fingerprint](../progress/evidencia-integracion-9.4a.json).
+9.4.b implements audio sessions and queued trigger outcomes; see the
+[session contract](sampler-service.md) and [session report](../progress/etapa-9-sesiones-sampler.md).
+The [9.4.b fingerprint](../progress/evidencia-sesiones-9.4b.json) records 112
+source/configuration files with local check/build results.
+The 9.4.a/9.4.b fingerprints are historical. Application/DTO/IPC/frontend are
+implemented in 9.4.c; the [9.4.c manifest](../progress/evidencia-desktop-9.4c.json)
+identifies that dated code. The 9.4.d closure records the newer hook/tests and
+acceptance audit; 9.5.a delivers the diagnostic runner and next is physical verification 9.5.b.
+The [current manifest](../progress/evidencia-integracion-9.4d.json) identifies
+116 code/configuration files for 9.4.d. The newer
+[9.5.a manifest](../progress/evidencia-diagnosticos-9.5a.json) identifies 119 files;
+full check/Windows build and offline release diagnostics pass. No sampler hardware run is claimed.
+The existing 9.2 results do not validate this new code.
+
+```powershell
+cargo test -p daw-audio --no-default-features --locked --test sampler_service_contract
+cargo test -p daw-audio --release --features native-audio,rt-diagnostics --locked
+cargo test -p daw-engine --no-default-features --locked --lib --test sampler_engine_contract
+cargo test -p daw-engine --release --no-default-features --locked --lib --test sampler_engine_contract
+cargo test -p daw-app --no-default-features --locked --test sample_loading_contract
+cargo test -p daw-app --no-default-features --locked --lib --test bank_preparation_contract
+cargo test -p daw-app --release --no-default-features --locked --lib --test bank_preparation_contract
+cargo test -p daw-app --no-default-features --locked --test loaded_sampler_contract
+cargo test -p daw-app --release --no-default-features --locked --test loaded_sampler_contract
+cargo test -p daw-cli --no-default-features --locked --test export_contract
+cargo test -p daw-cli --features rt-diagnostics --locked --test sample_loading_memory_contract
+cargo test -p daw-cli --release --features rt-diagnostics --locked --test sample_loading_memory_contract
+```
+
+check now runs the CLI feature-only memory suite explicitly, without hardware;
+Linux's explicit headless commands discover reader/bank/loaded-sampler/export tests and skip
+feature-only memory tests. No workflow/dependency changes are required.
+The app library unit suite includes the 17-case second-asset fault matrix and
+channel-synchronized publication/blocked-read interleavings. The CLI diagnostic
+suite now has eight tests, including allocation/free balance on identified
+worker and receiving threads. These are offline tests; none opens hardware.
+
 The repository pins Rust **1.90.0** with rustfmt/Clippy in
 `rust-toolchain.toml`, Node **22.23.4** in `.node-version`, and npm **10.9.9**
 in `package.json`. One root `Cargo.lock` and `package-lock.json` are authoritative.
@@ -191,8 +283,12 @@ Four tests cover exact PCM/metadata, invalid input, mono/stereo frame bounds,
 and output compatibility. The [contract](sampler-contract.md) contains reusable
 fixtures. Stage 9.2 adds eight kernel behavior tests, an internal overflow test,
 and a feature-only allocation/deallocation test with a destruction positive control.
-It plays raw one-shots from memory; decoding and native sampler integration are
-not implemented. The existing check already runs the diagnostic feature suite.
+The kernel plays raw one-shots from memory; native sampler integration remains
+pending. The separate 9.3.b adapter now decodes single assets. check runs both
+the kernel diagnostic suite and the decoder/bank memory suite. 9.3.c adds
+ordered bank coordination and real-file coexistence tests with two maximum-size
+stereo banks; measured heap balance is distinct from the conservative usage
+ceilings returned by PreparedBank and does not measure RSS/native deadlines.
 This increment changes no dependencies, lockfiles, DTOs, or UI. The
 [stage report](../progress/etapa-9-sampler.md) separates actual new checks from
 the prior implementation's hosted results. Stage 8 closure 80a2121 passed

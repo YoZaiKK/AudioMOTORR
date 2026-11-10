@@ -2,22 +2,25 @@
 import { useDawSession } from "../features/audio/useDawSession";
 import { TransportBar } from "../features/transport/TransportBar";
 import { EngineStatusPanel } from "../features/engine-status/EngineStatusPanel";
+import { SamplerPanel } from "../features/audio/SamplerPanel";
 
 export function App() {
   const session = useDawSession();
   return (
     <main className="workspace">
       <header>
-        <span className="eyebrow">AudioMOTORR · Etapa 8</span>
+        <span className="eyebrow">AudioMOTORR · Etapa 9</span>
         <h1>
           {session.info?.name ?? "Rust DAW"}{" "}
           <small>{session.info?.version}</small>
         </h1>
         <p>{session.project?.title ?? "Proyecto"}</p>
         <p className="notice">
-          {session.snapshot?.engine?.sineFrequencyHz != null
-            ? `Senoide: ${session.snapshot.engine.sineFrequencyHz} Hz · rampas de 5 ms`
-            : "Salida de silencio · selecciona senoide para generar señal"}
+          {session.snapshot?.sampler != null
+            ? "Sampler one-shot · 16 voces · rampas de 5 ms"
+            : session.snapshot?.engine?.sineFrequencyHz != null
+              ? `Senoide: ${session.snapshot.engine.sineFrequencyHz} Hz · rampas de 5 ms`
+              : "Salida de silencio · selecciona senoide para generar señal"}
         </p>
       </header>
       {!session.native && (
@@ -34,6 +37,7 @@ export function App() {
         </div>
       )}
       <AudioPanel session={session} />
+      <SamplerPanel session={session} />
       <TransportBar session={session} />
       <EngineStatusPanel snapshot={session.snapshot} />
     </main>

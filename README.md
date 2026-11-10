@@ -6,17 +6,39 @@ can later evolve into a clip-based DAW.
 
 ## Current status
 
-Stages 1–8 and increments 9.1–9.2 are complete. The engine library now includes
+Stages 1–8 and increments 9.1–9.3 are complete within their documented scope;
+9.3 is closed locally and still unpublished. The engine library now includes
 immutable PCM resources, a fixed 16-slot bank, and 16 one-shot sampler voices.
-Stage 9 remains in progress: file loading is next (9.3), followed by native
-sampler transport/service/UI integration (9.4) and final verification (9.5).
+Stage 9 remains in progress: complete-bank loading is implemented locally through 9.3.c,
+with fault/cleanup verified in 9.3.d and end-to-end fixtures verified in 9.3.e.
+The preparation closure audit is complete (9.3.f). 9.4.a integrates sampler
+transport, 5 ms ramps and 1/16 headroom in AudioEngine, verified offline.
+9.4.b connects manual/CPAL sampler sessions and queued trigger observations,
+verified without opening hardware. 9.4.c adds application use cases, generated
+DTOs, IPC/ACL and explicit sampler controls with mock tests. 9.4.d audits and
+closes integration locally, correcting device-list recovery and overlapping UI
+polls. Native sampler verification and final stage closure remain 9.5.
+The [9.3.a loading contract](docs/sample-loading-contract.md) now fixes the input
+formats and preparation budgets. 9.3.b now loads individual PCM16/float32 WAV
+resources with bounded preflight/decoding and cooperative cancellation in daw-app.
+9.3.c adds complete-bank coordination, a shared preparation/result permit, and
+aggregate memory checks. 9.3.d adds deterministic fault/cancellation and cleanup
+thread verification. 9.3.e verifies WAV/bank/offline-sampler playback against
+exact sample oracles. See the [local preparation closure](progress/cierre-preparacion-9.3.md).
+9.5.a now adds sampler-bench and sampler-native-check, bounded allocation/free
+metrics, all-channel probes and histogram quantiles. Offline tests/benchmarks run
+without CPAL; native execution remains opt-in. Next is 9.5.b: identified-hardware
+sampler measurements and audition. Existing engine-bench/tone-check exercise the sine.
 
 Desktop opens audio on an explicit click, offers silence or a sine source with
 5 ms gain/transport ramps, controls BPM, and displays observed state. Browser
-mode disables native operations. Sampler playback currently belongs to the
-engine library; desktop has no sample-loading or sampler controls yet.
+mode disables native operations. Desktop prepares WAV banks on a dedicated worker,
+initializes sampler audio explicitly, and displays exact-ID trigger results or
+Unknown when an observation was lost. See the [sampler walkthrough](howToRunThis/06-sampler.md);
+physical audition remains unverified.
 
 See the [current kernel report](progress/etapa-9-voces.md),
+[status/objectives audit and next-stage plan](progress/estado-y-siguiente-etapa.md),
 [implementation log](progress/detalles.md), [handoff](progress/continuidad-etapa-6.md),
 and dated [stage 6 requirements audit](progress/cierre-etapa-6.md).
 The progress documents are in Spanish; this README and technical docs remain in
@@ -35,6 +57,13 @@ Technical documentation:
 - [Offline oscillator and WAV contract](docs/offline-oscillator.md).
 - [Native audition, gain ramps, and measurement scope](docs/native-audition.md).
 - [Sampler PCM resources, ownership, voice policy, and fixtures](docs/sampler-contract.md).
+- [Sampler sessions, trigger outcomes and stream-owner teardown](docs/sampler-service.md).
+- [Sampler application, DTO/IPC, preparation lifecycle and desktop controls](docs/sampler-desktop.md).
+- [Integrated sampler acceptance matrix and local closure](docs/sampler-integration-acceptance.md).
+- [Sampler benchmark and opt-in native diagnostic runner](docs/sampler-diagnostics.md).
+- [Native sampler verification protocol](docs/sampler-native-verification.md).
+- [Specified WAV loading formats, memory budgets, errors, and cancellation](docs/sample-loading-contract.md).
+- [WAV preparation acceptance matrix and verification limits](docs/sample-loading-acceptance.md).
 
 Stage 7 is complete (2026-11-07): the opt-in oscillator, bounded application render,
 and CLI float32 WAV export are published in `c6cf627` and passed
@@ -49,8 +78,35 @@ The sampler kernel is published in `7acc1db` and passed
 It renders exact mono/stereo one-shots; local debug/release tests measured zero
 allocations and deallocations during processing. See the
 [contract](docs/sampler-contract.md) and [kernel report](progress/etapa-9-voces.md).
-File loading, AudioEngine/service
-integration, and sampler UI remain future work; stages 10–13 remain planned.
+The application library now prepares complete banks from WAV with fault/cleanup
+and end-to-end playback fixtures. AudioEngine integration is implemented offline;
+service integration is implemented in the Rust audio library.
+Sampler UI is implemented locally with mock verification; stages 10–13 remain planned. See the
+[bank preparation report](progress/etapa-9-preparacion-banco.md) and
+[fault/cleanup report](progress/etapa-9-fallos-cancelacion.md).
+The [loaded-sampler report](progress/etapa-9-fixtures-integracion.md) records 9.3.e.
+The [9.3 closure](progress/cierre-preparacion-9.3.md) and
+[source/configuration fingerprint](progress/evidencia-preparacion-9.3.json) identify
+the dated preparation scope separately from pending hosted CI. The
+[9.4.a report](progress/etapa-9-integracion-motor.md) records dated engine integration;
+the historical 9.3 fingerprint does not match this newer engine. The
+[9.4.a fingerprint](progress/evidencia-integracion-9.4a.json) identifies that dated
+engine integration, with hosted CI still pending publication.
+The [9.4.b report](progress/etapa-9-sesiones-sampler.md) records dated session
+integration and its evidence; older fingerprints remain dated snapshots.
+The [9.4.b fingerprint](progress/evidencia-sesiones-9.4b.json) identifies that dated
+code/configuration. The [9.4.c report](progress/etapa-9-aplicacion-sampler.md) records
+the newer desktop integration; hosted CI still awaits publication and inspection.
+The [9.4.c fingerprint](progress/evidencia-desktop-9.4c.json) identifies its dated
+116-file state. The [9.4.d closure](progress/cierre-integracion-9.4.md) records the
+audit, UI fixes and new local verification separately from pending native measurements/CI.
+The [9.4.d fingerprint](progress/evidencia-integracion-9.4d.json) identifies the
+dated 116-file state; full check and Windows debug build passed, with 24 frontend tests.
+The [9.5.a report](progress/etapa-9-diagnosticos-sampler.md) records newer sampler
+diagnostics and device-free measurements; hardware and revision-specific hosted CI remain pending.
+The [9.5.a fingerprint](progress/evidencia-diagnosticos-9.5a.json) identifies the
+current 119-file state. Full check and Windows debug build pass locally; release
+benchmarks report zero allocations/frees in processing across 24 mono/stereo cases.
 Desktop defaults to
 silence and offers an explicit sine source, frequency, and volume control.
 Ordinary smoke commands retain silence; export-wav writes a sine to disk without hardware.
@@ -77,11 +133,21 @@ Implemented capabilities:
   frame limits and explicit output compatibility checks.
 - A fixed 16-slot bank and 16 one-shot voices in the engine library: deterministic
   gain/summing, reject-newest exhaustion, and retained PCM after completion/reset.
+- AudioEngine sampler mode with bank ownership, fixed headroom, 5 ms transport/gain
+  ramps and typed direct trigger results, verified offline without an audio device.
+- Manual/CPAL sampler sessions and shared-FIFO triggers with exact-ID Copy outcomes,
+  cumulative counters and owner-side resource reclamation after stream closure.
+- Individual PCM16/float32 WAV loading in daw-app, with bounded preflight,
+  exact PCM reservation, typed errors and cooperative cancellation outside audio processing.
+- Complete-bank preparation in daw-app: validated slot selections, sequential
+  decoding, one shared preparation/pending-result permit, and aggregate payload budgets.
 - A bounded control thread, realtime SPSC queues, and accepted/applied command IDs.
 - Device enumeration, supported output configurations, and explicit device selection.
 - Audio initialization, shutdown, failure reporting, and restart.
 - CLI smoke checks and behavioral tests for rendering, queues, and service lifecycle.
-- Eleven IPC commands with Rust DTOs and generated TypeScript declarations.
+- Sixteen IPC commands with Rust DTOs and generated TypeScript declarations.
+- Worker-based WAV loading/cancellation and explicit sampler initialization and
+  triggers, with exact-ID Started/rejected/Unknown UI observations.
 - Audio-device selection, initialization/shutdown, Play/Pause/Stop, and BPM controls.
 - Explicit native sine audition, volume control, and per-frame 5 ms attack/release ramps.
 - State published below 15 Hz, with pending commands separated from applied state.
@@ -207,13 +273,15 @@ with `BigInt`. Components use domain hooks and a central `desktop-client.ts` rat
 than invoking Tauri directly. They register snapshot listeners before querying
 initial state, reject old sequences, and dispose asynchronous subscriptions.
 
-Eleven application commands are registered through `ipc::configure`; build.rs
+Sixteen application commands are registered through `ipc::configure`; build.rs
 generates their ACL permissions, granted only to the local `main` window along
 with event listen/unlisten. Generated permissions are build artifacts ignored by
 Git. Production CSP stays explicit; no remote capability or plugin is enabled.
 Application calls run on blocking workers, while a separate publisher sends
 observed snapshots at intervals of at least 67 ms. Closing main stops and joins
 the publisher and closes the audio service. The engine callback performs no IPC.
+Sampler preparation uses its own worker and 200 ms status polling outside audio;
+exit cancels and joins that worker. See the [desktop contract](docs/sampler-desktop.md).
 
 On Windows/MSVC, integration-test executables receive a Common Controls v6
 manifest for Tauri's imported APIs. Tauri builds the normal binary manifests.
@@ -445,5 +513,12 @@ screenshots. Release diagnostics are opt-in and excluded from default desktop
 builds; hardware checks never run in CI. See the [contract](docs/native-audition.md)
 for measurement scope and the [plan](progress/plan-etapas-7-13.md) for stage 9.
 Stages 9.1–9.2 implement immutable resources, a fixed bank, and raw voice playback
-in the engine library. Next is 9.3: bounded loading/decoding outside processing.
-Desktop sampler audition, sequencer, and project persistence are not implemented yet.
+in the engine library. 9.3.b adds bounded reading/decoding of individual WAV assets
+outside processing. 9.3.c adds complete-bank preparation and aggregate budgets;
+9.3.d verifies faults/cancellation/cleanup and 9.3.e verifies end-to-end loading
+and offline playback. Preparation 9.3 is closed locally and 9.4.a integrates the
+sampler into AudioEngine. 9.4.b adds audio sessions/queued outcomes; 9.4.c adds
+application/DTO/IPC and desktop controls. 9.4.d closes integration locally; next
+is 9.5.b hardware verification using the implemented [sampler diagnostics](docs/sampler-diagnostics.md)
+and [native protocol](docs/sampler-native-verification.md).
+Physical sampler audition remains unverified; sequencer and project persistence remain planned.

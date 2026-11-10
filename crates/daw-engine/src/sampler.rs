@@ -146,7 +146,7 @@ impl Sampler {
         Ok(voice)
     }
     /// Immediate raw-kernel reset; retains the bank and cumulative frame counter.
-    /// The future transport adapter will call this after its master release ends.
+    /// AudioEngine calls this after its master Stop release ends, retaining PCM.
     pub fn clear_voices(&mut self) {
         self.voices.fill(None);
     }
@@ -193,6 +193,38 @@ impl Sampler {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn raw_clock_overflow_preserves_integrated_engine_envelope_transport_and_voices() {
+        use crate::{AudioEngine, EngineCommand, Tempo};
+        let config = EngineConfig::new(800, 2).unwrap();
+        let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
+        slots[0] = Some(SampleBuffer::new(config, vec![0.5; 40]).unwrap());
+        let mut engine =
+            AudioEngine::with_sampler(SampleBank::new(config, slots).unwrap(), Tempo::default());
+        engine.apply_command(EngineCommand::Play);
+        engine.trigger_sample(0, Gain::new(1.0).unwrap()).unwrap();
+        engine.render_interleaved(&mut [0.0; 6]).unwrap();
+        engine.apply_command(EngineCommand::Pause);
+        engine.sampler.as_mut().unwrap().rendered_frames = u64::MAX;
+        let before = engine.snapshot();
+        let before_sampler = engine.sampler().unwrap().snapshot();
+        let before_ramp = engine.ramp;
+        assert_eq!(engine.validate_render(2), Err(RenderError::CounterOverflow));
+        assert_eq!(engine.snapshot(), before);
+        let mut output = [1.0; 2];
+        assert_eq!(
+            engine.render_interleaved(&mut output),
+            Err(RenderError::CounterOverflow)
+        );
+        assert_eq!(output, [0.0; 2]);
+        assert_eq!(engine.snapshot(), before);
+        assert_eq!(engine.sampler().unwrap().snapshot(), before_sampler);
+        assert_eq!(engine.ramp, before_ramp);
+        engine.render_interleaved(&mut []).unwrap();
+        assert_eq!(engine.snapshot(), before);
+        assert_eq!(engine.sampler().unwrap().snapshot(), before_sampler);
+    }
 
     #[test]
     fn overflow_silences_output_and_preserves_all_voice_cursors() {

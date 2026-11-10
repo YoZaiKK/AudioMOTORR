@@ -2,7 +2,7 @@ use daw_app::Application;
 use daw_engine::EngineConfig;
 use std::{error::Error, process::ExitCode};
 
-#[cfg(feature = "rt-diagnostics")]
+#[cfg(any(feature = "rt-diagnostics", feature = "offline-diagnostics"))]
 mod diagnostics;
 mod export;
 
@@ -18,24 +18,29 @@ fn main() -> ExitCode {
     }
 }
 
+const SAMPLER_HELP: &str = "Sampler diagnostics (release only):\n       daw-cli sampler-bench [--block-size 1..4096] [--voices 0|1|16] [--iterations 1..1000000] [--channels 1|2]\n       daw-cli sampler-native-check --input PATH --device ID [--sample-rate 100..192000] [--channels 1|2] [--voices 0|1|16] [--seconds 1..5]\nSampler bench defaults: all blocks 1/127/256/4096 and voices 0/1/16, 2000 iterations, 48000 Hz stereo synthetic distinct-channel PCM.\n--features offline-diagnostics enables device-free diagnostics without CPAL; --features rt-diagnostics also enables native audio.\nNative sampler requires an explicit device and WAV lasting seconds+4 through 15 seconds. Processing diagnostics do not prove acoustic continuity.";
+
 fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
     let Some(command) = args.first() else {
-        println!("{HELP}");
+        println!("{HELP}\n{SAMPLER_HELP}");
         return Ok(());
     };
     if command == "--help" || command == "-h" {
-        println!("{HELP}");
+        println!("{HELP}\n{SAMPLER_HELP}");
         return Ok(());
     }
     if command == "export-wav" {
         return export::run(&args[1..]);
     }
-    if command == "tone-check" || command == "engine-bench" {
-        #[cfg(feature = "rt-diagnostics")]
+    if matches!(
+        command.as_str(),
+        "tone-check" | "engine-bench" | "sampler-bench" | "sampler-native-check"
+    ) {
+        #[cfg(any(feature = "rt-diagnostics", feature = "offline-diagnostics"))]
         {
             return diagnostics::run(command, &args[1..]);
         }
-        #[cfg(not(feature = "rt-diagnostics"))]
+        #[cfg(not(any(feature = "rt-diagnostics", feature = "offline-diagnostics")))]
         {
             return Err("Diagnostic commands require --release --features rt-diagnostics".into());
         }

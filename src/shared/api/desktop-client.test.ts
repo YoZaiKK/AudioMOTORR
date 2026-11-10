@@ -39,6 +39,33 @@ it("uses Tauri command names, camelCase arguments and the snapshot event", async
     "engine-snapshot",
     expect.any(Function),
   );
+  const files = [{ slot: 3, path: "C:\\samples\\snare.wav" }];
+  await desktopClient.prepareSamples(48000, 2, files);
+  expect(transport.invoke).toHaveBeenLastCalledWith("prepare_samples", {
+    sampleRate: 48000,
+    channels: 2,
+    files,
+  });
+  await desktopClient.preparation();
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "get_sample_preparation",
+    undefined,
+  );
+  await desktopClient.cancelPreparation("9007199254740993");
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "cancel_sample_preparation",
+    { preparationId: "9007199254740993" },
+  );
+  await desktopClient.initializeSampler("9007199254740994", "device-id");
+  expect(transport.invoke).toHaveBeenLastCalledWith("initialize_sampler", {
+    preparationId: "9007199254740994",
+    deviceId: "device-id",
+  });
+  await desktopClient.triggerSample(3, 0.5);
+  expect(transport.invoke).toHaveBeenLastCalledWith("trigger_sample", {
+    slot: 3,
+    gain: 0.5,
+  });
 });
 it("preserves structured errors and normalizes string IPC rejections", async () => {
   transport.invoke.mockRejectedValueOnce({

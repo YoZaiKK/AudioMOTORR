@@ -154,6 +154,17 @@ label[for="sine-frequency"] {
 .technical dd {
   overflow-wrap: anywhere;
 }
+.sample-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.sample-path input {
+  flex: 1;
+  min-width: 180px;
+}
 @media (max-width: 480px) {
   .workspace {
     padding: 24px 14px;

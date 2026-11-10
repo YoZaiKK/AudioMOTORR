@@ -6,6 +6,9 @@ export function AudioPanel({ session }: { session: DawSession }) {
   const [frequency, setFrequency] = useState("440");
   const active = session.snapshot?.state === "ready";
   const disabled = !session.native || session.busy;
+  const held =
+    session.preparation &&
+    ["loading", "cancelling", "ready"].includes(session.preparation.state);
   const selected = session.devices.find((output) => output.id === device);
   return (
     <section className="panel" aria-labelledby="audio-heading">
@@ -72,6 +75,7 @@ export function AudioPanel({ session }: { session: DawSession }) {
             disabled ||
             !session.connected ||
             active ||
+            !!held ||
             (source === "sine" &&
               (!Number.isFinite(Number(frequency)) ||
                 Number(frequency) < 1 ||

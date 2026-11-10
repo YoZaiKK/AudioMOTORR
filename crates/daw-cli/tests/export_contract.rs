@@ -7,6 +7,53 @@ use std::{
 };
 
 static NEXT_DIR: AtomicU64 = AtomicU64::new(0);
+
+#[test]
+fn actual_mono_stereo_float_exports_load_with_exact_samples_and_owned_resources() {
+    use daw_app::sample_loading::load_wav_file;
+    use std::sync::atomic::AtomicBool;
+    let directory = TestDirectory::new();
+    let cancel = AtomicBool::new(false);
+    for channels in [1u16, 2] {
+        let path = directory.0.join(format!("load-{channels}.wav"));
+        let channel_text = channels.to_string();
+        let result = export(
+            &path,
+            &[
+                "--frames",
+                "4801",
+                "--block-size",
+                "127",
+                "--channels",
+                &channel_text,
+                "--frequency",
+                "443.25",
+                "--amplitude",
+                "0.125",
+            ],
+        );
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        let expected = read_samples(&path, channels, 48_000, 4801);
+        let resource =
+            load_wav_file(&path, EngineConfig::new(48_000, 2).unwrap(), &cancel).unwrap();
+        assert_eq!(resource.frames(), 4801);
+        assert_eq!(resource.config().channels(), channels);
+        fs::remove_file(&path).unwrap();
+        assert_eq!(
+            resource
+                .samples()
+                .iter()
+                .map(|v| v.to_bits())
+                .collect::<Vec<_>>(),
+            expected.iter().map(|v| v.to_bits()).collect::<Vec<_>>()
+        );
+    }
+    assert!(load_wav_file(&directory.0, EngineConfig::new(48_000, 2).unwrap(), &cancel).is_err());
+}
 struct TestDirectory(PathBuf);
 impl TestDirectory {
     fn new() -> Self {

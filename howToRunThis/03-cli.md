@@ -1,5 +1,29 @@
 # CLI y archivos de prueba
 
+## Diagnósticos sampler (9.5.a, 2026-11-10)
+
+Sin dispositivo ni CPAL:
+
+```powershell
+cargo run -p daw-cli --release --features offline-diagnostics --locked -- sampler-bench --iterations 2000
+cargo run -p daw-cli --release --features offline-diagnostics --locked -- sampler-bench --channels 1 --iterations 1000
+```
+
+Por defecto prueba bloques 1/127/256/4096 y voces 0/1/16. Puedes elegir
+--block-size, --voices, --channels y --iterations. Reporta oráculo/actividad,
+asignaciones/liberaciones, p50/p99/max y overruns; no demuestra deadlines nativos.
+El PCM sintético estéreo tiene canales distintos y todos los buffers se preparan
+antes de medir. Se comprueba liberación del banco después, fuera del procesamiento.
+
+sampler-native-check ya está implementado, pero abre audio físico y corresponde
+a 9.5.b. Requiere --input WAV y --device ID explícitos, --sample-rate/--channels
+compatibles, --voices 0/1/16 y --seconds 1–5. El recurso debe durar seconds+4 a
+15 s; se mantienen los límites WAV existentes. Para ejecutarlo y registrar hashes,
+seguir el [contrato de diagnósticos](../docs/sampler-diagnostics.md) y
+[protocolo](../docs/sampler-native-verification.md). En esta entrega solo se compila
+y verifica su lifecycle con backend manual. rt-diagnostics habilita audio nativo;
+offline-diagnostics lo rechaza antes de leer el archivo.
+
 ## Diagnóstico de señal nativa y rampas (etapa 8)
 
 ```powershell

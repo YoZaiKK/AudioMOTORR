@@ -1,6 +1,6 @@
 # Plan de progreso — Etapas 7 a 13
 
-Actualizado: 2026-11-08. Etapa 7 completada, publicada en c6cf627 y verificada
+Actualizado: 2026-11-10. Etapa 7 completada, publicada en c6cf627 y verificada
 en Linux headless/Windows desktop por CI. **Etapa 8 completada**, publicada en
 1e6bca8 con CI correcta en run 42524752652: señal nativa explícita, rampas y
 mediciones release. Ver [reporte actual](etapa-8.md)
@@ -10,9 +10,26 @@ Los reportes de motor/WAV conservan sus resultados previos a la publicación.
 
 Etapa 9 en curso: 9.1–9.2 completadas. Kernel publicado en 7acc1db con CI correcta
 en run 42530699397: banco fijo y 16 voces raw con pruebas de memoria; todavía
-sin loader o reproducción nativa/UI. Siguiente incremento: 9.3.
+sin audición física del sampler verificada. Incremento actual: 9.5.a, diagnósticos sampler y benchmark offline; siguiente 9.5.b.
+9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
+9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
+coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
+cancelación/entrega y cierre entre hilos. 9.3.e verifica fixtures de extremo a
+extremo y matriz de aceptación; 9.3.f cierra preparación localmente.
+9.4.a integra AudioEngine y 9.4.b conecta sesiones/outcomes manual/CPAL, con
+pruebas sin hardware. 9.4.c añade preparación en worker, DTO/IPC/UI y observación
+por ID. 9.4.d audita/cierra integración local, corrige recuperación/polls y
+define protocolo nativo. 9.5.a entrega sampler-bench/native-check y métricas
+acotadas con tests sin dispositivo. Siguiente 9.5.b: medición/audición física. Ver
+[reporte actual](etapa-9-diagnosticos-sampler.md).
 El [contrato](../docs/sampler-contract.md) y [reporte actual](etapa-9-voces.md)
 separan implementación, comprobaciones y límites.
+
+La [auditoría de estado, objetivos y siguiente etapa](estado-y-siguiente-etapa.md)
+contrasta el plan con el código de 1002efa/7acc1db. La groovebox utilizable
+requiere cerrar 9 y completar 10–11; guardar/reabrir/exportar el beat llega en 12.
+La UI de sampler está implementada con mocks; audición física queda pendiente.
+El WAV de senoide no equivale a exportación de beat.
 
 El [checklist](checklist.md) registra el estado; el [roadmap técnico](../docs/roadmap.md)
 define los hitos y el [contrato](../docs/offline-oscillator.md) concreta
@@ -21,15 +38,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                                   |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.        |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.        |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: 9.2 completada; 9.3 siguiente. |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                               |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                               |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                               |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                               |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                         |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.              |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.              |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: 9.5.a implementada; siguiente 9.5.b. |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                                     |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                     |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                     |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                     |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -154,13 +171,40 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Continuar con **9.3: preparación/carga y decodificación acotadas** mediante la
-aplicación/adaptador de I/O, fuera del procesamiento. Fijar encodings WAV, límites
-de archivo/PCM/memoria temporal y errores claros; preparar un banco validado y
-cerrar recursos ante fallo/cancelación sin alterar una sesión viva. Después 9.4
-conectará transporte/headroom, servicio/IPC/UI. No anticipar mezclador ni secuenciador.
+Continuar con **9.5.b: verificación física del sampler**. Ejecutar el runner
+release en dispositivo/config identificados con WAV conocidos y hashes antes/
+después. Registrar voces 0/1/16, frames, IDs exactos, asignaciones/liberaciones,
+histogramas/tiempos, cierre/reapertura y cualquier fallo o resultado inconcluso.
+9.5.a ya entrega comandos, instrumentación y pruebas sin hardware; el
+[contrato diagnóstico](../docs/sampler-diagnostics.md) y [protocolo](../docs/sampler-native-verification.md)
+definen sus límites. 9.5.c consolidará aceptación, límites y CI propia.
+Audición, loopback y métricas de procesamiento son evidencias distintas.
 
 ## Etapa 9 — Desglose y aceptación
+
+### Etapa 9.3 e integración 9.4 — Cerradas localmente; diagnósticos 9.5.a implementados
+
+Resultado: transformar WAV admitidos en un banco completo validado fuera del
+procesamiento, conservando recursos existentes ante fallo/cancelación.
+
+| Paso  | Entrega                                                        | Criterio de cierre                                                                                                                                         |
+| ----- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9.3.a | Contrato/presupuestos especificados el 2026-11-09.             | Formatos y límites individuales aplicados en 9.3.b; presupuestos agregados de preparación/coexistencia y permiso implementados en 9.3.c.                   |
+| 9.3.b | Lector/decoder individual implementado localmente.             | Preflight, formatos/límites, reserva exacta, cancelación/cierre, round-trip export y pruebas de memoria debug/release correctos.                           |
+| 9.3.c | Coordinador de banco implementado localmente.                  | Slots validados antes de I/O, carga ordenada, permiso hasta entrega/descarte, límites agregados y memoria de dos bancos máximos verificados debug/release. |
+| 9.3.d | Fallos/cancelación/cierre verificados localmente.              | Matriz de 17 casos, entrega/Read sincronizados, cierre de lectores y memoria en trabajador/receptor correctos debug/release.                               |
+| 9.3.e | Fixtures de extremo a extremo y matriz verificadas localmente. | Cuatro pruebas debug/release: 18 combinaciones × cuatro particiones, todos los códigos PCM16, bancos y límites reales exactos/un exceso.                   |
+| 9.3.f | Auditoría y cierre local completados.                          | Criterios contrastados, check/build 9.3.e y huella de 110 archivos; publicación/CI/plataformas pendientes explícitos. Etapa 9 completa sigue abierta.      |
+
+El [contrato 9.3.a](../docs/sample-loading-contract.md) especifica 16 MiB/archivo,
+4096 chunks, 64 KiB de buffers, 8 MiB extra de finalización y una sola preparación.
+Presupuesto de datos: 136 MiB + 64 KiB de preparación, o 264 MiB + 64 KiB con un
+banco activo. Se aplican en 9.3.c con medición de heap de bancos máximos; no es
+RSS de la app ni una medición de callback nativo.
+Los límites PCM ya existentes se conservan. La [auditoría](estado-y-siguiente-etapa.md)
+y el [reporte](etapa-9-contrato-carga.md) distinguen decisiones de código operativo.
+
+### Estado de los incrementos de sampler
 
 - **9.1, contrato y recursos:** PCM f32 finito normalizado, mono/estéreo,
   máximo 1048576 frames/recurso y rate igual al de salida. SampleBuffer posee
@@ -174,7 +218,10 @@ conectará transporte/headroom, servicio/IPC/UI. No anticipar mezclador ni secue
   asignaciones/liberaciones en procesamiento. Sin transporte del AudioEngine aún.
 - **9.3, preparación:** carga/decodificación y presupuesto de memoria en
   aplicación fuera del callback; errores de archivo/formato/rate/canales/longitud
-  y cierre seguro. No confundir el recurso PCM con un loader ya implementado.
+  y cierre seguro. 9.3.b–c implementan decoder/coordinador; matriz ampliada de
+  fallos/cancelación/cierre verificadas en 9.3.d. Fixtures de extremo a extremo
+  verificados en 9.3.e; auditoría/cierre local completado en 9.3.f. Evidencia
+  identificada por manifiesto, publicación/CI nueva pendientes.
 - **9.4, integración:** modo sampler con headroom 1/16 y transporte/rampas,
   comandos y outcomes Copy, controles explícitos e IPC/frontend con mock.
   Aceptar en cola no confirma disponibilidad de voces ni disparo exitoso.

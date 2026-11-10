@@ -1,8 +1,8 @@
 use crate::{
-    realtime::{Command, ControlQueues, Realtime},
+    realtime::{Command, ControlQueues, Realtime, RealtimeCommand},
     *,
 };
-use daw_engine::{EngineCommand, EngineConfig, Tempo};
+use daw_engine::{EngineCommand, EngineConfig, Gain, SAMPLE_BANK_SLOTS, SampleBank, Tempo};
 use std::{
     sync::{
         atomic::Ordering,
@@ -20,9 +20,12 @@ enum Operation {
     Devices,
     Manual(EngineConfig, Tempo, Option<f64>),
     Native(Option<String>, Tempo, Option<f64>),
+    ManualSampler(Box<SampleBank>, Tempo),
+    NativeSampler(Option<String>, Box<SampleBank>, Tempo),
     Shutdown,
     Snapshot,
     Command(EngineCommand),
+    Trigger(usize, Gain),
     Render(usize),
     Exit,
 }
@@ -160,6 +163,30 @@ impl AudioHandle {
             _ => Err(protocol_error()),
         }
     }
+    /// Moves an already prepared bank to the control owner. No file I/O occurs here.
+    pub fn initialize_manual_sampler(
+        &self,
+        bank: SampleBank,
+        tempo: Tempo,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::ManualSampler(Box::new(bank), tempo))
+    }
+    /// Selects a supported device configuration matching the bank exactly; no resampling.
+    pub fn initialize_native_sampler(
+        &self,
+        device_id: Option<String>,
+        bank: SampleBank,
+        tempo: Tempo,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::NativeSampler(device_id, Box::new(bank), tempo))
+    }
+    /// Acceptance means enqueued, not started. Observe the exact trigger ID in sampler telemetry.
+    pub fn trigger_sample(&self, slot: usize, gain: Gain) -> Result<CommandAccepted> {
+        match self.request(Operation::Trigger(slot, gain))? {
+            Response::Accepted(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
     pub fn snapshot(&self) -> Result<ServiceSnapshot> {
         self.snapshot_response(Operation::Snapshot)
     }
@@ -194,7 +221,9 @@ enum Running {
         scratch: Vec<f32>,
     },
     #[cfg(feature = "native-audio")]
-    Native { _stream: cpal::Stream },
+    Native {
+        _stream: crate::native::NativeStream,
+    },
 }
 
 struct Controller {
@@ -220,6 +249,7 @@ impl Controller {
                 last_applied_command: None,
                 error: None,
                 diagnostics: None,
+                sampler: None,
             },
         }
     }
@@ -269,6 +299,7 @@ impl Controller {
                 self.snapshot.callbacks = applied.callbacks;
                 self.snapshot.last_applied_command = applied.last_applied;
                 self.snapshot.diagnostics = applied.diagnostics;
+                self.snapshot.sampler = applied.sampler;
                 updated = true;
             }
             failure = queues.failure.load(Ordering::Relaxed);
@@ -305,6 +336,7 @@ impl Controller {
         self.snapshot.last_applied_command = None;
         self.snapshot.error = None;
         self.snapshot.diagnostics = None;
+        self.snapshot.sampler = None;
         self.changed();
     }
 
@@ -322,6 +354,7 @@ impl Controller {
     fn ready(
         &mut self,
         engine: daw_engine::EngineSnapshot,
+        sampler: Option<SamplerTelemetry>,
         backend: Backend,
         output: Option<OutputSelection>,
         queues: ControlQueues,
@@ -329,6 +362,7 @@ impl Controller {
     ) {
         self.snapshot.state = AudioServiceState::Ready;
         self.snapshot.diagnostics = None;
+        self.snapshot.sampler = sampler;
         self.snapshot.backend = Some(backend);
         self.snapshot.output = output;
         self.snapshot.engine = Some(engine);
@@ -359,63 +393,18 @@ impl Controller {
                 self.can_initialize()?;
                 validate_channels(config)?;
                 let engine = engine_for_signal(config, tempo, frequency)?;
-                let initial = engine.snapshot();
-                let (queues, rt) = Realtime::new(engine);
-                let scratch = vec![0.0; MANUAL_MAX_FRAMES * usize::from(config.channels())];
-                self.ready(
-                    initial,
-                    Backend::Manual,
-                    None,
-                    queues,
-                    Running::Manual {
-                        rt: Box::new(rt),
-                        scratch,
-                    },
-                );
-                Ok(Response::Snapshot(Box::new(self.snapshot.clone())))
+                self.manual(engine)
+            }
+            Operation::ManualSampler(bank, tempo) => {
+                self.can_initialize()?;
+                let config = bank.config();
+                self.manual(Source::Sampler(bank).engine(config, tempo)?)
             }
             Operation::Native(device_id, tempo, frequency) => {
-                self.can_initialize()?;
-                #[cfg(feature = "native-audio")]
-                {
-                    match crate::native::open(device_id, tempo, frequency) {
-                        Ok(opened) => {
-                            self.ready(
-                                opened.engine,
-                                Backend::Native,
-                                Some(opened.output),
-                                opened.queues,
-                                Running::Native {
-                                    _stream: opened.stream,
-                                },
-                            );
-                            self.refresh();
-                            if let Some(error) = &self.snapshot.error {
-                                return Err(error.clone());
-                            }
-                            Ok(Response::Snapshot(Box::new(self.snapshot.clone())))
-                        }
-                        Err(error) => {
-                            self.snapshot.state = AudioServiceState::Error;
-                            self.snapshot.backend = Some(Backend::Native);
-                            self.snapshot.output = None;
-                            self.snapshot.engine = None;
-                            self.snapshot.callbacks = 0;
-                            self.snapshot.last_applied_command = None;
-                            self.snapshot.error = Some(error.clone());
-                            self.changed();
-                            Err(error)
-                        }
-                    }
-                }
-                #[cfg(not(feature = "native-audio"))]
-                {
-                    let _ = (device_id, tempo, frequency);
-                    Err(AudioError::new(
-                        ErrorCode::NativeAudioDisabled,
-                        "Build with native-audio to open a device",
-                    ))
-                }
+                self.native(device_id, tempo, Source::Signal(frequency))
+            }
+            Operation::NativeSampler(device_id, bank, tempo) => {
+                self.native(device_id, tempo, Source::Sampler(bank))
             }
             Operation::Shutdown => {
                 self.stop();
@@ -429,27 +418,30 @@ impl Controller {
                         .snapshot
                         .engine
                         .is_none_or(|engine| engine.sine_frequency_hz.is_none())
+                    && self.snapshot.sampler.is_none()
                 {
                     return Err(AudioError::new(
                         ErrorCode::InvalidArgument,
-                        "Gain requires an initialized sine source",
+                        "Gain requires an initialized sine or sampler source",
                     ));
                 }
-                let id = self.next_command.checked_add(1).ok_or_else(|| {
+                self.enqueue(command.into())
+            }
+            Operation::Trigger(slot, gain) => {
+                self.require_ready()?;
+                let sampler = self.snapshot.sampler.ok_or_else(|| {
                     AudioError::new(
-                        ErrorCode::Busy,
-                        "Command IDs exhausted; recreate the service",
+                        ErrorCode::InvalidArgument,
+                        "Initialize a sampler source before triggering",
                     )
                 })?;
-                let queues = self.queues.as_mut().ok_or_else(protocol_error)?;
-                queues.commands.push(Command { id, command }).map_err(|_| {
-                    AudioError::new(
-                        ErrorCode::QueueFull,
-                        "Realtime command queue is full; retry later",
-                    )
-                })?;
-                self.next_command = id;
-                Ok(Response::Accepted(CommandAccepted { command_id: id }))
+                if slot >= SAMPLE_BANK_SLOTS || sampler.occupied_slots & (1 << slot) == 0 {
+                    return Err(AudioError::new(
+                        ErrorCode::InvalidArgument,
+                        "Sample slot is invalid or empty",
+                    ));
+                }
+                self.enqueue(RealtimeCommand::Trigger { slot, gain })
             }
             Operation::Render(frames) => {
                 self.require_ready()?;
@@ -487,6 +479,95 @@ impl Controller {
         }
     }
 
+    fn manual(&mut self, engine: daw_engine::AudioEngine) -> Result<Response> {
+        let initial = engine.snapshot();
+        let sampler = SamplerTelemetry::for_engine(&engine);
+        let scratch = vec![0.0; MANUAL_MAX_FRAMES * usize::from(initial.config.channels())];
+        let (queues, rt) = Realtime::new(engine);
+        self.ready(
+            initial,
+            sampler,
+            Backend::Manual,
+            None,
+            queues,
+            Running::Manual {
+                rt: Box::new(rt),
+                scratch,
+            },
+        );
+        Ok(Response::Snapshot(Box::new(self.snapshot.clone())))
+    }
+
+    fn native(
+        &mut self,
+        device_id: Option<String>,
+        tempo: Tempo,
+        source: Source,
+    ) -> Result<Response> {
+        self.can_initialize()?;
+        #[cfg(feature = "native-audio")]
+        {
+            match crate::native::open(device_id, tempo, source) {
+                Ok(opened) => {
+                    self.ready(
+                        opened.engine,
+                        opened.sampler,
+                        Backend::Native,
+                        Some(opened.output),
+                        opened.queues,
+                        Running::Native {
+                            _stream: opened.stream,
+                        },
+                    );
+                    self.refresh();
+                    if let Some(error) = &self.snapshot.error {
+                        return Err(error.clone());
+                    }
+                    Ok(Response::Snapshot(Box::new(self.snapshot.clone())))
+                }
+                Err(error) => {
+                    self.snapshot.state = AudioServiceState::Error;
+                    self.snapshot.backend = Some(Backend::Native);
+                    self.snapshot.output = None;
+                    self.snapshot.engine = None;
+                    self.snapshot.sampler = None;
+                    self.snapshot.callbacks = 0;
+                    self.snapshot.last_applied_command = None;
+                    self.snapshot.diagnostics = None;
+                    self.snapshot.error = Some(error.clone());
+                    self.changed();
+                    Err(error)
+                }
+            }
+        }
+        #[cfg(not(feature = "native-audio"))]
+        {
+            let _ = (device_id, tempo, source);
+            Err(AudioError::new(
+                ErrorCode::NativeAudioDisabled,
+                "Build with native-audio to open a device",
+            ))
+        }
+    }
+
+    fn enqueue(&mut self, command: RealtimeCommand) -> Result<Response> {
+        let id = self.next_command.checked_add(1).ok_or_else(|| {
+            AudioError::new(
+                ErrorCode::Busy,
+                "Command IDs exhausted; recreate the service",
+            )
+        })?;
+        let queues = self.queues.as_mut().ok_or_else(protocol_error)?;
+        queues.commands.push(Command { id, command }).map_err(|_| {
+            AudioError::new(
+                ErrorCode::QueueFull,
+                "Realtime command queue is full; retry later",
+            )
+        })?;
+        self.next_command = id;
+        Ok(Response::Accepted(CommandAccepted { command_id: id }))
+    }
+
     fn require_ready(&self) -> Result<()> {
         if let Some(error) = &self.snapshot.error {
             return Err(error.clone());
@@ -504,6 +585,107 @@ impl Controller {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn sampler_bank() -> SampleBank {
+        let config = EngineConfig::new(800, 1).unwrap();
+        let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
+        slots[0] = Some(daw_engine::SampleBuffer::new(config, vec![0.5; 1000]).unwrap());
+        SampleBank::new(config, slots).unwrap()
+    }
+
+    #[test]
+    fn sampler_stream_failure_discards_pending_commands_and_restarts_cleanly() {
+        let mut control = Controller::new();
+        control
+            .execute(Operation::ManualSampler(
+                Box::new(sampler_bank()),
+                Tempo::default(),
+            ))
+            .unwrap();
+        control
+            .execute(Operation::Command(EngineCommand::Play))
+            .unwrap();
+        control
+            .execute(Operation::Trigger(0, Gain::new(1.0).unwrap()))
+            .unwrap();
+        control.execute(Operation::Render(1)).unwrap();
+        assert_eq!(control.snapshot.sampler.unwrap().started, 1);
+        control
+            .execute(Operation::Trigger(0, Gain::new(1.0).unwrap()))
+            .unwrap();
+        control
+            .queues
+            .as_ref()
+            .unwrap()
+            .failure
+            .store(1, Ordering::Relaxed);
+        control.refresh();
+        assert!(control.running.is_none());
+        assert_eq!(control.snapshot.state, AudioServiceState::Error);
+        assert!(matches!(
+            control.execute(Operation::Trigger(0, Gain::new(1.0).unwrap())),
+            Err(AudioError {
+                code: ErrorCode::StreamError,
+                ..
+            })
+        ));
+        control
+            .execute(Operation::ManualSampler(
+                Box::new(sampler_bank()),
+                Tempo::default(),
+            ))
+            .unwrap();
+        assert_eq!(control.snapshot.sampler.unwrap().started, 0);
+        assert!(control.snapshot.sampler.unwrap().last_trigger.is_none());
+        assert_eq!(control.next_command, 3);
+        assert_eq!(control.snapshot.engine.unwrap().device_frames, 0);
+        control.next_command = u64::MAX;
+        assert!(matches!(
+            control.execute(Operation::Trigger(0, Gain::new(1.0).unwrap())),
+            Err(AudioError {
+                code: ErrorCode::Busy,
+                ..
+            })
+        ));
+        assert_eq!(
+            control.queues.as_ref().unwrap().commands.slots(),
+            COMMAND_CAPACITY
+        );
+    }
+
+    #[cfg(feature = "rt-diagnostics")]
+    #[test]
+    fn manual_shutdown_frees_pcm_on_control_owner_outside_processing() {
+        let on = thread::current().id();
+        let worker = thread::spawn(|| {
+            let mut control = Controller::new();
+            control
+                .execute(Operation::ManualSampler(
+                    Box::new(sampler_bank()),
+                    Tempo::default(),
+                ))
+                .unwrap();
+            control
+                .execute(Operation::Command(EngineCommand::Play))
+                .unwrap();
+            control
+                .execute(Operation::Trigger(0, Gain::new(1.0).unwrap()))
+                .unwrap();
+            control.execute(Operation::Render(1)).unwrap();
+            let info = allocation_counter::measure(|| {
+                control.execute(Operation::Shutdown).unwrap();
+            });
+            assert_eq!(info.count_total, 0);
+            assert_eq!(info.bytes_total, 0);
+            assert!(info.bytes_current <= -4000);
+            assert!(control.running.is_none());
+            assert!(control.snapshot.sampler.is_none());
+            thread::current().id()
+        })
+        .join()
+        .unwrap();
+        assert_ne!(on, worker);
+    }
 
     #[test]
     fn stream_failure_rejects_transport_and_allows_fresh_restart() {
@@ -577,5 +759,38 @@ mod tests {
             panic!("expired request executed")
         };
         assert_eq!(error.code, ErrorCode::Timeout);
+    }
+
+    #[test]
+    fn expired_owned_bank_never_reaches_session_and_is_discarded_by_owner() {
+        let (tx, rx) = mpsc::sync_channel(2);
+        let (reply, result) = mpsc::sync_channel(1);
+        tx.send(Request {
+            operation: Operation::ManualSampler(Box::new(sampler_bank()), Tempo::default()),
+            deadline: Instant::now(),
+            reply,
+        })
+        .unwrap();
+        let (reply, _) = mpsc::sync_channel(1);
+        tx.send(Request {
+            operation: Operation::Exit,
+            deadline: Instant::now(),
+            reply,
+        })
+        .unwrap();
+        let owner = thread::spawn(move || {
+            #[cfg(feature = "rt-diagnostics")]
+            {
+                let info = allocation_counter::measure(|| Controller::new().run(rx));
+                assert!(info.bytes_current <= -4000);
+            }
+            #[cfg(not(feature = "rt-diagnostics"))]
+            Controller::new().run(rx);
+        });
+        let Err(error) = result.recv_timeout(REQUEST_TIMEOUT).unwrap() else {
+            panic!("expired bank initialized audio")
+        };
+        assert_eq!(error.code, ErrorCode::Timeout);
+        owner.join().unwrap();
     }
 }
