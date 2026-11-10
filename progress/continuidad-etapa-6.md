@@ -19,7 +19,9 @@ localmente. 9.4.a integra motor y 9.4.b conecta sesiones manual/CPAL y outcomes,
 sin abrir hardware en pruebas. 9.4.c añade preparación/cancelación en worker y
 controles explícitos. 9.4.d cierra integración local; 9.5.a entrega diagnósticos
 sampler y benchmarks sin dispositivo. Siguiente 9.5.b: mediciones físicas. Ver
-[reporte actual](etapa-9-diagnosticos-sampler.md); sigue sin publicación/CI propia.
+[reporte actual](etapa-9-diagnosticos-sampler.md). La revisión vigente es 0c346d5
+(Phase 9.5.a), con main y origin/main locales coincidentes; su CI remota no se ha
+inspeccionado aquí. Ver [revisión de configuración](revision-readme-configuracion.md).
 El manifiesto 9.3 se conserva como histórico, sin coincidir con este nuevo motor.
 El plan actual es [etapas 7–13](plan-etapas-7-13.md).
 Las referencias anteriores se conservan como historial fechado.

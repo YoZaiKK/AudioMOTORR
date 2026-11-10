@@ -26,7 +26,9 @@ El [contrato](../docs/sampler-contract.md) y [reporte actual](etapa-9-voces.md)
 separan implementación, comprobaciones y límites.
 
 La [auditoría de estado, objetivos y siguiente etapa](estado-y-siguiente-etapa.md)
-contrasta el plan con el código de 1002efa/7acc1db. La groovebox utilizable
+contrasta el plan con el código incluido en 0c346d5 (Phase 9.5.a), que incorpora
+el kernel 7acc1db y la integración/diagnósticos posteriores. La CI de 0c346d5 no
+se ha inspeccionado en la revisión de configuración. La groovebox utilizable
 requiere cerrar 9 y completar 10–11; guardar/reabrir/exportar el beat llega en 12.
 La UI de sampler está implementada con mocks; audición física queda pendiente.
 El WAV de senoide no equivale a exportación de beat.

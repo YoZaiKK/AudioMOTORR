@@ -6,45 +6,52 @@ can later evolve into a clip-based DAW.
 
 ## Current status
 
-Stages 1–8 and increments 9.1–9.3 are complete within their documented scope;
-9.3 is closed locally and still unpublished. The engine library now includes
-immutable PCM resources, a fixed 16-slot bank, and 16 one-shot sampler voices.
-Stage 9 remains in progress: complete-bank loading is implemented locally through 9.3.c,
-with fault/cleanup verified in 9.3.d and end-to-end fixtures verified in 9.3.e.
-The preparation closure audit is complete (9.3.f). 9.4.a integrates sampler
-transport, 5 ms ramps and 1/16 headroom in AudioEngine, verified offline.
-9.4.b connects manual/CPAL sampler sessions and queued trigger observations,
-verified without opening hardware. 9.4.c adds application use cases, generated
-DTOs, IPC/ACL and explicit sampler controls with mock tests. 9.4.d audits and
-closes integration locally, correcting device-list recovery and overlapping UI
-polls. Native sampler verification and final stage closure remain 9.5.
-The [9.3.a loading contract](docs/sample-loading-contract.md) now fixes the input
-formats and preparation budgets. 9.3.b now loads individual PCM16/float32 WAV
-resources with bounded preflight/decoding and cooperative cancellation in daw-app.
-9.3.c adds complete-bank coordination, a shared preparation/result permit, and
-aggregate memory checks. 9.3.d adds deterministic fault/cancellation and cleanup
-thread verification. 9.3.e verifies WAV/bank/offline-sampler playback against
-exact sample oracles. See the [local preparation closure](progress/cierre-preparacion-9.3.md).
-9.5.a now adds sampler-bench and sampler-native-check, bounded allocation/free
-metrics, all-channel probes and histogram quantiles. Offline tests/benchmarks run
-without CPAL; native execution remains opt-in. Next is 9.5.b: identified-hardware
-sampler measurements and audition. Existing engine-bench/tone-check exercise the sine.
+Updated 2026-11-10. Stages 1–8, sampler resources/voices (9.1–9.2), preparation (9.3), local integration
+(9.4) and diagnostic tooling (9.5.a) are implemented. **Stage 9 is still open:**
+physical sampler measurements/audition (9.5.b) and final evidence/CI review (9.5.c)
+remain pending. Mixer, sequencer, project persistence and clips are later stages.
 
-Desktop opens audio on an explicit click, offers silence or a sine source with
-5 ms gain/transport ramps, controls BPM, and displays observed state. Browser
-mode disables native operations. Desktop prepares WAV banks on a dedicated worker,
-initializes sampler audio explicitly, and displays exact-ID trigger results or
-Unknown when an observation was lost. See the [sampler walkthrough](howToRunThis/06-sampler.md);
-physical audition remains unverified.
+Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
+sessions, controls transport/tempo/gain and shows exact-ID trigger outcomes or
+Unknown for lost observations. The sampler has 16 slots/voices, fixed 1/16
+headroom and 5 ms master ramps. Browser mode disables native operations.
+See the [sampler walkthrough](howToRunThis/06-sampler.md).
 
-See the [current kernel report](progress/etapa-9-voces.md),
-[status/objectives audit and next-stage plan](progress/estado-y-siguiente-etapa.md),
-[implementation log](progress/detalles.md), [handoff](progress/continuidad-etapa-6.md),
-and dated [stage 6 requirements audit](progress/cierre-etapa-6.md).
-The progress documents are in Spanish; this README and technical docs remain in
-English. Git history identifies published revisions; the
-[Actions page](https://github.com/YoZaiKK/AudioMOTORR/actions) reports hosted checks.
-Local verification alone does not establish remote CI success.
+sampler-bench provides device-free mono/stereo CPU measurements with
+offline-diagnostics, without CPAL. sampler-native-check is implemented and built
+in release, but has not yet been run with physical sampler hardware. Existing
+engine-bench/tone-check exercise the sine. The CLI exports a sine WAV; exporting
+a sampler project or a beat is not implemented.
+
+The code is committed as [0c346d5 (Phase 9.5.a)](https://github.com/YoZaiKK/AudioMOTORR/commit/0c346d55907ac4a94a4f25662990002213143b56).
+At this review, local main and the local origin/main tracking ref both point to
+that revision. Hosted CI for it has not been inspected here; this is separate
+from the older kernel/sine runs and local checks. The
+[9.5.a report](progress/etapa-9-diagnosticos-sampler.md) records 108 headless,
+114 workspace, 29 instrumented-audio, nine diagnostic-CLI, eight decoder-memory,
+24 frontend tests and nine CLI scenarios, plus Windows debug build. Suites overlap.
+Its [119-file fingerprint](progress/evidencia-diagnosticos-9.5a.json) remains a
+dated snapshot; this documentation/configuration review changes ignore/lint
+settings and does not rerun physical audio or alter musical code.
+
+See the [configuration review](progress/revision-readme-configuracion.md),
+[status/objectives audit](progress/estado-y-siguiente-etapa.md),
+[implementation log](progress/detalles.md) and [handoff](progress/continuidad-etapa-6.md).
+README/technical documents are in English; progress and practical guides are in Spanish.
+
+## Next steps
+
+| Stage            | Next deliverable                                                                                                                                   | Acceptance / boundary                                                                                                                                                                                                         |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **9.5.b — next** | Run sampler-native-check in release with a known WAV and an explicit supported device/configuration for 0/1/16 voices; record audition separately. | Input hashes, exact trigger outcomes, real voice/frame progress, allocation/free counts, approximate histogram quantiles, transport and close/reopen logs. Follow the [native protocol](docs/sampler-native-verification.md). |
+| 9.5.c            | Review sampler evidence and close stage 9.                                                                                                         | Review failures/inconclusive runs, affected checks/build and hosted CI for the exact published revision; retain explicit unplug/loopback/stress/platform limitations.                                                         |
+| 10               | Four-channel mixer.                                                                                                                                | Gain/pan/mute, routing, levels and meters with deterministic audio tests.                                                                                                                                                     |
+| 11               | 16-step sequencer.                                                                                                                                 | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                                                                                                                              |
+| 12               | Project persistence and beat export.                                                                                                               | Versioned save/open, relative asset references and offline export of the actual project.                                                                                                                                      |
+| 13               | Clips and scenes.                                                                                                                                  | Clip/scene model, quantized launch and predictable transitions.                                                                                                                                                               |
+
+The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
+define scope and dependencies. This review does not advance 9.5.b or create a commit/push.
 
 Technical documentation:
 
@@ -87,25 +94,26 @@ Sampler UI is implemented locally with mock verification; stages 10–13 remain 
 The [loaded-sampler report](progress/etapa-9-fixtures-integracion.md) records 9.3.e.
 The [9.3 closure](progress/cierre-preparacion-9.3.md) and
 [source/configuration fingerprint](progress/evidencia-preparacion-9.3.json) identify
-the dated preparation scope separately from pending hosted CI. The
+the dated preparation scope and its original evidence boundary. The
 [9.4.a report](progress/etapa-9-integracion-motor.md) records dated engine integration;
 the historical 9.3 fingerprint does not match this newer engine. The
 [9.4.a fingerprint](progress/evidencia-integracion-9.4a.json) identifies that dated
-engine integration, with hosted CI still pending publication.
+engine integration before inclusion in 0c346d5.
 The [9.4.b report](progress/etapa-9-sesiones-sampler.md) records dated session
 integration and its evidence; older fingerprints remain dated snapshots.
 The [9.4.b fingerprint](progress/evidencia-sesiones-9.4b.json) identifies that dated
 code/configuration. The [9.4.c report](progress/etapa-9-aplicacion-sampler.md) records
-the newer desktop integration; hosted CI still awaits publication and inspection.
+that desktop integration before its inclusion in Phase 9.5.a; its earlier publication/CI
+status is historical. Hosted CI for 0c346d5 remains uninspected in this review.
 The [9.4.c fingerprint](progress/evidencia-desktop-9.4c.json) identifies its dated
 116-file state. The [9.4.d closure](progress/cierre-integracion-9.4.md) records the
 audit, UI fixes and new local verification separately from pending native measurements/CI.
 The [9.4.d fingerprint](progress/evidencia-integracion-9.4d.json) identifies the
 dated 116-file state; full check and Windows debug build passed, with 24 frontend tests.
 The [9.5.a report](progress/etapa-9-diagnosticos-sampler.md) records newer sampler
-diagnostics and device-free measurements; hardware and revision-specific hosted CI remain pending.
+diagnostics and device-free measurements; hardware remains unverified and hosted CI for 0c346d5 remains uninspected here.
 The [9.5.a fingerprint](progress/evidencia-diagnosticos-9.5a.json) identifies the
-current 119-file state. Full check and Windows debug build pass locally; release
+dated 119-file state. Full check and Windows debug build passed locally; release
 benchmarks report zero allocations/frees in processing across 24 mono/stereo cases.
 Desktop defaults to
 silence and offers an explicit sine source, frequency, and volume control.
@@ -191,6 +199,24 @@ npm run doctor
 The doctor script only inspects tool versions, MSVC, the SDK, and WebView2 registry
 entries. It reports checks it cannot complete and does not install tools or change
 system settings.
+
+## Repository configuration
+
+| Area                   | Configuration and reviewed settings                                                                                                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Toolchain/dependencies | [rust-toolchain.toml](rust-toolchain.toml): Rust 1.90.0, rustfmt/Clippy; [.node-version](.node-version): Node 22.23.4; [package.json](package.json): npm 10.9.9. [.npmrc](.npmrc) enables strict engine checks and exact dependency saves. Keep both lockfiles committed. |
+| Rust workspace         | [Cargo.toml](Cargo.toml): six members, five headless defaults, edition 2024, unsafe forbidden. Native audio/diagnostics remain opt-in; desktop enables native audio.                                                                                                      |
+| Frontend               | [vite.config.ts](vite.config.ts): 127.0.0.1:1420, strict port; [tsconfig.json](tsconfig.json): strict/noEmit; [vitest.config.ts](vitest.config.ts): jsdom/frontend tests.                                                                                                 |
+| Desktop                | [tauri.conf.json](src-tauri/tauri.conf.json) uses the same dev URL and root dist output. CSP and [capabilities](src-tauri/capabilities/default.json) restrict production access to local main-window commands; 16 application commands plus event listen/unlisten.        |
+| CI                     | [Workflow](.github/workflows/ci.yml): pinned toolchains, SHA-pinned official actions, explicit headless packages on Ubuntu 24.04, full check/debug desktop on Windows 2022, no hardware/publishing steps.                                                                 |
+| Generated/local files  | [.gitignore](.gitignore) excludes dependencies, build output, Tauri generated permissions/schemas, coverage, logs, local env values and TypeScript build cache. [.prettierignore](.prettierignore) and [ESLint](eslint.config.js) exclude generated coverage.             |
+
+Real .env/.env.* files stay local; .env.example and .env.*.example templates remain
+eligible for version control. Cargo.lock, package-lock.json, generated TypeScript
+bindings, source, documentation and historical screenshots remain tracked.
+Formatter exclusions for bindings preserve deterministic generation; they do not
+mean those files should be ignored by Git. Store new measurements/temporary WAVs
+under target; keep dated reports and approved assets in their documented locations.
 
 ## Development
 

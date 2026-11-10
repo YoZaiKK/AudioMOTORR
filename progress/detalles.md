@@ -1,5 +1,14 @@
 # Detalles de implementación
 
+## Revisión de documentación/configuración — 2026-11-10
+
+README actualizado al commit 0c346d5 y siguientes etapas, sin atribuirle CI no
+inspeccionada. Git ignore protege env locales, coverage y caché TS, conserva
+plantillas y archivos necesarios; lint/formatter excluyen coverage. Coherencia de
+toolchains/lockfiles, workspace, dev URL, CSP/ACL y CI revisada; 27 casos de ignore
+correctos. Ver [auditoría](revision-readme-configuracion.md). Sigue 9.5.b; no cambia
+código musical ni se abre hardware. Sin commit/push de esta revisión.
+
 ## Diagnósticos sampler 9.5.a — 2026-11-10
 
 CLI añade sampler-bench y sampler-native-check, con offline-diagnostics sin CPAL

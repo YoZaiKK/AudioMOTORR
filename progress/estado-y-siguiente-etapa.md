@@ -1,7 +1,9 @@
 # Estado verificado, objetivos y siguiente etapa
 
-Revisión: 2026-11-10. Base de trabajo 1002efa (documentación), con código del
-sampler 7acc1db y [CI Linux/Windows correcta](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
+Revisión: 2026-11-10. Código actual 0c346d5 (Phase 9.5.a); main y la referencia
+local origin/main coinciden. CI remota de esta revisión sin inspeccionar aquí.
+El kernel previo 7acc1db conserva su [CI Linux/Windows correcta](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397),
+que no se atribuye a la revisión nueva. Ver [auditoría de configuración](revision-readme-configuracion.md).
 Se contrastan código, pruebas y reportes existentes; no se realizan nuevas
 mediciones físicas ni se atribuye la CI de un SHA a otro. El orden original de
 los hitos se conserva en el [documento inicial](rust-daw-bootstrap-prompt.md).
