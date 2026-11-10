@@ -1,5 +1,16 @@
 # CLI y archivos de prueba
 
+Las [pruebas nativas 9.5.b](../progress/etapa-9-medicion-nativa.md) registran seis
+casos Realtek/WASAPI correctos con IDs/resultados y métricas de reapertura. Para
+reproducir la entrada estéreo en una ruta nueva:
+
+```powershell
+node scripts/sampler-stereo-fixture.mjs target/stereo-native.wav
+```
+
+Genera 10 s a 48 kHz, float32 estéreo, 997 Hz a 0.1 a la izquierda y 440 Hz a
+0.05 a la derecha; no sobrescribe ni abre audio. Se comprueba el hash al generar.
+
 ## Diagnósticos sampler (9.5.a, 2026-11-10)
 
 Sin dispositivo ni CPAL:

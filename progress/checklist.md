@@ -21,7 +21,8 @@ individuales; 9.3.c implementa banco completo/permisos/presupuesto agregado.
 transporte/headroom/rampas, verificado offline. 9.4.b conecta sesiones/outcomes
 en audio. 9.4.c conecta Application/DTO/IPC/UI con mocks; 9.4.d audita/cierra
 integración local y corrige recuperación/polling. 9.5.a implementa diagnósticos
-sampler y benchmark offline sin CPAL. Siguiente 9.5.b: ejecución física.
+sampler y benchmark offline sin CPAL. Seis mediciones 9.5.b correctas;
+pendientes escucha y consolidación 9.5.c.
 Ver [reporte actual](etapa-9-diagnosticos-sampler.md).
 Las etapas 10–13 siguen planificadas. Se conservan los reportes históricos.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
@@ -177,7 +178,8 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] Registrar check/build Windows de 9.4.d, 24 pruebas frontend y manifiesto de 116 archivos; sin CI remota ni hardware nuevos.
 - [x] 9.5.a: sampler-bench y sampler-native-check opt-in, feature offline sin CPAL, contadores de asignaciones/liberaciones, probes todos los canales e histograma fijo; tests sin hardware.
 - [x] Registrar check/build Windows, release focal/CLI nativa compilada, benchmarks offline de 24 casos y manifiesto de 119 archivos; sin medición física nueva.
-- [ ] 9.5.b: mediciones release y audición física del sampler en dispositivo/config identificados, cierre/reapertura y evidencia.
+- [x] 9.5.b: seis mediciones release Realtek/WASAPI, entradas mono/estéreo y 0/1/16 voces, IDs, cierre/reapertura y evidencia.
+- [ ] 9.5.b: incorporar confirmación de escucha humana; no inferir sonido físico/continuidad desde probes.
 - [ ] 9.5.c: cierre con regresiones, límites y CI del SHA publicado.
 
 ## Etapa 10 — Mezclador de cuatro canales

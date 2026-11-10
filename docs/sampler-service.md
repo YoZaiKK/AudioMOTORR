@@ -3,8 +3,9 @@
 Implemented locally on 2026-11-09, after [engine integration](sampler-contract.md).
 This is the audio-library boundary. [Stage 9.4.c](sampler-desktop.md) now wires
 application/DTO/IPC/frontend and exposes explicit WAV loading and sampler controls. Tests use the manual processor and
-native adapter without opening hardware; physical native sampler audition and
-callback timing remain unverified. See the [implementation report](../progress/etapa-9-sesiones-sampler.md).
+native adapter without opening hardware. Separate [9.5.b runs](../progress/etapa-9-medicion-nativa.md)
+now record Realtek callback timing/memory; human listening confirmation remains
+pending. See the dated [implementation report](../progress/etapa-9-sesiones-sampler.md).
 
 ## Initialization and ownership
 

@@ -9,7 +9,8 @@ con ambos jobs CI correctos en run 42530699397. Hay banco fijo y 16 voces raw en
 motor. 9.4.a integra AudioEngine con transporte/rampas/headroom; sesiones de
 audio conectadas en 9.4.b con pruebas de adaptador. 9.4.c añade Application/DTO/IPC/UI
 con mocks; 9.4.d audita/cierra integración local y corrige recuperación/polling.
-Mediciones/audición física y cierre completo siguen pendientes en 9.5.
+9.5.b registra seis mediciones Realtek/WASAPI correctas; confirmación de escucha
+y cierre completo/CI siguen pendientes.
 Ver [reporte actual](etapa-9-voces.md) para SHA completo, enlaces de jobs y pruebas
 locales. La etapa 9 completa sigue abierta. 9.3.b carga recursos WAV individuales;
 9.3.c prepara bancos con permiso compartido y presupuesto agregado; 9.3.d verifica
@@ -18,9 +19,10 @@ WAV → banco → Sampler offline y matriz de aceptación. 9.3.f cierra preparac
 localmente. 9.4.a integra motor y 9.4.b conecta sesiones manual/CPAL y outcomes,
 sin abrir hardware en pruebas. 9.4.c añade preparación/cancelación en worker y
 controles explícitos. 9.4.d cierra integración local; 9.5.a entrega diagnósticos
-sampler y benchmarks sin dispositivo. Siguiente 9.5.b: mediciones físicas. Ver
-[reporte actual](etapa-9-diagnosticos-sampler.md). La revisión vigente es 0c346d5
-(Phase 9.5.a), con main y origin/main locales coincidentes; su CI remota no se ha
+sampler y benchmarks sin dispositivo. 9.5.b registra mediciones nativas; falta
+confirmación auditiva y consolidación 9.5.c. Ver [reporte actual](etapa-9-medicion-nativa.md).
+La base vigente es b0ba589 (Update config), más cambios locales de trazas/fixture;
+su CI remota no se ha
 inspeccionado aquí. Ver [revisión de configuración](revision-readme-configuracion.md).
 El manifiesto 9.3 se conserva como histórico, sin coincidir con este nuevo motor.
 El plan actual es [etapas 7–13](plan-etapas-7-13.md).
@@ -42,28 +44,24 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Continuar 9.5.b: ejecutar sampler-native-check release en dispositivo/config
-identificados, WAV compatibles de seconds+4 a 15 segundos y hashes antes/después.
-Registrar ventanas 0/1/16, IDs exactos, voz/frames reales, memoria/tiempos/histogramas,
-transporte, finalización, cierre/reapertura y resultados inconclusos. Seguir el
-[contrato](../docs/sampler-diagnostics.md) y [protocolo](../docs/sampler-native-verification.md).
-La invocación abre audio real; en 9.5.a solo se compiló y probó con backend manual.
+Incorporar la confirmación auditiva humana solicitada y consolidar 9.5.c:
+revisar aceptación, límites y CI del SHA que se publique. No se da la escucha por
+confirmada desde probes; no se ha hecho commit/push de este trabajo.
 
-9.5.a implementa sampler-bench (matriz 12, mono/estéreo distinto) y sampler-native-check.
-offline-diagnostics excluye CPAL, rt-diagnostics conserva audio nativo. MemoryActivity
-cuenta asignaciones/liberaciones; callbacks observan todos los canales y un
-histograma fijo con percentiles aproximados. Application expone metadatos Rust
-del recurso preparado; DTO/IPC/UI, locks y workflow no cambian. El benchmark
-release mide CPU offline, sin garantía de deadlines o continuidad física.
-Ver [reporte actual](etapa-9-diagnosticos-sampler.md); ahí se registra check/build
-y el [nuevo manifiesto](evidencia-diagnosticos-9.5a.json) de 119 archivos.
-Check/build correctos: 108 headless/114 workspace/29 audio/nueve diagnósticos CLI/
-ocho memoria/24 frontend/nueve escenarios. Release focal y matrices mono/estéreo
-correctos, sin abrir hardware. Reportes/manifiestos anteriores conservados como históricos.
+9.5.b ya ejecutó seis casos release Realtek/WASAPI a 48000 Hz, dos canales f32,
+con entrada mono/estéreo distinta y 0/1/16 voces. Cero asignaciones/liberaciones,
+non-finite y overruns medidos en las doce sesiones inicial/reapertura. Máximo
+observado 432100 ns, ratio 0.04321. Ver [reporte](etapa-9-medicion-nativa.md) y
+[evidencia](evidencia-nativa-9.5b.json). Métricas acumuladas de todo el lifecycle,
+con histogramas aproximados y un callback de retraso; no son percentiles aislados.
 
-9.5.c consolidará cierre y CI del SHA publicado. Siguen pendientes audición,
-unplug, loopback, estrés y plataformas nativas no verificadas. No se adelantan
-mezclador/secuenciador/persistencia de etapas 10–12.
+El runner imprime IDs/resultados y métricas de reapertura fuera del callback.
+El generador scripts/sampler-stereo-fixture.mjs reproduce el WAV medido exactamente
+y rechaza sobrescritura. DSP, DTO/IPC, dependencias y locks no cambian. Check/build
+Windows, release focal y verificación de hashes quedan registrados en el reporte.
+Artefactos locales: target/stage9-5b-20261110-134708, piloto conservado y matriz
+completa trazada. Escucha humana, loopback, unplug, estrés, otros formatos físicos
+y plataformas nativas siguen sin confirmar/realizar. Etapa 9 aún abierta.
 
 En 7.3, daw-app coordina render offline con buffers acotados y daw-cli escribe
 WAV float32 fuera del render con hound 3.5.1. El render_manual existente solo devuelve un reporte,

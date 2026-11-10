@@ -11,6 +11,10 @@ solapados al cancelar/recargar. No añade mediciones físicas. El
 física 9.5.b; los [diagnósticos 9.5.a](../docs/sampler-diagnostics.md) ya están
 implementados y probados sin dispositivo.
 
+Las [mediciones nativas 9.5.b](../progress/etapa-9-medicion-nativa.md) ya pasaron
+seis casos Realtek/WASAPI y reaperturas. Se conserva por separado la confirmación
+auditiva humana, todavía pendiente; no hay capturas nuevas de la UI.
+
 1. Ejecuta npm run desktop:dev. Si hay audio inicializado, pulsa **Cerrar audio**.
    Cargar un banco requiere servicio sin inicializar; si falló el stream, ciérralo.
 2. En **Sampler · WAV one-shot**, elige frecuencia de salida y mono/estéreo.

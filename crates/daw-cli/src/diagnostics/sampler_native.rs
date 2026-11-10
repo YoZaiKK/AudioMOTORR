@@ -124,14 +124,37 @@ fn settled(
     state: TransportState,
     advance: &mut impl FnMut(&Application) -> Result<()>,
 ) -> Result<ServiceSnapshot> {
-    wait(app, advance, Duration::from_secs(3), |s| {
+    let snapshot = wait(app, advance, Duration::from_secs(3), |s| {
         Ok(s.last_applied_command.is_some_and(|n| n >= id)
             && s.engine.is_some_and(|e| {
                 e.transport == state
                     && e.requested_transport == state
                     && e.ramp_remaining_frames == 0
             }))
-    })
+    })?;
+    println!(
+        "sampler-control: command_id={id}, applied_id={:?}, transport={:?}, frames={:?}, gain={:?}, target_gain={:?}",
+        snapshot.last_applied_command,
+        snapshot.engine.map(|e| e.transport),
+        snapshot.engine.map(|e| e.device_frames),
+        snapshot.engine.map(|e| e.gain),
+        snapshot.engine.map(|e| e.target_gain)
+    );
+    Ok(snapshot)
+}
+fn log_trigger(snapshot: &ServiceSnapshot) {
+    if let Some(sampler) = snapshot.sampler
+        && let Some(report) = sampler.last_trigger
+    {
+        println!(
+            "sampler-trigger: command_id={}, outcome={:?}, active_voices={}, applied_id={:?}, callbacks={}",
+            report.command_id,
+            report.result,
+            sampler.active_voices,
+            snapshot.last_applied_command,
+            snapshot.callbacks
+        );
+    }
 }
 fn trigger(
     app: &Application,
@@ -139,7 +162,7 @@ fn trigger(
     advance: &mut impl FnMut(&Application) -> Result<()>,
 ) -> Result<ServiceSnapshot> {
     let id = app.trigger_sample(0, 1.0)?.command_id;
-    wait(app, advance, Duration::from_secs(3), |s| {
+    let snapshot = wait(app, advance, Duration::from_secs(3), |s| {
         let sampler = s.sampler.ok_or("Missing sampler observation")?;
         if let Some(report) = sampler
             .last_trigger
@@ -158,7 +181,9 @@ fn trigger(
             return Err("Exact trigger outcome lost; result is inconclusive".into());
         }
         Ok(false)
-    })
+    })?;
+    log_trigger(&snapshot);
+    Ok(snapshot)
 }
 
 fn rejection(
@@ -168,7 +193,7 @@ fn rejection(
     advance: &mut impl FnMut(&Application) -> Result<()>,
 ) -> Result<()> {
     let id = app.trigger_sample(0, 1.0)?.command_id;
-    wait(app, advance, Duration::from_secs(3), |s| {
+    let snapshot = wait(app, advance, Duration::from_secs(3), |s| {
         let sampler = s.sampler.ok_or("Missing sampler")?;
         if let Some(report) = sampler
             .last_trigger
@@ -184,6 +209,7 @@ fn rejection(
         }
         Ok(false)
     })?;
+    log_trigger(&snapshot);
     Ok(())
 }
 
@@ -331,6 +357,14 @@ pub(super) fn run(args: &[String]) -> Result<()> {
     let stop = app.transport_stop()?;
     let reopened = settled(&app, stop.command_id, TransportState::Stopped, &mut advance)?;
     check_metrics(&reopened)?;
+    if let Some(metrics) = reopened.diagnostics {
+        println!(
+            "sampler-native-check reopen: cumulative_metrics={metrics:?}, p50_upper_ns={:?}, p99_upper_ns={:?}, callbacks={}",
+            metrics.percentile_upper_ns(50),
+            metrics.percentile_upper_ns(99),
+            reopened.callbacks
+        );
+    }
     app.shutdown_audio()?;
     let m = stopped.diagnostics.ok_or("Missing metrics")?;
     println!(

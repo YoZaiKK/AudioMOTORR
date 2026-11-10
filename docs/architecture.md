@@ -86,7 +86,9 @@ adds Application preparation/session use cases, DTOs/IPC and explicit UI control
 One preparation worker performs I/O outside the Application mutex/controller/RT.
 Audio must be closed before preparing or installing a bank. Cancellation and
 application destruction reclaim/join worker ownership outside processing; blocked
-OS I/O is not interruptible. Native hardware evidence is still pending.
+OS I/O is not interruptible. [9.5.b](../progress/etapa-9-medicion-nativa.md) now
+records Realtek/WASAPI processing measurements; human listening confirmation and
+other native platforms remain pending.
 
 `daw-app::Application` owns the editable project and audio service and coordinates
 their use cases. The CLI uses this application for offline smoke and device/native

@@ -1,5 +1,16 @@
 # Detalles de implementación
 
+## Mediciones nativas sampler 9.5.b — 2026-11-10
+
+Seis casos release Realtek/WASAPI, 48 kHz/estéreo/f32, entradas mono/estéreo y
+ventanas 0/1/16: correctos, incluidos rechazos por ID, gain/transporte, finalización
+y reapertura. Cero asignaciones/liberaciones/non-finite/overruns medidos; mayor
+tiempo 432100 ns (ratio 0.04321). Piloto inicial conservado. Runner añade trazas
+de IDs/métricas de reapertura fuera de callback; generador estéreo reproduce bytes
+y rechaza overwrite. Ver [reporte](etapa-9-medicion-nativa.md). Escucha humana
+solicitada sin confirmación registrada; loopback/unplug/estrés/plataformas y CI
+siguen pendientes. No hay commit/push ni cierre final de etapa 9.
+
 ## Revisión de documentación/configuración — 2026-11-10
 
 README actualizado al commit 0c346d5 y siguientes etapas, sin atribuirle CI no

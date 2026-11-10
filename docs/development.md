@@ -1,5 +1,13 @@
 # Development, platforms, and CI
 
+Stage 9.5.b now records [six Realtek/WASAPI runs](../progress/etapa-9-medicion-nativa.md)
+at 48 kHz stereo f32, with mono/stereo inputs and 0/1/16 voices. Initial/reopened
+sessions report zero measured allocation/free/non-finite/processing overruns.
+The runner prints exact-ID outcomes and reopened metrics outside processing;
+[the fixture helper](../scripts/sampler-stereo-fixture.mjs) reproduces distinct
+stereo input without overwriting. Human listening confirmation remains pending.
+These short native measurements do not establish acoustic continuity or close stage 9.
+
 Stage 9.5.a (2026-11-10) adds [sampler diagnostics](sampler-diagnostics.md):
 offline-diagnostics avoids CPAL while rt-diagnostics retains native audio.
 check now runs the diagnostic CLI unit/process tests with offline-diagnostics,
@@ -62,11 +70,14 @@ source/configuration files with local check/build results.
 The 9.4.a/9.4.b fingerprints are historical. Application/DTO/IPC/frontend are
 implemented in 9.4.c; the [9.4.c manifest](../progress/evidencia-desktop-9.4c.json)
 identifies that dated code. The 9.4.d closure records the newer hook/tests and
-acceptance audit; 9.5.a delivers the diagnostic runner and next is physical verification 9.5.b.
+acceptance audit; 9.5.a delivers the diagnostic runner and 9.5.b now records
+native processing measurements, with listening/closure still pending.
 The [current manifest](../progress/evidencia-integracion-9.4d.json) identifies
 116 code/configuration files for 9.4.d. The newer
 [9.5.a manifest](../progress/evidencia-diagnosticos-9.5a.json) identifies 119 files;
-full check/Windows build and offline release diagnostics pass. No sampler hardware run is claimed.
+full check/Windows build and offline release diagnostics pass for that dated scope.
+The newer [9.5.b report](../progress/etapa-9-medicion-nativa.md) records six native
+Realtek runs, exact-ID traces and input/log hashes, with human listening unconfirmed.
 The existing 9.2 results do not validate this new code.
 
 ```powershell

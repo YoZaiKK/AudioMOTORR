@@ -10,9 +10,10 @@ preparación localmente. 9.4.a integra sampler en AudioEngine, verificado offlin
 9.4.b conecta sesiones/outcomes y 9.4.c añade Application, DTO/IPC y UI de sampler,
 con carga/cancelación en worker y pruebas mock. 9.4.d cierra la integración
 local y corrige recuperación de dispositivos/polls solapados. 9.5.a implementa
-diagnósticos sampler y benchmark sin CPAL; siguiente verificación física 9.5.b. Ver
-[reporte actual](../progress/etapa-9-diagnosticos-sampler.md) y
-[guía del sampler](06-sampler.md); no se añade evidencia física en esta entrega.
+diagnósticos sampler y benchmark sin CPAL. 9.5.b registra seis casos nativos
+Realtek/WASAPI correctos; quedan confirmación de escucha y consolidación 9.5.c. Ver
+[reporte actual](../progress/etapa-9-medicion-nativa.md) y
+[guía del sampler](06-sampler.md). Los probes nativos no sustituyen confirmación humana o loopback.
 
 Guía en español para la app actual: silencio, senoide nativa explícita con rampas,
 sampler WAV one-shot, transporte, servicio de audio y exportación de senoide WAV offline. Los comandos se ejecutan

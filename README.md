@@ -8,8 +8,8 @@ can later evolve into a clip-based DAW.
 
 Updated 2026-11-10. Stages 1–8, sampler resources/voices (9.1–9.2), preparation (9.3), local integration
 (9.4) and diagnostic tooling (9.5.a) are implemented. **Stage 9 is still open:**
-physical sampler measurements/audition (9.5.b) and final evidence/CI review (9.5.c)
-remain pending. Mixer, sequencer, project persistence and clips are later stages.
+six native sampler cases (9.5.b) now pass on Realtek/WASAPI. Human listening
+confirmation and final evidence/CI review (9.5.c) remain pending. Mixer, sequencer, project persistence and clips are later stages.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
 sessions, controls transport/tempo/gain and shows exact-ID trigger outcomes or
@@ -19,11 +19,14 @@ See the [sampler walkthrough](howToRunThis/06-sampler.md).
 
 sampler-bench provides device-free mono/stereo CPU measurements with
 offline-diagnostics, without CPAL. sampler-native-check is implemented and built
-in release, but has not yet been run with physical sampler hardware. Existing
+in release and now measured on physical Realtek hardware with mono/stereo inputs
+and 0/1/16 voices; see the [native report](progress/etapa-9-medicion-nativa.md). Existing
 engine-bench/tone-check exercise the sine. The CLI exports a sine WAV; exporting
 a sampler project or a beat is not implemented.
 
-The code is committed as [0c346d5 (Phase 9.5.a)](https://github.com/YoZaiKK/AudioMOTORR/commit/0c346d55907ac4a94a4f25662990002213143b56).
+The current base is [b0ba589 (Update config)](https://github.com/YoZaiKK/AudioMOTORR/commit/b0ba5895d4b5d4b764727f7d1af1943c522ebc0c),
+after 0c346d5 (Phase 9.5.a). Native measurements use a local CLI trace patch;
+a fixture helper reproduces the exact stereo input.
 At this review, local main and the local origin/main tracking ref both point to
 that revision. Hosted CI for it has not been inspected here; this is separate
 from the older kernel/sine runs and local checks. The
@@ -31,8 +34,9 @@ from the older kernel/sine runs and local checks. The
 114 workspace, 29 instrumented-audio, nine diagnostic-CLI, eight decoder-memory,
 24 frontend tests and nine CLI scenarios, plus Windows debug build. Suites overlap.
 Its [119-file fingerprint](progress/evidencia-diagnosticos-9.5a.json) remains a
-dated snapshot; this documentation/configuration review changes ignore/lint
-settings and does not rerun physical audio or alter musical code.
+dated snapshot. The [native evidence](progress/evidencia-nativa-9.5b.json) records
+the measured runner, inputs, exact-ID outcomes and current source snapshot.
+Audio engine/processing code remains unchanged.
 
 See the [configuration review](progress/revision-readme-configuracion.md),
 [status/objectives audit](progress/estado-y-siguiente-etapa.md),
@@ -41,17 +45,17 @@ README/technical documents are in English; progress and practical guides are in 
 
 ## Next steps
 
-| Stage            | Next deliverable                                                                                                                                   | Acceptance / boundary                                                                                                                                                                                                         |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **9.5.b — next** | Run sampler-native-check in release with a known WAV and an explicit supported device/configuration for 0/1/16 voices; record audition separately. | Input hashes, exact trigger outcomes, real voice/frame progress, allocation/free counts, approximate histogram quantiles, transport and close/reopen logs. Follow the [native protocol](docs/sampler-native-verification.md). |
-| 9.5.c            | Review sampler evidence and close stage 9.                                                                                                         | Review failures/inconclusive runs, affected checks/build and hosted CI for the exact published revision; retain explicit unplug/loopback/stress/platform limitations.                                                         |
-| 10               | Four-channel mixer.                                                                                                                                | Gain/pan/mute, routing, levels and meters with deterministic audio tests.                                                                                                                                                     |
-| 11               | 16-step sequencer.                                                                                                                                 | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                                                                                                                              |
-| 12               | Project persistence and beat export.                                                                                                               | Versioned save/open, relative asset references and offline export of the actual project.                                                                                                                                      |
-| 13               | Clips and scenes.                                                                                                                                  | Clip/scene model, quantized launch and predictable transitions.                                                                                                                                                               |
+| Stage                             | Next deliverable                                                                                                                                                                | Acceptance / boundary                                                                                                                                                                                                         |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **9.5.b — measurements recorded** | Six Realtek/WASAPI cases pass with mono/stereo input, 0/1/16 voices, zero measured allocation/free/overrun and successful reopen. Human listening confirmation remains pending. | Input hashes, exact trigger outcomes, real voice/frame progress, allocation/free counts, approximate histogram quantiles, transport and close/reopen logs. Follow the [native protocol](docs/sampler-native-verification.md). |
+| 9.5.c                             | Review sampler evidence and close stage 9.                                                                                                                                      | Review failures/inconclusive runs, affected checks/build and hosted CI for the exact published revision; retain explicit unplug/loopback/stress/platform limitations.                                                         |
+| 10                                | Four-channel mixer.                                                                                                                                                             | Gain/pan/mute, routing, levels and meters with deterministic audio tests.                                                                                                                                                     |
+| 11                                | 16-step sequencer.                                                                                                                                                              | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                                                                                                                              |
+| 12                                | Project persistence and beat export.                                                                                                                                            | Versioned save/open, relative asset references and offline export of the actual project.                                                                                                                                      |
+| 13                                | Clips and scenes.                                                                                                                                                               | Clip/scene model, quantized launch and predictable transitions.                                                                                                                                                               |
 
 The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
-define scope and dependencies. This review does not advance 9.5.b or create a commit/push.
+define scope and dependencies. These measurements do not close stage 9 or establish acoustic continuity. No commit/push was created.
 
 Technical documentation:
 
@@ -111,7 +115,9 @@ audit, UI fixes and new local verification separately from pending native measur
 The [9.4.d fingerprint](progress/evidencia-integracion-9.4d.json) identifies the
 dated 116-file state; full check and Windows debug build passed, with 24 frontend tests.
 The [9.5.a report](progress/etapa-9-diagnosticos-sampler.md) records newer sampler
-diagnostics and device-free measurements; hardware remains unverified and hosted CI for 0c346d5 remains uninspected here.
+diagnostics and device-free measurements before the native runs. The
+[9.5.b report](progress/etapa-9-medicion-nativa.md) records the later Realtek
+measurements; hosted CI for the current worktree remains unverified.
 The [9.5.a fingerprint](progress/evidencia-diagnosticos-9.5a.json) identifies the
 dated 119-file state. Full check and Windows debug build passed locally; release
 benchmarks report zero allocations/frees in processing across 24 mono/stereo cases.
@@ -547,4 +553,4 @@ sampler into AudioEngine. 9.4.b adds audio sessions/queued outcomes; 9.4.c adds
 application/DTO/IPC and desktop controls. 9.4.d closes integration locally; next
 is 9.5.b hardware verification using the implemented [sampler diagnostics](docs/sampler-diagnostics.md)
 and [native protocol](docs/sampler-native-verification.md).
-Physical sampler audition remains unverified; sequencer and project persistence remain planned.
+Native sampler processing is measured; human audition remains unconfirmed. Sequencer and project persistence remain planned.

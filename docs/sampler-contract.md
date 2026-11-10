@@ -20,7 +20,7 @@ end-to-end loaded-bank playback with exact oracles; see the
 [acceptance matrix](sample-loading-acceptance.md). Preparation is closed locally
 in [9.3.f](../progress/cierre-preparacion-9.3.md); 9.4.a implements AudioEngine
 integration. 9.4.b now implements [sessions/outcomes](sampler-service.md);
-9.4.c wires application/DTO/IPC/UI; the [9.4.d audit](sampler-integration-acceptance.md) closes integration locally. [9.5.a diagnostics](sampler-diagnostics.md) are implemented; next is physical verification 9.5.b. The existing
+9.4.c wires application/DTO/IPC/UI; the [9.4.d audit](sampler-integration-acceptance.md) closes integration locally. [9.5.a diagnostics](sampler-diagnostics.md) and [9.5.b native measurements](../progress/etapa-9-medicion-nativa.md) are recorded; human listening and final closure remain pending. The existing
 kernel behavior below is unchanged.
 
 Implementation revision 7acc1db passed both hosted jobs in

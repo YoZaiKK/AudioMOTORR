@@ -2,7 +2,8 @@
 
 Implemented locally on 2026-11-10. This adds the missing sampler-specific CLI
 benchmark/runner and extends optional callback observations. It does not perform
-physical sampler audition or close stage 9. See the
+human-confirmed physical audition or close stage 9. Native processing is now
+measured in [9.5.b](../progress/etapa-9-medicion-nativa.md), separately from listening confirmation. See the
 [implementation report](../progress/etapa-9-diagnosticos-sampler.md) and
 [native verification protocol](sampler-native-verification.md).
 
@@ -59,7 +60,8 @@ the destruction is not part of rendering or callback timing.
 
 The following command opens a real output and is reserved for 9.5.b. Supply an
 existing compatible WAV and the full device ID from devices; it was not executed
-during 9.5.a:
+during 9.5.a. Six reference runs are now recorded in
+[9.5.b](../progress/etapa-9-medicion-nativa.md):
 
 ```powershell
 Get-FileHash target/stage9-5-fixtures/stereo.wav -Algorithm SHA256
@@ -86,6 +88,11 @@ retained PCM, waits for natural completion and Stops again. It then shuts down,
 prepares again and reopens the same selected device, requiring fresh counters and
 another exact trigger/close. Tests exercise this lifecycle with real distinct-channel
 WAVs and the manual service; they do not call a physical device.
+
+Stage 9.5.b adds normal CLI trace lines for command/applied IDs, typed trigger
+outcomes and reopened-session metrics. Formatting/file output stays outside the
+callback. The [native evidence](../progress/etapa-9-medicion-nativa.md) preserves a
+pilot with the earlier runner and six complete traced runs.
 
 Metrics are cumulative across the entire session/lifecycle, including initial
 callbacks, settling and the post-window retrigger. They are not isolated 0/1/16
@@ -121,7 +128,8 @@ duration/memory result happens after timing. Host/driver work, arrival jitter an
 other threads remain excluded. Timing/memory aggregates publish one callback
 behind; sample probes include the current callback. Missing final publication is
 not zero. Metrics reset with the session. Native deallocation/timing observations
-have only adapter/unit coverage until 9.5.b records a real hardware run.
+now also have short Realtek/WASAPI hardware coverage in 9.5.b. Other hardware,
+formats and acoustic output remain unverified.
 
 Record source/tool/OS/CPU/device/config metadata and WAV hashes before/after the
 native run. The runner prints the path and decoded metadata, not an input digest;

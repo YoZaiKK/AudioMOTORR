@@ -4,6 +4,10 @@ Fecha: 2026-11-10. Cambios locales sobre 1002efa, conservando 9.3/9.4 y sus
 manifiestos fechados. No se abre hardware, no hay capturas, commit/push, publicación
 o CI remota nueva. 9.5.b realizará mediciones físicas; la etapa 9 sigue abierta.
 
+Registro fechado de 9.5.a. La [medición posterior 9.5.b](etapa-9-medicion-nativa.md)
+ya ejecuta seis casos Realtek/WASAPI; conserva el piloto y añade trazas al runner.
+Este reporte mantiene su alcance offline original y no certifica la escucha humana.
+
 ## Implementación
 
 - Feature offline-diagnostics de CLI sin CPAL; rt-diagnostics conserva audio

@@ -10,7 +10,7 @@ Los reportes de motor/WAV conservan sus resultados previos a la publicación.
 
 Etapa 9 en curso: 9.1–9.2 completadas. Kernel publicado en 7acc1db con CI correcta
 en run 42530699397: banco fijo y 16 voces raw con pruebas de memoria; todavía
-sin audición física del sampler verificada. Incremento actual: 9.5.a, diagnósticos sampler y benchmark offline; siguiente 9.5.b.
+sin audición física del sampler verificada. Incremento actual: 9.5.b, seis mediciones nativas correctas; pendientes escucha y cierre 9.5.c.
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -20,8 +20,9 @@ extremo y matriz de aceptación; 9.3.f cierra preparación localmente.
 pruebas sin hardware. 9.4.c añade preparación en worker, DTO/IPC/UI y observación
 por ID. 9.4.d audita/cierra integración local, corrige recuperación/polls y
 define protocolo nativo. 9.5.a entrega sampler-bench/native-check y métricas
-acotadas con tests sin dispositivo. Siguiente 9.5.b: medición/audición física. Ver
-[reporte actual](etapa-9-diagnosticos-sampler.md).
+acotadas con tests sin dispositivo. 9.5.b registra seis mediciones Realtek/WASAPI
+correctas; pendientes escucha humana y consolidación 9.5.c. Ver
+[reporte actual](etapa-9-medicion-nativa.md).
 El [contrato](../docs/sampler-contract.md) y [reporte actual](etapa-9-voces.md)
 separan implementación, comprobaciones y límites.
 
@@ -40,15 +41,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                                         |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.              |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.              |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: 9.5.a implementada; siguiente 9.5.b. |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                                     |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                     |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                     |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                     |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                                          |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | --------------------------------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.                               |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                               |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: mediciones 9.5.b correctas; escucha/9.5.c pendientes. |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                                                      |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                                      |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                                      |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                                      |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -173,14 +174,12 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Continuar con **9.5.b: verificación física del sampler**. Ejecutar el runner
-release en dispositivo/config identificados con WAV conocidos y hashes antes/
-después. Registrar voces 0/1/16, frames, IDs exactos, asignaciones/liberaciones,
-histogramas/tiempos, cierre/reapertura y cualquier fallo o resultado inconcluso.
-9.5.a ya entrega comandos, instrumentación y pruebas sin hardware; el
-[contrato diagnóstico](../docs/sampler-diagnostics.md) y [protocolo](../docs/sampler-native-verification.md)
-definen sus límites. 9.5.c consolidará aceptación, límites y CI propia.
-Audición, loopback y métricas de procesamiento son evidencias distintas.
+Incorporar la **confirmación de escucha humana** solicitada y continuar con
+**9.5.c: consolidación de evidencia/límites y CI**. La matriz 9.5.b ya pasó seis
+casos Realtek/WASAPI y reaperturas, con ceros de memoria/overruns dentro de
+procesamiento. Ver [reporte](etapa-9-medicion-nativa.md). Quedan separados audición,
+loopback y CPU/probes. No cerrar etapa 9 ni atribuir CI a cambios locales sin
+publicar/inspeccionar el SHA correspondiente. Etapas 10–13 siguen posteriores.
 
 ## Etapa 9 — Desglose y aceptación
 

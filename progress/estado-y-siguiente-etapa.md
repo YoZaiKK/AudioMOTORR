@@ -1,23 +1,23 @@
 # Estado verificado, objetivos y siguiente etapa
 
-Revisión: 2026-11-10. Código actual 0c346d5 (Phase 9.5.a); main y la referencia
-local origin/main coinciden. CI remota de esta revisión sin inspeccionar aquí.
+Revisión: 2026-11-10. Base actual b0ba589 (Update config), más trazas locales del runner y generador
+de fixture para mediciones nativas 9.5.b. CI remota de esta revisión sin inspeccionar aquí.
 El kernel previo 7acc1db conserva su [CI Linux/Windows correcta](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397),
 que no se atribuye a la revisión nueva. Ver [auditoría de configuración](revision-readme-configuracion.md).
-Se contrastan código, pruebas y reportes existentes; no se realizan nuevas
-mediciones físicas ni se atribuye la CI de un SHA a otro. El orden original de
+Se contrastan código, pruebas y reportes existentes junto a seis mediciones
+nativas Realtek nuevas; no se atribuye la CI de un SHA a otro. El orden original de
 los hitos se conserva en el [documento inicial](rust-daw-bootstrap-prompt.md).
 
 ## Objetivos y estado real
 
-| Objetivo                               | Qué está hecho                                                                                                   | Qué falta                                                                                                                          |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Fundamento de escritorio/audio         | Etapas 1–6: workspace, motor separado, backend manual/CPAL, aplicación, IPC/DTO, UI, cierre, documentación y CI. | Validaciones físicas/plataformas adicionales, registradas como límites.                                                            |
-| Generar una señal verificable          | Etapas 7–8: senoide offline/WAV, salida nativa explícita, volumen y rampas.                                      | Loopback acústico, unplug físico, estrés prolongado y otras configuraciones físicas.                                               |
-| Reproducir samples en motor            | PCM/banco/preparación, AudioEngine y sesiones manual/CPAL con triggers/outcomes y cierre de PCM en propietario.  | Integración 9.4 auditada localmente. Runner 9.5.a implementado con benchmark offline; pendientes hardware 9.5.b y cierre/CI 9.5.c. |
-| Groovebox de cuatro canales y 16 pasos | Base y kernel disponibles.                                                                                       | Cerrar 9 y completar mezcla/secuenciador en 10–11.                                                                                 |
-| Guardar, reabrir y exportar un beat    | La CLI exporta una senoide WAV.                                                                                  | Etapa 12: documento versionado, assets relativos y exportación del beat completo.                                                  |
-| Clips y escenas                        | Alcance documentado.                                                                                             | Etapa 13: modelo, lanzamiento cuantizado, transiciones y UI. Timeline/piano roll/automatización siguen después.                    |
+| Objetivo                               | Qué está hecho                                                                                                   | Qué falta                                                                                                                                        |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Fundamento de escritorio/audio         | Etapas 1–6: workspace, motor separado, backend manual/CPAL, aplicación, IPC/DTO, UI, cierre, documentación y CI. | Validaciones físicas/plataformas adicionales, registradas como límites.                                                                          |
+| Generar una señal verificable          | Etapas 7–8: senoide offline/WAV, salida nativa explícita, volumen y rampas.                                      | Loopback acústico, unplug físico, estrés prolongado y otras configuraciones físicas.                                                             |
+| Reproducir samples en motor            | PCM/banco/preparación, AudioEngine y sesiones manual/CPAL con triggers/outcomes y cierre de PCM en propietario.  | Integración 9.4 auditada localmente. Runner 9.5.a y seis mediciones Realtek/WASAPI 9.5.b correctos; pendientes escucha humana y cierre/CI 9.5.c. |
+| Groovebox de cuatro canales y 16 pasos | Base y kernel disponibles.                                                                                       | Cerrar 9 y completar mezcla/secuenciador en 10–11.                                                                                               |
+| Guardar, reabrir y exportar un beat    | La CLI exporta una senoide WAV.                                                                                  | Etapa 12: documento versionado, assets relativos y exportación del beat completo.                                                                |
+| Clips y escenas                        | Alcance documentado.                                                                                             | Etapa 13: modelo, lanzamiento cuantizado, transiciones y UI. Timeline/piano roll/automatización siguen después.                                  |
 
 El objetivo de groovebox capaz de ejecutar un patrón se alcanza al cerrar 11; guardar,
 reabrir y exportar ese beat corresponde a 12. Son límites de producto, no
@@ -62,7 +62,8 @@ por ID exacto. Check/build Windows correctos: 106 headless, 112 workspace,
 26 audio instrumentadas, ocho memoria decoder/banco, 21 frontend y nueve CLI.
 El [manifiesto actual](evidencia-desktop-9.4c.json) registra 116 archivos; ver
 [reporte](etapa-9-aplicacion-sampler.md). 9.4.d audita/cierra localmente y añade tres regresiones de UI; ver
-[cierre de integración](cierre-integracion-9.4.md). Siguiente: verificación física 9.5.b; el runner 9.5.a ya está implementado.
+[cierre de integración](cierre-integracion-9.4.md). Mediciones 9.5.b ya registradas;
+quedan escucha humana y consolidación 9.5.c.
 
 La ejecución nueva de 9.4.d pasa check/build: 106 headless, 112 workspace,
 26 audio, ocho memoria, 24 frontend y nueve CLI. El
@@ -73,7 +74,7 @@ los anteriores conservan sus snapshots, sin atribuirles esta nueva ejecución.
 108 headless/114 workspace/29 audio/nueve diagnósticos CLI/ocho memoria/24 frontend/
 nueve escenarios. Release y 24 casos de benchmark sin hardware correctos. El
 [manifiesto actual 9.5.a](evidencia-diagnosticos-9.5a.json) registra 119 archivos;
-[reporte](etapa-9-diagnosticos-sampler.md). Pendiente verificación física 9.5.b.
+[reporte](etapa-9-diagnosticos-sampler.md). Seis mediciones nativas 9.5.b ya correctas; ver [reporte](etapa-9-medicion-nativa.md). Escucha/9.5.c pendientes.
 
 No se detecta una etapa musical marcada como completada sin implementación.
 Debe conservarse la distinción entre **kernel de sampler completado** y
@@ -99,7 +100,7 @@ mediciones físicas no realizadas siguen como limitaciones explícitas.
 No se empieza mezclador/secuenciador antes de cerrar sampler. Las mediciones
 de senoide y las pruebas con mock no sustituyen las pruebas nativas del sampler.
 
-## Etapa 9.3 e integración 9.4 — Cerradas localmente; siguiente 9.5.b
+## Etapa 9.3 e integración 9.4 — Cerradas localmente; escucha y cierre 9.5.c pendientes
 
 **Resultado:** suministrar WAV admitidos y obtener un SampleBank validado,
 listo para integración posterior. 9.4.c incorpora los controles sampler a la UI;
@@ -144,7 +145,7 @@ mocks, IDs/counters string y resultado solo para su command ID. Ver
 [aceptación integrada](../docs/sampler-integration-acceptance.md) localmente y
 corrige enumeración fallida/polls solapados. 9.5.a implementa benchmark offline,
 runner sampler opt-in y métricas de liberaciones/todos los canales/histograma. Ver
-[reporte actual](etapa-9-diagnosticos-sampler.md). Siguiente 9.5.b: ejecutar y
-registrar mediciones/audición en hardware identificado. El
+[reporte actual](etapa-9-diagnosticos-sampler.md). 9.5.b ya registra seis casos nativos y reaperturas en Realtek; falta confirmar
+escucha y consolidar evidencia/CI 9.5.c. El
 [protocolo nativo](../docs/sampler-native-verification.md) define 9.5.b mediciones
 y 9.5.c cierre/CI. La etapa 9 completa permanece abierta.

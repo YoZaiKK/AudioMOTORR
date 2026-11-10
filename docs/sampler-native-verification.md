@@ -1,7 +1,9 @@
 # Native sampler verification protocol — stage 9.5
 
 Prepared during the 9.4.d integration audit on 2026-11-09. **This is a protocol,
-not a measurement report.** No sampler hardware session, native timing result,
+not a measurement report.** The [9.5.b results](../progress/etapa-9-medicion-nativa.md)
+now record six real-device cases; listening confirmation is still pending. The [9.5.b results](../progress/etapa-9-medicion-nativa.md)
+now record six real-device cases; listening confirmation is still pending. No sampler hardware session, native timing result,
 new screenshot or hosted CI result was produced by 9.4.d. The
 [acceptance matrix](sampler-integration-acceptance.md) defines local integration
 evidence; the [Spanish handoff](../progress/continuidad-etapa-6.md) tracks next work.
@@ -25,7 +27,8 @@ Optional native metrics now include deallocations, frames, all-channel probes
 and a fixed 64-bin histogram; quantiles are approximate upper bounds. Metrics
 are cumulative across the full lifecycle, not isolated voice-window percentiles.
 The native instrumented runner compiles in release but remains unexecuted with
-hardware until 9.5.b. Offline CPU numbers do not substitute for that evidence.
+hardware during 9.5.a; [9.5.b](../progress/etapa-9-medicion-nativa.md) now records
+six Realtek/WASAPI cases with zero measured allocation/free/overrun. Offline CPU numbers do not substitute for that evidence.
 
 ## Inputs and preparation using existing commands
 
@@ -35,12 +38,13 @@ The following are existing device-free commands, not a native sampler test:
 ```powershell
 New-Item -ItemType Directory -Path target/stage9-5-fixtures
 cargo run -p daw-cli --no-default-features --locked -- export-wav --output target/stage9-5-fixtures/mono.wav --frames 480000 --sample-rate 48000 --channels 1 --frequency 997 --amplitude 0.5
-cargo run -p daw-cli --no-default-features --locked -- export-wav --output target/stage9-5-fixtures/stereo.wav --frames 480000 --sample-rate 48000 --channels 2 --frequency 440 --amplitude 0.5
+node scripts/sampler-stereo-fixture.mjs target/stage9-5-fixtures/stereo.wav
 ```
 
-Both are float32 WAV, within existing per-resource limits. The exported stereo
-channels are identical; 9.5.a tests add deterministic distinct-channel benchmark and real-WAV
-oracles. Use distinct-channel material for physical stereo coverage as well. Record each input SHA256, rate, channels,
+Both are float32 WAV, within existing per-resource limits. The stereo helper
+creates distinct 997/440 Hz channels at peaks 0.1/0.05 and refuses overwrites.
+9.5.b verified its byte-exact reproduction of the measured input. The diagnostic
+benchmark and manual lifecycle also use independent distinct-channel oracles. Record each input SHA256, rate, channels,
 frame count, occupied slots and decoded PCM budget. Repeated paths in different
 slots own separate resources and count separately. Keep fixtures outside the
 measured processing region and preserve existing decoder/bank ceilings.

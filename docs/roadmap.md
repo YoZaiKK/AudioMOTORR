@@ -28,9 +28,10 @@ with headroom/transport/ramps and direct Copy trigger results, verified offline.
 outcome observations, with owner-side PCM reclamation after closing the stream.
 9.4.c adds application/DTO/IPC/frontend with mock verification. 9.4.d now closes
 integration locally with an [acceptance audit](sampler-integration-acceptance.md)
-and UI recovery/polling fixes. 9.5.a implements the [sampler diagnostic runner](sampler-diagnostics.md),
-with device-free tests/measurements. Next is 9.5.b, hardware verification under
-the [native protocol](sampler-native-verification.md). The
+and UI recovery/polling fixes. 9.5.a implements [sampler diagnostics](sampler-diagnostics.md). 9.5.b now records
+[six Realtek/WASAPI runs](../progress/etapa-9-medicion-nativa.md), with listening
+confirmation still pending. Next is that confirmation and the 9.5.c evidence/CI
+review under the [native protocol](sampler-native-verification.md). The
 [engine report](../progress/etapa-9-integracion-motor.md) records new local evidence.
 The [session report](../progress/etapa-9-sesiones-sampler.md) and
 [service contract](sampler-service.md) describe the newer integration and limits.
@@ -156,14 +157,15 @@ compressed formats and resampling require a later explicit contract revision.
 See [format/error/cleanup details](sample-loading-contract.md). The 9.3.b adapter
 uses standard-library Rust without a new decoder dependency or engine file I/O.
 
-## Stage 9.4 — integration closed locally; diagnostics 9.5.a implemented; next: 9.5.b
+## Stage 9.4 — integration closed locally; diagnostics 9.5.a implemented; 9.5.b processing measured; listening/9.5.c pending
 
 9.4.a–d are implemented/audited locally with offline/adapter/mock evidence.
 Physical sampler acceptance and measurements remain pending in 9.5. The existing
 [sampler transport/outcome contract](sampler-contract.md) defines behavior;
 engine implements transport/headroom, and the service implements sampler sessions
 and queued exact-ID outcomes. Application/DTO/frontend exposure is implemented
-in [9.4.c](sampler-desktop.md); physical sampler hardware/performance remains unverified.
+in [9.4.c](sampler-desktop.md). [9.5.b](../progress/etapa-9-medicion-nativa.md)
+now records short Realtek/WASAPI hardware measurements; human listening remains unconfirmed.
 
 | Step  | Responsibility                                                                                                                               | Acceptance                                                                                                                                                                                                                                        |
 | ----- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -175,11 +177,11 @@ in [9.4.c](sampler-desktop.md); physical sampler hardware/performance remains un
 Measure native sampler behavior and close stage 9 in 9.5. The
 [native protocol](sampler-native-verification.md) defines the following sequence:
 
-| Step  | Responsibility                                                                                            | Acceptance                                                                                                                                                                                                                                                          |
-| ----- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 9.5.a | Implemented locally: sampler benchmark and opt-in native diagnostic runner, offline feature without CPAL. | Existing application/service APIs; bounded preallocated measurements for 0/1/16 voices; allocation/deallocation accounting and offline/error tests. Offline oracle/manual lifecycle, all-channel probes and histogram tests pass; physical execution remains 9.5.b. |
-| 9.5.b | Execute controlled release hardware verification on an identified device/config.                          | Exact-ID outcomes, voice activity, transport/gain, finite output, processing budget, zero measured allocation/free, orderly shutdown/reopen; raw logs and scope.                                                                                                    |
-| 9.5.c | Consolidate sampler closure evidence and revision-specific CI.                                            | Full checks/build, documented audition/limits, unchanged historical evidence and inspected hosted jobs for the published revision; unsupported/unperformed platforms remain explicit.                                                                               |
+| Step  | Responsibility                                                                                             | Acceptance                                                                                                                                                                                                                                                          |
+| ----- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9.5.a | Implemented locally: sampler benchmark and opt-in native diagnostic runner, offline feature without CPAL.  | Existing application/service APIs; bounded preallocated measurements for 0/1/16 voices; allocation/deallocation accounting and offline/error tests. Offline oracle/manual lifecycle, all-channel probes and histogram tests pass; physical execution remains 9.5.b. |
+| 9.5.b | Processing verified: six Realtek/WASAPI cases, stereo f32 at 48 kHz; human listening confirmation pending. | Exact-ID outcomes, voice activity, transport/gain, finite output, processing budget, zero measured allocation/free, orderly shutdown/reopen; raw logs and scope.                                                                                                    |
+| 9.5.c | Consolidate sampler closure evidence and revision-specific CI.                                             | Full checks/build, documented audition/limits, unchanged historical evidence and inspected hosted jobs for the published revision; unsupported/unperformed platforms remain explicit.                                                                               |
 
 The detailed
 [Spanish audit and next-stage plan](../progress/estado-y-siguiente-etapa.md)
