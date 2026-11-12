@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado el 2026-11-11. **Etapas 1–10 completadas dentro de su alcance**.
+Actualizado el 2026-11-12. **Etapas 1–10 completadas dentro de su alcance**.
 El [cierre del sampler](cierre-etapa-9.md) reúne preparación WAV, motor/servicio,
 aplicación/IPC/UI y diagnósticos. La implementación está publicada en `4dc2c6c`,
 con CI Linux/Windows correcta en run 42896571891, inspeccionada mediante la API
@@ -35,9 +35,12 @@ y [entrega preparada](entrega-mezclador-etapa-10.md).
 [Publicación 10.4.c](publicacion-mezclador-10.4c.md): implementación `e7f543f` entregada en main y CI Linux/Windows correcta.
 **Etapa 10 cerrada dentro de su alcance:** usuario confirmó «Se escucha» tras la repetición del mezclador.
 [Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
-**Siguiente: 11.1**, contrato y modelo del patrón/secuenciador de 16 pasos.
+**11.1 implementado localmente:** [contrato y modelo del patrón](etapa-11-modelo-patron.md).
+**11.2 implementado localmente:** [planificador y mezcla secuenciada](etapa-11-planificador.md).
+**Siguiente: 11.3**, servicio/aplicación/IPC y cuadrícula de cuatro filas.
 Ver [plan de ejecución](plan-siguientes-pasos.md) y [plan general](plan-etapas-7-13.md).
-La implementación está publicada y tiene CI propia; los manifiestos anteriores
+La implementación de etapa 10 está publicada y tiene CI propia; 11.1–11.2 son
+cambios locales todavía sin commit/push. Los manifiestos anteriores
 conservan su estado local al capturarse.
 Los hashes de etapa 9 no se atribuyen a las modificaciones del mezclador 10.2.
 Los reportes anteriores conservan sus resultados y estado de publicación fechados.
@@ -58,10 +61,17 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Iniciar **11.1**: contrato y modelo del patrón de cuatro filas por 16 pasos.
-Definir resolución, eventos, edición y Play/Pause/Stop/cambios de BPM antes del
-planificador. [Etapa 10 cerrada](cierre-etapa-10.md) con escucha y CI registradas;
-las limitaciones físicas conservan su alcance.
+Continuar con **11.3** según el [contrato del secuenciador](../docs/sequencer-contract.md):
+primer incremento **11.3.a, servicio de audio**, con sesiones manuales/CPAL
+explícitas con patrón actual y FIFO acotada. Después aplicación y desktop: documento
+seleccionado frente a aceptado/aplicado, DTOs/IPC/ACL y cuadrícula de 4 × 16.
+Mantener preparación/cancelación/reapertura, IDs y observaciones perdidas coherentes.
+11.2 aporta `with_sequenced_sampler`, controles directos y `sequencer_snapshot`:
+[reporte](etapa-11-planificador.md) y [evidencia](evidencia-planificador-11.2.json).
+Esos controles pertenecen al propietario de procesamiento, no al hilo de UI.
+Aceptación integrada/nativa y CI siguen en 11.4.
+[Etapa 10 cerrada](cierre-etapa-10.md) con escucha y CI registradas;
+esas evidencias históricas no validan el código nuevo de 11.1–11.2.
 
 ## Evidencia histórica anterior al cierre
 

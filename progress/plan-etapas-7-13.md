@@ -1,6 +1,6 @@
 # Plan de progreso — Etapas 7 a 13
 
-Actualizado: 2026-11-11. Etapa 7 completada, publicada en c6cf627 y verificada
+Actualizado: 2026-11-12. Etapa 7 completada, publicada en c6cf627 y verificada
 en Linux headless/Windows desktop por CI. **Etapa 8 completada**, publicada en
 1e6bca8 con CI correcta en run 42524752652: señal nativa explícita, rampas y
 mediciones release. Ver [reporte actual](etapa-8.md)
@@ -23,7 +23,9 @@ audibilidad confirmada por el usuario tras repetición con audífonos.
 [Publicación 10.4.c](publicacion-mezclador-10.4c.md): implementación `e7f543f` entregada en main y CI Linux/Windows correcta.
 **Etapa 10 cerrada dentro de su alcance:** usuario confirmó «Se escucha» tras la repetición del mezclador.
 [Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
-**Siguiente: 11.1**, contrato y modelo del patrón/secuenciador de 16 pasos.
+**11.1 implementado localmente:** [contrato y modelo del patrón](etapa-11-modelo-patron.md).
+**11.2 implementado localmente:** [planificador y mezcla secuenciada](etapa-11-planificador.md).
+**Siguiente: 11.3**, servicio/aplicación/IPC y cuadrícula de cuatro filas.
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -192,9 +194,11 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Implementar **11.1**, contrato y modelo del patrón/secuenciador: cuatro filas,
-16 pasos, resolución musical, semántica de edición y transporte/BPM.
-El planificador con offsets de bloque será 11.2.
+Implementar **11.3**, sesiones secuenciadas, comandos por FIFO y aplicación/IPC/UI.
+11.1 ya aporta [contrato y modelo](etapa-11-modelo-patron.md) de cuatro filas ×
+16 pasos; 11.2 aporta [planificador y reproducción mezclada](etapa-11-planificador.md),
+con referencias de eventos/PCM y memoria. Conservar selección/aceptación/aplicación
+diferenciadas y un playhead observado por el motor, sin temporizador musical de UI.
 [Etapa 10 cerrada](cierre-etapa-10.md); persistencia/exportación de beat y clips
 siguen en 12–13.
 

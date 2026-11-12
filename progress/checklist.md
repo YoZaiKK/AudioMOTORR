@@ -3,7 +3,9 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-11): etapas 1–10 completadas dentro de su alcance;
+Estado actual (2026-11-12): etapas 1–10 completadas dentro de su alcance;
+11.1 y 11.2 implementados localmente; ver [modelo de patrón](etapa-11-modelo-patron.md)
+y [planificador](etapa-11-planificador.md). Siguiente: servicio/aplicación/IPC/UI 11.3.
 ver [cierre del sampler](cierre-etapa-9.md). Etapa 8 publicada en 1e6bca8,
 con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
 Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
@@ -212,9 +214,14 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 
 ## Etapa 11 — Secuenciador de 16 pasos
 
-- [ ] Modelar patrones y programar eventos a offsets dentro del bloque.
-- [ ] Definir redondeo/drift para tempos con frames fraccionales por paso.
-- [ ] Probar particiones, BPM y transporte sin duplicar/perder eventos de límite.
+- [x] 11.1: contrato de patrón, resolución, eventos, bucle, transporte, BPM y ediciones.
+- [x] 11.1: modelo fijo de cuatro filas × 16 pasos, selección de slots y pruebas de dominio.
+- [x] 11.2: programar eventos a offsets dentro del bloque e integrarlos con mezcla.
+- [x] Redondeo hacia arriba y fase entera/fraccional exacta del BPM seleccionado.
+- [x] Referencias racional/PCM, particiones, BPM, bucles, transporte, ediciones y errores atómicos.
+- [x] 11.2: cero asignaciones/liberaciones instrumentadas y liberación PCM fuera del procesamiento.
+- [ ] 11.3: servicio/aplicación/IPC y cuadrícula con posición observada.
+- [ ] 11.4: referencia integrada, diagnósticos, verificación nativa y CI de la entrega.
 
 ## Etapa 12 — Persistencia y exportación de beat
 

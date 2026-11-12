@@ -1,6 +1,13 @@
 # Estado verificado, objetivos y siguiente etapa
 
-Revisión: 2026-11-11. **Núcleo de mezcla 10.2 implementado localmente**, con
+Revisión: 2026-11-12. **11.1 implementado localmente:**
+[contrato y modelo del patrón](etapa-11-modelo-patron.md), con
+[evidencia propia](evidencia-modelo-patron-11.1.json). **11.2 implementado localmente:**
+[planificador y mezcla secuenciada](etapa-11-planificador.md), con
+[evidencia propia](evidencia-planificador-11.2.json). Siguiente: **11.3**, servicio,
+aplicación/IPC y cuadrícula con posición observada.
+
+**Núcleo de mezcla 10.2 implementado localmente**, con
 [reporte](etapa-10-mezclador-motor.md) y [huella propia](evidencia-mezclador-10.2.json).
 **Servicio 10.3.a implementado localmente**, con [reporte](etapa-10-sesiones-mezclador.md)
 y [huella propia](evidencia-sesiones-mezclador-10.3a.json). **Aplicación 10.3.b implementada localmente**, con
@@ -14,7 +21,8 @@ con [huella propia](evidencia-diagnosticos-mezclador-10.4a.json). [Matriz nativa
 [Publicación 10.4.c](publicacion-mezclador-10.4c.md): implementación `e7f543f` entregada en main y CI Linux/Windows correcta.
 **Etapa 10 cerrada dentro de su alcance:** usuario confirmó «Se escucha» tras la repetición del mezclador.
 [Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
-**Siguiente: 11.1**, contrato y modelo del patrón/secuenciador de 16 pasos. La implementación de sampler publicada en `4dc2c6c` incluye trazas del
+El contrato/modelo 11.1 y el motor secuenciado 11.2 están implementados localmente;
+servicio/IPC/UI siguen en 11.3. La implementación de sampler publicada en `4dc2c6c` incluye trazas del
 runner y generador de fixture 9.5.b. En la auditoría histórica, la API de GitHub confirmó ese SHA en main y ambos
 jobs correctos en [run 42896571891](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891).
 La [auditoría 9.5.c](auditoria-cierre-9.5c.md) verificó al cerrar el sampler los 120 archivos medidos y
@@ -174,4 +182,5 @@ runner sampler opt-in y métricas de liberaciones/todos los canales/histograma. 
 [reporte actual](etapa-9-diagnosticos-sampler.md). 9.5.b registra seis casos nativos y reaperturas en Realtek;
 confirmación auditiva y consolidación/CI se completaron en el [cierre](cierre-etapa-9.md). El
 [protocolo nativo](../docs/sampler-native-verification.md) define 9.5.b mediciones
-y 9.5.c cierre/CI. Etapa 9 completada dentro de su alcance; mezcla cerrada con mediciones, escucha confirmada y CI; siguiente 11.1.
+y 9.5.c cierre/CI. Etapa 9 completada dentro de su alcance; mezcla cerrada con
+mediciones, escucha confirmada y CI. 11.1–11.2 implementados localmente; siguiente 11.3.

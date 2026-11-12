@@ -1,5 +1,30 @@
 # Ejecutar las pruebas
 
+## Planificador y mezcla secuenciada 11.2
+
+```powershell
+cargo test -p daw-engine --locked
+cargo test -p daw-audio --features rt-diagnostics --locked --test sequencer_memory_contract
+```
+
+Comprueban eventos y PCM contra referencias independientes, redondeo/fase,
+100 000 pasos, varios tempos/particiones, comandos en fronteras y transporte.
+La prueba de memoria cubre notas, pool lleno, asset ausente, controles y cierre
+del motor; no abre hardware. El modo está disponible en el motor, todavía sin
+servicio/IPC/cuadrícula. Ver [reporte](../progress/etapa-11-planificador.md).
+
+## Modelo del patrón 11.1
+
+```powershell
+cargo test -p daw-domain --locked
+```
+
+Incluye cinco pruebas nuevas de las 64 celdas, selección de los 16 slots por
+fila, beat de referencia y eventos duplicados/ordenados, errores sin mutación
+y propiedad independiente del proyecto. Son pruebas de dominio; todavía no
+hay reproducción ni cuadrícula del patrón. Ver [contrato](../docs/sequencer-contract.md)
+y [reporte](../progress/etapa-11-modelo-patron.md). `npm run check` también las ejecuta.
+
 ## Diagnósticos sampler 9.5.a
 
 ```powershell

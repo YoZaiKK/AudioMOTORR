@@ -2,7 +2,7 @@
 //!
 //! El documento editable permanece fuera del motor. El llamador aplica comandos
 //! entre bloques; el adaptador de audio hace esto al comienzo del callback.
-//! Las notas del futuro secuenciador necesitarán offsets dentro del bloque.
+//! El sampler secuenciado programa sus eventos a offsets de frame dentro del bloque.
 
 use std::fmt;
 
@@ -11,6 +11,7 @@ mod mixer;
 mod oscillator;
 mod sample;
 mod sampler;
+mod sequencer;
 use gain::GainRamp;
 pub use gain::{Gain, InvalidGain};
 use mixer::Mixer;
@@ -22,8 +23,13 @@ pub use sampler::{
     SAMPLE_BANK_SLOTS, SAMPLER_VOICES, SampleBank, SampleBankError, Sampler, SamplerSnapshot,
     TriggerError, VoiceSnapshot,
 };
+use sequencer::Sequencer;
+pub use sequencer::{
+    SequencerBoundary, SequencerControlError, SequencerCounters, SequencerEvent, SequencerSnapshot,
+};
 
 pub use daw_domain::{MIXER_CHANNELS, MixerChannel, MixerError, MixerSettings, Tempo};
+pub use daw_domain::{Pattern, PatternError};
 
 /// Applied after raw voice summing and before the master envelope.
 pub const SAMPLER_HEADROOM: f32 = 1.0 / SAMPLER_VOICES as f32;
@@ -152,6 +158,7 @@ pub struct AudioEngine {
     ramp: Option<GainRamp>,
     sampler: Option<Sampler>,
     mixer: Option<Mixer>,
+    sequencer: Option<Sequencer>,
 }
 
 struct RenderProgress {
@@ -182,6 +189,7 @@ impl AudioEngine {
             ramp: None,
             sampler: None,
             mixer: None,
+            sequencer: None,
         }
     }
 
@@ -247,6 +255,61 @@ impl AudioEngine {
             .as_ref()
             .zip(self.sampler.as_ref())
             .map(|(mixer, sampler)| mixer.snapshot(sampler))
+    }
+
+    /// Explicit opt-in sequencing. Bank ownership, voice pool and mixing are shared
+    /// with the manual mixed sampler; no implicit Play or source trigger.
+    pub fn with_sequenced_sampler(
+        bank: SampleBank,
+        tempo: Tempo,
+        settings: MixerSettings,
+        pattern: Pattern,
+    ) -> Self {
+        let rate = bank.config().sample_rate();
+        let mut engine = Self::with_mixed_sampler(bank, tempo, settings);
+        engine.sequencer = Some(Sequencer::new(rate, pattern));
+        engine
+    }
+
+    pub fn sequencer_snapshot(&self) -> Option<SequencerSnapshot> {
+        self.sequencer.as_ref().map(Sequencer::snapshot)
+    }
+
+    /// Direct processing-owner edit, applied atomically between renders. Service
+    /// queueing/document coordination are introduced separately in stage 11.3.
+    pub fn set_pattern(&mut self, pattern: Pattern) -> Result<(), SequencerControlError> {
+        self.sequencer
+            .as_mut()
+            .ok_or(SequencerControlError::NoSequencer)?
+            .pattern = pattern;
+        Ok(())
+    }
+
+    pub fn set_pattern_step(
+        &mut self,
+        row: usize,
+        step: usize,
+        enabled: bool,
+    ) -> Result<(), SequencerControlError> {
+        self.sequencer
+            .as_mut()
+            .ok_or(SequencerControlError::NoSequencer)?
+            .pattern
+            .set_step(row, step, enabled)?;
+        Ok(())
+    }
+
+    pub fn set_pattern_row_slot(
+        &mut self,
+        row: usize,
+        slot: usize,
+    ) -> Result<(), SequencerControlError> {
+        self.sequencer
+            .as_mut()
+            .ok_or(SequencerControlError::NoSequencer)?
+            .pattern
+            .set_row_slot(row, slot)?;
+        Ok(())
     }
 
     /// Direct processing-owner edit; service queuing and document coordination follow in 10.3.
@@ -324,6 +387,9 @@ impl AudioEngine {
         }
         if let Some(sampler) = &mut self.sampler {
             sampler.clear_voices();
+        }
+        if let Some(sequencer) = &mut self.sequencer {
+            sequencer.reset();
         }
     }
 
@@ -426,6 +492,11 @@ impl AudioEngine {
                 .checked_add(playing_frames)
                 .ok_or(RenderError::CounterOverflow)?;
         }
+        if self.state.requested_transport == TransportState::Playing
+            && let Some(sequencer) = &self.sequencer
+        {
+            sequencer.validate_render(playing_frames, self.state.tempo)?;
+        }
         Ok(RenderProgress {
             channels,
             device_frames,
@@ -439,6 +510,54 @@ impl AudioEngine {
     /// into scratch chunks. Does not apply commands, advance clocks or mutate PCM.
     pub fn validate_render(&self, samples: usize) -> Result<(), RenderError> {
         self.render_progress(samples).map(|_| ())
+    }
+
+    fn render_sequenced(&mut self, output: &mut [f32]) -> Result<(), RenderError> {
+        let sequencer = self.sequencer.as_mut().expect("sequenced mode");
+        let sampler = self.sampler.as_mut().expect("sequenced sampler");
+        let mixer = self.mixer.as_mut().expect("sequenced mix");
+        let master = self.ramp.as_mut().expect("sequenced master ramp");
+        let channels = usize::from(self.state.config.channels());
+        let frames = output.len() / channels;
+        let mut offset = 0;
+        while offset < frames {
+            while let Some(boundary) = sequencer.pop_boundary() {
+                let pattern = sequencer.pattern;
+                for event in pattern
+                    .events_at(boundary.step)
+                    .expect("valid boundary step")
+                {
+                    let outcome = sampler
+                        .trigger(event.slot(), Gain::new(1.0).unwrap())
+                        .map_err(|error| match error {
+                            TriggerError::MissingAsset => SamplerTriggerError::MissingAsset,
+                            TriggerError::PoolFull => SamplerTriggerError::PoolFull,
+                            TriggerError::InvalidSlot => unreachable!("validated pattern slot"),
+                        });
+                    if let Ok(voice) = outcome {
+                        mixer.capture_route(voice, event.slot());
+                    }
+                    sequencer.record_event(SequencerEvent {
+                        boundary,
+                        row: event.row(),
+                        slot: event.slot(),
+                        device_frame: self.state.device_frames + offset as u64,
+                        outcome,
+                    });
+                }
+            }
+            let count = sequencer
+                .frames_until_boundary(self.state.tempo)
+                .min((frames - offset) as u64) as usize;
+            mixer.render(
+                sampler,
+                &mut output[offset * channels..(offset + count) * channels],
+                master,
+            )?;
+            sequencer.advance(count as u64, self.state.tempo);
+            offset += count;
+        }
+        Ok(())
     }
 
     /// Writes interleaved audio; errors silence output and preserve render state.
@@ -460,7 +579,9 @@ impl AudioEngine {
         // failure leaves the full output silent and the engine envelope unchanged.
         if self.state.transport == TransportState::Playing {
             let playing_output = &mut output[..playing_frames as usize * channels];
-            if let Some(sampler) = &mut self.sampler {
+            if self.sequencer.is_some() && !releasing {
+                self.render_sequenced(playing_output)?;
+            } else if let Some(sampler) = &mut self.sampler {
                 if let Some(mixer) = &mut self.mixer {
                     mixer.render(
                         sampler,
@@ -505,13 +626,22 @@ mod tests {
     #[test]
     fn overflow_silences_output_and_preserves_both_counters() {
         for (device_frames, transport_frames) in [(u64::MAX, 0), (0, u64::MAX)] {
-            for signal in [0, 1, 2, 3, 4] {
+            for signal in [0, 1, 2, 3, 4, 5] {
                 let config = EngineConfig::new(48_000, 2).unwrap();
                 let mut engine = if signal >= 3 {
                     let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
                     slots[0] = Some(SampleBuffer::new(config, vec![0.5; 200]).unwrap());
                     let bank = SampleBank::new(config, slots).unwrap();
-                    if signal == 4 {
+                    if signal == 5 {
+                        let mut pattern = Pattern::default();
+                        pattern.set_step(0, 0, true).unwrap();
+                        AudioEngine::with_sequenced_sampler(
+                            bank,
+                            Tempo::default(),
+                            MixerSettings::default(),
+                            pattern,
+                        )
+                    } else if signal == 4 {
                         AudioEngine::with_mixed_sampler(
                             bank,
                             Tempo::default(),
@@ -539,6 +669,7 @@ mod tests {
                 let before_ramp = engine.ramp;
                 let before_sampler = engine.sampler().map(Sampler::snapshot);
                 let before_mixer = engine.mixer_snapshot();
+                let before_sequencer = engine.sequencer_snapshot();
                 assert_eq!(engine.validate_render(2), Err(RenderError::CounterOverflow));
                 assert_eq!(engine.snapshot(), before);
                 let mut output = [1.0; 2];
@@ -552,6 +683,7 @@ mod tests {
                 assert_eq!(engine.ramp, before_ramp);
                 assert_eq!(engine.sampler().map(Sampler::snapshot), before_sampler);
                 assert_eq!(engine.mixer_snapshot(), before_mixer);
+                assert_eq!(engine.sequencer_snapshot(), before_sequencer);
                 assert_eq!(engine.render_interleaved(&mut []), Ok(()));
                 assert_eq!(engine.sine, before_sine);
             }

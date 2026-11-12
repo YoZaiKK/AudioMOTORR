@@ -5,6 +5,12 @@ use std::{fmt, num::NonZeroU64};
 mod mixer;
 pub use mixer::{MIXER_CHANNELS, MixerChannel, MixerError, MixerSettings, SAMPLE_SLOTS};
 
+mod pattern;
+pub use pattern::{
+    BEATS_PER_PATTERN, PATTERN_ROWS, PATTERN_STEPS, Pattern, PatternError, STEPS_PER_BEAT,
+    StepEvent,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DomainError {
     InvalidProjectId,
@@ -73,6 +79,7 @@ pub struct Project {
     title: String,
     tempo: Tempo,
     mixer: MixerSettings,
+    pattern: Pattern,
 }
 
 impl Project {
@@ -86,6 +93,7 @@ impl Project {
             title: title.to_owned(),
             tempo,
             mixer: MixerSettings::default(),
+            pattern: Pattern::default(),
         })
     }
 
@@ -112,6 +120,14 @@ impl Project {
     pub fn mixer_mut(&mut self) -> &mut MixerSettings {
         &mut self.mixer
     }
+
+    pub const fn pattern(&self) -> &Pattern {
+        &self.pattern
+    }
+
+    pub fn pattern_mut(&mut self) -> &mut Pattern {
+        &mut self.pattern
+    }
 }
 
 impl Default for Project {
@@ -121,6 +137,7 @@ impl Default for Project {
             title: "Proyecto sin título".to_owned(),
             tempo: Tempo::default(),
             mixer: MixerSettings::default(),
+            pattern: Pattern::default(),
         }
     }
 }
