@@ -66,6 +66,31 @@ it("uses Tauri command names, camelCase arguments and the snapshot event", async
     slot: 3,
     gain: 0.5,
   });
+  await desktopClient.mixer();
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "get_mixer_settings",
+    undefined,
+  );
+  await desktopClient.mixerChannel(3, 0.25, -1, true);
+  expect(transport.invoke).toHaveBeenLastCalledWith("mixer_set_channel", {
+    channel: 3,
+    gain: 0.25,
+    pan: -1,
+    muted: true,
+  });
+  await desktopClient.mixerRoute(15, 2);
+  expect(transport.invoke).toHaveBeenLastCalledWith("mixer_set_route", {
+    slot: 15,
+    channel: 2,
+  });
+  await desktopClient.initializeMixedSampler(
+    "9007199254740995",
+    "headphones-id",
+  );
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "initialize_mixed_sampler",
+    { preparationId: "9007199254740995", deviceId: "headphones-id" },
+  );
 });
 it("preserves structured errors and normalizes string IPC rejections", async () => {
   transport.invoke.mockRejectedValueOnce({

@@ -9,6 +9,8 @@ import type {
   CommandAcceptedDto,
   PreparationSnapshotDto,
   SampleFileDto,
+  MixerSettingsDto,
+  MixerEditDto,
 } from "./generated/api";
 
 export function apiError(error: unknown): ApiError {
@@ -45,6 +47,11 @@ export const desktopClient = {
   available: isTauri,
   appInfo: () => call<AppInfoDto>("get_app_info"),
   project: () => call<ProjectSummaryDto>("get_project_summary"),
+  mixer: () => call<MixerSettingsDto>("get_mixer_settings"),
+  mixerChannel: (channel: number, gain: number, pan: number, muted: boolean) =>
+    call<MixerEditDto>("mixer_set_channel", { channel, gain, pan, muted }),
+  mixerRoute: (slot: number, channel: number) =>
+    call<MixerEditDto>("mixer_set_route", { slot, channel }),
   devices: () => call<OutputDeviceDto[]>("list_output_devices"),
   initialize: (
     deviceId: string | null,
@@ -76,6 +83,11 @@ export const desktopClient = {
     }),
   initializeSampler: (preparationId: string, deviceId: string | null) =>
     call<ServiceSnapshotDto>("initialize_sampler", { preparationId, deviceId }),
+  initializeMixedSampler: (preparationId: string, deviceId: string | null) =>
+    call<ServiceSnapshotDto>("initialize_mixed_sampler", {
+      preparationId,
+      deviceId,
+    }),
   triggerSample: (slot: number, gain: number) =>
     call<CommandAcceptedDto>("trigger_sample", { slot, gain }),
   async snapshots(callback: (snapshot: ServiceSnapshotDto) => void) {

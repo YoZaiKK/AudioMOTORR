@@ -11,6 +11,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   PreparationSnapshotDto,
   ServiceSnapshotDto,
+  MixerSettingsDto,
+  MixerEditDto,
 } from "../shared/api/generated/api";
 
 const client = vi.hoisted(() => ({
@@ -32,6 +34,10 @@ const client = vi.hoisted(() => ({
   cancelPreparation: vi.fn(),
   initializeSampler: vi.fn(),
   triggerSample: vi.fn(),
+  mixer: vi.fn(),
+  mixerChannel: vi.fn(),
+  mixerRoute: vi.fn(),
+  initializeMixedSampler: vi.fn(),
 }));
 vi.mock("../shared/api/desktop-client", async (original) => ({
   ...(await original<typeof import("../shared/api/desktop-client")>()),
@@ -49,6 +55,7 @@ const empty: ServiceSnapshotDto = {
   lastAppliedCommand: null,
   error: null,
   sampler: null,
+  mixer: null,
 };
 const ready: ServiceSnapshotDto = {
   ...empty,
@@ -91,6 +98,42 @@ const samplerReady: ServiceSnapshotDto = {
     lastTrigger: null,
   },
 };
+const mixerSettings: MixerSettingsDto = {
+  channels: [
+    { gain: 1, pan: 0, muted: false },
+    { gain: 1, pan: 0, muted: false },
+    { gain: 1, pan: 0, muted: false },
+    { gain: 1, pan: 0, muted: false },
+  ],
+  routes: [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3],
+};
+const mixedReady: ServiceSnapshotDto = {
+  ...samplerReady,
+  mixer: {
+    settings: mixerSettings,
+    channels: [0, 1, 2, 3].map(() => ({
+      effectiveGain: 1,
+      left: 1,
+      right: 1,
+      gainRemainingFrames: 0,
+      panRemainingFrames: 0,
+    })) as NonNullable<ServiceSnapshotDto["mixer"]>["channels"],
+    voiceChannels: Array(16).fill(null) as NonNullable<
+      ServiceSnapshotDto["mixer"]
+    >["voiceChannels"],
+    meters: {
+      sequence: "0",
+      frames: "0",
+      channels: [
+        { left: 0, right: 0 },
+        { left: 0, right: 0 },
+        { left: 0, right: 0 },
+        { left: 0, right: 0 },
+      ],
+      master: { left: 0, right: 0 },
+    },
+  },
+};
 function emit(value: ServiceSnapshotDto) {
   act(() => {
     for (const listener of listeners) listener(value);
@@ -112,6 +155,7 @@ beforeEach(() => {
   });
   client.devices.mockResolvedValue([]);
   client.snapshot.mockResolvedValue(empty);
+  client.mixer.mockResolvedValue(mixerSettings);
   client.preparation.mockResolvedValue({
     sequence: "0",
     preparationId: null,
@@ -130,6 +174,488 @@ beforeEach(() => {
   });
 });
 afterEach(cleanup);
+
+describe("four-channel mixer", () => {
+  it("ignores a superseded startup settings error after a successful refresh", async () => {
+    let startupError!: (reason: unknown) => void;
+    client.mixer.mockImplementationOnce(
+      () =>
+        new Promise((_resolve, reject) => {
+          startupError = reject;
+        }),
+    );
+    const refreshed = structuredClone(mixerSettings);
+    refreshed.channels[0].gain = 0.125;
+    client.mixer.mockResolvedValueOnce(refreshed);
+    render(<App />);
+    await connected();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Consultar ajustes de mezcla" }),
+    );
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement).value,
+      ).toBe("0.125"),
+    );
+    await act(async () =>
+      startupError({
+        code: "timeout",
+        message: "Superseded startup query",
+        details: null,
+      }),
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByTestId("mixer-selected-0").textContent).toContain(
+      "G 0.125",
+    );
+  });
+
+  it("ignores a startup settings reply superseded by refresh and an accepted edit", async () => {
+    let startupReply!: (settings: MixerSettingsDto) => void;
+    client.mixer.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          startupReply = resolve;
+        }),
+    );
+    const refreshed = structuredClone(mixerSettings);
+    refreshed.channels[0].gain = 0.25;
+    client.mixer.mockResolvedValueOnce(refreshed);
+    const edited = structuredClone(refreshed);
+    edited.channels[0].gain = 0.5;
+    client.mixerChannel.mockResolvedValue({ settings: edited, accepted: null });
+    render(<App />);
+    await connected();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Consultar ajustes de mezcla" }),
+    );
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement).value,
+      ).toBe("0.25"),
+    );
+    fireEvent.change(screen.getByLabelText("Ganancia · Canal 1"), {
+      target: { value: "0.5" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Aplicar canal 1" }));
+    await waitFor(() =>
+      expect(client.mixerChannel).toHaveBeenCalledWith(0, 0.5, 0, false),
+    );
+    await screen.findByTestId("mixer-outcome");
+    await act(async () => startupReply(mixerSettings));
+    expect(screen.getByTestId("mixer-selected-0").textContent).toContain(
+      "G 0.5",
+    );
+    expect(
+      (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement).value,
+    ).toBe("0.5");
+  });
+
+  it("keeps an offline receipt truthful after explicit mixed initialization", async () => {
+    client.preparation.mockResolvedValueOnce(prepared).mockResolvedValue({
+      ...prepared,
+      sequence: "3",
+      state: "idle",
+      preparationId: null,
+    });
+    const selected = structuredClone(mixerSettings);
+    selected.channels[0].gain = 0.25;
+    client.mixerChannel.mockResolvedValue({
+      settings: selected,
+      accepted: null,
+    });
+    const installed = structuredClone(mixedReady);
+    installed.mixer!.settings = selected;
+    installed.mixer!.channels[0].effectiveGain = 0.25;
+    client.initializeMixedSampler.mockResolvedValue(installed);
+    render(<App />);
+    await connected();
+    fireEvent.change(screen.getByLabelText("Ganancia · Canal 1"), {
+      target: { value: "0.25" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Aplicar canal 1" }));
+    await screen.findByTestId("mixer-outcome");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Inicializar con mezcla" }),
+    );
+    await screen.findByText("Sampler · mezcla de cuatro canales · 16 voces");
+    expect(screen.getByTestId("mixer-outcome").textContent).not.toContain(
+      "audio sin inicializar",
+    );
+    expect(screen.getByTestId("mixer-outcome").textContent).not.toContain(
+      "próxima sesión",
+    );
+    expect(screen.getByTestId("mixer-applied-0").textContent).toContain(
+      "G 0.250",
+    );
+    expect(client.play).not.toHaveBeenCalled();
+  });
+
+  it("waits for selected settings and still loads them when device enumeration fails", async () => {
+    let resolve!: (settings: MixerSettingsDto) => void;
+    client.mixer.mockImplementation(
+      () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    );
+    client.devices.mockRejectedValue({
+      code: "streamError",
+      message: "Devices unavailable",
+      details: null,
+    });
+    render(<App />);
+    await screen.findByRole("alert");
+    expect(
+      (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement)
+        .disabled,
+    ).toBe(true);
+    const settings = structuredClone(mixerSettings);
+    settings.channels[0].gain = 0.125;
+    await act(async () => resolve(settings));
+    expect(
+      (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement).value,
+    ).toBe("0.125");
+    expect(
+      (
+        screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement
+      ).checkValidity(),
+    ).toBe(true);
+    expect(
+      (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement)
+        .disabled,
+    ).toBe(false);
+    expect(client.mixerChannel).not.toHaveBeenCalled();
+  });
+
+  it("never revives an unconfirmed edit after session loss and a later watermark", async () => {
+    client.snapshot.mockResolvedValue(mixedReady);
+    const selected = structuredClone(mixerSettings);
+    selected.routes[0] = 3;
+    client.mixerRoute.mockResolvedValue({
+      settings: selected,
+      accepted: { commandId: "17" },
+    });
+    render(<App />);
+    await connected();
+    fireEvent.click(screen.getByText("Rutas de los 16 slots"));
+    fireEvent.change(screen.getByLabelText("Ruta · slot 0"), {
+      target: { value: "3" },
+    });
+    await screen.findByText(/Cambio 17: aceptado/);
+    emit({
+      ...empty,
+      sequence: "2",
+      state: "error",
+      error: { code: "streamError", message: "Device lost", details: null },
+    });
+    expect(screen.getByTestId("mixer-outcome").textContent).toContain(
+      "aplicación desconocida",
+    );
+    emit({ ...mixedReady, sequence: "3", lastAppliedCommand: "18" });
+    expect(screen.getByTestId("mixer-outcome").textContent).toContain(
+      "aplicación desconocida",
+    );
+    expect(screen.getByTestId("mixer-selected-0").textContent).toContain("G 1");
+    expect(
+      (screen.getByLabelText("Ruta · slot 0") as HTMLSelectElement).value,
+    ).toBe("3");
+  });
+
+  it("refreshes a consumed bank after mixed initialization fails and preserves selection", async () => {
+    client.preparation.mockResolvedValueOnce(prepared).mockResolvedValue({
+      ...prepared,
+      sequence: "3",
+      state: "idle",
+      preparationId: null,
+      occupiedSlots: 0,
+    });
+    client.initializeMixedSampler.mockRejectedValue({
+      code: "deviceAbsent",
+      message: "Headphones missing",
+      details: null,
+    });
+    render(<App />);
+    await connected();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Inicializar con mezcla" }),
+    );
+    await screen.findByRole("alert");
+    expect(screen.getByText("Sin banco preparado")).toBeTruthy();
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Inicializar con mezcla",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(screen.getByTestId("mixer-selected-0").textContent).toContain("G 1");
+    expect(client.play).not.toHaveBeenCalled();
+    expect(client.initializeSampler).not.toHaveBeenCalled();
+  });
+
+  it("selects offline channels and routes without inventing commands or opening audio", async () => {
+    const selected = structuredClone(mixerSettings);
+    selected.channels[0] = { gain: 0.25, pan: -0.5, muted: true };
+    client.mixerChannel.mockResolvedValue({
+      settings: selected,
+      accepted: null,
+    });
+    render(<App />);
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement)
+          .disabled,
+      ).toBe(false),
+    );
+    fireEvent.change(screen.getByLabelText("Ganancia · Canal 1"), {
+      target: { value: "" },
+    });
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Aplicar canal 1",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    fireEvent.change(screen.getByLabelText("Ganancia · Canal 1"), {
+      target: { value: "0.25" },
+    });
+    fireEvent.change(screen.getByLabelText("Pan · Canal 1"), {
+      target: { value: "-0.5" },
+    });
+    fireEvent.click(screen.getByLabelText("Mute · Canal 1"));
+    fireEvent.click(screen.getByRole("button", { name: "Aplicar canal 1" }));
+    await screen.findByText(
+      /Selección de mezcla actualizada sin enviar comandos de audio/,
+    );
+    expect(client.mixerChannel).toHaveBeenCalledWith(0, 0.25, -0.5, true);
+    expect(screen.getByTestId("mixer-selected-0").textContent).toContain(
+      "G 0.25 · P -0.5 · mute",
+    );
+    expect(screen.getByTestId("mixer-applied-0").textContent).toBe(
+      "Sin mezcla aplicada",
+    );
+    const routed = structuredClone(selected);
+    routed.routes[15] = 1;
+    client.mixerRoute.mockResolvedValue({ settings: routed, accepted: null });
+    fireEvent.click(screen.getByText("Rutas de los 16 slots"));
+    fireEvent.change(screen.getByLabelText("Ruta · slot 15"), {
+      target: { value: "1" },
+    });
+    await waitFor(() => expect(client.mixerRoute).toHaveBeenCalledWith(15, 1));
+    expect(client.initializeMixedSampler).not.toHaveBeenCalled();
+    expect(client.initialize).not.toHaveBeenCalled();
+    expect(client.play).not.toHaveBeenCalled();
+    expect(screen.queryByRole("meter")).toBeNull();
+  });
+
+  it("keeps selected settings separate until an ordered observation processes a large command ID", async () => {
+    client.snapshot.mockResolvedValue(mixedReady);
+    const selected = structuredClone(mixerSettings);
+    selected.channels[0].gain = 0.5;
+    client.mixerChannel.mockResolvedValue({
+      settings: selected,
+      accepted: { commandId: "9007199254740993" },
+    });
+    render(<App />);
+    await connected();
+    fireEvent.change(screen.getByLabelText("Ganancia · Canal 1"), {
+      target: { value: "0.5" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Aplicar canal 1" }));
+    await screen.findByText(/Cambio 9007199254740993: aceptado/);
+    expect(screen.getByTestId("mixer-applied-0").textContent).toContain(
+      "G 1.000",
+    );
+    const applied = structuredClone(mixedReady);
+    applied.sequence = "9007199254740993";
+    applied.lastAppliedCommand = "9007199254740993";
+    applied.mixer!.settings = selected;
+    applied.mixer!.channels[0] = {
+      effectiveGain: 0.75,
+      left: 1,
+      right: 1,
+      gainRemainingFrames: 120,
+      panRemainingFrames: 0,
+    };
+    emit(applied);
+    expect(screen.getByTestId("mixer-outcome").textContent).toContain(
+      "procesado; consulta valores y rampas observados",
+    );
+    expect(screen.getByTestId("mixer-applied-0").textContent).toContain(
+      "G 0.750",
+    );
+    expect(screen.getByTestId("mixer-applied-0").textContent).toContain(
+      "rampa G 120",
+    );
+    emit({ ...mixedReady, sequence: "9007199254740992" });
+    expect(screen.getByTestId("mixer-applied-0").textContent).toContain(
+      "G 0.750",
+    );
+    expect(screen.getByTestId("mixer-selected-0").textContent).toContain(
+      "G 0.5",
+    );
+  });
+
+  it.each(["queueFull", "timeout"])(
+    "retains the document and retry draft after %s",
+    async (code) => {
+      client.snapshot.mockResolvedValue(mixedReady);
+      client.mixerChannel.mockRejectedValue({
+        code,
+        message: "Change failed",
+        details: null,
+      });
+      render(<App />);
+      await connected();
+      fireEvent.change(screen.getByLabelText("Pan · Canal 2"), {
+        target: { value: "0.5" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Aplicar canal 2" }));
+      await screen.findByRole("alert");
+      expect(screen.getByTestId("mixer-selected-1").textContent).toContain(
+        "P 0",
+      );
+      expect(
+        (screen.getByLabelText("Pan · Canal 2") as HTMLInputElement).value,
+      ).toBe("0.5");
+      expect(screen.queryByTestId("mixer-outcome")).toBeNull();
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Aplicar canal 2",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false);
+    },
+  );
+
+  it.each([false, true])(
+    "handles observations before the receipt, including a lost session (%s)",
+    async (lost) => {
+      client.snapshot.mockResolvedValue(mixedReady);
+      let resolve!: (edit: MixerEditDto) => void;
+      client.mixerRoute.mockImplementation(
+        () =>
+          new Promise((done) => {
+            resolve = done;
+          }),
+      );
+      render(<App />);
+      await connected();
+      fireEvent.click(screen.getByText("Rutas de los 16 slots"));
+      fireEvent.change(screen.getByLabelText("Ruta · slot 0"), {
+        target: { value: "3" },
+      });
+      const selected = structuredClone(mixerSettings);
+      selected.routes[0] = 3;
+      if (lost) emit({ ...empty, sequence: "2" });
+      emit({
+        ...mixedReady,
+        sequence: "3",
+        lastAppliedCommand: "9007199254740995",
+      });
+      await act(async () =>
+        resolve({
+          settings: selected,
+          accepted: { commandId: "9007199254740993" },
+        }),
+      );
+      expect(screen.getByTestId("mixer-outcome").textContent).toContain(
+        lost ? "aplicación desconocida" : "procesado;",
+      );
+      expect(
+        (screen.getByLabelText("Ruta · slot 0") as HTMLSelectElement).value,
+      ).toBe("3");
+      expect(screen.getAllByText("Observada: canal 1").length).toBe(4);
+    },
+  );
+
+  it("shows actual whole-window peaks and omits a nonexistent mono right channel", async () => {
+    client.snapshot.mockResolvedValue(mixedReady);
+    render(<App />);
+    await connected();
+    expect(screen.queryByRole("meter")).toBeNull();
+    const measured = structuredClone(mixedReady);
+    measured.sequence = "2";
+    measured.mixer!.meters = {
+      ...measured.mixer!.meters,
+      sequence: "9007199254740993",
+      frames: "1001",
+      master: { left: 0.25, right: 0.125 },
+    };
+    measured.mixer!.meters.channels[0] = { left: 0.0625, right: 0.03125 };
+    emit(measured);
+    expect(screen.getAllByRole("meter")).toHaveLength(10);
+    expect(
+      screen.getByRole("meter", { name: "Canal 1 L" }).getAttribute("value"),
+    ).toBe("0.0625");
+    expect(
+      screen.getByRole("meter", { name: "Master R" }).getAttribute("value"),
+    ).toBe("0.125");
+    expect(
+      screen.getByText(/1001 frames · secuencia 9007199254740993/),
+    ).toBeTruthy();
+    const mono = structuredClone(measured);
+    mono.sequence = "3";
+    mono.mixer!.meters.master.right = null;
+    mono.mixer!.meters.channels.forEach((peak) => {
+      peak.right = null;
+    });
+    mono.engine!.channels = 1;
+    emit(mono);
+    expect(screen.getAllByRole("meter")).toHaveLength(5);
+    expect(screen.getByRole("meter", { name: "Master mono" })).toBeTruthy();
+    expect(screen.queryByRole("meter", { name: "Master R" })).toBeNull();
+    emit({ ...empty, sequence: "4" });
+    expect(screen.queryByRole("meter")).toBeNull();
+  });
+
+  it("disables editing in a legacy session and browser preview", async () => {
+    client.snapshot.mockResolvedValue(samplerReady);
+    const first = render(<App />);
+    await connected();
+    expect(
+      (screen.getByLabelText("Ganancia · Canal 1") as HTMLInputElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByLabelText("Ruta · slot 0") as HTMLSelectElement).disabled,
+    ).toBe(true);
+    first.unmount();
+    vi.clearAllMocks();
+    client.available.mockReturnValue(false);
+    render(<App />);
+    expect(
+      (screen.getByLabelText("Pan · Canal 4") as HTMLInputElement).disabled,
+    ).toBe(true);
+    expect(client.mixer).not.toHaveBeenCalled();
+    expect(client.mixerChannel).not.toHaveBeenCalled();
+  });
+
+  it("explicitly initializes a prepared mixed session without Play and refreshes the consumed bank", async () => {
+    client.preparation.mockResolvedValueOnce(prepared).mockResolvedValue({
+      ...prepared,
+      sequence: "3",
+      state: "idle",
+      preparationId: null,
+      occupiedSlots: 0,
+    });
+    client.initializeMixedSampler.mockResolvedValue(mixedReady);
+    render(<App />);
+    await connected();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Inicializar con mezcla" }),
+    );
+    await screen.findByText("Sampler · mezcla de cuatro canales · 16 voces");
+    expect(client.initializeMixedSampler).toHaveBeenCalledWith("1", null);
+    expect(client.initializeSampler).not.toHaveBeenCalled();
+    expect(client.play).not.toHaveBeenCalled();
+    expect(client.preparation).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("Sin banco preparado")).toBeTruthy();
+  });
+});
 
 describe("audio interface", () => {
   it("still queries and discards a prepared bank when device enumeration fails", async () => {

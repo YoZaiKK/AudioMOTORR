@@ -1,32 +1,42 @@
 # Continuidad del proyecto
 
-Actualizado el 2026-11-10. Etapas 1–8 completadas; etapa 8 publicada en 1e6bca8:
-senoide nativa explícita, rampas de 5 ms, volumen y diagnóstico release. Ambos
-jobs de CI correctos en run 42524752652, inspeccionado para ese SHA exacto.
-El [reporte de etapa 8](etapa-8.md) registra su verificación y publicación/CI.
-Estado actual: incrementos 9.1–9.2 completados; kernel 9.2 publicado en 7acc1db
-con ambos jobs CI correctos en run 42530699397. Hay banco fijo y 16 voces raw en
-motor. 9.4.a integra AudioEngine con transporte/rampas/headroom; sesiones de
-audio conectadas en 9.4.b con pruebas de adaptador. 9.4.c añade Application/DTO/IPC/UI
-con mocks; 9.4.d audita/cierra integración local y corrige recuperación/polling.
-9.5.b registra seis mediciones Realtek/WASAPI correctas; confirmación de escucha
-y cierre completo/CI siguen pendientes.
-Ver [reporte actual](etapa-9-voces.md) para SHA completo, enlaces de jobs y pruebas
-locales. La etapa 9 completa sigue abierta. 9.3.b carga recursos WAV individuales;
-9.3.c prepara bancos con permiso compartido y presupuesto agregado; 9.3.d verifica
-fallos/cancelación/cierre entre hilos y junto a la entrega; 9.3.e verifica fixtures
-WAV → banco → Sampler offline y matriz de aceptación. 9.3.f cierra preparación
-localmente. 9.4.a integra motor y 9.4.b conecta sesiones manual/CPAL y outcomes,
-sin abrir hardware en pruebas. 9.4.c añade preparación/cancelación en worker y
-controles explícitos. 9.4.d cierra integración local; 9.5.a entrega diagnósticos
-sampler y benchmarks sin dispositivo. 9.5.b registra mediciones nativas; falta
-confirmación auditiva y consolidación 9.5.c. Ver [reporte actual](etapa-9-medicion-nativa.md).
-La base vigente es b0ba589 (Update config), más cambios locales de trazas/fixture;
-su CI remota no se ha
-inspeccionado aquí. Ver [revisión de configuración](revision-readme-configuracion.md).
-El manifiesto 9.3 se conserva como histórico, sin coincidir con este nuevo motor.
-El plan actual es [etapas 7–13](plan-etapas-7-13.md).
-Las referencias anteriores se conservan como historial fechado.
+Actualizado el 2026-11-11. **Etapas 1–9 completadas dentro de su alcance**.
+El [cierre del sampler](cierre-etapa-9.md) reúne preparación WAV, motor/servicio,
+aplicación/IPC/UI y diagnósticos. La implementación está publicada en `4dc2c6c`,
+con CI Linux/Windows correcta en run 42896571891, inspeccionada mediante la API
+oficial. La [auditoría 9.5.c](auditoria-cierre-9.5c.md) verifica fuentes y artefactos;
+el [manifiesto](evidencia-cierre-9.5c.json) conserva las repeticiones y la
+confirmación del usuario «Si se escucha» tras corregir la conexión de audífonos.
+Las pruebas físicas no realizadas se mantienen como límites.
+
+**10.1 especificado:** [contrato de mezcla](../docs/mixer-contract.md).
+**Núcleo 10.2 implementado localmente:** modelo/DSP, rutas capturadas, rampas,
+picos por render, fixtures y memoria instrumentada; ver
+[reporte](etapa-10-mezclador-motor.md) y [manifiesto](evidencia-mezclador-10.2.json).
+**Servicio 10.3.a implementado localmente:** sesiones mezcladas, controles FIFO
+y ventanas de picos por callback; [reporte](etapa-10-sesiones-mezclador.md) y
+[manifiesto](evidencia-sesiones-mezclador-10.3a.json).
+**Aplicación 10.3.b implementada localmente:** ajustes seleccionados, aceptación
+explícita y estado aplicado diferenciados; instalación con ajustes actuales.
+[Reporte](etapa-10-aplicacion-mezclador.md) y [manifiesto](evidencia-aplicacion-mezclador-10.3b.json).
+**Desktop 10.3.c implementado localmente:** DTO/IPC/ACL, cuatro tiras, rutas y niveles.
+[Reporte](etapa-10-desktop-mezclador.md) y [manifiesto](evidencia-desktop-mezclador-10.3c.json).
+**Aceptación 10.3.d completada localmente:** referencias de cuatro WAV/canales,
+lifecycle, pool y correcciones de UI; [reporte](cierre-integracion-mezclador-10.3d.md)
+y [manifiesto](evidencia-integracion-mezclador-10.3d.json).
+**Diagnósticos 10.4.a implementados localmente:** mixer-bench, mixer-native-check
+y protocolo; [reporte](etapa-10-diagnosticos-mezclador.md),
+[manifiesto](evidencia-diagnosticos-mezclador-10.4a.json).
+**Matriz nativa 10.4.b medida:** seis casos/reaperturas Speakers Realtek;
+[reporte](etapa-10-medicion-nativa-mezclador.md), [evidencia](evidencia-nativa-mezclador-10.4b.json).
+**Auditoría local 10.4.c completada:** 136 fuentes y 21 artefactos verificados;
+[reporte](auditoria-cierre-mezclador-10.4c.md), [manifiesto](evidencia-auditoria-mezclador-10.4c.json)
+y [entrega preparada](entrega-mezclador-etapa-10.md).
+**Pendiente:** respuesta auditiva y entrega/CI del SHA nuevo antes del cierre.
+Ver [plan de ejecución](plan-siguientes-pasos.md) y [plan general](plan-etapas-7-13.md).
+El código y la documentación nuevos son locales, sin commit/push ni CI propia.
+Los hashes de etapa 9 no se atribuyen a las modificaciones del mezclador 10.2.
+Los reportes anteriores conservan sus resultados y estado de publicación fechados.
 
 La etapa 6 añade documentación técnica y CI sin cambiar el producto. Consultar
 [cierre y auditoría](cierre-etapa-6.md), [checklist](checklist.md) y [detalles](detalles.md).
@@ -44,9 +54,14 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Incorporar la confirmación auditiva humana solicitada y consolidar 9.5.c:
-revisar aceptación, límites y CI del SHA que se publique. No se da la escucha por
-confirmada desde probes; no se ha hecho commit/push de este trabajo.
+La matriz **10.4.b** ya pasó con seis casos/reaperturas Speakers Realtek.
+La auditoría local de **10.4.c** está completada. Registrar respuesta auditiva
+y entregar la revisión preparada para verificar su CI,
+conforme al [protocolo](../docs/mixer-native-verification.md). Diagnósticos 10.4.a listos. La aceptación local 10.3.d está completada. [Desktop 10.3.c](etapa-10-desktop-mezclador.md) ya
+expone selección/recibos/observación, cuatro tiras, rutas y niveles. Etapa 10
+sigue abierta hasta la comprobación nativa y CI correspondiente de 10.4.
+
+## Evidencia histórica anterior al cierre
 
 9.5.b ya ejecutó seis casos release Realtek/WASAPI a 48000 Hz, dos canales f32,
 con entrada mono/estéreo distinta y 0/1/16 voces. Cero asignaciones/liberaciones,

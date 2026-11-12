@@ -20,13 +20,15 @@ fn main() -> ExitCode {
 
 const SAMPLER_HELP: &str = "Sampler diagnostics (release only):\n       daw-cli sampler-bench [--block-size 1..4096] [--voices 0|1|16] [--iterations 1..1000000] [--channels 1|2]\n       daw-cli sampler-native-check --input PATH --device ID [--sample-rate 100..192000] [--channels 1|2] [--voices 0|1|16] [--seconds 1..5]\nSampler bench defaults: all blocks 1/127/256/4096 and voices 0/1/16, 2000 iterations, 48000 Hz stereo synthetic distinct-channel PCM.\n--features offline-diagnostics enables device-free diagnostics without CPAL; --features rt-diagnostics also enables native audio.\nNative sampler requires an explicit device and WAV lasting seconds+4 through 15 seconds. Processing diagnostics do not prove acoustic continuity.";
 
+const MIXER_HELP: &str = "Mixer diagnostics (release only):\n       daw-cli mixer-bench [--block-size 1..4096] [--voices 0|1|16] [--iterations 1..1000000] [--channels 1|2]\n       daw-cli mixer-native-check --input PATH --device ID [--sample-rate 100..192000] [--channels 1|2] [--voices 0|1|16] [--seconds 1..5]\nMixer bench uses four synthetic assets with separate routes/gain/pan/mute, at 48000 Hz.\nNative mixer loads the WAV into four slots; requires seconds+4 through 15 seconds of PCM. It exercises controls and sound after the initial 0/1/16-voice window.\nRequires offline-diagnostics for bench, rt-diagnostics for native. Native output is explicit; no acoustic loopback claim.";
+
 fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
     let Some(command) = args.first() else {
-        println!("{HELP}\n{SAMPLER_HELP}");
+        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}");
         return Ok(());
     };
     if command == "--help" || command == "-h" {
-        println!("{HELP}\n{SAMPLER_HELP}");
+        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}");
         return Ok(());
     }
     if command == "export-wav" {
@@ -34,7 +36,12 @@ fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
     }
     if matches!(
         command.as_str(),
-        "tone-check" | "engine-bench" | "sampler-bench" | "sampler-native-check"
+        "tone-check"
+            | "engine-bench"
+            | "sampler-bench"
+            | "sampler-native-check"
+            | "mixer-bench"
+            | "mixer-native-check"
     ) {
         #[cfg(any(feature = "rt-diagnostics", feature = "offline-diagnostics"))]
         {

@@ -2,8 +2,9 @@
 
 Prepared during the 9.4.d integration audit on 2026-11-09. **This is a protocol,
 not a measurement report.** The [9.5.b results](../progress/etapa-9-medicion-nativa.md)
-now record six real-device cases; listening confirmation is still pending. The [9.5.b results](../progress/etapa-9-medicion-nativa.md)
-now record six real-device cases; listening confirmation is still pending. No sampler hardware session, native timing result,
+record six real-device cases. Subsequent repetitions and user-confirmed audible
+headphone output complete [stage 9 closure](../progress/cierre-etapa-9.md) within
+the recorded limits. No sampler hardware session, native timing result,
 new screenshot or hosted CI result was produced by 9.4.d. The
 [acceptance matrix](sampler-integration-acceptance.md) defines local integration
 evidence; the [Spanish handoff](../progress/continuidad-etapa-6.md) tracks next work.

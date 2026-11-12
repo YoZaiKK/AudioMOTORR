@@ -1,7 +1,7 @@
 # Sampler: cargar WAV y disparar samples
 
-Actualizado 2026-11-09, etapa 9.4.c. Flujo implementado con pruebas de Application,
-IPC mock y frontend; esta entrega no realizó audición física ni creó capturas.
+Actualizado 2026-11-11. Flujo implementado en 9.4.c con pruebas de Application,
+IPC mock y frontend; esa entrega original no realizó audición física ni creó capturas.
 Las imágenes anteriores conservan su fecha y muestran versiones anteriores.
 
 La [auditoría 9.4.d](../progress/cierre-integracion-9.4.md) añade recuperación de
@@ -13,7 +13,8 @@ implementados y probados sin dispositivo.
 
 Las [mediciones nativas 9.5.b](../progress/etapa-9-medicion-nativa.md) ya pasaron
 seis casos Realtek/WASAPI y reaperturas. Se conserva por separado la confirmación
-auditiva humana, todavía pendiente; no hay capturas nuevas de la UI.
+auditiva humana, confirmada tras repetir por audífonos el 2026-11-11; ver
+[cierre de etapa 9](../progress/cierre-etapa-9.md). No hay capturas nuevas de la UI.
 
 1. Ejecuta npm run desktop:dev. Si hay audio inicializado, pulsa **Cerrar audio**.
    Cargar un banco requiere servicio sin inicializar; si falló el stream, ciérralo.

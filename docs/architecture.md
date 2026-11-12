@@ -2,7 +2,19 @@
 
 This describes the foundation, offline export, native audition, and initial
 sampler resources, raw voice kernel, WAV preparation, AudioEngine sessions and desktop controls as of
-2026-11-09. Desktop defaults to silence and offers explicit sine and WAV sampler controls;
+2026-11-11. Stage 10.2 also adds validated document mixer settings and an opt-in
+four-channel engine path with captured voice routes, ramps and per-render peaks;
+10.3.a connects that path to manual/native sessions, bounded controls and
+complete-callback peaks. 10.3.b adds selected/accepted/applied application
+coordination and prepared-bank installation. [Desktop integration 10.3.c](mixer-desktop.md)
+exposes selected settings, receipts, applied state and actual levels through
+generated DTOs, scoped IPC and four channel strips.
+[Acceptance 10.3.d](mixer-integration-acceptance.md) adds decoded four-channel
+references and fixes late startup selection queries and offline receipt wording.
+[Diagnostics 10.4.a](mixer-diagnostics.md) add explicit mixed CLI paths over the
+existing engine/application APIs; audio ownership and desktop IPC do not change.
+See the [application contract](mixer-application.md). See the [mixer contract](mixer-contract.md) and [service contract](mixer-service.md).
+Desktop defaults to silence and offers explicit sine and WAV sampler controls;
 ordinary smoke remains silent and export-wav writes signal. Future music
 features belong to the [roadmap](roadmap.md). The normative processing and queue
 rules are in the [realtime contract](realtime-contract.md); the rationale is in
@@ -92,7 +104,7 @@ other native platforms remain pending.
 
 `daw-app::Application` owns the editable project and audio service and coordinates
 their use cases. The CLI uses this application for offline smoke and device/native
-diagnostics, plus engine configuration types. Desktop invokes the application through sixteen
+diagnostics, plus engine configuration types. Desktop invokes the application through twenty
 registered commands; it does not implement another engine. A single virtual
 Cargo workspace, root lockfile, and target directory serve all six packages.
 

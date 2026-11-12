@@ -281,6 +281,32 @@ impl Application {
             .handle()
             .initialize_manual_sampler(bank, self.project.tempo())
     }
+    /// Installs the latest selected document settings, not a preparation-time copy.
+    /// Consumes the bank on success or opening failure; does not enqueue Play.
+    pub fn initialize_mixed_sampler(
+        &mut self,
+        preparation_id: u64,
+        device_id: Option<String>,
+    ) -> Result<ServiceSnapshot> {
+        let bank = self.take_sample_bank(preparation_id)?;
+        self.audio.handle().initialize_native_mixed_sampler(
+            device_id,
+            bank,
+            self.project.tempo(),
+            *self.project.mixer(),
+        )
+    }
+    pub fn initialize_manual_mixed_sampler(
+        &mut self,
+        preparation_id: u64,
+    ) -> Result<ServiceSnapshot> {
+        let bank = self.take_sample_bank(preparation_id)?;
+        self.audio.handle().initialize_manual_mixed_sampler(
+            bank,
+            self.project.tempo(),
+            *self.project.mixer(),
+        )
+    }
     pub fn trigger_sample(&self, slot: usize, gain: f64) -> Result<crate::CommandAccepted> {
         let gain = Gain::new(gain).map_err(|error| invalid(error.to_string()))?;
         self.audio.handle().trigger_sample(slot, gain)
@@ -313,6 +339,16 @@ mod tests {
         ready.recv_timeout(Duration::from_secs(5)).unwrap();
         assert_eq!(app.get_project_summary().id.get(), 1);
         assert_eq!(app.sample_preparation().state, PreparationState::Loading);
+        assert_eq!(app.mixer_set_route(0, 3).unwrap().accepted, None);
+        assert_eq!(
+            app.mixer_set_channel(3, 0.5, -1.0, true).unwrap().accepted,
+            None
+        );
+        let selected_mixer = app.get_mixer_settings();
+        assert_eq!(
+            app.initialize_manual_mixed_sampler(1).unwrap_err().code,
+            ErrorCode::InvalidArgument
+        );
         assert_eq!(
             app.initialize_manual(config).unwrap_err().code,
             ErrorCode::Busy
@@ -332,6 +368,7 @@ mod tests {
             thread::yield_now();
         }
         assert_eq!(app.sample_preparation().state, PreparationState::Cancelled);
+        assert_eq!(app.get_mixer_settings(), selected_mixer);
         app.prepare_samples(config, vec![]).unwrap();
         let coordinator = app.samples.coordinator.clone();
         // Drop cancels/joins the replacement worker, including a completed unpublished bank.

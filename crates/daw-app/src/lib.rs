@@ -1,8 +1,11 @@
 //! Application use cases shared by desktop and CLI, independent of Tauri.
 
+mod mixer;
 pub mod offline;
 pub mod sample_loading;
 pub mod sampler_session;
+pub use daw_domain::{MixerChannel, MixerSettings};
+pub use mixer::MixerEdit;
 
 pub use daw_audio::{
     AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, MemoryActivity,

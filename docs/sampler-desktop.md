@@ -64,8 +64,9 @@ stateDiagram-v2
 
 The five new commands are prepare_samples, get_sample_preparation,
 cancel_sample_preparation, initialize_sampler and trigger_sample. Together with
-the eleven existing commands, the local main window has sixteen application
-commands. Generated ACL grants no command to other windows or remote origins;
+the eleven existing commands, stage 9 delivered sixteen application commands.
+[Desktop mixer 10.3.c](mixer-desktop.md) adds four more, bringing the current
+total to twenty. Generated ACL grants no command to other windows or remote origins;
 there is no filesystem plugin permission or manual processing IPC command.
 
 PreparationSnapshotDto contains a separate monotonic sequence, preparationId,

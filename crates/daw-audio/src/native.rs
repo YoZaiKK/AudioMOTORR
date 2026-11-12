@@ -6,7 +6,7 @@ use cpal::{
     FromSample, SampleFormat, SizedSample,
     traits::{DeviceTrait, HostTrait, StreamTrait},
 };
-use daw_engine::{EngineConfig, EngineSnapshot, Tempo};
+use daw_engine::{EngineConfig, EngineSnapshot, MixerSnapshot, Tempo};
 use std::{
     sync::{
         Arc,
@@ -53,6 +53,7 @@ pub(crate) struct Opened {
     pub engine: EngineSnapshot,
     pub output: OutputSelection,
     pub sampler: Option<SamplerTelemetry>,
+    pub mixer: Option<MixerSnapshot>,
 }
 
 // This mailbox is teardown-only, never touched by process_output. CPAL may drop
@@ -157,7 +158,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
     })?;
     let supported = match &source {
         Source::Signal(_) => device.default_output_config().map_err(stream_error)?,
-        Source::Sampler(bank) => select_sampler_config(
+        Source::Sampler(bank) | Source::MixedSampler(bank, _) => select_sampler_config(
             bank.config(),
             device.supported_output_configs().map_err(stream_error)?,
         )?,
@@ -174,6 +175,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
     let engine = source.engine(config, tempo)?;
     let initial = engine.snapshot();
     let sampler = SamplerTelemetry::for_engine(&engine);
+    let mixer = engine.mixer_snapshot();
     let (queues, rt) = Realtime::new(engine);
     let stream = match format {
         SampleFormat::F32 => build::<f32>(&device, supported.config(), rt, &queues),
@@ -200,6 +202,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
         engine: initial,
         output,
         sampler,
+        mixer,
     })
 }
 
@@ -263,7 +266,7 @@ fn process_output<T: SizedSample + FromSample<f32>>(
         return;
     }
     rt.begin();
-    if !rt.validate_output_len(output.len()) {
+    if !rt.validate_output_len(output.len(), scratch.len()) {
         rt.end();
         return;
     }
@@ -280,19 +283,33 @@ fn process_output<T: SizedSample + FromSample<f32>>(
 }
 
 #[cfg(test)]
+#[path = "native_mixer_tests.rs"]
+mod mixer_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use cpal::Sample;
     use daw_engine::{EngineCommand, Gain};
 
     fn sampler_engine() -> daw_engine::AudioEngine {
+        sampler_engine_with_mixer(false)
+    }
+
+    fn sampler_engine_with_mixer(mixed: bool) -> daw_engine::AudioEngine {
         let config = EngineConfig::new(48_000, 2).unwrap();
         let mut slots = [const { None }; daw_engine::SAMPLE_BANK_SLOTS];
         slots[0] = Some(daw_engine::SampleBuffer::new(config, vec![0.5; 12000]).unwrap());
-        daw_engine::AudioEngine::with_sampler(
-            daw_engine::SampleBank::new(config, slots).unwrap(),
-            Tempo::default(),
-        )
+        let bank = daw_engine::SampleBank::new(config, slots).unwrap();
+        if mixed {
+            daw_engine::AudioEngine::with_mixed_sampler(
+                bank,
+                Tempo::default(),
+                daw_engine::MixerSettings::default(),
+            )
+        } else {
+            daw_engine::AudioEngine::with_sampler(bank, Tempo::default())
+        }
     }
 
     #[test]
@@ -412,8 +429,9 @@ mod tests {
 
     #[test]
     fn callback_teardown_returns_pcm_to_owner_after_close_including_failed_build_path() {
-        for backend_worker in [false, true] {
-            let (_queues, rt) = Realtime::new(sampler_engine());
+        for (mixed, backend_worker) in [(false, false), (false, true), (true, false), (true, true)]
+        {
+            let (_queues, rt) = Realtime::new(sampler_engine_with_mixer(mixed));
             let (callback, returned) = CallbackState::new(rt);
             let owner = std::thread::current().id();
             let mut dropped_on = None;

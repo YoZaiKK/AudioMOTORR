@@ -6,6 +6,8 @@ use std::{
     hint::black_box,
     time::{Duration, Instant},
 };
+mod mixer_bench;
+mod mixer_native;
 mod sampler;
 mod sampler_native;
 
@@ -20,6 +22,12 @@ pub fn run(command: &str, args: &[String]) -> Result<(), Box<dyn Error>> {
     }
     if command == "sampler-native-check" {
         return sampler_native::run(args);
+    }
+    if command == "mixer-bench" {
+        return mixer_bench::run(args);
+    }
+    if command == "mixer-native-check" {
+        return mixer_native::run(args);
     }
     let (mut seconds, mut block, mut iterations, mut frequency) =
         (2u64, 127usize, 20_000usize, 440.0f64);

@@ -140,6 +140,17 @@ export function SamplerPanel({ session }: { session: DawSession }) {
       >
         Inicializar sampler
       </button>
+      <button
+        disabled={
+          disabled ||
+          !session.mixerSettings ||
+          session.snapshot?.state !== "uninitialized" ||
+          prepared?.state !== "ready"
+        }
+        onClick={() => void session.initializeMixedSampler(device || null)}
+      >
+        Inicializar con mezcla
+      </button>
       <p className="muted">
         Inicializar abre la salida con el formato exacto del banco y lo consume,
         incluso si falla. Después pulsa Play y dispara un slot. Stop conserva el

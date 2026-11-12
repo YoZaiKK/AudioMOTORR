@@ -11,21 +11,21 @@ use std::{
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 #[cfg(test)]
 #[path = "../../../daw-app/tests/support/wav_fixtures.rs"]
-mod fixtures;
+pub(super) mod fixtures;
 #[cfg(test)]
 #[path = "../../../daw-app/tests/support/sample_files.rs"]
-mod sample_files;
+pub(super) mod sample_files;
 
 #[derive(Debug)]
-struct Options {
-    input: PathBuf,
-    device: String,
-    config: EngineConfig,
-    voices: usize,
-    seconds: u64,
+pub(super) struct Options {
+    pub input: PathBuf,
+    pub device: String,
+    pub config: EngineConfig,
+    pub voices: usize,
+    pub seconds: u64,
 }
 impl Options {
-    fn parse(args: &[String]) -> Result<Self> {
+    pub(super) fn parse(args: &[String]) -> Result<Self> {
         let (mut input, mut device, mut rate, mut channels, mut voices, mut seconds) =
             (None, None, 48_000, 2, 1, 1);
         let mut seen = std::collections::HashSet::new();
@@ -97,7 +97,7 @@ fn prepare(
         std::thread::sleep(Duration::from_millis(2));
     }
 }
-fn wait(
+pub(super) fn wait(
     app: &Application,
     advance: &mut impl FnMut(&Application) -> Result<()>,
     timeout: Duration,
@@ -118,7 +118,7 @@ fn wait(
         advance(app)?;
     }
 }
-fn settled(
+pub(super) fn settled(
     app: &Application,
     id: u64,
     state: TransportState,
@@ -292,7 +292,7 @@ fn lifecycle(
     let stop = app.transport_stop()?;
     settled(app, stop.command_id, TransportState::Stopped, advance)
 }
-fn check_metrics(snapshot: &ServiceSnapshot) -> Result<()> {
+pub(super) fn check_metrics(snapshot: &ServiceSnapshot) -> Result<()> {
     let m = snapshot
         .diagnostics
         .ok_or("Missing instrumented callback metrics")?;

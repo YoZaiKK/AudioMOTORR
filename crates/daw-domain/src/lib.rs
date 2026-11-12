@@ -2,6 +2,9 @@
 
 use std::{fmt, num::NonZeroU64};
 
+mod mixer;
+pub use mixer::{MIXER_CHANNELS, MixerChannel, MixerError, MixerSettings, SAMPLE_SLOTS};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DomainError {
     InvalidProjectId,
@@ -69,6 +72,7 @@ pub struct Project {
     id: ProjectId,
     title: String,
     tempo: Tempo,
+    mixer: MixerSettings,
 }
 
 impl Project {
@@ -81,6 +85,7 @@ impl Project {
             id,
             title: title.to_owned(),
             tempo,
+            mixer: MixerSettings::default(),
         })
     }
 
@@ -99,6 +104,14 @@ impl Project {
     pub fn set_tempo(&mut self, tempo: Tempo) {
         self.tempo = tempo;
     }
+
+    pub const fn mixer(&self) -> &MixerSettings {
+        &self.mixer
+    }
+
+    pub fn mixer_mut(&mut self) -> &mut MixerSettings {
+        &mut self.mixer
+    }
 }
 
 impl Default for Project {
@@ -107,6 +120,7 @@ impl Default for Project {
             id: ProjectId(NonZeroU64::MIN),
             title: "Proyecto sin título".to_owned(),
             tempo: Tempo::default(),
+            mixer: MixerSettings::default(),
         }
     }
 }

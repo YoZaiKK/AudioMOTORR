@@ -77,16 +77,21 @@ Etapa 8 completada: reproducción nativa, rampas y mediciones release publicadas
 Ver [reporte de etapa 8](../progress/etapa-8.md) y
 [contrato técnico](../docs/native-audition.md), con estado de CI y límites explícitos.
 
-Etapa 9 en curso: 9.1 aporta recursos PCM y 9.2 reproduce one-shots con un banco
-de 16 slots y 16 voces en la biblioteca del motor. Todavía no hay carga de archivos
-ni reproducción de samples en la app de escritorio. Ver
-[contrato del sampler](../docs/sampler-contract.md) y
-[progreso del kernel](../progress/etapa-9-voces.md). 9.3.b–c ya decodifican WAV
-y preparan bancos completos fuera del procesamiento. El siguiente incremento
-es 9.4.c: Application/DTO/IPC/UI, tras conectar sesiones en 9.4.b; ver
-[reporte actual](../progress/etapa-9-sesiones-sampler.md).
+Etapa 9 completada dentro de su alcance: banco de 16 slots y 16 voces, carga WAV,
+sesiones de audio y controles desktop; ver [guía del sampler](06-sampler.md).
+El [cierre de etapa 9](../progress/cierre-etapa-9.md) registra mediciones nativas,
+audibilidad confirmada por el usuario y
+[CI Linux/Windows de 4dc2c6c](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891).
+La CI no abre hardware; la escucha corresponde a las repeticiones locales.
+El [núcleo de mezcla 10.2](../progress/etapa-10-mezclador-motor.md) ya está implementado
+como API de biblioteca. El [servicio 10.3.a](../progress/etapa-10-sesiones-mezclador.md)
+ya ofrece sesiones mezcladas y controles desde Rust. La
+[aplicación 10.3.b](../progress/etapa-10-aplicacion-mezclador.md) ya coordina
+documento/aceptación/estado aplicado; el desktop 10.3.c añade cuatro tiras,
+rutas y niveles. La aceptación integrada 10.3.d está completada; sigue
+diagnósticos 10.4.a y matriz nativa 10.4.b medidos, escucha y cierre/CI pendientes,
+conforme al [contrato](../docs/mixer-contract.md). El sampler todavía no guarda proyectos
+ni reproduce patrones; esas funciones conservan su orden posterior.
 
-9.2 está publicada en 7acc1db y pasó
-[CI Linux/Windows, run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
-La etapa 9 completa sigue abierta; esa CI comprueba el kernel y el escritorio
-actual sin abrir hardware. El reporte separa sus resultados de las pruebas release locales.
+Guía nueva: [mezclador de cuatro canales](07-mezclador.md), selección/rutas,
+recibos y niveles observados en la sesión mezclada explícita.

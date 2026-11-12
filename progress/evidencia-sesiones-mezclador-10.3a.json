@@ -1,0 +1,634 @@
+{
+  "format_version": 1,
+  "stage": "10.3.a",
+  "captured_utc": "2026-11-11T23:17:13.897Z",
+  "base_git_revision": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+  "uncommitted_worktree": true,
+  "status": "audio_service_integration_verified_locally",
+  "source_fingerprint_sha256": "15ee1843613fbfdfbeff5cadcdf4ac11d637ce061997ebf3d3e77436d998a4a9",
+  "fingerprint_rule": "Raw file bytes; paths sorted by JS default sort; SHA256 of concatenated lowercase-sha256 + two spaces + slash-separated path + LF. Documentation/progress and target excluded. Sensitive to line endings; not a Git revision or CI attestation.",
+  "covered_paths": "Crates, frontend, desktop, scripts and workflow; selected root build/tool configuration; Node CLI runner and scenario fixtures. Excludes Markdown, progress, target and installed dependencies.",
+  "previous_manifest": "progress/evidencia-mezclador-10.2.json",
+  "previous_manifest_preserved": true,
+  "added_source_paths": [
+    "crates/daw-audio/src/realtime_mixer_tests.rs",
+    "crates/daw-audio/src/native_mixer_tests.rs",
+    "crates/daw-audio/src/service_mixer_tests.rs",
+    "crates/daw-audio/tests/mixer_service_contract.rs"
+  ],
+  "changed_since_stage10_2": [
+    "crates/daw-audio/src/lib.rs",
+    "crates/daw-audio/src/native.rs",
+    "crates/daw-audio/src/native_mixer_tests.rs",
+    "crates/daw-audio/src/realtime.rs",
+    "crates/daw-audio/src/realtime_mixer_tests.rs",
+    "crates/daw-audio/src/service.rs",
+    "crates/daw-audio/src/service_mixer_tests.rs",
+    "crates/daw-audio/tests/mixer_service_contract.rs",
+    "src-tauri/tests/ipc_contract.rs"
+  ],
+  "new_tests": {
+    "service_integration": 6,
+    "realtime_internal": 4,
+    "native_adapter_internal": 3,
+    "control_lifecycle_internal": 3,
+    "unique_total": 16,
+    "feature_dependent_and_overlapping_suites": true
+  },
+  "tests_extended": [
+    "native::tests::callback_teardown_returns_pcm_to_owner_after_close_including_failed_build_path now covers legacy/mixed sessions on owner/backend worker"
+  ],
+  "checks": {
+    "check": {
+      "command": "cmd.exe",
+      "args": ["/d", "/s", "/c", "npm run check"],
+      "started_utc": "2026-11-11T23:09:46.657Z",
+      "ended_utc": "2026-11-11T23:11:07.446Z",
+      "exit_code": 0,
+      "error": null,
+      "log": "target/stage10-3a-20261111/check.log",
+      "log_sha256": "7598fc7e2a29cd7b608f9614c523ef1d5d470e4d5971458dd71cf4b482e09e0f"
+    },
+    "release-audio": {
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "daw-audio",
+        "--release",
+        "--features",
+        "native-audio,rt-diagnostics",
+        "--locked"
+      ],
+      "started_utc": "2026-11-11T23:11:48.491Z",
+      "ended_utc": "2026-11-11T23:12:30.980Z",
+      "exit_code": 0,
+      "error": null,
+      "log": "target/stage10-3a-20261111/release-audio.log",
+      "log_sha256": "a45ccd431650f7d26f6c534802fbc1aec3b6bf997a638059e77c488bbebbee33"
+    },
+    "build": {
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/s",
+        "/c",
+        "npm run desktop:build -- --debug --no-bundle"
+      ],
+      "started_utc": "2026-11-11T23:14:38.992Z",
+      "ended_utc": "2026-11-11T23:14:57.799Z",
+      "exit_code": 0,
+      "error": null,
+      "log": "target/stage10-3a-20261111/build.log",
+      "log_sha256": "94ca7618e450032b980d2c3c98e28fdf3a2d7a2b5090fe1a62dc0bb078751ec2"
+    }
+  },
+  "verification": {
+    "fifo_command_capacity": 128,
+    "snapshot_capacity": 64,
+    "max_commands_per_callback": 32,
+    "native_adapter_scratch_frames": [1, 127, 256, 513],
+    "native_adapter_output_formats": ["f32", "f64", "i16", "u16"],
+    "callback_reference_frames": 1001,
+    "callback_peak_windows_cover_all_chunks": true,
+    "queue_loss_recovers_latest_applied_snapshot": true,
+    "callback_empty_overflow_and_malformed_output_cases": true,
+    "zero_processing_allocations_and_deallocations": "Instrumented native adapter tests cover process_output including command drain, chunks, conversion, peak aggregation and snapshot push",
+    "owner_cleanup_and_expired_owned_bank": true,
+    "lockfiles_generated_bindings_workflow_unchanged": true,
+    "ipc_fixture_only": "Existing ServiceSnapshot literal gains mixer: None; production DTOs/ACL/generated TypeScript are unchanged"
+  },
+  "desktop_debug_binary_sha256": "65d7c3998c3d1e67d6bbbe873c5c990b5242d3d5285f0b1a1f2485d60da509e4",
+  "limitations": [
+    "Application document coordination is 10.3.b; desktop DTO/IPC/ACL/UI mixer exposure is 10.3.c",
+    "Native processing path is tested through the real adapter without opening hardware; ignored hardware test remains ignored",
+    "No new physical audition, mixed native timing measurement, commit/push or hosted CI; stage 10 remains open for remaining integration and 10.4 verification"
+  ],
+  "files": [
+    {
+      "path": ".editorconfig",
+      "sha256": "fc6e7f6079814ca4bd011233678057bc0d9c98598005543ba91827af20988363"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "3594911a71711ca8e8d2c80d3af020c3ff5033e3a34a97fee726fa12c5a50228"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "2e3f9f7bb467dd5f0d7f44a952ce0e5d6483d33d68c1278cb5512acea1589160"
+    },
+    {
+      "path": ".node-version",
+      "sha256": "0c4bf84f9bedd485b2c4eac05f59e35addc86ce7dbf0d90435528e04384c6314"
+    },
+    {
+      "path": ".npmrc",
+      "sha256": "3b88d1057add6f92ec23dc22dd017e312ded13a042deb0ba6f08bad85d936456"
+    },
+    {
+      "path": ".prettierignore",
+      "sha256": "3ac9d97959754bf4b450f231e7f94395d8340e674c36481768405f10023e171a"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "1a3f4c34ac94a2040057545b28da8243864cc4e69fa639728c483d00d8ae9c58"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "e9a6cf01bca5fb39a4db573b8a90372aafb225a7fa724492a01d0a86f52157b5"
+    },
+    {
+      "path": "crates/daw-app/Cargo.toml",
+      "sha256": "303b12ab294c537fcf749c5744c96dd05bf2da679195478a4e9a9ed8be2b5649"
+    },
+    {
+      "path": "crates/daw-app/src/lib.rs",
+      "sha256": "e8c6c9614110034577bccdf1b09111de0dd57fff5b9220bcdb26c34cd3e02c93"
+    },
+    {
+      "path": "crates/daw-app/src/offline.rs",
+      "sha256": "b2e8b8463f739dd82ce607b93501948383e36b99555e6b0103bd7b2adf818f44"
+    },
+    {
+      "path": "crates/daw-app/src/sample_loading.rs",
+      "sha256": "375439fa9e2813f3ee41a9e69e306b4864e5955e8f14ec6606221ab1c2f14c76"
+    },
+    {
+      "path": "crates/daw-app/src/sample_loading/bank.rs",
+      "sha256": "e391e0c14dafe12149e25630b7c04df7fff45c9f40ab3c337b67ceb7ad7db941"
+    },
+    {
+      "path": "crates/daw-app/src/sample_loading/bank/failure_tests.rs",
+      "sha256": "9a9a4dd6620c8ab53a427b14c2df4b94e7c9f9c05f6ab25f0ce5d211fdd9bdc8"
+    },
+    {
+      "path": "crates/daw-app/src/sampler_session.rs",
+      "sha256": "9f0be1e55d7371635e783b276f77f882963d3c6a20ec495afda2912ad9519e11"
+    },
+    {
+      "path": "crates/daw-app/tests/application_contract.rs",
+      "sha256": "3c7d52d72dfc376cb18da7325e0ef82e550751b292f4ee083c152d4e63d6ceae"
+    },
+    {
+      "path": "crates/daw-app/tests/bank_preparation_contract.rs",
+      "sha256": "a0614bf81887ac3b5800ab9ab64d1e16165deed90b57081256a39f8e083fbd0e"
+    },
+    {
+      "path": "crates/daw-app/tests/loaded_sampler_contract.rs",
+      "sha256": "26c1a96ba3dad02bcc74bd1dbbc977bd093856a0fb8351438e67ccaadb5ce130"
+    },
+    {
+      "path": "crates/daw-app/tests/offline_contract.rs",
+      "sha256": "f909c10520fa999034e942cdd1a956d7c4e83a2f48a6ed2ddf0b8fb6dc57b12d"
+    },
+    {
+      "path": "crates/daw-app/tests/sample_loading_contract.rs",
+      "sha256": "daea66f330a8cae5cfbc6defa3462dae4007f2627375abcd2657fdb3939e92a7"
+    },
+    {
+      "path": "crates/daw-app/tests/sampler_application_contract.rs",
+      "sha256": "28008a5e167051980a4da407a44f99f82b671d17985664e5874548a87c8b0738"
+    },
+    {
+      "path": "crates/daw-app/tests/support/sample_files.rs",
+      "sha256": "d9d80251e3cf326fd397077c4d421740dd2271d2c1685e3fd76c51819ec18e4d"
+    },
+    {
+      "path": "crates/daw-app/tests/support/wav_fixtures.rs",
+      "sha256": "2dff6a038bdbe48978ea985e190e4845aa4c33cf4f97294c365c969528bd13dc"
+    },
+    {
+      "path": "crates/daw-audio/Cargo.toml",
+      "sha256": "f7676c4ddcbc370b564dd52748fd1175e6c1f9bcd4d277fa00b18dd0936908cd"
+    },
+    {
+      "path": "crates/daw-audio/src/lib.rs",
+      "sha256": "0b335f6056a93275aae23695bdd685d84e14406e64b8f5be6bea22a8d06c1a83"
+    },
+    {
+      "path": "crates/daw-audio/src/metrics.rs",
+      "sha256": "e417d7c79ca1ad71da8e308bb14d5ef638e430962e28d284d5bff76873594421"
+    },
+    {
+      "path": "crates/daw-audio/src/native.rs",
+      "sha256": "fb5f89fe6a5cdb5d9facedb5bc1a5a7c6dece2b3d0fb015c3549c527c6c3fd61"
+    },
+    {
+      "path": "crates/daw-audio/src/native_mixer_tests.rs",
+      "sha256": "1b1850481631e3b3906d353bd127b85267c861ed7274599d3866530802c3a02d"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime.rs",
+      "sha256": "391af2e1cc9d8eae22dc6c0f9648ce19e3912e1219c72f3c8f5dbd425be5a143"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime_mixer_tests.rs",
+      "sha256": "e1707bfa6497668e2d3be124c2c777625221df328dc997b58d17a72e8cfaa89e"
+    },
+    {
+      "path": "crates/daw-audio/src/service.rs",
+      "sha256": "fcc5c863cbed409b06993c111d021e8ff00ea4465c8b653c006b151202512248"
+    },
+    {
+      "path": "crates/daw-audio/src/service_mixer_tests.rs",
+      "sha256": "d52fbafb9267bf35110b97452dc29aeb8074e4070c9be9f00887ba92128db8ea"
+    },
+    {
+      "path": "crates/daw-audio/tests/mixer_memory_contract.rs",
+      "sha256": "43636bd029e9bc145460bd80e2a2da0a359873a5e0540ac139bb677059d1eeb1"
+    },
+    {
+      "path": "crates/daw-audio/tests/mixer_service_contract.rs",
+      "sha256": "471edbf3f23caf7727ad8e2b264bf809f3a3df8a8b27ae1da2ca623ca9ce2de8"
+    },
+    {
+      "path": "crates/daw-audio/tests/sampler_memory_contract.rs",
+      "sha256": "bee7b3d06773bcd49ba2544ddf86a333178fce7437c98d5db6ba7b0df3021709"
+    },
+    {
+      "path": "crates/daw-audio/tests/sampler_service_contract.rs",
+      "sha256": "b79e73085700406f32e7660b9c6f3213b2886bc98ef099593f49ebf257ae37fd"
+    },
+    {
+      "path": "crates/daw-audio/tests/service_contract.rs",
+      "sha256": "3409db181e2409dd055087096e6f495ac08aae61eff86a47ff73ea45bc4ac257"
+    },
+    {
+      "path": "crates/daw-audio/tests/sine_service_contract.rs",
+      "sha256": "175e3a34a205cfbdd2d097cf28b9d8fcb156a27341131f0bcfeae21dd1a1eadc"
+    },
+    {
+      "path": "crates/daw-cli/Cargo.toml",
+      "sha256": "c750bedb6de6b01463cddc0ed9fa253d3ca590d259217c3223893fbef9f623ab"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics.rs",
+      "sha256": "e4997c4ed8c1cefd2661c03b7c83d1b30e1cf8e4fd3bd8edf80c8cce478c1ec9"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/sampler.rs",
+      "sha256": "a122bb1a1b44f7199dc89955f9cb742bc6f851ca7d30da321da9eb966a9ba2ae"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/sampler_native.rs",
+      "sha256": "14bf3377f3406f976851c79d3097cac965b9ce89dd20e1b299d03ae03d2ae703"
+    },
+    {
+      "path": "crates/daw-cli/src/export.rs",
+      "sha256": "0f6a6f2a460a21ac45d62b07d04bb39946fbeb4c3464a4e4d679d3ab58c79e19"
+    },
+    {
+      "path": "crates/daw-cli/src/main.rs",
+      "sha256": "dab0850c7d6bf0a1826ea7fee6a4808fb672278161303a8bb62d9e3f8beea3c2"
+    },
+    {
+      "path": "crates/daw-cli/tests/diagnostics_contract.rs",
+      "sha256": "1067822809905c9bc9b14e0dfd381cc9aa2403076c8396ccfb8d87d47fd9bbe7"
+    },
+    {
+      "path": "crates/daw-cli/tests/export_contract.rs",
+      "sha256": "b918dcd509fe6854a3645bc8d19bb004cf4675298179a12871d92e805b1a70d4"
+    },
+    {
+      "path": "crates/daw-cli/tests/sample_loading_memory_contract.rs",
+      "sha256": "7ee8262016ceb40d917d5213eafa7e209a195368c22aff4e3ebcff23b85411aa"
+    },
+    {
+      "path": "crates/daw-cli/tests/smoke.rs",
+      "sha256": "0ae14c1f6b3698ba65518ca1d6cfeba60c037566ab7b3e47cdb5e828557337ae"
+    },
+    {
+      "path": "crates/daw-domain/Cargo.toml",
+      "sha256": "ee430a859653e5d533c5537415dbe1dec141f129b194d7e48181c12f8a7aedfe"
+    },
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "sha256": "dd8f97002718d539c16dac0920bffc213933f35eb9ff2372ed50df6cf3aee7c4"
+    },
+    {
+      "path": "crates/daw-domain/src/mixer.rs",
+      "sha256": "8af6bc0d9fa94bd2ab99aed85672d268e7efc918b6459789f5e7cdc45f5f6572"
+    },
+    {
+      "path": "crates/daw-domain/tests/mixer_contract.rs",
+      "sha256": "beef4708becc2239001062f6d115428c8e9f7370a058ab1baa86ff871475b796"
+    },
+    {
+      "path": "crates/daw-engine/Cargo.toml",
+      "sha256": "4466ec2df843ae6dcb4ad415cac9cb93eb3211da070fe259f4710a7d4666c7d1"
+    },
+    {
+      "path": "crates/daw-engine/src/gain.rs",
+      "sha256": "c5a1ff6fb10b8ca492b399e024c65bf0ccefd54c661399bd5195fe8822cfcded"
+    },
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "sha256": "54b5fd2b23cb7b126fa90bd73db8620d284ff8b5685932fcace71941c783fb19"
+    },
+    {
+      "path": "crates/daw-engine/src/mixer.rs",
+      "sha256": "50c0c54e41da2c1c247431ba1930f8c65ab18b4ff4b8eb70b68e135613166456"
+    },
+    {
+      "path": "crates/daw-engine/src/oscillator.rs",
+      "sha256": "3c67065e00abbd72d561bd454912c74987d8cbb440351c9101c5d4c686097712"
+    },
+    {
+      "path": "crates/daw-engine/src/sample.rs",
+      "sha256": "4702ba1b2e0175590004483c728141d8f721ea2e1893aaad2c58de99da60a430"
+    },
+    {
+      "path": "crates/daw-engine/src/sampler.rs",
+      "sha256": "1450b3f34e1505d2f619f2b7e63ba4549ae5feb206bf049ff7d1d077c812eaf7"
+    },
+    {
+      "path": "crates/daw-engine/tests/mixer_contract.rs",
+      "sha256": "cfff7c53327461ca4beab3a3a7e82328dcf405964adcec2cf68ff7622f97a388"
+    },
+    {
+      "path": "crates/daw-engine/tests/oscillator_contract.rs",
+      "sha256": "396130c3cb4bf5be5d87e13e15da00863aedb4cc941a883e0c37bbd905fecfed"
+    },
+    {
+      "path": "crates/daw-engine/tests/ramp_contract.rs",
+      "sha256": "3b8eea47efc8cca0f4a3d2e3aa92e609f79ddc47f1bd0b9e6b0c220c2713d91e"
+    },
+    {
+      "path": "crates/daw-engine/tests/render_contract.rs",
+      "sha256": "c36be622771bc6827ee2cf91131e097af109d7dcc4540215e19b7fff1eddc3fa"
+    },
+    {
+      "path": "crates/daw-engine/tests/sample_resource_contract.rs",
+      "sha256": "30a9f4ead45609811483965383e28bd22224c4abc5e534d720cfb51142747f36"
+    },
+    {
+      "path": "crates/daw-engine/tests/sampler_contract.rs",
+      "sha256": "65e1eb38087a066217040d7d5dcabbce8664018aff7d099faf5056b8a9435c34"
+    },
+    {
+      "path": "crates/daw-engine/tests/sampler_engine_contract.rs",
+      "sha256": "73f9ec8a03ff65964480e6afcad223b157620e358a5c9c1b2598410cb3f5b692"
+    },
+    {
+      "path": "crates/daw-engine/tests/support/sampler_fixtures.rs",
+      "sha256": "ace5243cfb255f7d85d1de139e17f88cedf768778ad8c47679275dd86fd6b006"
+    },
+    {
+      "path": "eslint.config.js",
+      "sha256": "be509a05372ebb40c371665fc8db81ba8c458d5051c80740c06fbb7628fd748d"
+    },
+    {
+      "path": "howToRunThis/run-cli-cases.mjs",
+      "sha256": "16c8d4a8679e02399cdc3373f9f61f1731b6d804292eb8722b21bfa1e48bd14a"
+    },
+    {
+      "path": "howToRunThis/test-files/cli-cases.json",
+      "sha256": "8e95c017a95c1bd4ba1d38b0e3f7f1ba1eff1184a27829c352264d256a681878"
+    },
+    {
+      "path": "howToRunThis/test-files/expected-output.txt",
+      "sha256": "867824d9deaf0618253ce3c1b1a915c7398a20784e62eabfeda6a99803e531ab"
+    },
+    {
+      "path": "index.html",
+      "sha256": "192faba66e5c34e6ff6624c0fb2eac27bd4ff376ea29011e9ef0b6088e9025b8"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "abccdceae11e9a00dcf184d6039b2e55fc8397cdf4204c883ddeb2b61ba4cfbd"
+    },
+    {
+      "path": "package.json",
+      "sha256": "b6aa1da4a4e58c31b83a6d87d3bd6551cf9914c60b3d178b913edde66f9a3c64"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "c33d1f0b1b8fda448bea32d7dc867aa64947c87169fd9de7122ffccad1dd80f9"
+    },
+    {
+      "path": "scripts/check.mjs",
+      "sha256": "96484d6075128f66dd05f2dfcae911bb73ca99a3b2dd1d776ab081e258549f02"
+    },
+    {
+      "path": "scripts/desktop-smoke.mjs",
+      "sha256": "3662227a6b07be803ed06352f64e7c9d6422710f3776e8fcf4f2866ecd74030e"
+    },
+    {
+      "path": "scripts/desktop-smoke.ps1",
+      "sha256": "23cd4979b2113ef73ce9ff3c95531e4ff47d6d30d6cd56d57d0db4c5f3ab5c75"
+    },
+    {
+      "path": "scripts/doctor.ps1",
+      "sha256": "b40f4ea0ee23621a8b94da44bd35910823fec7770147b124258b19acf16be691"
+    },
+    {
+      "path": "scripts/sampler-stereo-fixture.mjs",
+      "sha256": "c6df98985c8aad72bf8ce026e3aa5ce9a400c58afa8fc8f2e11f094200af06dd"
+    },
+    {
+      "path": "src-tauri/.gitignore",
+      "sha256": "8a460714d8a02659573400de0c2f2dcc756e63ca511497c3b8f068b63657bb01"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "sha256": "349b8dd695dcfb5d9dd75a970405e127639205092abac0d10b6cf0fce5f0b997"
+    },
+    {
+      "path": "src-tauri/build.rs",
+      "sha256": "66128dd619ed4c416d79861c5e4e3091019b6496bf100b00d9f60ee4d2506116"
+    },
+    {
+      "path": "src-tauri/capabilities/default.json",
+      "sha256": "bbd5b688da12dd839576d4e156015b7ea6dca3e6833783e7728dc0d953c614cd"
+    },
+    {
+      "path": "src-tauri/icons/128x128.png",
+      "sha256": "eeebf55d8ffe07348786b9057af253e3ca08c56b6a8f8893826381430e3c0b7b"
+    },
+    {
+      "path": "src-tauri/icons/128x128@2x.png",
+      "sha256": "2998b41d0c9278b08e8b3874e094920034fe983a46053c9d62764225f58ab7b0"
+    },
+    {
+      "path": "src-tauri/icons/32x32.png",
+      "sha256": "aaa96d0c53b756b77c7f46aeb72290f42256c786c69be68f6bcdeb9c7492a48e"
+    },
+    {
+      "path": "src-tauri/icons/Square107x107Logo.png",
+      "sha256": "33446a858d982a529554e562114673f8b15620588137cf0bf6c56a7441c78cd7"
+    },
+    {
+      "path": "src-tauri/icons/Square142x142Logo.png",
+      "sha256": "633d6dba504faa844b309e01272386e4523cddd4a3639c77c0eb5d2ce3eac752"
+    },
+    {
+      "path": "src-tauri/icons/Square150x150Logo.png",
+      "sha256": "d90061ad71e6f5882b759d80cf58cc16aa5021fa29ba4b2614adea982a4d7ee5"
+    },
+    {
+      "path": "src-tauri/icons/Square284x284Logo.png",
+      "sha256": "5feaa4f18f404843551756dd2791d7654ef471b6b007767ae40f60c7aebcad5b"
+    },
+    {
+      "path": "src-tauri/icons/Square30x30Logo.png",
+      "sha256": "68bc1b585f5685e0922f14b1ca7eb2d618213c684c89e759c6a5eb8578c3fe8d"
+    },
+    {
+      "path": "src-tauri/icons/Square310x310Logo.png",
+      "sha256": "5df8d779ab57c63ee06ed237b94c3c0954711e88117dccfa72b2aec5d83b0d80"
+    },
+    {
+      "path": "src-tauri/icons/Square44x44Logo.png",
+      "sha256": "c46208286b1ea1b4841b714972f3cb0a8abc6d3bfa71a29238f7b4d62f511f89"
+    },
+    {
+      "path": "src-tauri/icons/Square71x71Logo.png",
+      "sha256": "cb0ea93cbd13509d32c6bc06da71687e73d673d166fde91b23061771abe16b86"
+    },
+    {
+      "path": "src-tauri/icons/Square89x89Logo.png",
+      "sha256": "2208da1d741a20e902a59d7c39a5e58af74ec823db13113bf8ac6f555fa25bca"
+    },
+    {
+      "path": "src-tauri/icons/StoreLogo.png",
+      "sha256": "9f84d0ce09df51bac0a4855042b3e49b190cc2b9761cd5eab61ebec5cd343820"
+    },
+    {
+      "path": "src-tauri/icons/icon.icns",
+      "sha256": "1535d355994f8ee82da91384d2a29e04d5b4440f3e6051b5c8b06e7a62283693"
+    },
+    {
+      "path": "src-tauri/icons/icon.ico",
+      "sha256": "e38ca88e1d5490f3dcbc3c3fa525f7fcb7b80fff3cb2f3a4eb1b2d018c0915c1"
+    },
+    {
+      "path": "src-tauri/icons/icon.png",
+      "sha256": "6413bfe9d546e5225fc9256a0ecec48df3a1272ea4bdc91c15b8e000222a95d3"
+    },
+    {
+      "path": "src-tauri/src/bin/bindings.rs",
+      "sha256": "54924011512ac920d162d185a53b88146714958980cdd33b6bf449134ddea82f"
+    },
+    {
+      "path": "src-tauri/src/ipc/command_names.rs",
+      "sha256": "bd59de46bfff3b7001a8c96cfcdeff417aaeb14d10f40768f4325f41ccc6b34e"
+    },
+    {
+      "path": "src-tauri/src/ipc/commands.rs",
+      "sha256": "f89ae618528bd9eeec3684ebad03ed1f593ebc3bbd7c5f0e44824f865114b891"
+    },
+    {
+      "path": "src-tauri/src/ipc/dto.rs",
+      "sha256": "86bd653d92a872c1801ecd5c1b4df9a88c4ae46db20a837e90fc949fc25bc984"
+    },
+    {
+      "path": "src-tauri/src/ipc/mod.rs",
+      "sha256": "15cd98e7162b8e7bb47dd7a94bd3f0ed9110bc2da3fff93e1c30d3a0ba27c9d6"
+    },
+    {
+      "path": "src-tauri/src/ipc/state.rs",
+      "sha256": "cf9f064c594b25d4371ce347e4ed8fb9692099f6286e18d1f18a0d8b6b8da86e"
+    },
+    {
+      "path": "src-tauri/src/lib.rs",
+      "sha256": "c3a5ccd64f97e8568e145d9903defd32cdddf7d747d29f6e1fe2649a0c038ee4"
+    },
+    {
+      "path": "src-tauri/src/main.rs",
+      "sha256": "469bccdd097c209ef4912f006d1fc94f2fc33308796c23365ccfd1089956a0e7"
+    },
+    {
+      "path": "src-tauri/src/snapshots.rs",
+      "sha256": "2556a354d93413a4747a3d9cd758b2c8e83a95ef03a06dfe461ce70f076ed82c"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "sha256": "97c566c569f0c5ae4ec5725c36ee9e03cad5c900d6d188b72f531622ac9bb5d9"
+    },
+    {
+      "path": "src-tauri/tests/ipc_contract.rs",
+      "sha256": "bff0060cb2d9b73e4dd5093fa91d79c6e6eec9146b4a98ada1b5b50b3eea281a"
+    },
+    {
+      "path": "src-tauri/tests/snapshot_publication.rs",
+      "sha256": "93bafcc2a3b903b378405608f200b67fc3315a07f42a90fcbd84f864369f67e5"
+    },
+    {
+      "path": "src/app/App.test.tsx",
+      "sha256": "8eefb4005c5a6ed6270e8c88764f675e9b0f09de99b6df40669f3f9d7e84b193"
+    },
+    {
+      "path": "src/app/App.tsx",
+      "sha256": "fe2b12eb7e54b01f8ec2c0a839c1240284f6da31a7837acd996cfec8ad14ef69"
+    },
+    {
+      "path": "src/app/styles.css",
+      "sha256": "64049f19b3fb45366eee4f6449f3e6cb6bf8aa93ebbc3d9ccdd436ce0ea9b7a3"
+    },
+    {
+      "path": "src/features/audio/AudioPanel.tsx",
+      "sha256": "4287906e6cb73d0b58f9a317bad27cf26c64481259dbeed0786492088ae9a58b"
+    },
+    {
+      "path": "src/features/audio/SamplerPanel.tsx",
+      "sha256": "e606372f1f76945569f6332b2f8f3146ef0c2f7d047db39848c42ae50e0ba926"
+    },
+    {
+      "path": "src/features/audio/trigger-observation.ts",
+      "sha256": "579fcaf65d10b799571346def51066625eae10ee205a6c0d2d8611b03d3ae116"
+    },
+    {
+      "path": "src/features/audio/useDawSession.ts",
+      "sha256": "655db7c96f0a51da25b2ae1c77cfd174ef3b0eb8e3228cfbcb3c1f1b76aac54c"
+    },
+    {
+      "path": "src/features/engine-status/EngineStatusPanel.tsx",
+      "sha256": "e852bba91b274c87e547f05c46fc0d7278378d59a346f9680052c45eab9429ae"
+    },
+    {
+      "path": "src/features/transport/TransportBar.tsx",
+      "sha256": "ea18a0053ecae83fa858cf79b3ab5f97870378ead29a684636c324a9acecdb41"
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "4d139586f6661dae57b597fefca7ea36635c03f5f90814e8c7453931cb83bbaf"
+    },
+    {
+      "path": "src/shared/api/desktop-client.test.ts",
+      "sha256": "e436a9592a4c59aea2b734a68320db0323a8a5058e52004ce9c3d81eea12312d"
+    },
+    {
+      "path": "src/shared/api/desktop-client.ts",
+      "sha256": "2100b234f612074731c52b7dee510ab9b6c9510bd206306dc9a0ca35bd752d5c"
+    },
+    {
+      "path": "src/shared/api/generated/api.ts",
+      "sha256": "47db2e27d7d6c1dcad7523ce059203c0ebe85a72886e55b6ffd6777621d8fe77"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "2cddd4b8027c271d44d05dd1221761b4690bb8ffdd315f06d807f2f5920740fd"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "ff2374733a8b9d419a01998f35993fee442b1f92ab7e80a981b9eed2c2762782"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "d99bf712f2b4ad44129ee21f5f131568b0ede0e7d2bb266bc90d5580890417aa"
+    }
+  ],
+  "documentation_checks": {
+    "captured_utc": "2026-11-11T23:17:14.987Z",
+    "markdown_files": 21,
+    "local_link_targets_checked": 447,
+    "missing": [],
+    "format_command": "npm run format:check",
+    "whitespace_command": "git diff --check",
+    "result": "passed"
+  }
+}

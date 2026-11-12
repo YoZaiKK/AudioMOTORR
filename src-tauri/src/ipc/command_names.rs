@@ -15,4 +15,8 @@ pub const COMMANDS: &[&str] = &[
     "cancel_sample_preparation",
     "initialize_sampler",
     "trigger_sample",
+    "get_mixer_settings",
+    "mixer_set_channel",
+    "mixer_set_route",
+    "initialize_mixed_sampler",
 ];

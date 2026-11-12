@@ -1,12 +1,42 @@
 # Development, platforms, and CI
 
+Stage 10.2 adds the [local mixer core](../progress/etapa-10-mezclador-motor.md):
+domain/engine fixtures and an instrumented audio-crate memory contract, discovered
+by the existing check workflow. Full local check and release verification are
+recorded separately from stage 9 CI; no new hosted mixer CI or native audition
+is implied. Stage 10.3.a adds [mixed audio sessions](mixer-service.md), queued
+controls and complete-callback peaks, with adapter/lifecycle tests.
+[Application coordination 10.3.b](mixer-application.md) now adds real-WAV and
+selection/acceptance/error fixtures. [Desktop integration 10.3.c](mixer-desktop.md)
+adds mock-runtime IPC/ACL and UI ordering/lifecycle/level fixtures, with full
+check and debug desktop build recorded in its [report](../progress/etapa-10-desktop-mezclador.md); see the
+[10.3.a report](../progress/etapa-10-sesiones-mezclador.md).
+
+[Integrated mixer acceptance 10.3.d](mixer-integration-acceptance.md) adds three
+real-WAV application cases (debug/release), three UI regressions and a documented
+acceptance matrix. [Mixed diagnostics 10.4.a](mixer-diagnostics.md) add offline and native-feature
+release CLI checks and 24 measured offline cases; the same native lifecycle is
+tested with manual audio. Physical mixed playback/listening 10.4.b and its own
+hosted CI/closure 10.4.c remain pending at that increment. The subsequent
+[10.4.b measurement](../progress/etapa-10-medicion-nativa-mezclador.md) records six
+real-device mixed cases/reopens on Speakers Realtek; listening confirmation and
+exact-revision hosted CI remain pending.
+
+On 2026-11-11 the [9.5.c audit](../progress/auditoria-cierre-9.5c.md) verified
+the recorded source/artifact hashes and inspected both successful jobs of
+[run 42896571891](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891)
+for implementation `4dc2c6c`, including the Windows full check and desktop build.
+The user subsequently confirmed audible headphone output after a repeated native
+run; [stage 9 is closed](../progress/cierre-etapa-9.md) within its documented limits.
+The increment reports below preserve their original Git/CI state.
+
 Stage 9.5.b now records [six Realtek/WASAPI runs](../progress/etapa-9-medicion-nativa.md)
 at 48 kHz stereo f32, with mono/stereo inputs and 0/1/16 voices. Initial/reopened
 sessions report zero measured allocation/free/non-finite/processing overruns.
 The runner prints exact-ID outcomes and reopened metrics outside processing;
 [the fixture helper](../scripts/sampler-stereo-fixture.mjs) reproduces distinct
-stereo input without overwriting. Human listening confirmation remains pending.
-These short native measurements do not establish acoustic continuity or close stage 9.
+stereo input without overwriting. Audibility is recorded separately in the closure.
+These short native measurements do not establish acoustic continuity by themselves.
 
 Stage 9.5.a (2026-11-10) adds [sampler diagnostics](sampler-diagnostics.md):
 offline-diagnostics avoids CPAL while rt-diagnostics retains native audio.
@@ -71,13 +101,15 @@ The 9.4.a/9.4.b fingerprints are historical. Application/DTO/IPC/frontend are
 implemented in 9.4.c; the [9.4.c manifest](../progress/evidencia-desktop-9.4c.json)
 identifies that dated code. The 9.4.d closure records the newer hook/tests and
 acceptance audit; 9.5.a delivers the diagnostic runner and 9.5.b now records
-native processing measurements, with listening/closure still pending.
+native processing measurements. The later [stage 9 closure](../progress/cierre-etapa-9.md)
+records listening confirmation and exact-implementation CI.
 The [current manifest](../progress/evidencia-integracion-9.4d.json) identifies
 116 code/configuration files for 9.4.d. The newer
 [9.5.a manifest](../progress/evidencia-diagnosticos-9.5a.json) identifies 119 files;
 full check/Windows build and offline release diagnostics pass for that dated scope.
 The newer [9.5.b report](../progress/etapa-9-medicion-nativa.md) records six native
-Realtek runs, exact-ID traces and input/log hashes, with human listening unconfirmed.
+Realtek runs, exact-ID traces and input/log hashes; its original listening-pending
+state is retained as history and resolved by the later closure report.
 The existing 9.2 results do not validate this new code.
 
 ```powershell

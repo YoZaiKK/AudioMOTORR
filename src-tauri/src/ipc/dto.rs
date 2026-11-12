@@ -157,6 +157,7 @@ pub struct ServiceSnapshotDto {
     pub last_applied_command: Option<String>,
     pub error: Option<ApiError>,
     pub sampler: Option<SamplerTelemetryDto>,
+    pub mixer: Option<MixerSnapshotDto>,
 }
 
 impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
@@ -204,6 +205,29 @@ impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
             callbacks: value.callbacks.to_string(),
             last_applied_command: value.last_applied_command.map(|id| id.to_string()),
             error: value.error.map(Into::into),
+            mixer: value.mixer.map(|mixer| MixerSnapshotDto {
+                settings: mixer.settings.into(),
+                channels: mixer.channels.map(|channel| MixerChannelSnapshotDto {
+                    effective_gain: channel.effective_gain,
+                    left: channel.left,
+                    right: channel.right,
+                    gain_remaining_frames: channel.gain_remaining_frames,
+                    pan_remaining_frames: channel.pan_remaining_frames,
+                }),
+                voice_channels: mixer.voice_channels.map(|channel| channel.map(|c| c as u8)),
+                meters: MixerMetersDto {
+                    sequence: mixer.meters.sequence.to_string(),
+                    frames: mixer.meters.frames.to_string(),
+                    channels: mixer.meters.channels.map(|peak| MixerPeakDto {
+                        left: peak.left,
+                        right: peak.right,
+                    }),
+                    master: MixerPeakDto {
+                        left: mixer.meters.master.left,
+                        right: mixer.meters.master.right,
+                    },
+                },
+            }),
             sampler: value.sampler.map(|sampler| SamplerTelemetryDto {
                 occupied_slots: sampler.occupied_slots,
                 active_voices: sampler.active_voices as u8,
@@ -300,11 +324,98 @@ pub fn bindings_text() -> String {
         SampleFileDto::decl(&cfg),
         PreparationStateDto::decl(&cfg),
         PreparationSnapshotDto::decl(&cfg),
+        MixerChannelDto::decl(&cfg),
+        MixerSettingsDto::decl(&cfg),
+        MixerEditDto::decl(&cfg),
+        MixerChannelSnapshotDto::decl(&cfg),
+        MixerPeakDto::decl(&cfg),
+        MixerMetersDto::decl(&cfg),
+        MixerSnapshotDto::decl(&cfg),
     ];
     format!(
         "// Generated from Rust DTOs by ts-rs. Run npm run bindings:generate.\n{}\n",
         declarations.map(|d| format!("export {d}")).join("\n")
     )
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct MixerChannelDto {
+    pub gain: f64,
+    pub pan: f64,
+    pub muted: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct MixerSettingsDto {
+    pub channels: [MixerChannelDto; 4],
+    pub routes: [u8; 16],
+}
+
+impl From<daw_app::MixerSettings> for MixerSettingsDto {
+    fn from(settings: daw_app::MixerSettings) -> Self {
+        Self {
+            channels: std::array::from_fn(|index| {
+                let channel = settings.channel(index).expect("fixed mixer channel index");
+                MixerChannelDto {
+                    gain: channel.gain(),
+                    pan: channel.pan(),
+                    muted: channel.muted(),
+                }
+            }),
+            routes: std::array::from_fn(|slot| {
+                settings.route(slot).expect("fixed mixer slot index") as u8
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct MixerEditDto {
+    pub settings: MixerSettingsDto,
+    pub accepted: Option<CommandAcceptedDto>,
+}
+impl From<daw_app::MixerEdit> for MixerEditDto {
+    fn from(edit: daw_app::MixerEdit) -> Self {
+        Self {
+            settings: edit.settings.into(),
+            accepted: edit.accepted.map(Into::into),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct MixerChannelSnapshotDto {
+    pub effective_gain: f64,
+    pub left: f64,
+    pub right: f64,
+    pub gain_remaining_frames: u32,
+    pub pan_remaining_frames: u32,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct MixerPeakDto {
+    pub left: f32,
+    pub right: Option<f32>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct MixerMetersDto {
+    pub sequence: String,
+    pub frames: String,
+    pub channels: [MixerPeakDto; 4],
+    pub master: MixerPeakDto,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct MixerSnapshotDto {
+    pub settings: MixerSettingsDto,
+    pub channels: [MixerChannelSnapshotDto; 4],
+    pub voice_channels: [Option<u8>; 16],
+    pub meters: MixerMetersDto,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

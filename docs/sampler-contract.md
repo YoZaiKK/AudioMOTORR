@@ -6,7 +6,8 @@ Stage 9.4.a, 2026-11-09, integrates the owning sampler into AudioEngine with
 transport, fixed headroom and the existing master envelope, verified offline.
 9.4.b adds manual/CPAL sessions, shared-FIFO triggers and Copy outcome telemetry,
 verified with offline/native-adapter tests. 9.4.c now adds sampler Application,
-DTO/IPC and UI with mock verification. Physical native audition remains pending;
+DTO/IPC and UI with mock verification. Native processing measurements and
+user-confirmed audibility are recorded in [stage 9 closure](../progress/cierre-etapa-9.md);
 see the [desktop contract](sampler-desktop.md). See the [roadmap](roadmap.md),
 [current kernel report](../progress/etapa-9-voces.md), [resource report](../progress/etapa-9-sampler.md), and
 [realtime contract](realtime-contract.md).
@@ -20,7 +21,7 @@ end-to-end loaded-bank playback with exact oracles; see the
 [acceptance matrix](sample-loading-acceptance.md). Preparation is closed locally
 in [9.3.f](../progress/cierre-preparacion-9.3.md); 9.4.a implements AudioEngine
 integration. 9.4.b now implements [sessions/outcomes](sampler-service.md);
-9.4.c wires application/DTO/IPC/UI; the [9.4.d audit](sampler-integration-acceptance.md) closes integration locally. [9.5.a diagnostics](sampler-diagnostics.md) and [9.5.b native measurements](../progress/etapa-9-medicion-nativa.md) are recorded; human listening and final closure remain pending. The existing
+9.4.c wires application/DTO/IPC/UI; the [9.4.d audit](sampler-integration-acceptance.md) closes integration locally. [9.5.a diagnostics](sampler-diagnostics.md) and [9.5.b native measurements](../progress/etapa-9-medicion-nativa.md) are recorded; human audibility confirmation and final closure are recorded separately. The existing
 kernel behavior below is unchanged.
 
 Implementation revision 7acc1db passed both hosted jobs in

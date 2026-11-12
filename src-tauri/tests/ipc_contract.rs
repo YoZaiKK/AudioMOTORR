@@ -217,6 +217,29 @@ fn large_counters_and_identifiers_cross_json_as_decimal_strings() {
         last_applied_command: Some(u64::MAX),
         error: None,
         diagnostics: None,
+        mixer: Some(daw_engine::MixerSnapshot {
+            settings: daw_app::MixerSettings::default(),
+            channels: [daw_engine::MixerChannelSnapshot {
+                effective_gain: 0.25,
+                left: 1.0,
+                right: 0.0,
+                gain_remaining_frames: 17,
+                pan_remaining_frames: 19,
+            }; 4],
+            voice_channels: [Some(3); 16],
+            meters: daw_engine::MixerMeters {
+                sequence: u64::MAX,
+                frames: 9007199254740993,
+                channels: [daw_engine::MixerPeak {
+                    left: 0.125,
+                    right: None,
+                }; 4],
+                master: daw_engine::MixerPeak {
+                    left: 0.25,
+                    right: None,
+                },
+            },
+        }),
         sampler: Some(daw_app::SamplerTelemetry {
             occupied_slots: u16::MAX,
             active_voices: 16,
@@ -234,6 +257,23 @@ fn large_counters_and_identifiers_cross_json_as_decimal_strings() {
     }
     assert_eq!(wire["engine"]["deviceFrames"], u64::MAX.to_string());
     assert_eq!(wire["engine"]["transportFrames"], "9007199254740993");
+    assert_eq!(wire["mixer"]["meters"]["sequence"], u64::MAX.to_string());
+    assert_eq!(wire["mixer"]["meters"]["frames"], "9007199254740993");
+    assert_eq!(
+        wire["mixer"]["meters"]["master"],
+        json!({"left":0.25,"right":null})
+    );
+    assert_eq!(wire["mixer"]["voiceChannels"], json!(vec![3; 16]));
+    assert_eq!(wire["mixer"]["channels"][0]["gainRemainingFrames"], 17);
+    assert_eq!(wire["mixer"]["channels"][0]["panRemainingFrames"], 19);
+    let edit = serde_json::to_value(MixerEditDto::from(daw_app::MixerEdit {
+        settings: daw_app::MixerSettings::default(),
+        accepted: Some(daw_app::CommandAccepted {
+            command_id: u64::MAX,
+        }),
+    }))
+    .unwrap();
+    assert_eq!(edit["accepted"]["commandId"], u64::MAX.to_string());
     assert_eq!(wire["sampler"]["started"], u64::MAX.to_string());
     assert_eq!(wire["sampler"]["rejected"], "9007199254740993");
     assert_eq!(
@@ -280,6 +320,10 @@ fn app_acl_does_not_grant_commands_to_other_windows() {
         "cancel_sample_preparation",
         "initialize_sampler",
         "trigger_sample",
+        "get_mixer_settings",
+        "mixer_set_channel",
+        "mixer_set_route",
+        "initialize_mixed_sampler",
     ] {
         let result = get_ipc_response(
             &other,
@@ -296,4 +340,182 @@ fn app_acl_does_not_grant_commands_to_other_windows() {
         assert!(result.is_err());
     }
     state.close();
+}
+
+#[test]
+fn mixer_ipc_separates_document_receipts_applied_targets_and_measured_audio() {
+    let state = Arc::new(DesktopState::new().unwrap());
+    let app = ipc::configure(mock_builder(), Arc::clone(&state))
+        .build(tauri::generate_context!())
+        .unwrap();
+    let window = tauri::WebviewWindowBuilder::new(&app, "main", Default::default())
+        .build()
+        .unwrap();
+    let invoke = |name: &str, body: Value| {
+        get_ipc_response(
+            &window,
+            InvokeRequest {
+                cmd: name.into(),
+                callback: CallbackFn(0),
+                error: CallbackFn(1),
+                url: "http://tauri.localhost".parse().unwrap(),
+                body: InvokeBody::Json(body),
+                headers: Default::default(),
+                invoke_key: INVOKE_KEY.to_owned(),
+            },
+        )
+        .map(|value| value.deserialize::<Value>().unwrap())
+    };
+    let original = invoke("get_mixer_settings", json!({})).unwrap();
+    assert_eq!(
+        original["routes"],
+        json!([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3])
+    );
+    for body in [
+        json!({"channel":4,"gain":0.5,"pan":0,"muted":false}),
+        json!({"channel":0,"gain":1.01,"pan":0,"muted":false}),
+        json!({"channel":0,"gain":0.5,"pan":-1.01,"muted":false}),
+    ] {
+        assert_eq!(
+            invoke("mixer_set_channel", body).unwrap_err()["code"],
+            "invalidArgument"
+        );
+        assert_eq!(invoke("get_mixer_settings", json!({})).unwrap(), original);
+    }
+    for body in [
+        json!({"slot":16,"channel":0}),
+        json!({"slot":0,"channel":4}),
+    ] {
+        assert_eq!(
+            invoke("mixer_set_route", body).unwrap_err()["code"],
+            "invalidArgument"
+        );
+    }
+    assert!(
+        invoke(
+            "mixer_set_channel",
+            json!({"channel":0,"gain":null,"pan":0,"muted":false})
+        )
+        .is_err()
+    );
+    assert!(invoke("mixer_set_route", json!({"slot":-1,"channel":0})).is_err());
+    for id in ["01", "18446744073709551616", "999"] {
+        assert_eq!(
+            invoke(
+                "initialize_mixed_sampler",
+                json!({"preparationId":id,"deviceId":null})
+            )
+            .unwrap_err()["code"],
+            "invalidArgument"
+        );
+    }
+    assert!(
+        invoke(
+            "initialize_mixed_sampler",
+            json!({"preparationId":1,"deviceId":null})
+        )
+        .is_err()
+    );
+    let edit = invoke(
+        "mixer_set_channel",
+        json!({"channel":3,"gain":0.5,"pan":1,"muted":false}),
+    )
+    .unwrap();
+    assert_eq!(edit["accepted"], Value::Null);
+    let route = invoke("mixer_set_route", json!({"slot":0,"channel":3})).unwrap();
+    assert_eq!(route["accepted"], Value::Null);
+    assert_eq!(
+        invoke("get_engine_snapshot", json!({})).unwrap()["mixer"],
+        Value::Null
+    );
+    let files = sample_files::SampleFiles::new();
+    let path = files.write(
+        "mixer-ipc.wav",
+        &wav_fixtures::wav(3, 32, 1, &1.0f32.to_le_bytes().repeat(4000), false),
+    );
+    let loading = invoke(
+        "prepare_samples",
+        json!({"sampleRate":48000,"channels":2,"files":[{"slot":0,"path":path}]}),
+    )
+    .unwrap();
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    while invoke("get_sample_preparation", json!({})).unwrap()["state"] != "ready" {
+        assert!(std::time::Instant::now() < deadline);
+        std::thread::yield_now();
+    }
+    // Same application installation, manual backend: this test opens no hardware.
+    state
+        .access(|application| {
+            application.initialize_manual_mixed_sampler(
+                loading["preparationId"].as_str().unwrap().parse().unwrap(),
+            )
+        })
+        .unwrap();
+    let installed = invoke("get_engine_snapshot", json!({})).unwrap();
+    assert_eq!(installed["mixer"]["settings"], route["settings"]);
+    assert_eq!(installed["lastAppliedCommand"], Value::Null);
+    assert_eq!(installed["engine"]["transport"], "stopped");
+    invoke("transport_play", json!({})).unwrap();
+    state
+        .access(|application| application.render_manual(240))
+        .unwrap();
+    invoke("trigger_sample", json!({"slot":0,"gain":1})).unwrap();
+    state
+        .access(|application| application.render_manual(1))
+        .unwrap();
+    let sound = invoke("get_engine_snapshot", json!({})).unwrap();
+    assert_eq!(sound["mixer"]["voiceChannels"][0], 3);
+    assert_eq!(
+        sound["mixer"]["meters"]["master"],
+        json!({"left":0.0,"right":0.03125})
+    );
+    let edit = invoke(
+        "mixer_set_channel",
+        json!({"channel":3,"gain":0.25,"pan":-1,"muted":false}),
+    )
+    .unwrap();
+    assert!(edit["accepted"]["commandId"].is_string());
+    assert_eq!(
+        invoke("get_mixer_settings", json!({})).unwrap(),
+        edit["settings"]
+    );
+    assert_eq!(
+        invoke("get_engine_snapshot", json!({})).unwrap()["mixer"]["settings"],
+        route["settings"]
+    );
+    state
+        .access(|application| application.render_manual(1))
+        .unwrap();
+    let ramp = invoke("get_engine_snapshot", json!({})).unwrap();
+    assert_eq!(ramp["lastAppliedCommand"], edit["accepted"]["commandId"]);
+    assert_eq!(ramp["mixer"]["settings"], edit["settings"]);
+    assert_eq!(ramp["mixer"]["channels"][3]["gainRemainingFrames"], 239);
+    assert_eq!(ramp["mixer"]["meters"]["frames"], "1");
+    invoke("shutdown_audio", json!({})).unwrap();
+    assert_eq!(
+        invoke("get_engine_snapshot", json!({})).unwrap()["mixer"],
+        Value::Null
+    );
+    assert_eq!(
+        invoke("get_mixer_settings", json!({})).unwrap(),
+        edit["settings"]
+    );
+    state
+        .access(|application| {
+            application.initialize_manual(daw_app::EngineConfig::new(48000, 2).unwrap())
+        })
+        .unwrap();
+    assert_eq!(
+        invoke("mixer_set_route", json!({"slot":0,"channel":1})).unwrap_err()["code"],
+        "invalidArgument"
+    );
+    assert_eq!(
+        invoke("get_mixer_settings", json!({})).unwrap(),
+        edit["settings"]
+    );
+    state.close();
+    assert_eq!(
+        invoke("get_mixer_settings", json!({})).unwrap_err()["code"],
+        "serviceClosed"
+    );
 }

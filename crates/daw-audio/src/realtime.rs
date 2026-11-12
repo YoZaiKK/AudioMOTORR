@@ -1,6 +1,9 @@
 //! Only Copy payloads cross these queues. This module never formats errors.
 use crate::{SamplerTelemetry, TriggerReport};
-use daw_engine::{AudioEngine, EngineCommand, EngineSnapshot, Gain};
+use daw_engine::{
+    AudioEngine, EngineCommand, EngineSnapshot, Gain, MixerChannel, MixerMeters, MixerPeak,
+    MixerSnapshot,
+};
 use rtrb::{Consumer, Producer, RingBuffer};
 use std::sync::{
     Arc,
@@ -22,7 +25,18 @@ pub(crate) struct Command {
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum RealtimeCommand {
     Engine(EngineCommand),
-    Trigger { slot: usize, gain: Gain },
+    Trigger {
+        slot: usize,
+        gain: Gain,
+    },
+    MixerChannel {
+        channel: usize,
+        settings: MixerChannel,
+    },
+    MixerRoute {
+        slot: usize,
+        channel: usize,
+    },
 }
 impl From<EngineCommand> for RealtimeCommand {
     fn from(value: EngineCommand) -> Self {
@@ -37,6 +51,7 @@ pub(crate) struct AppliedSnapshot {
     pub last_applied: Option<u64>,
     pub diagnostics: Option<crate::RealtimeMetrics>,
     pub sampler: Option<SamplerTelemetry>,
+    pub mixer: Option<MixerSnapshot>,
 }
 
 pub(crate) struct ControlQueues {
@@ -54,6 +69,8 @@ pub(crate) struct Realtime {
     callbacks: u64,
     last_applied: Option<u64>,
     sampler: Option<SamplerTelemetry>,
+    mixer: Option<MixerSnapshot>,
+    mixer_window: Option<MixerMeters>,
     #[cfg(feature = "rt-diagnostics")]
     metrics: crate::RealtimeMetrics,
     #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
@@ -63,6 +80,7 @@ pub(crate) struct Realtime {
 impl Realtime {
     pub fn new(engine: AudioEngine) -> (ControlQueues, Self) {
         let sampler = SamplerTelemetry::for_engine(&engine);
+        let mixer = engine.mixer_snapshot();
         let (commands_tx, commands) = RingBuffer::new(COMMAND_CAPACITY);
         let (snapshots, snapshots_rx) = RingBuffer::new(SNAPSHOT_CAPACITY);
         let failure = Arc::new(AtomicU8::new(0));
@@ -80,6 +98,8 @@ impl Realtime {
                 callbacks: 0,
                 last_applied: None,
                 sampler,
+                mixer,
+                mixer_window: None,
                 #[cfg(feature = "rt-diagnostics")]
                 metrics: Default::default(),
                 #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
@@ -89,7 +109,12 @@ impl Realtime {
     }
 
     pub fn begin(&mut self) {
+        self.mixer_window = None;
         if self.failure.load(Ordering::Relaxed) != 0 {
+            return;
+        }
+        if self.callbacks == u64::MAX {
+            self.fail();
             return;
         }
         for _ in 0..MAX_COMMANDS_PER_CALLBACK {
@@ -112,6 +137,18 @@ impl Realtime {
                         }
                     }
                 }
+                RealtimeCommand::MixerChannel { channel, settings } => {
+                    if self.engine.set_mixer_channel(channel, settings).is_err() {
+                        self.fail();
+                        return;
+                    }
+                }
+                RealtimeCommand::MixerRoute { slot, channel } => {
+                    if self.engine.set_mixer_route(slot, channel).is_err() {
+                        self.fail();
+                        return;
+                    }
+                }
             }
             self.last_applied = Some(command.id);
         }
@@ -120,21 +157,76 @@ impl Realtime {
     pub fn render(&mut self, output: &mut [f32]) {
         if self.failure.load(Ordering::Relaxed) != 0 {
             output.fill(0.0);
-        } else if self.engine.render_interleaved(output).is_err() {
+            return;
+        }
+        let frames = output.len() / usize::from(self.engine.snapshot().config.channels());
+        let Ok(window) = self.prepare_mixer_window(frames as u64) else {
             self.fail();
+            output.fill(0.0);
+            return;
+        };
+        if self.engine.render_interleaved(output).is_err() {
+            self.fail();
+        } else if !output.is_empty()
+            && let (Some(mut window), Some(rendered)) = (window, self.engine.mixer_snapshot())
+        {
+            for (total, chunk) in window.channels.iter_mut().zip(rendered.meters.channels) {
+                merge_peak(total, chunk);
+            }
+            merge_peak(&mut window.master, rendered.meters.master);
+            self.mixer_window = Some(window);
         }
     }
 
-    #[cfg(feature = "native-audio")]
-    pub fn validate_output_len(&self, samples: usize) -> bool {
+    /// Preflight the whole callback, including every future render-window sequence.
+    pub fn validate_output_len(&self, samples: usize, chunk_samples: usize) -> bool {
         if self.failure.load(Ordering::Relaxed) != 0 {
             return false;
         }
-        if self.engine.validate_render(samples).is_err() {
+        let channels = usize::from(self.engine.snapshot().config.channels());
+        if chunk_samples == 0
+            || !chunk_samples.is_multiple_of(channels)
+            || self.callbacks == u64::MAX
+            || self.engine.validate_render(samples).is_err()
+        {
             self.fail();
             return false;
         }
+        if let Some(engine_mixer) = self.engine.mixer_snapshot() {
+            let calls = samples.div_ceil(chunk_samples) as u64;
+            if engine_mixer.meters.sequence.checked_add(calls).is_none()
+                || self
+                    .prepare_mixer_window((samples / channels) as u64)
+                    .is_err()
+            {
+                self.fail();
+                return false;
+            }
+        }
         true
+    }
+
+    fn prepare_mixer_window(&self, frames: u64) -> Result<Option<MixerMeters>, ()> {
+        let Some(previous) = self.mixer else {
+            return Ok(None);
+        };
+        if frames == 0 {
+            return Ok(self.mixer_window);
+        }
+        let mut window = if let Some(window) = self.mixer_window {
+            window
+        } else {
+            let mut window = previous.meters;
+            window.sequence = window.sequence.checked_add(1).ok_or(())?;
+            window.frames = 0;
+            for peak in window.channels.iter_mut().chain([&mut window.master]) {
+                peak.left = 0.0;
+                peak.right = peak.right.map(|_| 0.0);
+            }
+            window
+        };
+        window.frames = window.frames.checked_add(frames).ok_or(())?;
+        Ok(Some(window))
     }
 
     pub fn fail(&self) {
@@ -153,6 +245,17 @@ impl Realtime {
         } else {
             self.fail();
         }
+        if self.failure.load(Ordering::Relaxed) == 0 {
+            self.mixer = self.engine.mixer_snapshot().map(|mut mixer| {
+                // Empty callbacks preserve the last completed meter window.
+                mixer.meters = self
+                    .mixer_window
+                    .or(self.mixer.map(|value| value.meters))
+                    .expect("mixed session has initial meters");
+                mixer
+            });
+        }
+        self.mixer_window = None;
         // A full queue may drop telemetry only. Every subsequent callback retries
         // with the latest engine state and cumulative acknowledgement.
         let _ = self.snapshots.push(AppliedSnapshot {
@@ -161,6 +264,7 @@ impl Realtime {
             last_applied: self.last_applied,
             diagnostics: self.diagnostics(),
             sampler: self.sampler,
+            mixer: self.mixer,
         });
     }
 
@@ -244,6 +348,17 @@ impl Realtime {
         self.metrics.freed_bytes = self.metrics.freed_bytes.saturating_add(memory.freed_bytes);
     }
 }
+
+fn merge_peak(total: &mut MixerPeak, chunk: MixerPeak) {
+    total.left = total.left.max(chunk.left);
+    if let (Some(total), Some(chunk)) = (&mut total.right, chunk.right) {
+        *total = total.max(chunk);
+    }
+}
+
+#[cfg(test)]
+#[path = "realtime_mixer_tests.rs"]
+mod mixer_tests;
 
 #[cfg(test)]
 mod tests {

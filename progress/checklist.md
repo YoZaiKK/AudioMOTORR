@@ -3,7 +3,8 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-10): etapas 1–8 completadas; etapa 8 publicada en 1e6bca8,
+Estado actual (2026-11-11): etapas 1–9 completadas dentro de su alcance;
+ver [cierre del sampler](cierre-etapa-9.md). Etapa 8 publicada en 1e6bca8,
 con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
 Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
 publicada en c6cf627 con CI Ubuntu/Windows correcta; [cierre](cierre-etapa-7.md).
@@ -11,7 +12,8 @@ Etapa 9 en curso: 9.1–9.2 completadas; implementación 7acc1db con ambos jobs 
 correctos en run 42530699397. Se dispone de PCM/fixtures, banco fijo y voces raw;
 preparación cerrada en 9.3 y sesiones manual/CPAL en 9.4.b verificadas sin hardware;
 app/IPC/UI implementados en 9.4.c con mocks; integración auditada localmente en
-9.4.d. Evidencia física/mediciones pendientes en 9.5.
+9.4.d. Mediciones físicas correctas en 9.5.b; audibilidad confirmada por el usuario
+tras la última repetición con audífonos.
 Ver [reporte del kernel](etapa-9-voces.md).
 9.3.a fija el contrato; 9.3.b implementa lectura/decodificación de recursos
 individuales; 9.3.c implementa banco completo/permisos/presupuesto agregado.
@@ -22,9 +24,13 @@ transporte/headroom/rampas, verificado offline. 9.4.b conecta sesiones/outcomes
 en audio. 9.4.c conecta Application/DTO/IPC/UI con mocks; 9.4.d audita/cierra
 integración local y corrige recuperación/polling. 9.5.a implementa diagnósticos
 sampler y benchmark offline sin CPAL. Seis mediciones 9.5.b correctas;
-pendientes escucha y consolidación 9.5.c.
+escucha confirmada. Auditoría de código/evidencia y CI de `4dc2c6c` correctas;
+ver [auditoría 9.5.c](auditoria-cierre-9.5c.md) y cierre final de etapa 9.
 Ver [reporte actual](etapa-9-diagnosticos-sampler.md).
-Las etapas 10–13 siguen planificadas. Se conservan los reportes históricos.
+Contrato 10.1, núcleo 10.2 y servicio 10.3.a implementados localmente;
+coordinación de aplicación 10.3.b también implementada localmente; desktop 10.3.c implementado localmente; aceptación 10.3.d completada; diagnósticos 10.4.a listos; matriz nativa 10.4.b medida; escucha y cierre/CI pendientes. Las etapas 10–13
+siguen sin implementación completa. Los apartados anteriores conservan el
+historial de cada incremento; el cierre enlazado arriba registra el estado actual.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
 Registro actual: [continuidad del proyecto](continuidad-etapa-6.md).
 Auditoría de objetivos, evidencia y plan detallado de 9.3:
@@ -166,7 +172,7 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 9.3.e: fixtures WAV → banco → Sampler offline y matriz de aceptación de formatos/límites.
 - [x] Registrar check completo/build y reproducibilidad de 9.3.e.
 - [x] 9.3.f: auditar aceptación y cerrar preparación local; checks/build 9.3.e y manifiesto de código/configuración.
-- [ ] Publicar/inspeccionar CI de revisión exacta de 9.3 cuando se solicite; no inferir éxito remoto.
+- [x] Preparación 9.3 incluida en 4dc2c6c; CI Linux/Windows del SHA inspeccionada en run 42896571891 el 2026-11-11.
 - [x] 9.4: integración local de transporte/headroom, outcomes del servicio e IPC/UI; aceptación física pendiente en 9.5.
 - [x] 9.4.a: AudioEngine con sampler/headroom 1/16, rampas y transporte, resultados directos Copy y pruebas sin dispositivo.
 - [x] Registrar check completo/build y evidencia de 9.4.a.
@@ -179,14 +185,30 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 9.5.a: sampler-bench y sampler-native-check opt-in, feature offline sin CPAL, contadores de asignaciones/liberaciones, probes todos los canales e histograma fijo; tests sin hardware.
 - [x] Registrar check/build Windows, release focal/CLI nativa compilada, benchmarks offline de 24 casos y manifiesto de 119 archivos; sin medición física nueva.
 - [x] 9.5.b: seis mediciones release Realtek/WASAPI, entradas mono/estéreo y 0/1/16 voces, IDs, cierre/reapertura y evidencia.
-- [ ] 9.5.b: incorporar confirmación de escucha humana; no inferir sonido físico/continuidad desde probes.
-- [ ] 9.5.c: cierre con regresiones, límites y CI del SHA publicado.
+- [x] 9.5.b: registrar «Si se escucha» tras el último par mono/estéreo por Headphones Realtek; audibilidad confirmada, continuidad acústica sin medir.
+- [x] 9.5.c: auditar huella de 120 archivos, logs/entradas/binario y CI Linux/Windows de 4dc2c6c; conservar límites e historial.
+- [x] 9.5.c: cierre con regresiones/check/build de implementación, límites, CI de 4dc2c6c y escucha registrada en cierre-etapa-9.md.
 
 ## Etapa 10 — Mezclador de cuatro canales
 
-- [ ] Implementar gain/pan/mute y política de nivel de salida con pruebas.
-- [ ] Acumular medidores en motor y publicar telemetría acotada.
-- [ ] Integrar documento/aplicación/UI y validar cuatro canales con fixtures.
+- [x] 10.1: contrato de enrutamiento/ganancia/pan/mute, headroom, rampas, medidores y fixtures especificado en docs/mixer-contract.md.
+- [x] 10.2: estado de dominio y mezcla opt-in, rutas capturadas, gain/pan/mute, rampas y política de salida con fixtures.
+- [x] Verificar particiones y cero asignaciones/liberaciones de procesamiento; control positivo de destrucción PCM fuera del render.
+- [x] Acumular picos de canal/master en ventanas de render con secuencia/frames, mono explícito y overflow sin mutación.
+- [x] 10.3.a: sesiones mezcladas, controles por FIFO y agrupación de medidores por callback con observaciones Copy acotadas.
+- [x] 10.3.a: verificar cola/IDs, pérdida de observaciones, chunks/conversiones, errores/reinicio, memoria y PCM en propietario.
+- [x] 10.3.b: coordinar documento/aplicación con instalación de ajustes actuales, recibos offline/en vivo y edición posterior a aceptación.
+- [x] 10.3.b: validar cola llena/errores sin mutación, preparación/cancelación, banco consumido, reapertura y ausencia de replay/auto Play.
+- [x] 10.3.c: integrar DTO/IPC/ACL/UI y validar cuatro tiras de mezcla con fixtures.
+- [x] 10.3.c: distinguir selección/recibos/targets/rampas, pérdida de sesión, errores, mono/estéreo y modo navegador.
+- [x] 10.3.d: auditar aceptación integrada local y evidencia final de mezcla.
+- [x] 10.3.d: contrastar cuatro WAV/canales y ciclo completo con particiones, pool/mono/estéreo/cancelación; corregir consulta inicial obsoleta y recibo offline.
+- [x] 10.4.a: comandos mixer-bench/mixer-native-check y protocolo; release/gates, referencia de cuatro canales, lifecycle manual y 24 benchmarks offline.
+- [x] 10.4.b: seis casos mixed nativos y seis reaperturas Speakers Realtek, 48000 Hz estéreo f32, fuentes mono/estéreo y 0/1/16 voces; evidencia conservada.
+- [ ] 10.4.b: registrar confirmación auditiva real del mezclador; pregunta enviada, sin respuesta registrada.
+- [x] 10.4.c: auditoría local de 136 fuentes, 21 artefactos, doce sesiones/24 benchmarks y Git/CI histórica; entrega revisable preparada.
+- [ ] 10.4.c: entregar revisión propia e inspeccionar ambos jobs CI de ese SHA.
+- [ ] Cerrar etapa 10 con escucha registrada, evidencia y CI propias; mantener límites explícitos.
 
 ## Etapa 11 — Secuenciador de 16 pasos
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiError, desktopClient } from "../../shared/api/desktop-client";
 import { observeTrigger, type TriggerObservation } from "./trigger-observation";
+import { observeMixer, type MixerObservation } from "./mixer-observation";
 import type {
   ApiError,
   AppInfoDto,
@@ -10,6 +11,8 @@ import type {
   ServiceSnapshotDto,
   PreparationSnapshotDto,
   SampleFileDto,
+  MixerSettingsDto,
+  MixerEditDto,
 } from "../../shared/api/generated/api";
 
 function acknowledged(snapshot: ServiceSnapshotDto | null, id: string) {
@@ -28,6 +31,12 @@ export function useDawSession() {
   const [connected, setConnected] = useState(false);
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
+  const [mixerSettings, setMixerSettings] = useState<MixerSettingsDto | null>(
+    null,
+  );
+  const [mixerEdit, setMixerEdit] = useState<
+    MixerObservation | "offline" | null
+  >(null);
   const [preparation, setPreparation] = useState<PreparationSnapshotDto | null>(
     null,
   );
@@ -37,6 +46,9 @@ export function useDawSession() {
   const preparationPolling = useRef(false);
   const [trigger, setTrigger] = useState<TriggerObservation | null>(null);
   const current = useRef<ServiceSnapshotDto | null>(null);
+  const mixerGeneration = useRef(0);
+  // Startup reads can outlive an explicit refresh and a later edit.
+  const mixerSelectionGeneration = useRef(0);
   const mounted = useRef(false);
   const working = useRef(false);
   const observe = useCallback((next: ServiceSnapshotDto) => {
@@ -46,7 +58,13 @@ export function useDawSession() {
     )
       return;
     current.current = next;
+    if (next.state !== "ready" || !next.mixer) mixerGeneration.current += 1;
     setSnapshot(next);
+    setMixerEdit((previous) =>
+      previous && previous !== "offline"
+        ? observeMixer(next, previous)
+        : previous,
+    );
     setTrigger((previous) =>
       previous?.status === "pending"
         ? observeTrigger(next, previous.commandId)
@@ -94,7 +112,21 @@ export function useDawSession() {
           const failed = (reason: unknown) => {
             if (!disposed) setError(apiError(reason));
           };
+          const selectionGeneration = mixerSelectionGeneration.current;
           await Promise.all([
+            desktopClient.mixer().then(
+              (settings) => {
+                if (
+                  !disposed &&
+                  selectionGeneration === mixerSelectionGeneration.current
+                )
+                  setMixerSettings(settings);
+              },
+              (reason) => {
+                if (selectionGeneration === mixerSelectionGeneration.current)
+                  failed(reason);
+              },
+            ),
             desktopClient.devices().then((outputs) => {
               if (!disposed) setDevices(outputs);
             }, failed),
@@ -171,6 +203,50 @@ export function useDawSession() {
   }, []);
   const command = (action: () => Promise<CommandAcceptedDto>) =>
     run(action, accepted);
+  const edited = (edit: MixerEditDto, generation: number) => {
+    mixerSelectionGeneration.current += 1;
+    setMixerSettings(edit.settings);
+    setMixerEdit(
+      edit.accepted
+        ? observeMixer(current.current, {
+            commandId: edit.accepted.commandId,
+            status:
+              generation === mixerGeneration.current ? "pending" : "unknown",
+          })
+        : "offline",
+    );
+  };
+  const editMixer = (action: () => Promise<MixerEditDto>) =>
+    run(
+      async () => {
+        const generation = mixerGeneration.current;
+        return { edit: await action(), generation };
+      },
+      ({ edit, generation }) => edited(edit, generation),
+    );
+  const initializeSampler = (deviceId: string | null, mixed: boolean) =>
+    preparation?.preparationId &&
+    run(
+      async () => {
+        try {
+          const initialize = mixed
+            ? desktopClient.initializeMixedSampler
+            : desktopClient.initializeSampler;
+          return await initialize(preparation.preparationId!, deviceId);
+        } finally {
+          try {
+            const next = await desktopClient.preparation();
+            if (mounted.current) observePreparation(next);
+          } catch (reason) {
+            if (mounted.current) setError(apiError(reason));
+          }
+        }
+      },
+      (next) => {
+        setTrigger(null);
+        observe(next);
+      },
+    );
   const ready = connected && snapshot?.state === "ready";
   return {
     native,
@@ -185,6 +261,21 @@ export function useDawSession() {
     error: error ?? snapshot?.error ?? null,
     preparation,
     trigger,
+    mixerSettings,
+    mixerEdit,
+    refreshMixer: () =>
+      run(() => {
+        mixerSelectionGeneration.current += 1;
+        return desktopClient.mixer();
+      }, setMixerSettings),
+    setMixerChannel: (
+      channel: number,
+      gain: number,
+      pan: number,
+      muted: boolean,
+    ) => editMixer(() => desktopClient.mixerChannel(channel, gain, pan, muted)),
+    setMixerRoute: (slot: number, channel: number) =>
+      editMixer(() => desktopClient.mixerRoute(slot, channel)),
     prepareSamples: (
       sampleRate: number,
       channels: number,
@@ -201,28 +292,9 @@ export function useDawSession() {
         observePreparation,
       ),
     initializeSampler: (deviceId: string | null) =>
-      preparation?.preparationId &&
-      run(
-        async () => {
-          try {
-            return await desktopClient.initializeSampler(
-              preparation.preparationId!,
-              deviceId,
-            );
-          } finally {
-            try {
-              const next = await desktopClient.preparation();
-              if (mounted.current) observePreparation(next);
-            } catch (reason) {
-              if (mounted.current) setError(apiError(reason));
-            }
-          }
-        },
-        (next) => {
-          setTrigger(null);
-          observe(next);
-        },
-      ),
+      initializeSampler(deviceId, false),
+    initializeMixedSampler: (deviceId: string | null) =>
+      initializeSampler(deviceId, true),
     triggerSample: (slot: number, gain: number) =>
       run(
         () => desktopClient.triggerSample(slot, gain),

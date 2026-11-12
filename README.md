@@ -6,10 +6,29 @@ can later evolve into a clip-based DAW.
 
 ## Current status
 
-Updated 2026-11-10. Stages 1–8, sampler resources/voices (9.1–9.2), preparation (9.3), local integration
-(9.4) and diagnostic tooling (9.5.a) are implemented. **Stage 9 is still open:**
-six native sampler cases (9.5.b) now pass on Realtek/WASAPI. Human listening
-confirmation and final evidence/CI review (9.5.c) remain pending. Mixer, sequencer, project persistence and clips are later stages.
+Updated 2026-11-11. **Stages 1–9 are complete within their recorded scope.**
+The sampler includes WAV preparation, engine/service/desktop integration and
+diagnostics. Six native matrix cases pass on Realtek/WASAPI; the user confirmed
+audible headphone output after a repeat. Source/evidence audit and exact-revision
+CI are verified; see [stage 9 closure](progress/cierre-etapa-9.md).
+The [four-channel mixer core (10.2)](progress/etapa-10-mezclador-motor.md) is
+implemented locally: document settings, opt-in engine mixing, gain/pan/mute,
+ramps and per-render meters. [Audio service integration (10.3.a)](progress/etapa-10-sesiones-mezclador.md)
+adds mixed manual/native sessions, queued controls and complete-callback peaks.
+[Application coordination (10.3.b)](progress/etapa-10-aplicacion-mezclador.md) now
+installs current document settings and distinguishes document-only edits, queue
+acceptance and applied state. [Desktop integration (10.3.c)](progress/etapa-10-desktop-mezclador.md)
+adds generated DTOs/IPC/ACL, four control strips, 16 slot routes and measured
+channel/master levels. [Integrated acceptance (10.3.d)](progress/cierre-integracion-mezclador-10.3d.md)
+adds decoded four-channel references, lifecycle coverage and two UI corrections.
+[Mixed diagnostics (10.4.a)](progress/etapa-10-diagnosticos-mezclador.md) now add
+explicit benchmark/native commands and a native verification protocol. Offline
+measurements pass. [Native measurements (10.4.b)](progress/etapa-10-medicion-nativa-mezclador.md)
+now record six successful mixed cases and six reopens on Speakers Realtek.
+The [local delivery audit (10.4.c)](progress/auditoria-cierre-mezclador-10.4c.md)
+verifies source/artifact integrity and prepares a [reviewable delivery](progress/entrega-mezclador-etapa-10.md).
+Listening confirmation, delivery and exact-revision CI remain pending.
+Sequencer, project persistence and clips remain to be built.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
 sessions, controls transport/tempo/gain and shows exact-ID trigger outcomes or
@@ -24,19 +43,23 @@ and 0/1/16 voices; see the [native report](progress/etapa-9-medicion-nativa.md).
 engine-bench/tone-check exercise the sine. The CLI exports a sine WAV; exporting
 a sampler project or a beat is not implemented.
 
-The current base is [b0ba589 (Update config)](https://github.com/YoZaiKK/AudioMOTORR/commit/b0ba5895d4b5d4b764727f7d1af1943c522ebc0c),
-after 0c346d5 (Phase 9.5.a). Native measurements use a local CLI trace patch;
-a fixture helper reproduces the exact stereo input.
-At this review, local main and the local origin/main tracking ref both point to
-that revision. Hosted CI for it has not been inspected here; this is separate
-from the older kernel/sine runs and local checks. The
+The sampler baseline is published in [4dc2c6c](https://github.com/YoZaiKK/AudioMOTORR/commit/4dc2c6c2e0882b8f131b68088feffa8def84ba83),
+including the CLI trace patch and stereo fixture helper. On 2026-11-11, GitHub's
+API confirmed remote main at this revision and both Linux/Windows jobs successful
+in [run 42896571891](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891).
+The 120-file stage 9 worktree fingerprint matched at its closure audit, with four
+Git/worktree differences limited to line endings. Mixer 10.2 adds new local source
+changes and its own manifest; 10.3.a records a newer service snapshot in its
+[manifest](progress/evidencia-sesiones-mezclador-10.3a.json). Stage 9 reports retain their original Git/CI state.
+These local implementation/documentation changes have no published revision or hosted CI yet. The
 [9.5.a report](progress/etapa-9-diagnosticos-sampler.md) records 108 headless,
 114 workspace, 29 instrumented-audio, nine diagnostic-CLI, eight decoder-memory,
 24 frontend tests and nine CLI scenarios, plus Windows debug build. Suites overlap.
 Its [119-file fingerprint](progress/evidencia-diagnosticos-9.5a.json) remains a
 dated snapshot. The [native evidence](progress/evidencia-nativa-9.5b.json) records
 the measured runner, inputs, exact-ID outcomes and current source snapshot.
-Audio engine/processing code remains unchanged.
+The [10.2 report](progress/etapa-10-mezclador-motor.md) separates new mixer
+verification from that historical sampler evidence.
 
 See the [configuration review](progress/revision-readme-configuracion.md),
 [status/objectives audit](progress/estado-y-siguiente-etapa.md),
@@ -45,19 +68,34 @@ README/technical documents are in English; progress and practical guides are in 
 
 ## Next steps
 
-| Stage                             | Next deliverable                                                                                                                                                                | Acceptance / boundary                                                                                                                                                                                                         |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **9.5.b — measurements recorded** | Six Realtek/WASAPI cases pass with mono/stereo input, 0/1/16 voices, zero measured allocation/free/overrun and successful reopen. Human listening confirmation remains pending. | Input hashes, exact trigger outcomes, real voice/frame progress, allocation/free counts, approximate histogram quantiles, transport and close/reopen logs. Follow the [native protocol](docs/sampler-native-verification.md). |
-| 9.5.c                             | Review sampler evidence and close stage 9.                                                                                                                                      | Review failures/inconclusive runs, affected checks/build and hosted CI for the exact published revision; retain explicit unplug/loopback/stress/platform limitations.                                                         |
-| 10                                | Four-channel mixer.                                                                                                                                                             | Gain/pan/mute, routing, levels and meters with deterministic audio tests.                                                                                                                                                     |
-| 11                                | 16-step sequencer.                                                                                                                                                              | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                                                                                                                              |
-| 12                                | Project persistence and beat export.                                                                                                                                            | Versioned save/open, relative asset references and offline export of the actual project.                                                                                                                                      |
-| 13                                | Clips and scenes.                                                                                                                                                               | Clip/scene model, quantized launch and predictable transitions.                                                                                                                                                               |
+| Stage                  | Next deliverable                                                                           | Acceptance / boundary                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| 9 — closed             | Source/evidence audit, native measurements, user-confirmed audible output and CI recorded. | Both jobs successful for 4dc2c6c; acoustic continuity, unplug/stress and platform limits remain explicit.               |
+| 10.1–10.2 — local core | Four-channel document settings and opt-in deterministic engine mixing implemented.         | [Contract](docs/mixer-contract.md), reference samples, partition invariance and zero processing allocation/free checks. |
+| 10.3.a — local         | Mixed sessions, shared FIFO controls and complete-callback meter windows implemented.      | [Service contract](docs/mixer-service.md), adapter/lifecycle fixtures and processing memory checks.                     |
+| 10.3.b — local         | Application selection/acceptance and prepared-bank installation coordinated.               | [Application contract](docs/mixer-application.md), rollback and lifecycle fixtures.                                     |
+| 10.3.c — local         | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                          |
+| 10.3.d — local         | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                   |
+| 10.4.a — local         | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                        |
+| **10.4.b–c — open**    | Six native mixed cases/reopens measured; listening and evidence/CI closure pending.        | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                              |
+| 11                     | 16-step sequencer.                                                                         | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                        |
+| 12                     | Project persistence and beat export.                                                       | Versioned save/open, relative asset references and offline export of the actual project.                                |
+| 13                     | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                         |
 
 The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
-define scope and dependencies. These measurements do not close stage 9 or establish acoustic continuity. No commit/push was created.
+define scope and dependencies. The [execution plan](progress/plan-siguientes-pasos.md)
+breaks down the remaining deliveries. Stage 9 closure combines implementation,
+measurements, audit/CI and user-confirmed audibility; it does not establish
+acoustic continuity. This documentation update created no commit/push.
 
 Technical documentation:
+
+- [Mixed sampler diagnostics](docs/mixer-diagnostics.md) and [native verification protocol](docs/mixer-native-verification.md).
+
+- [Integrated mixer acceptance and verification boundaries](docs/mixer-integration-acceptance.md).
+
+- [Desktop mixer controls, routing and measured levels](docs/mixer-desktop.md).
+- [Practical mixer guide (Spanish)](howToRunThis/07-mezclador.md).
 
 - [Architecture and control/observation diagrams](docs/architecture.md).
 - [Realtime contract](docs/realtime-contract.md): ownership, limits, overflow,
@@ -159,7 +197,7 @@ Implemented capabilities:
 - Device enumeration, supported output configurations, and explicit device selection.
 - Audio initialization, shutdown, failure reporting, and restart.
 - CLI smoke checks and behavioral tests for rendering, queues, and service lifecycle.
-- Sixteen IPC commands with Rust DTOs and generated TypeScript declarations.
+- Twenty IPC commands with Rust DTOs and generated TypeScript declarations.
 - Worker-based WAV loading/cancellation and explicit sampler initialization and
   triggers, with exact-ID Started/rejected/Unknown UI observations.
 - Audio-device selection, initialization/shutdown, Play/Pause/Stop, and BPM controls.
@@ -305,7 +343,7 @@ with `BigInt`. Components use domain hooks and a central `desktop-client.ts` rat
 than invoking Tauri directly. They register snapshot listeners before querying
 initial state, reject old sequences, and dispose asynchronous subscriptions.
 
-Sixteen application commands are registered through `ipc::configure`; build.rs
+Twenty application commands are registered through `ipc::configure`; build.rs
 generates their ACL permissions, granted only to the local `main` window along
 with event listen/unlisten. Generated permissions are build artifacts ignored by
 Git. Production CSP stays explicit; no remote capability or plugin is enabled.
@@ -388,18 +426,18 @@ return `NativeAudioDisabled` instead of simulating a device.
 
 ## Repository structure
 
-| Path                 | Responsibility                                                                |
-| -------------------- | ----------------------------------------------------------------------------- |
-| `src/`               | React panels, domain hooks, central IPC client, and generated API types.      |
-| `src-tauri/`         | Tauri composition, IPC DTOs/commands, ACLs, and snapshot publisher.           |
-| `crates/daw-domain/` | Minimal project document, IDs, and validated tempo.                           |
-| `crates/daw-engine/` | Silence/sine rendering, gain ramps, transport, snapshots, and immutable PCM.  |
-| `crates/daw-audio/`  | Audio service, bounded queues, manual rendering, optional CPAL backend.       |
-| `crates/daw-app/`    | Project coordination and audio/transport use cases shared by desktop and CLI. |
-| `crates/daw-cli/`    | Offline smoke, WAV export, device/native checks, and release diagnostics.     |
-| `docs/`              | Architecture, realtime contract, ADR, development/CI, and roadmap.            |
-| `scripts/`           | Windows diagnostics and verification orchestration.                           |
-| `progress/`          | Requirements, implementation checklist, and verification log.                 |
+| Path                 | Responsibility                                                                  |
+| -------------------- | ------------------------------------------------------------------------------- |
+| `src/`               | React panels, domain hooks, central IPC client, and generated API types.        |
+| `src-tauri/`         | Tauri composition, IPC DTOs/commands, ACLs, and snapshot publisher.             |
+| `crates/daw-domain/` | Project document, IDs, validated tempo and fixed mixer settings.                |
+| `crates/daw-engine/` | Silence/sine/sampler rendering, optional four-channel mixing, ramps and meters. |
+| `crates/daw-audio/`  | Audio service, bounded queues, manual rendering, optional CPAL backend.         |
+| `crates/daw-app/`    | Project coordination and audio/transport use cases shared by desktop and CLI.   |
+| `crates/daw-cli/`    | Offline smoke, WAV export, device/native checks, and release diagnostics.       |
+| `docs/`              | Architecture, realtime contract, ADR, development/CI, and roadmap.              |
+| `scripts/`           | Windows diagnostics and verification orchestration.                             |
+| `progress/`          | Requirements, implementation checklist, and verification log.                   |
 
 The repository has one virtual Cargo workspace, one root `Cargo.lock`, one shared
 `target/` directory, and one npm `package-lock.json`. The Rust workspace uses edition
@@ -417,6 +455,11 @@ React, or external libraries.
 are caller-supplied, nonzero `u64` values; global uniqueness is not generated.
 Titles are trimmed and must not be empty. The default document has ID `1`, the
 title "Proyecto sin título", and a tempo of 120 BPM.
+
+The document also owns validated four-channel `MixerSettings`: gain/pan/mute and
+16 slot routes, initially `slot % 4`. Copying them into a new
+`AudioEngine::with_mixed_sampler` explicitly installs the mixed mode; editing the
+document later does not implicitly change processing. Legacy sampler mode stays available.
 
 `Tempo::new` accepts finite values from 20 through 300 BPM, including both bounds.
 Editing the document does not change playback automatically: the caller must
@@ -550,7 +593,9 @@ outside processing. 9.3.c adds complete-bank preparation and aggregate budgets;
 9.3.d verifies faults/cancellation/cleanup and 9.3.e verifies end-to-end loading
 and offline playback. Preparation 9.3 is closed locally and 9.4.a integrates the
 sampler into AudioEngine. 9.4.b adds audio sessions/queued outcomes; 9.4.c adds
-application/DTO/IPC and desktop controls. 9.4.d closes integration locally; next
-is 9.5.b hardware verification using the implemented [sampler diagnostics](docs/sampler-diagnostics.md)
-and [native protocol](docs/sampler-native-verification.md).
-Native sampler processing is measured; human audition remains unconfirmed. Sequencer and project persistence remain planned.
+application/DTO/IPC and desktop controls. 9.4.d closes integration locally;
+9.5.b records six native cases using the [sampler diagnostics](docs/sampler-diagnostics.md).
+The [9.5.c audit](progress/auditoria-cierre-9.5c.md) verifies evidence and exact-revision CI.
+The user confirmed audible headphone output; [stage 9 closure](progress/cierre-etapa-9.md)
+records that observation under the [native protocol](docs/sampler-native-verification.md).
+Sequencer and project persistence remain planned.

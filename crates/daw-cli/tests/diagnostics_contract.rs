@@ -13,9 +13,16 @@ fn diagnostic_help_and_feature_or_profile_gates_do_not_open_hardware() {
         help.status.success()
             && text.contains("sampler-bench")
             && text.contains("sampler-native-check")
+            && text.contains("mixer-bench")
+            && text.contains("mixer-native-check")
     );
     #[cfg(not(any(feature = "offline-diagnostics", feature = "rt-diagnostics")))]
-    for name in ["sampler-bench", "sampler-native-check"] {
+    for name in [
+        "sampler-bench",
+        "sampler-native-check",
+        "mixer-bench",
+        "mixer-native-check",
+    ] {
         let output = run(&[name]);
         assert!(!output.status.success());
         assert!(String::from_utf8_lossy(&output.stderr).contains("Diagnostic commands require"));
@@ -25,9 +32,78 @@ fn diagnostic_help_and_feature_or_profile_gates_do_not_open_hardware() {
         any(feature = "offline-diagnostics", feature = "rt-diagnostics")
     ))]
     {
-        let output = run(&["sampler-bench"]);
+        for name in ["sampler-bench", "mixer-bench", "mixer-native-check"] {
+            let output = run(&[name]);
+            assert!(!output.status.success());
+            assert!(String::from_utf8_lossy(&output.stderr).contains("Diagnostics require"));
+        }
+    }
+}
+
+#[cfg(all(not(debug_assertions), feature = "offline-diagnostics"))]
+#[test]
+fn release_mixer_commands_report_mixed_path_and_gate_native_io() {
+    for channels in ["1", "2"] {
+        let output = run(&["mixer-bench", "--channels", channels, "--iterations", "9"]);
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let text = String::from_utf8_lossy(&output.stdout);
+        assert_eq!(
+            text.lines()
+                .filter(|line| line.starts_with("mixer-bench completed:"))
+                .count(),
+            12
+        );
+        assert!(
+            text.contains("source=mixed_sampler")
+                && text.contains("allocations: 0")
+                && text.contains("deallocations: 4")
+                && text.contains("musical_peaks=")
+                && text.contains("voices=16")
+        );
+    }
+    for args in [
+        vec!["mixer-bench", "--voices", "4"],
+        vec!["mixer-bench", "--iterations", "0"],
+        vec!["mixer-bench", "--channels", "3"],
+        vec!["mixer-bench", "--voices", "1", "--voices", "16"],
+        vec!["mixer-bench", "--iterations"],
+        vec!["mixer-native-check", "--input", "missing.wav"],
+        vec![
+            "mixer-native-check",
+            "--input",
+            "missing.wav",
+            "--device",
+            "explicit",
+            "--seconds",
+            "6",
+        ],
+        vec![
+            "mixer-native-check",
+            "--input",
+            "missing.wav",
+            "--device",
+            "explicit",
+            "--voices",
+            "4",
+        ],
+    ] {
+        assert!(!run(&args).status.success());
+    }
+    #[cfg(not(feature = "native-audio"))]
+    {
+        let output = run(&[
+            "mixer-native-check",
+            "--input",
+            "missing.wav",
+            "--device",
+            "explicit",
+        ]);
         assert!(!output.status.success());
-        assert!(String::from_utf8_lossy(&output.stderr).contains("Diagnostics require"));
+        assert!(String::from_utf8_lossy(&output.stderr).contains("NativeAudioDisabled"));
     }
 }
 #[cfg(all(not(debug_assertions), feature = "offline-diagnostics"))]

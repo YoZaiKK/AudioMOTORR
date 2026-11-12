@@ -1,6 +1,6 @@
 # Plan de progreso — Etapas 7 a 13
 
-Actualizado: 2026-11-10. Etapa 7 completada, publicada en c6cf627 y verificada
+Actualizado: 2026-11-11. Etapa 7 completada, publicada en c6cf627 y verificada
 en Linux headless/Windows desktop por CI. **Etapa 8 completada**, publicada en
 1e6bca8 con CI correcta en run 42524752652: señal nativa explícita, rampas y
 mediciones release. Ver [reporte actual](etapa-8.md)
@@ -8,9 +8,19 @@ para comprobaciones y estado de publicación/CI. Desktop conserva silencio inici
 y permite seleccionar senoide; los smoke ordinarios siguen en silencio.
 Los reportes de motor/WAV conservan sus resultados previos a la publicación.
 
-Etapa 9 en curso: 9.1–9.2 completadas. Kernel publicado en 7acc1db con CI correcta
-en run 42530699397: banco fijo y 16 voces raw con pruebas de memoria; todavía
-sin audición física del sampler verificada. Incremento actual: 9.5.b, seis mediciones nativas correctas; pendientes escucha y cierre 9.5.c.
+**Etapa 9 completada dentro de su alcance**; ver [cierre](cierre-etapa-9.md).
+Implementación publicada en 4dc2c6c, CI Linux/Windows correcta, matriz Realtek y
+audibilidad confirmada por el usuario tras repetición con audífonos.
+**10.1 especificado** en el [contrato de mezcla](../docs/mixer-contract.md);
+**10.2 implementado localmente**; ver [reporte](etapa-10-mezclador-motor.md).
+**10.3.a completado localmente**; ver [sesiones mezcladas](etapa-10-sesiones-mezclador.md).
+**10.3.b completado localmente**; ver [coordinación de aplicación](etapa-10-aplicacion-mezclador.md).
+**10.3.c completado localmente**; ver [desktop](etapa-10-desktop-mezclador.md).
+**10.3.d completado localmente**; ver [aceptación integrada](cierre-integracion-mezclador-10.3d.md).
+**10.4.a implementado localmente**; ver [diagnósticos de mezcla](etapa-10-diagnosticos-mezclador.md).
+**Matriz 10.4.b medida**; ver [resultados nativos](etapa-10-medicion-nativa-mezclador.md).
+[Auditoría local 10.4.c completada](auditoria-cierre-mezclador-10.4c.md).
+Pendiente: confirmación auditiva, entrega y CI propias; etapa 10 sigue abierta.
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -21,17 +31,22 @@ pruebas sin hardware. 9.4.c añade preparación en worker, DTO/IPC/UI y observac
 por ID. 9.4.d audita/cierra integración local, corrige recuperación/polls y
 define protocolo nativo. 9.5.a entrega sampler-bench/native-check y métricas
 acotadas con tests sin dispositivo. 9.5.b registra seis mediciones Realtek/WASAPI
-correctas; pendientes escucha humana y consolidación 9.5.c. Ver
+correctas; escucha humana y cierre 9.5.c completados posteriormente. Ver
 [reporte actual](etapa-9-medicion-nativa.md).
 El [contrato](../docs/sampler-contract.md) y [reporte actual](etapa-9-voces.md)
 separan implementación, comprobaciones y límites.
 
 La [auditoría de estado, objetivos y siguiente etapa](estado-y-siguiente-etapa.md)
-contrasta el plan con el código incluido en 0c346d5 (Phase 9.5.a), que incorpora
-el kernel 7acc1db y la integración/diagnósticos posteriores. La CI de 0c346d5 no
-se ha inspeccionado en la revisión de configuración. La groovebox utilizable
-requiere cerrar 9 y completar 10–11; guardar/reabrir/exportar el beat llega en 12.
-La UI de sampler está implementada con mocks; audición física queda pendiente.
+contrasta el plan con la implementación publicada en `4dc2c6c`, que incorpora
+el kernel 7acc1db, preparación, integración, diagnósticos y evidencia nativa.
+La [auditoría 9.5.c](auditoria-cierre-9.5c.md) verifica huella/artefactos y ambos
+jobs correctos del SHA exacto en run 42896571891. La confirmación de audibilidad
+completa el cierre de etapa 9.
+Los reportes de incrementos conservan sus estados históricos de publicación/CI.
+La groovebox utilizable
+requiere completar 10–11; guardar/reabrir/exportar el beat llega en 12.
+La UI de sampler está implementada con mocks; audibilidad física confirmada
+mediante el runner nativo, sin atribuirle cobertura de todos los flujos de UI.
 El WAV de senoide no equivale a exportación de beat.
 
 El [checklist](checklist.md) registra el estado; el [roadmap técnico](../docs/roadmap.md)
@@ -41,15 +56,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                                                          |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | --------------------------------------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.                               |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                               |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | En curso: mediciones 9.5.b correctas; escucha/9.5.c pendientes. |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Pendiente.                                                      |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                                      |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                                      |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                                      |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                                                                                                                                           |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.                                                                                                                                |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                                                                                                                                |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Completada: implementación, mediciones, CI y escucha registrada.                                                                                                 |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Núcleo/servicio/aplicación/desktop hasta 10.3.d aceptados localmente; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; escucha y cierre/CI pendientes. |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                                                                                                                                       |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                                                                                                                                       |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                                                                                                                                       |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -174,14 +189,15 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Incorporar la **confirmación de escucha humana** solicitada y continuar con
-**9.5.c: consolidación de evidencia/límites y CI**. La matriz 9.5.b ya pasó seis
-casos Realtek/WASAPI y reaperturas, con ceros de memoria/overruns dentro de
-procesamiento. Ver [reporte](etapa-9-medicion-nativa.md). Quedan separados audición,
-loopback y CPU/probes. No cerrar etapa 9 ni atribuir CI a cambios locales sin
-publicar/inspeccionar el SHA correspondiente. Etapas 10–13 siguen posteriores.
+La matriz **10.4.b** ya se midió correctamente. Registrar la confirmación
+auditiva pendiente y entregar la revisión para su CI; la auditoría local de **10.4.c**
+está completada conforme al
+[protocolo](../docs/mixer-native-verification.md). [Herramientas 10.4.a](etapa-10-diagnosticos-mezclador.md) listas.
+La aceptación local 10.3.d ya contrasta referencias/ciclo completo y evidencia. [Desktop 10.3.c](etapa-10-desktop-mezclador.md) ya conecta selección,
+recibos, targets/rampas y niveles con cuatro tiras y rutas explícitas. Ver [contrato](../docs/mixer-application.md) y
+[plan de ejecución](plan-siguientes-pasos.md).
 
-## Etapa 9 — Desglose y aceptación
+## Etapa 9 — Desglose y aceptación (historial previo al cierre)
 
 ### Etapa 9.3 e integración 9.4 — Cerradas localmente; diagnósticos 9.5.a implementados
 

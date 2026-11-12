@@ -7,11 +7,14 @@
 use std::fmt;
 
 mod gain;
+mod mixer;
 mod oscillator;
 mod sample;
 mod sampler;
 use gain::GainRamp;
 pub use gain::{Gain, InvalidGain};
+use mixer::Mixer;
+pub use mixer::{MixerChannelSnapshot, MixerControlError, MixerMeters, MixerPeak, MixerSnapshot};
 pub use oscillator::OscillatorError;
 use oscillator::SineOscillator;
 pub use sample::{MAX_SAMPLE_FRAMES, SampleBuffer, SampleError};
@@ -20,7 +23,7 @@ pub use sampler::{
     TriggerError, VoiceSnapshot,
 };
 
-pub use daw_domain::Tempo;
+pub use daw_domain::{MIXER_CHANNELS, MixerChannel, MixerError, MixerSettings, Tempo};
 
 /// Applied after raw voice summing and before the master envelope.
 pub const SAMPLER_HEADROOM: f32 = 1.0 / SAMPLER_VOICES as f32;
@@ -148,6 +151,7 @@ pub struct AudioEngine {
     sine: Option<SineOscillator>,
     ramp: Option<GainRamp>,
     sampler: Option<Sampler>,
+    mixer: Option<Mixer>,
 }
 
 struct RenderProgress {
@@ -177,6 +181,7 @@ impl AudioEngine {
             sine: None,
             ramp: None,
             sampler: None,
+            mixer: None,
         }
     }
 
@@ -225,6 +230,60 @@ impl AudioEngine {
         self.sampler.as_ref()
     }
 
+    /// Explicit opt-in four-channel mix. Legacy sampler/raw rendering stays unchanged.
+    pub fn with_mixed_sampler(bank: SampleBank, tempo: Tempo, settings: MixerSettings) -> Self {
+        let config = bank.config();
+        let mut engine = Self::with_sampler(bank, tempo);
+        engine.mixer = Some(Mixer::new(
+            config.sample_rate(),
+            config.channels(),
+            settings,
+        ));
+        engine
+    }
+
+    pub fn mixer_snapshot(&self) -> Option<MixerSnapshot> {
+        self.mixer
+            .as_ref()
+            .zip(self.sampler.as_ref())
+            .map(|(mixer, sampler)| mixer.snapshot(sampler))
+    }
+
+    /// Direct processing-owner edit; service queuing and document coordination follow in 10.3.
+    pub fn set_mixer_channel(
+        &mut self,
+        channel: usize,
+        selected: MixerChannel,
+    ) -> Result<(), MixerControlError> {
+        self.mixer
+            .as_mut()
+            .ok_or(MixerControlError::NoMixer)?
+            .set_channel(channel, selected)?;
+        self.snap_silent_mixer();
+        Ok(())
+    }
+
+    pub fn set_mixer_route(
+        &mut self,
+        slot: usize,
+        channel: usize,
+    ) -> Result<(), MixerControlError> {
+        self.mixer
+            .as_mut()
+            .ok_or(MixerControlError::NoMixer)?
+            .set_route(slot, channel)?;
+        Ok(())
+    }
+
+    fn snap_silent_mixer(&mut self) {
+        if self.state.transport != TransportState::Playing
+            && self.state.gain == 0.0
+            && let Some(mixer) = &mut self.mixer
+        {
+            mixer.snap();
+        }
+    }
+
     /// Starts at source frame zero on the next rendered playing frame. Validate
     /// mode, slot, asset, transport, then dynamic pool availability, in that order.
     /// The Copy result is immediate; command IDs/queued outcomes belong to audio.
@@ -248,11 +307,15 @@ impl AudioEngine {
         {
             return Err(SamplerTriggerError::NotPlaying);
         }
-        sampler.trigger(slot, gain).map_err(|error| match error {
+        let voice = sampler.trigger(slot, gain).map_err(|error| match error {
             TriggerError::InvalidSlot => SamplerTriggerError::InvalidSlot,
             TriggerError::MissingAsset => SamplerTriggerError::MissingAsset,
             TriggerError::PoolFull => SamplerTriggerError::PoolFull,
-        })
+        })?;
+        if let Some(mixer) = &mut self.mixer {
+            mixer.capture_route(voice, slot);
+        }
+        Ok(voice)
     }
 
     fn reset_sources(&mut self) {
@@ -316,6 +379,7 @@ impl AudioEngine {
             }
         }
         self.sync_ramp();
+        self.snap_silent_mixer();
     }
 
     pub const fn snapshot(&self) -> EngineSnapshot {
@@ -328,6 +392,9 @@ impl AudioEngine {
             return Err(RenderError::UnalignedBuffer);
         }
         let frames = u64::try_from(samples / channels).map_err(|_| RenderError::CounterOverflow)?;
+        if let Some(mixer) = &self.mixer {
+            mixer.validate_render(frames)?;
+        }
         let device_frames = self
             .state
             .device_frames
@@ -385,17 +452,28 @@ impl AudioEngine {
             mut transport_frames,
             releasing,
         } = self.render_progress(output.len())?;
+        if let Some(mixer) = &mut self.mixer {
+            mixer.begin_window((output.len() / channels) as u64);
+        }
         // Engine counters/alignment are checked before source advancement. The
         // raw sampler also preflights its own clock before touching voices; its
         // failure leaves the full output silent and the engine envelope unchanged.
         if self.state.transport == TransportState::Playing {
             let playing_output = &mut output[..playing_frames as usize * channels];
             if let Some(sampler) = &mut self.sampler {
-                sampler.render_interleaved(playing_output)?;
-                for frame in playing_output.chunks_exact_mut(channels) {
-                    let gain = self.ramp.as_mut().map_or(self.state.gain, GainRamp::next);
-                    for sample in frame {
-                        *sample = (*sample * SAMPLER_HEADROOM) * gain as f32;
+                if let Some(mixer) = &mut self.mixer {
+                    mixer.render(
+                        sampler,
+                        playing_output,
+                        self.ramp.as_mut().expect("mixed sampler has a master ramp"),
+                    )?;
+                } else {
+                    sampler.render_interleaved(playing_output)?;
+                    for frame in playing_output.chunks_exact_mut(channels) {
+                        let gain = self.ramp.as_mut().map_or(self.state.gain, GainRamp::next);
+                        for sample in frame {
+                            *sample = (*sample * SAMPLER_HEADROOM) * gain as f32;
+                        }
                     }
                 }
             } else if let Some(sine) = &mut self.sine {
@@ -415,6 +493,7 @@ impl AudioEngine {
         self.state.device_frames = device_frames;
         self.state.transport_frames = transport_frames;
         self.sync_ramp();
+        self.snap_silent_mixer();
         Ok(())
     }
 }
@@ -426,15 +505,21 @@ mod tests {
     #[test]
     fn overflow_silences_output_and_preserves_both_counters() {
         for (device_frames, transport_frames) in [(u64::MAX, 0), (0, u64::MAX)] {
-            for signal in [0, 1, 2, 3] {
+            for signal in [0, 1, 2, 3, 4] {
                 let config = EngineConfig::new(48_000, 2).unwrap();
-                let mut engine = if signal == 3 {
+                let mut engine = if signal >= 3 {
                     let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
                     slots[0] = Some(SampleBuffer::new(config, vec![0.5; 200]).unwrap());
-                    AudioEngine::with_sampler(
-                        SampleBank::new(config, slots).unwrap(),
-                        Tempo::default(),
-                    )
+                    let bank = SampleBank::new(config, slots).unwrap();
+                    if signal == 4 {
+                        AudioEngine::with_mixed_sampler(
+                            bank,
+                            Tempo::default(),
+                            MixerSettings::default(),
+                        )
+                    } else {
+                        AudioEngine::with_sampler(bank, Tempo::default())
+                    }
                 } else if signal == 2 {
                     AudioEngine::with_ramped_sine(config, Tempo::default(), 440.0, 0.1).unwrap()
                 } else if signal == 1 {
@@ -443,7 +528,7 @@ mod tests {
                     AudioEngine::new(config, Tempo::default())
                 };
                 engine.apply_command(EngineCommand::Play);
-                if signal == 3 {
+                if signal >= 3 {
                     engine.trigger_sample(0, Gain::new(1.0).unwrap()).unwrap();
                 }
                 engine.render_interleaved(&mut [0.0; 26]).unwrap();
@@ -453,6 +538,7 @@ mod tests {
                 let before_sine = engine.sine;
                 let before_ramp = engine.ramp;
                 let before_sampler = engine.sampler().map(Sampler::snapshot);
+                let before_mixer = engine.mixer_snapshot();
                 assert_eq!(engine.validate_render(2), Err(RenderError::CounterOverflow));
                 assert_eq!(engine.snapshot(), before);
                 let mut output = [1.0; 2];
@@ -465,6 +551,7 @@ mod tests {
                 assert_eq!(engine.sine, before_sine);
                 assert_eq!(engine.ramp, before_ramp);
                 assert_eq!(engine.sampler().map(Sampler::snapshot), before_sampler);
+                assert_eq!(engine.mixer_snapshot(), before_mixer);
                 assert_eq!(engine.render_interleaved(&mut []), Ok(()));
                 assert_eq!(engine.sine, before_sine);
             }

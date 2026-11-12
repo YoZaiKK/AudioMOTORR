@@ -112,6 +112,54 @@ fn preparation_id(value: &str) -> daw_app::Result<u64> {
 }
 
 #[tauri::command]
+pub async fn get_mixer_settings(
+    state: State<'_, Arc<DesktopState>>,
+) -> Result<MixerSettingsDto, ApiError> {
+    with_app(state, |app| Ok(app.get_mixer_settings().into())).await
+}
+
+#[tauri::command]
+pub async fn mixer_set_channel(
+    state: State<'_, Arc<DesktopState>>,
+    channel: u8,
+    gain: f64,
+    pan: f64,
+    muted: bool,
+) -> Result<MixerEditDto, ApiError> {
+    with_app(state, move |app| {
+        app.mixer_set_channel(usize::from(channel), gain, pan, muted)
+            .map(Into::into)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn mixer_set_route(
+    state: State<'_, Arc<DesktopState>>,
+    slot: u8,
+    channel: u8,
+) -> Result<MixerEditDto, ApiError> {
+    with_app(state, move |app| {
+        app.mixer_set_route(usize::from(slot), usize::from(channel))
+            .map(Into::into)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn initialize_mixed_sampler(
+    state: State<'_, Arc<DesktopState>>,
+    preparation_id: String,
+    device_id: Option<String>,
+) -> Result<ServiceSnapshotDto, ApiError> {
+    with_app(state, move |app| {
+        app.initialize_mixed_sampler(self::preparation_id(&preparation_id)?, device_id)
+            .map(Into::into)
+    })
+    .await
+}
+
+#[tauri::command]
 pub async fn prepare_samples(
     state: State<'_, Arc<DesktopState>>,
     sample_rate: u32,

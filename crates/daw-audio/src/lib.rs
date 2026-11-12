@@ -7,8 +7,8 @@ mod service;
 pub use metrics::{MemoryActivity, RealtimeMetrics};
 
 use daw_engine::{
-    AudioEngine, EngineConfig, EngineSnapshot, SAMPLE_BANK_SLOTS, SampleBank, SamplerTriggerError,
-    Tempo,
+    AudioEngine, EngineConfig, EngineSnapshot, MixerSettings, MixerSnapshot, SAMPLE_BANK_SLOTS,
+    SampleBank, SamplerTriggerError, Tempo,
 };
 use std::fmt;
 
@@ -89,6 +89,8 @@ pub struct ServiceSnapshot {
     pub diagnostics: Option<RealtimeMetrics>,
     /// Latest lossy observation; never infer an older trigger's outcome from it.
     pub sampler: Option<SamplerTelemetry>,
+    /// Applied mixed-session settings and peaks from the whole backend callback.
+    pub mixer: Option<MixerSnapshot>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -129,6 +131,7 @@ impl SamplerTelemetry {
 pub(crate) enum Source {
     Signal(Option<f64>),
     Sampler(Box<SampleBank>),
+    MixedSampler(Box<SampleBank>, MixerSettings),
 }
 impl Source {
     pub(crate) fn engine(self, config: EngineConfig, tempo: Tempo) -> Result<AudioEngine> {
@@ -137,7 +140,10 @@ impl Source {
             Self::Sampler(bank) if bank.config() == config => {
                 Ok(AudioEngine::with_sampler(*bank, tempo))
             }
-            Self::Sampler(_) => Err(AudioError::new(
+            Self::MixedSampler(bank, settings) if bank.config() == config => {
+                Ok(AudioEngine::with_mixed_sampler(*bank, tempo, settings))
+            }
+            Self::Sampler(_) | Self::MixedSampler(..) => Err(AudioError::new(
                 ErrorCode::InvalidArgument,
                 "Device configuration must match the prepared bank rate and channels",
             )),

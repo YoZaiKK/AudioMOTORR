@@ -165,11 +165,94 @@ label[for="sine-frequency"] {
   flex: 1;
   min-width: 180px;
 }
+.mixer-grid,
+.mixer-routes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.mixer-strip {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #465368;
+  border-radius: 8px;
+  background: #12151b;
+}
+.mixer-strip h3 {
+  margin-top: 0;
+  color: #86d6b3;
+}
+.mixer-strip fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.mixer-strip legend {
+  color: #b4bdcb;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+.mixer-strip label {
+  display: block;
+  font-size: 0.85rem;
+}
+.mixer-strip input[type="number"] {
+  width: 100%;
+  margin: 8px 0 16px;
+}
+.mixer-mute input {
+  accent-color: #86d6b3;
+  margin: 0 8px 0 0;
+}
+.mixer-strip button {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px 6px;
+}
+.mixer-strip p,
+.mixer-routes small {
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.mixer-peaks label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.mixer-peaks meter {
+  flex: 1;
+  min-width: 20px;
+  accent-color: #86d6b3;
+}
+.mixer-master {
+  margin: 24px 0;
+}
+.mixer-master .mixer-peaks {
+  max-width: 400px;
+}
+summary {
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .mixer-grid,
+  .mixer-routes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 @media (max-width: 480px) {
   .workspace {
     padding: 24px 14px;
   }
   .panel {
     padding: 18px;
+  }
+  .mixer-grid,
+  .mixer-routes {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

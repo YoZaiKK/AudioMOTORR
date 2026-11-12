@@ -1,5 +1,9 @@
 # Etapa 9.5.b — Mediciones nativas del sampler
 
+Actualización posterior del 2026-11-11: [etapa 9 cerrada](cierre-etapa-9.md) con
+auditoría/CI inspeccionada y audibilidad confirmada tras repetir con audífonos.
+El informe siguiente conserva su estado original, anterior a esa confirmación.
+
 Fecha: 2026-11-10. **Seis casos nativos correctos en hardware Realtek**, con
 entrada mono/estéreo y ventanas de 0/1/16 voces. Escucha humana solicitada pero
 sin confirmación registrada al redactar este informe. La medición de procesamiento

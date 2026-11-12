@@ -1,0 +1,505 @@
+{
+  "format_version": 1,
+  "stage": "9.5.c",
+  "audited_date": "2026-11-11",
+  "status": "closed_with_documented_limits",
+  "stage_9_closed": true,
+  "implementation_git_revision": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+  "remote_main_sha_observed": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+  "remote_inspected_utc": "2026-11-11T20:07:32.0801973Z",
+  "hosted_ci": {
+    "source": "GitHub REST API: actions/runs filtered by head_sha, run jobs and commits/main",
+    "run_id": 42896571891,
+    "head_sha": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891",
+    "created_at": "2026-11-10T20:34:09Z",
+    "updated_at": "2026-11-10T20:41:22Z",
+    "jobs": [
+      {
+        "name": "headless-linux",
+        "id": 130111130782,
+        "head_sha": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891/job/130111130782"
+      },
+      {
+        "name": "desktop-windows",
+        "id": 130111131257,
+        "head_sha": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891/job/130111131257"
+      }
+    ],
+    "successful_step_results_inspected": true,
+    "full_job_logs_downloaded": false,
+    "hardware_exercised_by_ci": false
+  },
+  "integrity": {
+    "inspected_utc": "2026-11-11T20:08:58.361Z",
+    "git_revision": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+    "source_files_checked": 120,
+    "committed_source_files_checked": 120,
+    "committed_raw_byte_matches": 116,
+    "committed_line_ending_differences": [
+      {
+        "path": "src-tauri/.gitignore",
+        "committed_sha256": "646a917f23a3d76736252fac394b218e99c3f2d7f5c4dad9e334563452574cde",
+        "measured_worktree_sha256": "8a460714d8a02659573400de0c2f2dcc756e63ca511497c3b8f068b63657bb01"
+      },
+      {
+        "path": "src-tauri/Cargo.toml",
+        "committed_sha256": "47748f73758126acbddb1d40f596b051bd23c818d42f1647508cedf03880e23d",
+        "measured_worktree_sha256": "349b8dd695dcfb5d9dd75a970405e127639205092abac0d10b6cf0fce5f0b997"
+      },
+      {
+        "path": "src-tauri/src/main.rs",
+        "committed_sha256": "7f03188dc35ca028a90dadd50d6aa5247e2ebb22a223dd60f5cb52198276d247",
+        "measured_worktree_sha256": "469bccdd097c209ef4912f006d1fc94f2fc33308796c23365ccfd1089956a0e7"
+      },
+      {
+        "path": "src-tauri/src/snapshots.rs",
+        "committed_sha256": "8bf0bddbb326ad13c61cc1a6f23415ce501c588004e456eddc6293e6d70bbe47",
+        "measured_worktree_sha256": "2556a354d93413a4747a3d9cd758b2c8e83a95ef03a06dfe461ce70f076ed82c"
+      }
+    ],
+    "source_fingerprint_sha256": "102046d6e2625100aacde062c4ce19b7bf5341e6e6ad35b2dfddb8cd93fa04d2",
+    "native_logs_checked": 6,
+    "inputs_checked": 2,
+    "check_logs_checked": 4,
+    "pilot_log_checked": true,
+    "measured_runner_binary_sha256": "fa6aa8d1e54e067b4eb5eff57865d1d68b700ff4ae561c17742a7962e229f534",
+    "errors": []
+  },
+  "native_evidence": {
+    "manifest": "progress/evidencia-nativa-9.5b.json",
+    "manifest_sha256": "c38b593696742e5ed78cde5e185ccafb4ed5bbe106810f22c2cd3b406847a086",
+    "measurement_date": "2026-11-10",
+    "native_cases": 6,
+    "instrumented_sessions": 12,
+    "matrix_outcomes_histograms_and_zero_counters_rechecked": true,
+    "stereo_reproduction_hash_matches_input": true,
+    "fixture_overwrite_log_hash_matches": true,
+    "limits": [
+      "one identified WASAPI device, f32 stereo output",
+      "one-second voice windows plus full lifecycle, not prolonged stress",
+      "pre-conversion probes, no acoustic loopback",
+      "no physical unplug or Linux/macOS native verification"
+    ],
+    "new_hardware_run_performed_during_initial_audit": false
+  },
+  "physical_listening": {
+    "status": "confirmed_audible_by_user",
+    "requested_on": "2026-11-11",
+    "response_received": true,
+    "recorded_utc": "2026-11-11T21:03:22.413Z",
+    "user_observation": "Si se escucha",
+    "confirmed_repeat_report": "target/stage9-listening-2026-11-11T20-59-47-430Z/listening.json",
+    "device_name": "Headphones (2- Realtek(R) Audio)",
+    "device_id": "wasapi:{0.0.0.00000000}.{6ad7cba4-f52f-49bb-aea1-e43eee86e121}",
+    "scope": "User confirms audible output after correcting the headphones connection. Does not independently establish acoustic continuity, channel separation or absence of all artifacts."
+  },
+  "verification_scope": "Reuses recorded local checks/build and exact-implementation hosted CI. Current changes are documentation only; no new full product suites/build required.",
+  "documentation_checks": {
+    "markdown_files": 17,
+    "local_link_targets_checked": 380,
+    "missing_link_targets": [],
+    "links_inspected_utc": "2026-11-11T21:07:38.706Z",
+    "commands": ["npm run format:check", "git diff --check"],
+    "result": "passed"
+  },
+  "documentation_revision": {
+    "committed": false,
+    "published": false,
+    "separate_hosted_ci": "pending"
+  },
+  "native_listening_repeat": {
+    "started_utc": "2026-11-11T20:54:01.578Z",
+    "ended_utc": "2026-11-11T20:54:34.263Z",
+    "git_revision": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+    "device_id": "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+    "device_name": "Speakers (2- Realtek(R) Audio)",
+    "binary_sha256": "fa6aa8d1e54e067b4eb5eff57865d1d68b700ff4ae561c17742a7962e229f534",
+    "local_report": "target/stage9-listening-2026-11-11T20-54-01-577Z/listening.json",
+    "local_report_sha256": "80b85daaf2afcae64f516be1f158dacad4b9c11de0a8ec9a62ba4fe219594168",
+    "runs": [
+      {
+        "input": "mono-997.wav",
+        "input_sha256_before": "f40ec0d716b0c09c9d1b6c1c3bfb9e70262ec0c44c5cd04c78eeb3af88cc76c8",
+        "input_sha256_after": "f40ec0d716b0c09c9d1b6c1c3bfb9e70262ec0c44c5cd04c78eeb3af88cc76c8",
+        "arguments": [
+          "sampler-native-check",
+          "--input",
+          "C:\\proyectos\\rust\\MOTORUST\\target\\stage9-5b-20261110-134708\\mono-997.wav",
+          "--device",
+          "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+          "--sample-rate",
+          "48000",
+          "--channels",
+          "2",
+          "--voices",
+          "16",
+          "--seconds",
+          "5"
+        ],
+        "started_utc": "2026-11-11T20:54:01.677Z",
+        "ended_utc": "2026-11-11T20:54:18.279Z",
+        "exit_code": 0,
+        "error": null,
+        "log": "target/stage9-listening-2026-11-11T20-54-01-577Z/mono-997.wav.log",
+        "log_sha256": "c5c0d08d69671ddf0fe0f1c387c10d6bd3a23f32fcd878683cdaac4571513a93",
+        "successful_runner_assertions": true,
+        "sessions": [
+          {
+            "kind": "reopened",
+            "measured_callbacks": 3,
+            "measured_frames": 2016,
+            "max_processing_ns": 32400,
+            "max_load_ratio": 0.00324,
+            "deadline_misses": 0,
+            "allocations": 0,
+            "allocated_bytes": 0,
+            "deallocations": 0,
+            "freed_bytes": 0,
+            "non_finite_samples": 0,
+            "signal_peak": 0.0062499666
+          },
+          {
+            "kind": "initial",
+            "measured_callbacks": 1526,
+            "measured_frames": 733056,
+            "max_processing_ns": 143600,
+            "max_load_ratio": 0.01436,
+            "deadline_misses": 0,
+            "allocations": 0,
+            "allocated_bytes": 0,
+            "deallocations": 0,
+            "freed_bytes": 0,
+            "non_finite_samples": 0,
+            "signal_peak": 0.0651078
+          }
+        ]
+      },
+      {
+        "input": "stereo-distinct.wav",
+        "input_sha256_before": "accf828c3b709bcffb7e57a72313e1a29fa6eda9a18a64b2b01875136e19ed4b",
+        "input_sha256_after": "accf828c3b709bcffb7e57a72313e1a29fa6eda9a18a64b2b01875136e19ed4b",
+        "arguments": [
+          "sampler-native-check",
+          "--input",
+          "C:\\proyectos\\rust\\MOTORUST\\target\\stage9-5b-20261110-134708\\stereo-distinct.wav",
+          "--device",
+          "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+          "--sample-rate",
+          "48000",
+          "--channels",
+          "2",
+          "--voices",
+          "16",
+          "--seconds",
+          "5"
+        ],
+        "started_utc": "2026-11-11T20:54:18.283Z",
+        "ended_utc": "2026-11-11T20:54:34.262Z",
+        "exit_code": 0,
+        "error": null,
+        "log": "target/stage9-listening-2026-11-11T20-54-01-577Z/stereo-distinct.wav.log",
+        "log_sha256": "029025862cdecedb181139bda8809f0b66b2a9b8761b927271c8438c9126ce8e",
+        "successful_runner_assertions": true,
+        "sessions": [
+          {
+            "kind": "reopened",
+            "measured_callbacks": 3,
+            "measured_frames": 2016,
+            "max_processing_ns": 21800,
+            "max_load_ratio": 0.00162,
+            "deadline_misses": 0,
+            "allocations": 0,
+            "allocated_bytes": 0,
+            "deallocations": 0,
+            "freed_bytes": 0,
+            "non_finite_samples": 0,
+            "signal_peak": 0.0062499666
+          },
+          {
+            "kind": "initial",
+            "measured_callbacks": 1528,
+            "measured_frames": 734016,
+            "max_processing_ns": 147700,
+            "max_load_ratio": 0.01477,
+            "deadline_misses": 0,
+            "allocations": 0,
+            "allocated_bytes": 0,
+            "deallocations": 0,
+            "freed_bytes": 0,
+            "non_finite_samples": 0,
+            "signal_peak": 0.060612645
+          }
+        ]
+      }
+    ],
+    "physical_listening": "awaiting_user_observation"
+  },
+  "additional_native_listening_repeats": [
+    {
+      "started_utc": "2026-11-11T20:56:18.641Z",
+      "ended_utc": "2026-11-11T20:56:50.428Z",
+      "git_revision": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+      "device_id": "wasapi:{0.0.0.00000000}.{6ad7cba4-f52f-49bb-aea1-e43eee86e121}",
+      "device_name": "Headphones (2- Realtek(R) Audio)",
+      "binary_sha256": "fa6aa8d1e54e067b4eb5eff57865d1d68b700ff4ae561c17742a7962e229f534",
+      "local_report": "target/stage9-listening-2026-11-11T20-56-18-640Z/listening.json",
+      "local_report_sha256": "daf8ae00b0f0a72791e875156df47bc8187db55b75929f001bf831807e60ea4c",
+      "runs": [
+        {
+          "input": "mono-997.wav",
+          "input_sha256_before": "f40ec0d716b0c09c9d1b6c1c3bfb9e70262ec0c44c5cd04c78eeb3af88cc76c8",
+          "input_sha256_after": "f40ec0d716b0c09c9d1b6c1c3bfb9e70262ec0c44c5cd04c78eeb3af88cc76c8",
+          "arguments": [
+            "sampler-native-check",
+            "--input",
+            "C:\\proyectos\\rust\\MOTORUST\\target\\stage9-5b-20261110-134708\\mono-997.wav",
+            "--device",
+            "wasapi:{0.0.0.00000000}.{6ad7cba4-f52f-49bb-aea1-e43eee86e121}",
+            "--sample-rate",
+            "48000",
+            "--channels",
+            "2",
+            "--voices",
+            "16",
+            "--seconds",
+            "5"
+          ],
+          "started_utc": "2026-11-11T20:56:18.728Z",
+          "ended_utc": "2026-11-11T20:56:34.677Z",
+          "exit_code": 0,
+          "error": null,
+          "log": "target/stage9-listening-2026-11-11T20-56-18-640Z/mono-997.wav.log",
+          "log_sha256": "7f2ba0faac3a8d6cb29dfbe2e928d70ae98396988e380d91381531b89be7f5bf",
+          "successful_runner_assertions": true,
+          "sessions": [
+            {
+              "kind": "reopened",
+              "measured_callbacks": 2,
+              "measured_frames": 1536,
+              "max_processing_ns": 28400,
+              "max_load_ratio": 0.00215,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.0062499666
+            },
+            {
+              "kind": "initial",
+              "measured_callbacks": 1527,
+              "measured_frames": 733536,
+              "max_processing_ns": 140900,
+              "max_load_ratio": 0.01409,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.060130067
+            }
+          ]
+        },
+        {
+          "input": "stereo-distinct.wav",
+          "input_sha256_before": "accf828c3b709bcffb7e57a72313e1a29fa6eda9a18a64b2b01875136e19ed4b",
+          "input_sha256_after": "accf828c3b709bcffb7e57a72313e1a29fa6eda9a18a64b2b01875136e19ed4b",
+          "arguments": [
+            "sampler-native-check",
+            "--input",
+            "C:\\proyectos\\rust\\MOTORUST\\target\\stage9-5b-20261110-134708\\stereo-distinct.wav",
+            "--device",
+            "wasapi:{0.0.0.00000000}.{6ad7cba4-f52f-49bb-aea1-e43eee86e121}",
+            "--sample-rate",
+            "48000",
+            "--channels",
+            "2",
+            "--voices",
+            "16",
+            "--seconds",
+            "5"
+          ],
+          "started_utc": "2026-11-11T20:56:34.681Z",
+          "ended_utc": "2026-11-11T20:56:50.427Z",
+          "exit_code": 0,
+          "error": null,
+          "log": "target/stage9-listening-2026-11-11T20-56-18-640Z/stereo-distinct.wav.log",
+          "log_sha256": "7a8ee6f0655a0000355041dda166d591bc4e5f1d902ee03122a377113c11fed7",
+          "successful_runner_assertions": true,
+          "sessions": [
+            {
+              "kind": "reopened",
+              "measured_callbacks": 2,
+              "measured_frames": 1536,
+              "max_processing_ns": 22800,
+              "max_load_ratio": 0.00128,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.0062499666
+            },
+            {
+              "kind": "initial",
+              "measured_callbacks": 1526,
+              "measured_frames": 733056,
+              "max_processing_ns": 304200,
+              "max_load_ratio": 0.03042,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.061971877
+            }
+          ]
+        }
+      ],
+      "physical_listening": "not_heard_user_reported_headphones_not_properly_connected",
+      "user_observation": "No los escuche con audifonos",
+      "user_correction": "Vuelve a intentarlo, no tenia bien conectados los audifonos pero ahora si"
+    },
+    {
+      "started_utc": "2026-11-11T20:59:47.434Z",
+      "ended_utc": "2026-11-11T21:00:19.356Z",
+      "git_revision": "4dc2c6c2e0882b8f131b68088feffa8def84ba83",
+      "device_id": "wasapi:{0.0.0.00000000}.{6ad7cba4-f52f-49bb-aea1-e43eee86e121}",
+      "device_name": "Headphones (2- Realtek(R) Audio)",
+      "binary_sha256": "fa6aa8d1e54e067b4eb5eff57865d1d68b700ff4ae561c17742a7962e229f534",
+      "local_report": "target/stage9-listening-2026-11-11T20-59-47-430Z/listening.json",
+      "local_report_sha256": "52c25d889c69d57b35ce02908c98b12490fa3e7e8b0dfd6af596308fd7b27fd2",
+      "runs": [
+        {
+          "input": "mono-997.wav",
+          "input_sha256_before": "f40ec0d716b0c09c9d1b6c1c3bfb9e70262ec0c44c5cd04c78eeb3af88cc76c8",
+          "input_sha256_after": "f40ec0d716b0c09c9d1b6c1c3bfb9e70262ec0c44c5cd04c78eeb3af88cc76c8",
+          "arguments": [
+            "sampler-native-check",
+            "--input",
+            "C:\\proyectos\\rust\\MOTORUST\\target\\stage9-5b-20261110-134708\\mono-997.wav",
+            "--device",
+            "wasapi:{0.0.0.00000000}.{6ad7cba4-f52f-49bb-aea1-e43eee86e121}",
+            "--sample-rate",
+            "48000",
+            "--channels",
+            "2",
+            "--voices",
+            "16",
+            "--seconds",
+            "5"
+          ],
+          "started_utc": "2026-11-11T20:59:47.565Z",
+          "ended_utc": "2026-11-11T21:00:03.559Z",
+          "exit_code": 0,
+          "error": null,
+          "log": "target/stage9-listening-2026-11-11T20-59-47-430Z/mono-997.wav.log",
+          "log_sha256": "5d440a01bc8bf94c9ea44030e2a60cf819be5386ffcde92dc9f8a0cf6d43fb4c",
+          "successful_runner_assertions": true,
+          "sessions": [
+            {
+              "kind": "reopened",
+              "measured_callbacks": 2,
+              "measured_frames": 1536,
+              "max_processing_ns": 33900,
+              "max_load_ratio": 0.00198,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.0062499666
+            },
+            {
+              "kind": "initial",
+              "measured_callbacks": 1526,
+              "measured_frames": 733056,
+              "max_processing_ns": 217100,
+              "max_load_ratio": 0.02171,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.06119472
+            }
+          ]
+        },
+        {
+          "input": "stereo-distinct.wav",
+          "input_sha256_before": "accf828c3b709bcffb7e57a72313e1a29fa6eda9a18a64b2b01875136e19ed4b",
+          "input_sha256_after": "accf828c3b709bcffb7e57a72313e1a29fa6eda9a18a64b2b01875136e19ed4b",
+          "arguments": [
+            "sampler-native-check",
+            "--input",
+            "C:\\proyectos\\rust\\MOTORUST\\target\\stage9-5b-20261110-134708\\stereo-distinct.wav",
+            "--device",
+            "wasapi:{0.0.0.00000000}.{6ad7cba4-f52f-49bb-aea1-e43eee86e121}",
+            "--sample-rate",
+            "48000",
+            "--channels",
+            "2",
+            "--voices",
+            "16",
+            "--seconds",
+            "5"
+          ],
+          "started_utc": "2026-11-11T21:00:03.564Z",
+          "ended_utc": "2026-11-11T21:00:19.355Z",
+          "exit_code": 0,
+          "error": null,
+          "log": "target/stage9-listening-2026-11-11T20-59-47-430Z/stereo-distinct.wav.log",
+          "log_sha256": "84449c077bd86f67afcd945ce11ac654d70ed33cefc56986c23a204d0d34c63a",
+          "successful_runner_assertions": true,
+          "sessions": [
+            {
+              "kind": "reopened",
+              "measured_callbacks": 2,
+              "measured_frames": 1536,
+              "max_processing_ns": 34000,
+              "max_load_ratio": 0.00222,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.0062499666
+            },
+            {
+              "kind": "initial",
+              "measured_callbacks": 1527,
+              "measured_frames": 733536,
+              "max_processing_ns": 204000,
+              "max_load_ratio": 0.0204,
+              "deadline_misses": 0,
+              "allocations": 0,
+              "allocated_bytes": 0,
+              "deallocations": 0,
+              "freed_bytes": 0,
+              "non_finite_samples": 0,
+              "signal_peak": 0.06396941
+            }
+          ]
+        }
+      ],
+      "physical_listening": "confirmed_audible_by_user",
+      "user_observation": "Si se escucha"
+    }
+  ]
+}

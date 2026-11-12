@@ -21,6 +21,10 @@
     "allow-get-sample-preparation",
     "allow-cancel-sample-preparation",
     "allow-initialize-sampler",
-    "allow-trigger-sample"
+    "allow-trigger-sample",
+    "allow-get-mixer-settings",
+    "allow-mixer-set-channel",
+    "allow-mixer-set-route",
+    "allow-initialize-mixed-sampler"
   ]
 }

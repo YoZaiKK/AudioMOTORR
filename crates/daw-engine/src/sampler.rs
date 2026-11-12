@@ -2,7 +2,7 @@
 use crate::{EngineConfig, Gain, RenderError, SampleBuffer, SampleError};
 use std::fmt;
 
-pub const SAMPLE_BANK_SLOTS: usize = 16;
+pub const SAMPLE_BANK_SLOTS: usize = daw_domain::SAMPLE_SLOTS;
 pub const SAMPLER_VOICES: usize = 16;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -155,38 +155,70 @@ impl Sampler {
     /// Invalid blocks are silent and preserve every cursor/counter. Empty is a no-op.
     pub fn render_interleaved(&mut self, output: &mut [f32]) -> Result<(), RenderError> {
         output.fill(0.0);
+        let next_frames = self.next_rendered_frames(output.len())?;
         let channels = usize::from(self.bank.config.channels());
-        if !output.len().is_multiple_of(channels) {
-            return Err(RenderError::UnalignedBuffer);
-        }
-        let frames =
-            u64::try_from(output.len() / channels).map_err(|_| RenderError::CounterOverflow)?;
-        let next_frames = self
-            .rendered_frames
-            .checked_add(frames)
-            .ok_or(RenderError::CounterOverflow)?;
         for frame in output.chunks_exact_mut(channels) {
-            for slot in &mut self.voices {
-                let Some(voice) = slot else { continue };
-                // trigger validates the index/occupancy, the bank is immutable, and
-                // completion clears the voice before its cursor can leave the PCM.
-                let sample = self.bank.slots[voice.sample_slot]
-                    .as_ref()
-                    .expect("active voice has a retained resource");
-                let source_channels = usize::from(sample.config().channels());
-                let source = voice.frame * source_channels;
-                for (channel, output_sample) in frame.iter_mut().enumerate() {
-                    let source_channel = if source_channels == 1 { 0 } else { channel };
-                    *output_sample += sample.samples()[source + source_channel] * voice.gain;
-                }
-                voice.frame += 1;
-                if voice.frame == sample.frames() {
-                    *slot = None;
-                }
-            }
+            self.sum_frame(channels, |_, channel, value| frame[channel] += value);
         }
         self.rendered_frames = next_frames;
         Ok(())
+    }
+
+    fn next_rendered_frames(&self, samples: usize) -> Result<u64, RenderError> {
+        let channels = usize::from(self.bank.config.channels());
+        if !samples.is_multiple_of(channels) {
+            return Err(RenderError::UnalignedBuffer);
+        }
+        let frames = u64::try_from(samples / channels).map_err(|_| RenderError::CounterOverflow)?;
+        self.rendered_frames
+            .checked_add(frames)
+            .ok_or(RenderError::CounterOverflow)
+    }
+
+    /// Same voice advancement as raw rendering, with fixed destination accumulation.
+    pub(super) fn render_routed(
+        &mut self,
+        output: &mut [f32],
+        routes: &[usize; SAMPLER_VOICES],
+        mut mix: impl FnMut(&mut [f32], [[f32; 2]; daw_domain::MIXER_CHANNELS]),
+    ) -> Result<(), RenderError> {
+        output.fill(0.0);
+        let next_frames = self.next_rendered_frames(output.len())?;
+        let channels = usize::from(self.bank.config.channels());
+        for frame in output.chunks_exact_mut(channels) {
+            let mut sums = [[0.0; 2]; daw_domain::MIXER_CHANNELS];
+            self.sum_frame(channels, |voice, channel, value| {
+                sums[routes[voice]][channel] += value
+            });
+            mix(frame, sums);
+        }
+        self.rendered_frames = next_frames;
+        Ok(())
+    }
+
+    fn sum_frame(&mut self, channels: usize, mut add: impl FnMut(usize, usize, f32)) {
+        for (index, slot) in self.voices.iter_mut().enumerate() {
+            let Some(voice) = slot else { continue };
+            // trigger validates the index/occupancy, the bank is immutable, and
+            // completion clears the voice before its cursor can leave the PCM.
+            let sample = self.bank.slots[voice.sample_slot]
+                .as_ref()
+                .expect("active voice has a retained resource");
+            let source_channels = usize::from(sample.config().channels());
+            let source = voice.frame * source_channels;
+            for channel in 0..channels {
+                let source_channel = if source_channels == 1 { 0 } else { channel };
+                add(
+                    index,
+                    channel,
+                    sample.samples()[source + source_channel] * voice.gain,
+                );
+            }
+            voice.frame += 1;
+            if voice.frame == sample.frames() {
+                *slot = None;
+            }
+        }
     }
 }
 
@@ -197,33 +229,45 @@ mod tests {
     #[test]
     fn raw_clock_overflow_preserves_integrated_engine_envelope_transport_and_voices() {
         use crate::{AudioEngine, EngineCommand, Tempo};
-        let config = EngineConfig::new(800, 2).unwrap();
-        let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
-        slots[0] = Some(SampleBuffer::new(config, vec![0.5; 40]).unwrap());
-        let mut engine =
-            AudioEngine::with_sampler(SampleBank::new(config, slots).unwrap(), Tempo::default());
-        engine.apply_command(EngineCommand::Play);
-        engine.trigger_sample(0, Gain::new(1.0).unwrap()).unwrap();
-        engine.render_interleaved(&mut [0.0; 6]).unwrap();
-        engine.apply_command(EngineCommand::Pause);
-        engine.sampler.as_mut().unwrap().rendered_frames = u64::MAX;
-        let before = engine.snapshot();
-        let before_sampler = engine.sampler().unwrap().snapshot();
-        let before_ramp = engine.ramp;
-        assert_eq!(engine.validate_render(2), Err(RenderError::CounterOverflow));
-        assert_eq!(engine.snapshot(), before);
-        let mut output = [1.0; 2];
-        assert_eq!(
-            engine.render_interleaved(&mut output),
-            Err(RenderError::CounterOverflow)
-        );
-        assert_eq!(output, [0.0; 2]);
-        assert_eq!(engine.snapshot(), before);
-        assert_eq!(engine.sampler().unwrap().snapshot(), before_sampler);
-        assert_eq!(engine.ramp, before_ramp);
-        engine.render_interleaved(&mut []).unwrap();
-        assert_eq!(engine.snapshot(), before);
-        assert_eq!(engine.sampler().unwrap().snapshot(), before_sampler);
+        for mixed in [false, true] {
+            let config = EngineConfig::new(800, 2).unwrap();
+            let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
+            slots[0] = Some(SampleBuffer::new(config, vec![0.5; 40]).unwrap());
+            let bank = SampleBank::new(config, slots).unwrap();
+            let mut engine = if mixed {
+                AudioEngine::with_mixed_sampler(
+                    bank,
+                    Tempo::default(),
+                    daw_domain::MixerSettings::default(),
+                )
+            } else {
+                AudioEngine::with_sampler(bank, Tempo::default())
+            };
+            engine.apply_command(EngineCommand::Play);
+            engine.trigger_sample(0, Gain::new(1.0).unwrap()).unwrap();
+            engine.render_interleaved(&mut [0.0; 6]).unwrap();
+            engine.apply_command(EngineCommand::Pause);
+            engine.sampler.as_mut().unwrap().rendered_frames = u64::MAX;
+            let before = engine.snapshot();
+            let before_sampler = engine.sampler().unwrap().snapshot();
+            let before_ramp = engine.ramp;
+            let before_mixer = engine.mixer_snapshot();
+            assert_eq!(engine.validate_render(2), Err(RenderError::CounterOverflow));
+            assert_eq!(engine.snapshot(), before);
+            let mut output = [1.0; 2];
+            assert_eq!(
+                engine.render_interleaved(&mut output),
+                Err(RenderError::CounterOverflow)
+            );
+            assert_eq!(output, [0.0; 2]);
+            assert_eq!(engine.snapshot(), before);
+            assert_eq!(engine.sampler().unwrap().snapshot(), before_sampler);
+            assert_eq!(engine.ramp, before_ramp);
+            assert_eq!(engine.mixer_snapshot(), before_mixer);
+            engine.render_interleaved(&mut []).unwrap();
+            assert_eq!(engine.snapshot(), before);
+            assert_eq!(engine.sampler().unwrap().snapshot(), before_sampler);
+        }
     }
 
     #[test]

@@ -54,6 +54,12 @@ impl GainRamp {
         };
         self.step = (target - self.current) / f64::from(self.duration);
     }
+    pub fn snap(&mut self, target: f64) {
+        self.current = target;
+        self.target = target;
+        self.remaining = 0;
+        self.step = 0.0;
+    }
     pub fn next(&mut self) -> f64 {
         if self.remaining != 0 {
             self.remaining -= 1;

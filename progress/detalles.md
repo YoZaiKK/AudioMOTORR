@@ -1,5 +1,185 @@
 # Detalles de implementación
 
+## Auditoría local de entrega 10.4.c — 2026-11-11 (México)
+
+136 hashes/fingerprint coincidentes con check/build y matriz nativa. 21 artefactos
+verificados, siete fases por cada uno de seis casos, doce sesiones/histogramas,
+rutas/coeficientes/mute/reapertura y 24 benchmarks con memoria/teardown correctos.
+Git: 88 fuentes idénticas, cuatro solo CRLF/LF, 28 modificadas y 16 nuevas frente
+a HEAD 4dc2c6c. API oficial GitHub confirma main y CI anterior de ese SHA, que no
+contiene mezcla local. [Auditoría](auditoria-cierre-mezclador-10.4c.md), manifiesto
+y descripción/patch revisable de entrega preparados. Sin cambios de implementación,
+tests/build/hardware repetidos o commit/push. Escucha real y entrega/CI propias
+siguen pendientes; etapa 10 abierta.
+
+## Medición nativa de mezcla 10.4.b — 2026-11-11 (México)
+
+Seis casos y seis reaperturas mixed correctos en Speakers Realtek/WASAPI,
+48000 Hz estéreo f32, entradas nuevas mono/estéreo y 0/1/16 voces iniciales.
+Doce sesiones con cero asignaciones/frees/nonfinite/deadline misses medidos;
+máximo 206300 ns, ratio 0.02063, callbacks 480–1056 frames. Trazas/inputs/binario
+y fuentes conservados con hashes en [reporte](etapa-10-medicion-nativa-mezclador.md)
+y manifiesto nuevo. Sin cambios de código frente a 10.4.a. La enumeración actual
+solo mostró Speakers; Headphones previo ausente. Se preguntó por audibilidad,
+sin respuesta registrada; no se atribuye la confirmación de etapa 9 a esta mezcla.
+Etapa 10 abierta; pendientes escucha y auditoría/CI de revisión entregada 10.4.c.
+
+## Diagnósticos de mezcla 10.4.a — 2026-11-11 (México)
+
+Nuevos comandos mixer-bench/mixer-native-check, con fuente mezclada explícita,
+cuatro assets/rutas/gain/pan/mute y controles aplicados observados. Matriz offline
+24 casos a 2000 iteraciones, oráculo por muestra/niveles y control de cuatro frees
+PCM fuera del render. Lifecycle con WAV real/manual, exact IDs, mute/pausa/rutas,
+final natural y reapertura; compilación/test release offline y con soporte nativo.
+[Reporte](etapa-10-diagnosticos-mezclador.md), manifiesto nuevo y protocolo nativo.
+Sin cambios de DSP/servicio/app/desktop/dependencias. Sin hardware, escucha,
+commit/push o CI nuevos. Siguiente: medición/escucha mezclada 10.4.b, luego cierre/CI
+10.4.c; etapa 10 sigue abierta.
+
+## Aceptación integrada 10.3.d — 2026-11-11 (México)
+
+Tres pruebas nuevas de aplicación con cuatro WAV decodificados/eliminados antes
+de instalar, oráculos racionales por canal/master, particiones 1/127/256/4096,
+transporte/rutas/mute/reapertura, pool global y cancelación mono/estéreo.
+Tres regresiones de UI; dos reproducen fallos previos: consulta inicial lenta
+sobrescribe selección nueva y recibo offline afirma estado no inicializado después
+de abrir. Correcciones acotadas al hook y texto. Ver
+[aceptación local](cierre-integracion-mezclador-10.3d.md) y su manifiesto.
+Sin cambios de producción Rust, dependencias, IPC/ACL/bindings, CLI o estilos.
+No hay hardware/escucha/commit/push/CI nuevos. Siguiente: diagnósticos explícitos
+de mezcla y verificación nativa 10.4; etapa 10 sigue abierta.
+
+## Desktop de mezcla 10.3.c — 2026-11-11 (México)
+
+Cuatro comandos nuevos y capability main acotada; DTOs/tipos generados conservan
+IDs/frames/secuencias grandes como cadenas y right mono null. Cuatro tiras con
+borradores gain/pan/mute, selección y observación separadas, rutas de 16 slots,
+niveles de canal/master por ventana medida e inicialización mezclada explícita.
+Pruebas de orden/errores/sesión perdida/navegador y backend manual por IPC;
+contrato/guía/reporte con manifiesto propio. Ver
+[reporte 10.3.c](etapa-10-desktop-mezclador.md).
+Núcleo/servicio/app y dependencias sin cambios frente a 10.3.b. Sin escucha,
+commit/push o CI hospedada nuevos. Siguiente 10.3.d; cierre 10 en 10.4.
+
+## Coordinación de aplicación 10.3.b — 2026-11-11 (México)
+
+Application devuelve MixerEdit con ajustes seleccionados y aceptación opcional:
+offline cambia solo Project, en vivo confirma primero la cola y después el
+documento; estado aplicado/rampas se consultan aparte. Errores/QueueFull no
+mutan selección. Instalación mixed copia ajustes y tempo al consumir el banco
+preparado, sin auto Play o relectura. Cierre conserva selección aceptada sin replay.
+
+Nueve pruebas nuevas (ocho integración y una política), más extensión de worker
+bloqueado para editar sin esperar a decodificación. Check completo y release
+correctos; build y huella en [reporte](etapa-10-aplicacion-mezclador.md) y
+[manifiesto](evidencia-aplicacion-mezclador-10.3b.json). Audio/domain/engine, locks,
+DTO/IPC/ACL/TS y dependencias sin cambios respecto de 10.3.a. Sin hardware,
+commit/push o CI hospedada nuevos. Siguiente 10.3.c; etapa 10 aún abierta.
+
+Verificación final 10.3.b: check completo, aplicación release y build desktop
+debug correctos. Huella de 131 archivos con cuatro cambios respecto de 10.3.a;
+motor/dominio/audio y locks/bindings/workflow intactos. Formato y espacios
+correctos; 471 destinos locales en 23 documentos sin ausentes.
+
+## Servicio de mezcla 10.3.a — 2026-11-11
+
+AudioHandle añade sesiones manual/native mezcladas y controles de canal/ruta
+por la FIFO existente. ServiceSnapshot.mixer observa ajustes aplicados, rampas
+y picos de todo el callback, agrupando chunks sin perder picos tempranos.
+Capacidades 128/64 y presupuesto 32 preservados; solo Copy cruza las colas RT.
+Prevalidación completa de salida/scratch y secuencias; ventanas vacías preservadas,
+overflow/fallo señalizado y observaciones de mezcla limpiadas en fallo/cierre.
+
+Se añaden 16 pruebas condicionales (seis servicio, cuatro realtime, tres adaptador,
+tres lifecycle) y se amplía teardown legacy/mixed a propietario/trabajador.
+Check completo y audio release correctos; build y huella propios en el
+[reporte](etapa-10-sesiones-mezclador.md) y [manifiesto](evidencia-sesiones-mezclador-10.3a.json).
+El fixture IPC solo agrega mixer: None al literal Rust; DTO/ACL/TS de producción
+sin cambios. Sin pruebas físicas o CI hospedada nuevas. Siguiente 10.3.b;
+etapa 10 continúa abierta. Las evidencias previas permanecen fechadas.
+
+Verificación final 10.3.a: check completo, audio release con native/rt-diagnostics
+y build desktop debug correctos. La prueba física sigue ignorada. Huella de
+129 archivos con nueve cambios respecto de 10.2; locks/bindings/workflow intactos.
+Formato y espacios correctos; 447 destinos locales en 21 documentos sin ausentes.
+
+## Núcleo de mezclador 10.2 — 2026-11-11
+
+Dominio añade MixerChannel/MixerSettings y ajustes propios de Project; el motor
+instala la ruta nueva únicamente mediante with_mixed_sampler. Pool global de
+16 voces, rutas capturadas al disparar, balance lineal sin boost, gain/mute y
+pan con rampas, suma determinista, headroom 1/16 y picos de contribuciones reales.
+Sampler raw comparte avance de cursores sin cambiar su salida; modos existentes
+conservados. Sin cambios IPC/UI, dependencias, locks o workflow.
+
+Se añaden 16 pruebas (dos dominio, doce integración, una interna, una instrumentada)
+y se amplían regresiones de overflow existentes. Check completo correcto;
+release y build identificados en el [reporte](etapa-10-mezclador-motor.md) y
+[manifiesto](evidencia-mezclador-10.2.json). La memoria instrumentada verifica
+100 ciclos sin asignación/liberación y destrucción de cuatro PCM fuera de render.
+La evidencia de etapa 9 conserva su huella histórica. Sin CI hospedada o medición
+nativa del mezclador nuevo. Siguiente 10.3; etapa 10 aún abierta.
+
+Verificación final 10.2: check completo, suites dominio/motor release, memoria
+instrumentada release y build desktop debug correctos, en ese orden. Huella de
+125 archivos con nueve cambios respecto del snapshot 9.5.b; locks/bindings/workflow
+intactos. Formato y espacios correctos; 418 destinos locales en 19 documentos
+sin ausentes. No se atribuye a estos cambios la CI histórica de 4dc2c6c.
+
+## Cierre de etapa 9 y contrato 10.1 — 2026-11-11
+
+Tras corregir la conexión de audífonos, el usuario solicita otra repetición:
+20:59:47–21:00:19 UTC, Headphones Realtek explícito, mono/estéreo, 16 voces y
+ventanas de cinco segundos; ambas código 0, aserciones y memoria/tiempos correctos.
+Confirma «Si se escucha». Se conserva el intento anterior no oído con su aclaración
+de conexión y se vincula la confirmación exclusivamente al último par. No se
+atribuyen continuidad acústica ni ausencia general de artefactos a esa frase.
+[Cierre de etapa 9](cierre-etapa-9.md), manifiesto y seguimiento actualizados.
+
+Se especifica [contrato 10.1](../docs/mixer-contract.md): cuatro canales sobre el
+pool global de 16 voces, ruta por slot capturada al disparar, gain/pan/mute,
+balance lineal sin boost, headroom 1/16, rampas y medidores sobre señal real.
+Diseño documentado, sin DSP/IPC/UI de mezcla nuevos. Siguiente implementación
+10.2; no se crean commits/push ni se atribuye CI propia a estos documentos.
+Los registros siguientes conservan su estado histórico previo a la confirmación.
+
+Verificación final del cierre/contrato: formato y `git diff --check` correctos,
+380 destinos locales de enlaces en 17 documentos sin ausentes. Cambios de
+producto inexistentes: se reutiliza CI/check/build de la implementación publicada;
+las nuevas ejecuciones físicas y la observación humana están identificadas aparte.
+
+## Repetición de escucha sampler — 2026-11-11
+
+A petición del usuario, dos ejecuciones release consecutivas entre 20:54:01 y
+20:54:34 UTC en Speakers (2- Realtek(R) Audio): entrada mono y estéreo, 16 voces,
+ventana de cinco segundos, salida 48 kHz/estéreo y lifecycle/reapertura. Ambas
+terminan con código 0 y aserciones correctas. Binario e inputs coinciden con los
+hashes medidos; nuevos logs preservados en
+`target/stage9-listening-2026-11-11T20-54-01-577Z/`. Evidencia añadida al
+[manifiesto de auditoría](evidencia-cierre-9.5c.json) y al
+[reporte](auditoria-cierre-9.5c.md). Confirmación de escucha humana solicitada,
+pendiente; etapa 9 aún abierta. Sin cambios de producto ni nueva publicación.
+
+## Auditoría de cierre sampler 9.5.c — 2026-11-11
+
+API oficial de GitHub consultada a las 20:07:32 UTC: `main` remoto y HEAD en
+`4dc2c6c`, run 42896571891 completed/success; headless-linux y desktop-windows
+correctos, incluidos check/build y locks/bindings. Contrastados 120 archivos con
+el manifiesto 9.5.b, huella agregada, seis logs nativos, dos WAV, cuatro logs de
+check/build/release, piloto y binario medido. Cuatro blobs Git difieren solo en
+finales de línea; no se modifican fuentes ni manifiestos históricos. Ver
+[auditoría](auditoria-cierre-9.5c.md) y [evidencia](evidencia-cierre-9.5c.json).
+Se actualiza estado/plan/README al SHA publicado. Confirmación de escucha
+solicitada y pendiente; etapa 9 sigue abierta y etapa 10 aún no empieza.
+Sin nuevas mediciones físicas, cambios de producto, commit o push.
+
+Verificación documental: Prettier y `git diff --check` correctos; 282 destinos
+locales de enlaces en diez documentos revisados, sin ausentes. Se revalidan
+seis casos/doce sesiones, resultados por ID, sumas de histogramas y contadores
+cero del manifiesto; reproducción estéreo y log de sobrescritura coincidentes.
+Se reutilizan check/build locales y CI del código entregado; no se repiten suites
+de producto por esta actualización documental.
+
 ## Mediciones nativas sampler 9.5.b — 2026-11-10
 
 Seis casos release Realtek/WASAPI, 48 kHz/estéreo/f32, entradas mono/estéreo y

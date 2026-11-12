@@ -28,5 +28,9 @@ pub fn configure<R: tauri::Runtime>(
             commands::cancel_sample_preparation,
             commands::initialize_sampler,
             commands::trigger_sample,
+            commands::get_mixer_settings,
+            commands::mixer_set_channel,
+            commands::mixer_set_route,
+            commands::initialize_mixed_sampler,
         ])
 }
