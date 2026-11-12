@@ -11,12 +11,13 @@ con [huella propia](evidencia-integracion-mezclador-10.3d.json). [Diagnósticos 
 con [huella propia](evidencia-diagnosticos-mezclador-10.4a.json). [Matriz nativa 10.4.b medida](etapa-10-medicion-nativa-mezclador.md): seis casos y seis reaperturas Speakers Realtek;
 [evidencia](evidencia-nativa-mezclador-10.4b.json). [Auditoría local 10.4.c completada](auditoria-cierre-mezclador-10.4c.md), con
 [manifiesto](evidencia-auditoria-mezclador-10.4c.json) y [entrega preparada](entrega-mezclador-etapa-10.md).
-Escucha real, entrega y CI del nuevo SHA pendientes. La implementación de sampler publicada en `4dc2c6c` incluye trazas del
-runner y generador de fixture 9.5.b. API de GitHub: `main` remoto coincide y ambos
+[Publicación 10.4.c](publicacion-mezclador-10.4c.md): implementación `e7f543f` entregada en main y CI Linux/Windows correcta.
+Solo falta confirmación auditiva real para cerrar etapa 10 dentro de sus límites. La implementación de sampler publicada en `4dc2c6c` incluye trazas del
+runner y generador de fixture 9.5.b. En la auditoría histórica, la API de GitHub confirmó ese SHA en main y ambos
 jobs correctos en [run 42896571891](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891).
 La [auditoría 9.5.c](auditoria-cierre-9.5c.md) verificó al cerrar el sampler los 120 archivos medidos y
 los artefactos guardados. El usuario confirmó audibilidad tras la última repetición
-con audífonos; [etapa 9 cerrada](cierre-etapa-9.md) dentro del alcance registrado. Los cambios locales de código/documentación 10.2–10.4.a no tienen commit/CI propios;
+con audífonos; [etapa 9 cerrada](cierre-etapa-9.md) dentro del alcance registrado. La implementación 10.2–10.4.a ya está entregada en e7f543f con CI propia;
 la huella de etapa 9 se conserva como histórica y ya no describe el motor nuevo.
 El kernel previo 7acc1db conserva su [CI Linux/Windows correcta](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397),
 que no se atribuye a la revisión nueva. Ver [auditoría de configuración](revision-readme-configuracion.md).
@@ -99,19 +100,19 @@ mediciones físicas no realizadas siguen como limitaciones explícitas.
 
 ## Plan por etapas
 
-| Etapa   | Entrega                                              | Estado / aceptación                                                                                                                                                                                |
-| ------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1–6     | Fundamento, audio, UI, pruebas, documentación y CI.  | Completadas dentro de su alcance registrado.                                                                                                                                                       |
-| 7       | Oscilador offline y WAV.                             | Completada; señal, frames/metadatos y errores verificados.                                                                                                                                         |
-| 8       | Oscilador nativo, controles y rampas.                | Completada; evidencia Windows y límites físicos registrados.                                                                                                                                       |
-| 9.1–9.2 | Recursos PCM, banco y voces.                         | Completadas; código 7acc1db con CI correcta.                                                                                                                                                       |
-| 9.3     | Preparar un banco desde WAV fuera del procesamiento. | Cerrada localmente en 9.3.f; implementación incluida en 4dc2c6c con CI correcta. Manifiesto histórico de 110 archivos conservado.                                                                  |
-| 9.4     | Sampler en AudioEngine/CPAL y en la UI.              | 9.4.a–d implementados/auditados localmente con pruebas offline/adaptador/mock. Evidencia física queda en 9.5.                                                                                      |
-| 9.5     | Verificar y cerrar el sampler completo.              | Completada: mediciones, check/build, auditoría y CI de 4dc2c6c correctos; audibilidad confirmada por el usuario.                                                                                   |
-| 10      | Mezclador de cuatro canales.                         | Núcleo, servicio, aplicación y desktop implementados localmente; integración aceptada en 10.3.d; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; escucha y cierre/CI 10.4.c pendientes. |
-| 11      | Secuenciador de 16 pasos.                            | Pendiente; eventos dentro del bloque, BPM fraccional, transporte y control de deriva.                                                                                                              |
-| 12      | Guardar/abrir y exportar el beat.                    | Pendiente; versionado, assets relativos, round-trip y WAV consistente.                                                                                                                             |
-| 13      | Clips y escenas.                                     | Pendiente; lanzamiento cuantizado y transiciones deterministas.                                                                                                                                    |
+| Etapa   | Entrega                                              | Estado / aceptación                                                                                                                                                                                                                             |
+| ------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1–6     | Fundamento, audio, UI, pruebas, documentación y CI.  | Completadas dentro de su alcance registrado.                                                                                                                                                                                                    |
+| 7       | Oscilador offline y WAV.                             | Completada; señal, frames/metadatos y errores verificados.                                                                                                                                                                                      |
+| 8       | Oscilador nativo, controles y rampas.                | Completada; evidencia Windows y límites físicos registrados.                                                                                                                                                                                    |
+| 9.1–9.2 | Recursos PCM, banco y voces.                         | Completadas; código 7acc1db con CI correcta.                                                                                                                                                                                                    |
+| 9.3     | Preparar un banco desde WAV fuera del procesamiento. | Cerrada localmente en 9.3.f; implementación incluida en 4dc2c6c con CI correcta. Manifiesto histórico de 110 archivos conservado.                                                                                                               |
+| 9.4     | Sampler en AudioEngine/CPAL y en la UI.              | 9.4.a–d implementados/auditados localmente con pruebas offline/adaptador/mock. Evidencia física queda en 9.5.                                                                                                                                   |
+| 9.5     | Verificar y cerrar el sampler completo.              | Completada: mediciones, check/build, auditoría y CI de 4dc2c6c correctos; audibilidad confirmada por el usuario.                                                                                                                                |
+| 10      | Mezclador de cuatro canales.                         | Núcleo, servicio, aplicación y desktop implementados localmente; integración aceptada en 10.3.d; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; implementación e7f543f entregada y CI correcta; escucha pendiente antes del cierre. |
+| 11      | Secuenciador de 16 pasos.                            | Pendiente; eventos dentro del bloque, BPM fraccional, transporte y control de deriva.                                                                                                                                                           |
+| 12      | Guardar/abrir y exportar el beat.                    | Pendiente; versionado, assets relativos, round-trip y WAV consistente.                                                                                                                                                                          |
+| 13      | Clips y escenas.                                     | Pendiente; lanzamiento cuantizado y transiciones deterministas.                                                                                                                                                                                 |
 
 No se empieza mezclador/secuenciador antes de cerrar sampler. Las mediciones
 de senoide y las pruebas con mock no sustituyen las pruebas nativas del sampler.

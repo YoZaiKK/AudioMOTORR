@@ -32,9 +32,11 @@ y protocolo; [reporte](etapa-10-diagnosticos-mezclador.md),
 **Auditoría local 10.4.c completada:** 136 fuentes y 21 artefactos verificados;
 [reporte](auditoria-cierre-mezclador-10.4c.md), [manifiesto](evidencia-auditoria-mezclador-10.4c.json)
 y [entrega preparada](entrega-mezclador-etapa-10.md).
-**Pendiente:** respuesta auditiva y entrega/CI del SHA nuevo antes del cierre.
+[Publicación 10.4.c](publicacion-mezclador-10.4c.md): implementación `e7f543f` entregada en main y CI Linux/Windows correcta.
+**Pendiente:** respuesta auditiva real antes del cierre de etapa 10.
 Ver [plan de ejecución](plan-siguientes-pasos.md) y [plan general](plan-etapas-7-13.md).
-El código y la documentación nuevos son locales, sin commit/push ni CI propia.
+La implementación está publicada y tiene CI propia; los manifiestos anteriores
+conservan su estado local al capturarse.
 Los hashes de etapa 9 no se atribuyen a las modificaciones del mezclador 10.2.
 Los reportes anteriores conservan sus resultados y estado de publicación fechados.
 
@@ -55,8 +57,8 @@ de cada etapa como evidencia histórica.
 ## Próximo cambio concreto
 
 La matriz **10.4.b** ya pasó con seis casos/reaperturas Speakers Realtek.
-La auditoría local de **10.4.c** está completada. Registrar respuesta auditiva
-y entregar la revisión preparada para verificar su CI,
+Auditoría, entrega y CI de **10.4.c** completadas para implementación e7f543f.
+Registrar la respuesta auditiva real pendiente antes del cierre,
 conforme al [protocolo](../docs/mixer-native-verification.md). Diagnósticos 10.4.a listos. La aceptación local 10.3.d está completada. [Desktop 10.3.c](etapa-10-desktop-mezclador.md) ya
 expone selección/recibos/observación, cuatro tiras, rutas y niveles. Etapa 10
 sigue abierta hasta la comprobación nativa y CI correspondiente de 10.4.

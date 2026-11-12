@@ -6,8 +6,9 @@ Prepared in 10.4.a alongside the [mixed diagnostics](mixer-diagnostics.md).
 from native measurements and user listening. Historical sampler measurements
 and its confirmed audibility do not verify this new processing path.
 The subsequent [10.4.b measurement report](../progress/etapa-10-medicion-nativa-mezclador.md)
-records six successful mixed cases/reopens on Speakers Realtek; listening
-confirmation and delivery/CI closure are still pending.
+records six successful mixed cases/reopens on Speakers Realtek.
+[Delivery and CI](../progress/publicacion-mezclador-10.4c.md) are verified for
+implementation e7f543f; listening confirmation remains pending.
 
 ## 10.4.a — runner and local evidence
 
@@ -83,5 +84,5 @@ does not attest to local mixer changes. Record native measurements, actual
 listening confirmation, current checks/build, CI and remaining limits before
 marking stage 10 complete. This protocol does not perform commit/push/publication. The
 [10.4.c local audit](../progress/auditoria-cierre-mezclador-10.4c.md) verifies source,
-artifacts and Git/CI scope and prepares delivery; hearing confirmation and a
-delivered mixer revision with its own CI remain pending.
+artifacts and Git/CI scope. [Implementation publication](../progress/publicacion-mezclador-10.4c.md)
+and its own CI are now verified; hearing confirmation remains pending.

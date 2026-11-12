@@ -21,8 +21,8 @@ is complete locally. [Mixed diagnostics 10.4.a](mixer-diagnostics.md) and the
 [native protocol](mixer-native-verification.md) are implemented. Physical
 mixed measurements 10.4.b are [recorded](../progress/etapa-10-medicion-nativa-mezclador.md),
 with [local delivery audit](../progress/auditoria-cierre-mezclador-10.4c.md) complete.
-Listening confirmation, delivery and exact-revision CI remain pending;
-stage 10 remains open until integrated/native verification and its own CI.
+[Implementation delivery and exact-revision CI](../progress/publicacion-mezclador-10.4c.md)
+are verified for e7f543f. Stage 10 remains open for actual mixer listening confirmation.
 Historical delivery detail: 9.1–9.2 are complete and published; 9.2 implementation
 7acc1db passed both hosted jobs in
 [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).

@@ -57,7 +57,8 @@ cerrada la etapa. Este plan no ejecuta commit, push ni publicación.
 
 **Matriz 10.4.b medida:** seis casos/reaperturas Speakers Realtek correctos.
 [Auditoría local 10.4.c completada](auditoria-cierre-mezclador-10.4c.md). Pendiente
-registrar confirmación auditiva real y entregar la revisión para verificar su CI;
+registrar confirmación auditiva real para el cierre; implementación e7f543f
+y CI Linux/Windows ya verificadas en [publicación 10.4.c](publicacion-mezclador-10.4c.md);
 ver [reporte](etapa-10-medicion-nativa-mezclador.md).
 Los [diagnósticos 10.4.a](etapa-10-diagnosticos-mezclador.md) y el
 [protocolo](../docs/mixer-native-verification.md) están implementados. La [aceptación local 10.3.d](cierre-integracion-mezclador-10.3d.md)
@@ -98,7 +99,7 @@ Desglose del próximo incremento:
    check/build y reporte. Medición/escucha nativa y CI exacta cierran etapa 10 en 10.4.
 
 10.4 se desglosa en: **a, implementado localmente**, herramientas/protocolo y
-benchmarks offline; **b, matriz física medida y escucha pendiente**, seis casos/reaperturas; **c, auditoría local completada y entrega/CI pendientes**,
+benchmarks offline; **b, matriz física medida y escucha pendiente**, seis casos/reaperturas; **c, auditoría/entrega/CI de implementación completadas**,
 con [descripción revisable](entrega-mezclador-etapa-10.md) antes del cierre. No se atribuyen
 mediciones del sampler original al camino mezclado.
 

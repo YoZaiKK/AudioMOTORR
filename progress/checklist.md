@@ -207,7 +207,7 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 10.4.b: seis casos mixed nativos y seis reaperturas Speakers Realtek, 48000 Hz estéreo f32, fuentes mono/estéreo y 0/1/16 voces; evidencia conservada.
 - [ ] 10.4.b: registrar confirmación auditiva real del mezclador; pregunta enviada, sin respuesta registrada.
 - [x] 10.4.c: auditoría local de 136 fuentes, 21 artefactos, doce sesiones/24 benchmarks y Git/CI histórica; entrega revisable preparada.
-- [ ] 10.4.c: entregar revisión propia e inspeccionar ambos jobs CI de ese SHA.
+- [x] 10.4.c: entregar revisión e7f543f e inspeccionar Linux/Windows success en run 43147510037 del SHA exacto.
 - [ ] Cerrar etapa 10 con escucha registrada, evidencia y CI propias; mantener límites explícitos.
 
 ## Etapa 11 — Secuenciador de 16 pasos

@@ -91,6 +91,9 @@ nulls and fixed arrays; capability tests reject the new commands from other wind
 React tests cover ordering, queue/timeout failures, session loss, query latency,
 device-enumeration failure, explicit initialization and measured levels.
 
-These checks do not establish physical mixed playback, acoustic continuity or
-hosted CI for this uncommitted revision. [Local integrated acceptance 10.3.d](mixer-integration-acceptance.md) is complete;
-native verification and exact-revision CI close stage 10 in 10.4.
+These mock checks remain separate from physical playback and hosted CI.
+[Local integrated acceptance 10.3.d](mixer-integration-acceptance.md),
+[native measurements](../progress/etapa-10-medicion-nativa-mezclador.md) and
+[implementation delivery/CI](../progress/publicacion-mezclador-10.4c.md) are verified.
+Stage 10 remains open for actual mixer listening confirmation; no acoustic
+continuity claim follows from processing counters or CI.

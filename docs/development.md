@@ -19,8 +19,9 @@ release CLI checks and 24 measured offline cases; the same native lifecycle is
 tested with manual audio. Physical mixed playback/listening 10.4.b and its own
 hosted CI/closure 10.4.c remain pending at that increment. The subsequent
 [10.4.b measurement](../progress/etapa-10-medicion-nativa-mezclador.md) records six
-real-device mixed cases/reopens on Speakers Realtek; listening confirmation and
-exact-revision hosted CI remain pending.
+real-device mixed cases/reopens on Speakers Realtek.
+[implementation e7f543f delivery and exact-revision hosted CI](../progress/publicacion-mezclador-10.4c.md)
+are now verified; only mixer listening confirmation remains pending.
 
 On 2026-11-11 the [9.5.c audit](../progress/auditoria-cierre-9.5c.md) verified
 the recorded source/artifact hashes and inspected both successful jobs of

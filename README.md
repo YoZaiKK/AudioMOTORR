@@ -27,7 +27,9 @@ measurements pass. [Native measurements (10.4.b)](progress/etapa-10-medicion-nat
 now record six successful mixed cases and six reopens on Speakers Realtek.
 The [local delivery audit (10.4.c)](progress/auditoria-cierre-mezclador-10.4c.md)
 verifies source/artifact integrity and prepares a [reviewable delivery](progress/entrega-mezclador-etapa-10.md).
-Listening confirmation, delivery and exact-revision CI remain pending.
+[Delivery and CI](progress/publicacion-mezclador-10.4c.md) are verified for
+implementation `e7f543f`: both Linux and Windows jobs pass. Stage 10 remains open
+for the user's mixer listening confirmation.
 Sequencer, project persistence and clips remain to be built.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
@@ -51,7 +53,9 @@ The 120-file stage 9 worktree fingerprint matched at its closure audit, with fou
 Git/worktree differences limited to line endings. Mixer 10.2 adds new local source
 changes and its own manifest; 10.3.a records a newer service snapshot in its
 [manifest](progress/evidencia-sesiones-mezclador-10.3a.json). Stage 9 reports retain their original Git/CI state.
-These local implementation/documentation changes have no published revision or hosted CI yet. The
+The mixer implementation is delivered in `e7f543f` with its own successful
+[Linux/Windows CI](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43147510037).
+The earlier manifests preserve their capture-time Git state. The
 [9.5.a report](progress/etapa-9-diagnosticos-sampler.md) records 108 headless,
 114 workspace, 29 instrumented-audio, nine diagnostic-CLI, eight decoder-memory,
 24 frontend tests and nine CLI scenarios, plus Windows debug build. Suites overlap.
@@ -68,19 +72,19 @@ README/technical documents are in English; progress and practical guides are in 
 
 ## Next steps
 
-| Stage                  | Next deliverable                                                                           | Acceptance / boundary                                                                                                   |
-| ---------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| 9 — closed             | Source/evidence audit, native measurements, user-confirmed audible output and CI recorded. | Both jobs successful for 4dc2c6c; acoustic continuity, unplug/stress and platform limits remain explicit.               |
-| 10.1–10.2 — local core | Four-channel document settings and opt-in deterministic engine mixing implemented.         | [Contract](docs/mixer-contract.md), reference samples, partition invariance and zero processing allocation/free checks. |
-| 10.3.a — local         | Mixed sessions, shared FIFO controls and complete-callback meter windows implemented.      | [Service contract](docs/mixer-service.md), adapter/lifecycle fixtures and processing memory checks.                     |
-| 10.3.b — local         | Application selection/acceptance and prepared-bank installation coordinated.               | [Application contract](docs/mixer-application.md), rollback and lifecycle fixtures.                                     |
-| 10.3.c — local         | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                          |
-| 10.3.d — local         | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                   |
-| 10.4.a — local         | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                        |
-| **10.4.b–c — open**    | Six native mixed cases/reopens measured; listening and evidence/CI closure pending.        | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                              |
-| 11                     | 16-step sequencer.                                                                         | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                        |
-| 12                     | Project persistence and beat export.                                                       | Versioned save/open, relative asset references and offline export of the actual project.                                |
-| 13                     | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                         |
+| Stage                      | Next deliverable                                                                           | Acceptance / boundary                                                                                                   |
+| -------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| 9 — closed                 | Source/evidence audit, native measurements, user-confirmed audible output and CI recorded. | Both jobs successful for 4dc2c6c; acoustic continuity, unplug/stress and platform limits remain explicit.               |
+| 10.1–10.2 — delivered core | Four-channel document settings and opt-in deterministic engine mixing implemented.         | [Contract](docs/mixer-contract.md), reference samples, partition invariance and zero processing allocation/free checks. |
+| 10.3.a — delivered         | Mixed sessions, shared FIFO controls and complete-callback meter windows implemented.      | [Service contract](docs/mixer-service.md), adapter/lifecycle fixtures and processing memory checks.                     |
+| 10.3.b — delivered         | Application selection/acceptance and prepared-bank installation coordinated.               | [Application contract](docs/mixer-application.md), rollback and lifecycle fixtures.                                     |
+| 10.3.c — delivered         | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                          |
+| 10.3.d — delivered         | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                   |
+| 10.4.a — delivered         | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                        |
+| **10.4.b–c — open**        | Six native mixed cases/reopens and delivered implementation CI pass; listening pending.    | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                              |
+| 11                         | 16-step sequencer.                                                                         | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                        |
+| 12                         | Project persistence and beat export.                                                       | Versioned save/open, relative asset references and offline export of the actual project.                                |
+| 13                         | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                         |
 
 The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
 define scope and dependencies. The [execution plan](progress/plan-siguientes-pasos.md)
@@ -130,7 +134,8 @@ allocations and deallocations during processing. See the
 The application library now prepares complete banks from WAV with fault/cleanup
 and end-to-end playback fixtures. AudioEngine integration is implemented offline;
 service integration is implemented in the Rust audio library.
-Sampler UI is implemented locally with mock verification; stages 10–13 remain planned. See the
+Sampler UI and four-channel mixing are implemented and delivered. Mixer
+listening confirmation remains pending; sequencer, persistence and clips are stages 11–13. See the
 [bank preparation report](progress/etapa-9-preparacion-banco.md) and
 [fault/cleanup report](progress/etapa-9-fallos-cancelacion.md).
 The [loaded-sampler report](progress/etapa-9-fixtures-integracion.md) records 9.3.e.
@@ -251,7 +256,7 @@ system settings.
 | Toolchain/dependencies | [rust-toolchain.toml](rust-toolchain.toml): Rust 1.90.0, rustfmt/Clippy; [.node-version](.node-version): Node 22.23.4; [package.json](package.json): npm 10.9.9. [.npmrc](.npmrc) enables strict engine checks and exact dependency saves. Keep both lockfiles committed. |
 | Rust workspace         | [Cargo.toml](Cargo.toml): six members, five headless defaults, edition 2024, unsafe forbidden. Native audio/diagnostics remain opt-in; desktop enables native audio.                                                                                                      |
 | Frontend               | [vite.config.ts](vite.config.ts): 127.0.0.1:1420, strict port; [tsconfig.json](tsconfig.json): strict/noEmit; [vitest.config.ts](vitest.config.ts): jsdom/frontend tests.                                                                                                 |
-| Desktop                | [tauri.conf.json](src-tauri/tauri.conf.json) uses the same dev URL and root dist output. CSP and [capabilities](src-tauri/capabilities/default.json) restrict production access to local main-window commands; 16 application commands plus event listen/unlisten.        |
+| Desktop                | [tauri.conf.json](src-tauri/tauri.conf.json) uses the same dev URL and root dist output. CSP and [capabilities](src-tauri/capabilities/default.json) restrict production access to local main-window commands; 20 application commands plus event listen/unlisten.        |
 | CI                     | [Workflow](.github/workflows/ci.yml): pinned toolchains, SHA-pinned official actions, explicit headless packages on Ubuntu 24.04, full check/debug desktop on Windows 2022, no hardware/publishing steps.                                                                 |
 | Generated/local files  | [.gitignore](.gitignore) excludes dependencies, build output, Tauri generated permissions/schemas, coverage, logs, local env values and TypeScript build cache. [.prettierignore](.prettierignore) and [ESLint](eslint.config.js) exclude generated coverage.             |
 

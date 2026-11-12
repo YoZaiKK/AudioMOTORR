@@ -20,7 +20,8 @@ audibilidad confirmada por el usuario tras repetición con audífonos.
 **10.4.a implementado localmente**; ver [diagnósticos de mezcla](etapa-10-diagnosticos-mezclador.md).
 **Matriz 10.4.b medida**; ver [resultados nativos](etapa-10-medicion-nativa-mezclador.md).
 [Auditoría local 10.4.c completada](auditoria-cierre-mezclador-10.4c.md).
-Pendiente: confirmación auditiva, entrega y CI propias; etapa 10 sigue abierta.
+[Publicación 10.4.c](publicacion-mezclador-10.4c.md): implementación `e7f543f` entregada en main y CI Linux/Windows correcta.
+Pendiente: confirmación auditiva real; etapa 10 sigue abierta.
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -190,8 +191,8 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 ## Siguiente acción concreta
 
 La matriz **10.4.b** ya se midió correctamente. Registrar la confirmación
-auditiva pendiente y entregar la revisión para su CI; la auditoría local de **10.4.c**
-está completada conforme al
+auditiva pendiente para cerrar; auditoría/entrega/CI de implementación **10.4.c**
+completadas conforme al
 [protocolo](../docs/mixer-native-verification.md). [Herramientas 10.4.a](etapa-10-diagnosticos-mezclador.md) listas.
 La aceptación local 10.3.d ya contrasta referencias/ciclo completo y evidencia. [Desktop 10.3.c](etapa-10-desktop-mezclador.md) ya conecta selección,
 recibos, targets/rampas y niveles con cuatro tiras y rutas explícitas. Ver [contrato](../docs/mixer-application.md) y

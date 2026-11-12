@@ -1,5 +1,9 @@
 # Auditoría de entrega del mezclador — 10.4.c
 
+Actualización posterior: [implementación e7f543f entregada y CI Linux/Windows correcta](publicacion-mezclador-10.4c.md).
+Sigue pendiente la confirmación auditiva real. La auditoría siguiente conserva
+el estado anterior a esa publicación.
+
 Fecha: 2026-11-11, hora de México. **Auditoría local completada; etapa 10 abierta.**
 Faltan confirmación auditiva del mezclador, entrega de una revisión propia e
 inspección de su CI. El mensaje «Continua» no se registra como confirmación de

@@ -1,5 +1,16 @@
 # Detalles de implementación
 
+## Publicación del mezclador y CI — 2026-11-11 (México)
+
+Entrega autorizada, commit e7f543f en main, push fast-forward desde 4dc2c6c.
+Run 43147510037 del SHA exacto completed/success: headless-linux y desktop-windows,
+incluidos regeneración determinista de bindings, check completo y build desktop.
+Las 136 fuentes medidas están entregadas: 132 iguales en bytes, cuatro solo
+CRLF/LF; sin diferencias de contenido. [Registro](publicacion-mezclador-10.4c.md)
+y JSON con jobs/pasos/hashes. Documentación de seguimiento separada de la revisión
+de implementación; su CI se verifica por separado. Sin nueva escucha/hardware.
+Etapa 10 sigue abierta únicamente por confirmación auditiva real pendiente.
+
 ## Auditoría local de entrega 10.4.c — 2026-11-11 (México)
 
 136 hashes/fingerprint coincidentes con check/build y matriz nativa. 21 artefactos

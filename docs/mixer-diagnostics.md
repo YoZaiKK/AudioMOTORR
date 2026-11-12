@@ -121,5 +121,6 @@ This increment produces offline evidence and a compiled native runner. It does
 not establish physical output, acoustic continuity, a native timing result or
 hosted CI for the local mixer revision. Those remain 10.4.b–c.
 Subsequent [10.4.b measurements](../progress/etapa-10-medicion-nativa-mezclador.md)
-now record six native cases and reopens on Speakers Realtek; user listening
-confirmation and exact-revision hosted CI remain pending.
+now record six native cases and reopens on Speakers Realtek.
+[Implementation delivery and exact-revision CI](../progress/publicacion-mezclador-10.4c.md)
+are verified for e7f543f; user listening confirmation remains pending.

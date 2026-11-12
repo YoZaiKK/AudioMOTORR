@@ -1,0 +1,321 @@
+{
+  "format_version": 1,
+  "stage": "10.4.c",
+  "captured_utc": "2026-11-12T03:26:47.721Z",
+  "status": "implementation_published_ci_passed_listening_pending",
+  "implementation_revision": "e7f543f21e1339da645bfd13a5cc6221fc841e77",
+  "branch": "main",
+  "implementation_url": "https://github.com/YoZaiKK/AudioMOTORR/commit/e7f543f21e1339da645bfd13a5cc6221fc841e77",
+  "reviewed_delivery_files": 88,
+  "review_patch_sha256": "be35cae0b621f4e581378577b5f723d50da8294ab98a9d4a66204cff4bd9bf90",
+  "source_fingerprint_sha256": "cb7b56011b1d2010a6092414801b78115aebd6272030a74565aadb2772fc9112",
+  "source_equivalence": {
+    "byte_identical": 132,
+    "line_endings_only": [
+      "src-tauri/.gitignore",
+      "src-tauri/Cargo.toml",
+      "src-tauri/src/main.rs",
+      "src-tauri/src/snapshots.rs"
+    ],
+    "different_content": []
+  },
+  "ci": {
+    "captured_utc": "2026-11-12T03:26:22.910Z",
+    "head_sha": "e7f543f21e1339da645bfd13a5cc6221fc841e77",
+    "run": {
+      "id": 43147510037,
+      "head_sha": "e7f543f21e1339da645bfd13a5cc6221fc841e77",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "html_url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43147510037",
+      "created_at": "2026-11-12T03:20:13Z",
+      "updated_at": "2026-11-12T03:25:28Z"
+    },
+    "jobs": [
+      {
+        "id": 130948681240,
+        "name": "headless-linux",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-12T03:20:16Z",
+        "completed_at": "2026-11-12T03:20:43Z",
+        "html_url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43147510037/job/130948681240",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:17Z",
+            "completed_at": "2026-11-12T03:20:18Z"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:18Z",
+            "completed_at": "2026-11-12T03:20:20Z"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:20Z",
+            "completed_at": "2026-11-12T03:20:21Z"
+          },
+          {
+            "number": 4,
+            "name": "Install pinned Rust",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:21Z",
+            "completed_at": "2026-11-12T03:20:29Z"
+          },
+          {
+            "number": 5,
+            "name": "Check Rust formatting",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:29Z",
+            "completed_at": "2026-11-12T03:20:29Z"
+          },
+          {
+            "number": 6,
+            "name": "Test the five headless packages",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:29Z",
+            "completed_at": "2026-11-12T03:20:37Z"
+          },
+          {
+            "number": 7,
+            "name": "Lint the five headless packages",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:37Z",
+            "completed_at": "2026-11-12T03:20:38Z"
+          },
+          {
+            "number": 8,
+            "name": "Run nine offline CLI scenarios",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:38Z",
+            "completed_at": "2026-11-12T03:20:39Z"
+          },
+          {
+            "number": 9,
+            "name": "Verify unchanged lockfiles",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:39Z",
+            "completed_at": "2026-11-12T03:20:39Z"
+          },
+          {
+            "number": 17,
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:39Z",
+            "completed_at": "2026-11-12T03:20:39Z"
+          },
+          {
+            "number": 18,
+            "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:39Z",
+            "completed_at": "2026-11-12T03:20:40Z"
+          },
+          {
+            "number": 19,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:40Z",
+            "completed_at": "2026-11-12T03:20:40Z"
+          }
+        ]
+      },
+      {
+        "id": 130948681534,
+        "name": "desktop-windows",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-12T03:20:16Z",
+        "completed_at": "2026-11-12T03:25:28Z",
+        "html_url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43147510037/job/130948681534",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:17Z",
+            "completed_at": "2026-11-12T03:20:17Z"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:17Z",
+            "completed_at": "2026-11-12T03:20:22Z"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:22Z",
+            "completed_at": "2026-11-12T03:20:27Z"
+          },
+          {
+            "number": 4,
+            "name": "Install pinned Rust",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:27Z",
+            "completed_at": "2026-11-12T03:20:36Z"
+          },
+          {
+            "number": 5,
+            "name": "Verify npm and Windows prerequisites",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:36Z",
+            "completed_at": "2026-11-12T03:20:45Z"
+          },
+          {
+            "number": 6,
+            "name": "Install frontend dependencies from lockfile",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:20:45Z",
+            "completed_at": "2026-11-12T03:21:14Z"
+          },
+          {
+            "number": 7,
+            "name": "Verify deterministic binding regeneration",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:21:14Z",
+            "completed_at": "2026-11-12T03:22:45Z"
+          },
+          {
+            "number": 8,
+            "name": "Check frontend, mock IPC, and Rust workspace",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:22:45Z",
+            "completed_at": "2026-11-12T03:25:08Z"
+          },
+          {
+            "number": 9,
+            "name": "Build desktop debug without installer",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:25:08Z",
+            "completed_at": "2026-11-12T03:25:25Z"
+          },
+          {
+            "number": 10,
+            "name": "Verify unchanged lockfiles and generated types",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:25:25Z",
+            "completed_at": "2026-11-12T03:25:25Z"
+          },
+          {
+            "number": 19,
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:25:25Z",
+            "completed_at": "2026-11-12T03:25:25Z"
+          },
+          {
+            "number": 20,
+            "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:25:25Z",
+            "completed_at": "2026-11-12T03:25:26Z"
+          },
+          {
+            "number": 21,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-11-12T03:25:26Z",
+            "completed_at": "2026-11-12T03:25:26Z"
+          }
+        ]
+      }
+    ],
+    "rate_limit": { "remaining": "44", "reset": "1794454022" },
+    "verified_snapshot": {
+      "path": "target/stage10-4c-20261111/ci-implementation-verified.json",
+      "sha256": "1964786a94eff8bf202d1f3e0d313fa877859171b5dd0700f3998c5c51072594"
+    }
+  },
+  "local_evidence": [
+    {
+      "path": "progress/evidencia-auditoria-mezclador-10.4c.json",
+      "sha256": "e85051cb446e048d9a1bb9e17d6910e79876273f64f85f4bc31fe12fb6bb1892"
+    },
+    {
+      "path": "progress/evidencia-nativa-mezclador-10.4b.json",
+      "sha256": "cc37f37ba6e2fabf9a4073386136b64b9ac143c1781e4e88d522eec29f988631"
+    },
+    {
+      "path": "progress/evidencia-diagnosticos-mezclador-10.4a.json",
+      "sha256": "ba8e32847e1b136642ada7147494515468638c793995fd5764ad10a144564e36"
+    }
+  ],
+  "publication_artifacts": [
+    {
+      "path": "target/stage10-4c-20261111/commit.log",
+      "sha256": "fe457e6732ff66128133b5fd2d0197b282b1a5c46126afd06f62c7f2f5ec4846"
+    },
+    {
+      "path": "target/stage10-4c-20261111/push.log",
+      "sha256": "0345417a7e30796c970ec97d8ec53ac707126e962c48fa20b34fd5023356199a"
+    },
+    {
+      "path": "target/stage10-4c-20261111/publication.json",
+      "sha256": "0a5293fd63e8ee6f2f668b3b298de5a1273143cc5c65a0b5d8a78c4ad6f114e2"
+    },
+    {
+      "path": "target/stage10-4c-20261111/delivered-integrity.json",
+      "sha256": "972107d141e54ffb409c8b5efdf127c99aecda4730f56f03082baa269af141f4"
+    }
+  ],
+  "acceptance": {
+    "implementation_delivered": true,
+    "implementation_hosted_linux_windows_ci_passed": true,
+    "local_source_artifact_audit_passed": true,
+    "native_mixed_measurements_passed": true,
+    "user_mixer_listening_confirmation": false,
+    "stage_10_closed": false
+  },
+  "documentation_followup": "Documentation of this verified implementation is published separately; its CI is inspected independently without attributing a run to a different SHA",
+  "limits": [
+    "No new native playback or human listening confirmation during publication",
+    "Hosted CI is device-free and does not attest to acoustic continuity",
+    "Native evidence remains scoped to Speakers Realtek/WASAPI at 48000 Hz stereo f32; other physical configurations/platforms remain unverified"
+  ],
+  "documentation_validation": {
+    "captured_utc": "2026-11-12T03:31:14.632Z",
+    "source_file_hashes_checked": 136,
+    "changed_markdown_files": 16,
+    "local_link_targets_checked": 459,
+    "missing": [],
+    "format_command": "npm run format:check",
+    "whitespace_command": "git diff --check",
+    "result": "passed"
+  }
+}

@@ -1,6 +1,6 @@
-# Entrega preparada — Mezclador de cuatro canales
+# Entrega del mezclador de cuatro canales
 
-Título propuesto de commit/PR: `feat(mixer): add four-channel mixing and native diagnostics`
+Commit entregado en main (e7f543f): `feat(mixer): add four-channel mixing and native diagnostics`
 
 ## Descripción de la entrega
 
@@ -42,9 +42,10 @@ de cierre de etapa 9 ya realizada durante esta continuidad.
 
 ## Estado de aceptación
 
-La implementación y auditoría local están listas para revisión. **Confirmación
-auditiva del mezclador y CI de una revisión que incluya los cambios siguen
-pendientes; etapa 10 abierta.** La CI anterior pertenece a `4dc2c6c`.
+La implementación y auditoría están entregadas en **e7f543f**, con ambos jobs
+CI correctos en run 43147510037. Ver [publicación](publicacion-mezclador-10.4c.md).
+**La confirmación auditiva del mezclador sigue pendiente; etapa 10 abierta.**
+Los registros anteriores de CI de 4dc2c6c conservan su alcance de sampler.
 Las métricas nativas son acumuladas de todo el lifecycle; no prueban continuidad
 acústica. Loopback, unplug, estrés y otras configuraciones/plataformas conservan
 sus límites. No hay persistencia de proyecto ni secuenciador en esta entrega.
