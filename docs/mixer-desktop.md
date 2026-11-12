@@ -95,5 +95,6 @@ These mock checks remain separate from physical playback and hosted CI.
 [Local integrated acceptance 10.3.d](mixer-integration-acceptance.md),
 [native measurements](../progress/etapa-10-medicion-nativa-mezclador.md) and
 [implementation delivery/CI](../progress/publicacion-mezclador-10.4c.md) are verified.
-Stage 10 remains open for actual mixer listening confirmation; no acoustic
-continuity claim follows from processing counters or CI.
+The user has confirmed audible mixed output;
+[stage 10 is closed](../progress/cierre-etapa-10.md). No acoustic continuity
+claim follows from processing counters, CI or that listening confirmation.

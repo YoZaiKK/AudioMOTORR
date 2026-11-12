@@ -1,5 +1,9 @@
 # Etapa 10.4.b — Medición nativa del mezclador
 
+Actualización posterior: usuario confirmó «Se escucha» tras la repetición solicitada.
+[Etapa 10 cerrada](cierre-etapa-10.md); el reporte siguiente conserva el estado
+anterior a esa confirmación.
+
 Fecha: 2026-11-11, hora de México. **Seis casos nativos correctos, con seis
 reaperturas. Confirmación auditiva del usuario pendiente; etapa 10 sigue abierta.**
 La medición continúa los [diagnósticos 10.4.a](etapa-10-diagnosticos-mezclador.md)

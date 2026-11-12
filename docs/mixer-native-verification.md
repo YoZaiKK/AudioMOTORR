@@ -8,7 +8,8 @@ and its confirmed audibility do not verify this new processing path.
 The subsequent [10.4.b measurement report](../progress/etapa-10-medicion-nativa-mezclador.md)
 records six successful mixed cases/reopens on Speakers Realtek.
 [Delivery and CI](../progress/publicacion-mezclador-10.4c.md) are verified for
-implementation e7f543f; listening confirmation remains pending.
+implementation e7f543f; [stage 10 closure](../progress/cierre-etapa-10.md) now
+records the user's audible-output confirmation after a requested replay.
 
 ## 10.4.a — runner and local evidence
 
@@ -85,4 +86,5 @@ listening confirmation, current checks/build, CI and remaining limits before
 marking stage 10 complete. This protocol does not perform commit/push/publication. The
 [10.4.c local audit](../progress/auditoria-cierre-mezclador-10.4c.md) verifies source,
 artifacts and Git/CI scope. [Implementation publication](../progress/publicacion-mezclador-10.4c.md)
-and its own CI are now verified; hearing confirmation remains pending.
+and its own CI are verified; hearing is confirmed and stage 10 is closed within
+the limits recorded in the closure report.

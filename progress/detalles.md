@@ -1,5 +1,15 @@
 # Detalles de implementación
 
+## Cierre del mezclador — 2026-11-11 (México)
+
+Usuario confirma «Se escucha» tras repetición solicitada del mezclador: mono y
+estéreo, 16 voces, ventanas iniciales de cinco segundos, Speakers Realtek. Dos
+procesos correctos con reapertura, inputs/binario/logs y 136 fuentes coincidentes.
+Implementación e7f543f y seguimiento faace62 tienen ambos jobs CI correctos.
+[Etapa 10 cerrada](cierre-etapa-10.md) con manifiesto nuevo, sin reescribir capturas
+históricas pending, sin cambios de código ni nuevas pruebas de hardware.
+Siguiente: 11.1, contrato y modelo del patrón/secuenciador de 16 pasos.
+
 ## Publicación del mezclador y CI — 2026-11-11 (México)
 
 Entrega autorizada, commit e7f543f en main, push fast-forward desde 4dc2c6c.

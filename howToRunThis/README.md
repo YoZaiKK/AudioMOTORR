@@ -89,7 +89,7 @@ ya ofrece sesiones mezcladas y controles desde Rust. La
 [aplicación 10.3.b](../progress/etapa-10-aplicacion-mezclador.md) ya coordina
 documento/aceptación/estado aplicado; el desktop 10.3.c añade cuatro tiras,
 rutas y niveles. La aceptación integrada 10.3.d está completada; sigue
-diagnósticos 10.4.a y matriz nativa 10.4.b medidos, escucha y cierre/CI pendientes,
+[etapa 10 cerrada](../progress/cierre-etapa-10.md) con mediciones, escucha y CI propias,
 conforme al [contrato](../docs/mixer-contract.md). El sampler todavía no guarda proyectos
 ni reproduce patrones; esas funciones conservan su orden posterior.
 

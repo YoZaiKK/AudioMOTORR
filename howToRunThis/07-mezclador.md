@@ -3,7 +3,8 @@
 La integración desktop 10.3.c y su
 [aceptación local 10.3.d](../progress/cierre-integracion-mezclador-10.3d.md)
 están completadas. La comprobación
-física del mezclador y el cierre de etapa siguen pendientes; ver el
+física y la audibilidad del mezclador quedaron registradas en el
+[cierre de etapa 10](../progress/cierre-etapa-10.md), dentro de su alcance; ver el
 [estado](../progress/estado-y-siguiente-etapa.md) y el
 [contrato desktop](../docs/mixer-desktop.md).
 

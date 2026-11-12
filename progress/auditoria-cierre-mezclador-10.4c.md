@@ -1,5 +1,9 @@
 # Auditoría de entrega del mezclador — 10.4.c
 
+Actualización posterior: usuario confirmó «Se escucha» tras la repetición solicitada.
+[Etapa 10 cerrada](cierre-etapa-10.md); el reporte siguiente conserva el estado
+anterior a esa confirmación.
+
 Actualización posterior: [implementación e7f543f entregada y CI Linux/Windows correcta](publicacion-mezclador-10.4c.md).
 Sigue pendiente la confirmación auditiva real. La auditoría siguiente conserva
 el estado anterior a esa publicación.

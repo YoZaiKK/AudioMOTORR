@@ -44,7 +44,7 @@ de cierre de etapa 9 ya realizada durante esta continuidad.
 
 La implementación y auditoría están entregadas en **e7f543f**, con ambos jobs
 CI correctos en run 43147510037. Ver [publicación](publicacion-mezclador-10.4c.md).
-**La confirmación auditiva del mezclador sigue pendiente; etapa 10 abierta.**
+**Usuario confirmó «Se escucha»; [etapa 10 cerrada](cierre-etapa-10.md) dentro de su alcance.**
 Los registros anteriores de CI de 4dc2c6c conservan su alcance de sampler.
 Las métricas nativas son acumuladas de todo el lifecycle; no prueban continuidad
 acústica. Loopback, unplug, estrés y otras configuraciones/plataformas conservan

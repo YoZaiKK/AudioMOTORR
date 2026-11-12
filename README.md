@@ -6,7 +6,7 @@ can later evolve into a clip-based DAW.
 
 ## Current status
 
-Updated 2026-11-11. **Stages 1–9 are complete within their recorded scope.**
+Updated 2026-11-11. **Stages 1–10 are complete within their recorded scope.**
 The sampler includes WAV preparation, engine/service/desktop integration and
 diagnostics. Six native matrix cases pass on Realtek/WASAPI; the user confirmed
 audible headphone output after a repeat. Source/evidence audit and exact-revision
@@ -28,8 +28,9 @@ now record six successful mixed cases and six reopens on Speakers Realtek.
 The [local delivery audit (10.4.c)](progress/auditoria-cierre-mezclador-10.4c.md)
 verifies source/artifact integrity and prepares a [reviewable delivery](progress/entrega-mezclador-etapa-10.md).
 [Delivery and CI](progress/publicacion-mezclador-10.4c.md) are verified for
-implementation `e7f543f`: both Linux and Windows jobs pass. Stage 10 remains open
-for the user's mixer listening confirmation.
+implementation `e7f543f`: both Linux and Windows jobs pass. The user confirmed
+‘Se escucha’ after the requested mono/stereo replay; [stage 10 is closed](progress/cierre-etapa-10.md)
+within its recorded limits. Next: 11.1, the sequencer contract and pattern model.
 Sequencer, project persistence and clips remain to be built.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
@@ -81,7 +82,7 @@ README/technical documents are in English; progress and practical guides are in 
 | 10.3.c — delivered         | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                          |
 | 10.3.d — delivered         | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                   |
 | 10.4.a — delivered         | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                        |
-| **10.4.b–c — open**        | Six native mixed cases/reopens and delivered implementation CI pass; listening pending.    | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                              |
+| **10.4.b–c — closed**      | Native measurements, delivery/CI and user-confirmed audible mixer output recorded.         | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                              |
 | 11                         | 16-step sequencer.                                                                         | Patterns, BPM-aware scheduling and within-block event offsets, verified across block partitions.                        |
 | 12                         | Project persistence and beat export.                                                       | Versioned save/open, relative asset references and offline export of the actual project.                                |
 | 13                         | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                         |
@@ -135,7 +136,7 @@ The application library now prepares complete banks from WAV with fault/cleanup
 and end-to-end playback fixtures. AudioEngine integration is implemented offline;
 service integration is implemented in the Rust audio library.
 Sampler UI and four-channel mixing are implemented and delivered. Mixer
-listening confirmation remains pending; sequencer, persistence and clips are stages 11–13. See the
+listening is confirmed and stage 10 is closed; sequencer, persistence and clips are stages 11–13. See the
 [bank preparation report](progress/etapa-9-preparacion-banco.md) and
 [fault/cleanup report](progress/etapa-9-fallos-cancelacion.md).
 The [loaded-sampler report](progress/etapa-9-fixtures-integracion.md) records 9.3.e.

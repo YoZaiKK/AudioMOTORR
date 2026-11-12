@@ -67,5 +67,6 @@ now implement mixer-bench and mixer-native-check with their own reference worklo
 [Native measurements 10.4.b](../progress/etapa-10-medicion-nativa-mezclador.md) now
 record six mixed cases/reopens on Speakers Realtek under the
 [native protocol](mixer-native-verification.md). [Delivery and CI](../progress/publicacion-mezclador-10.4c.md)
-are verified for implementation e7f543f; listening confirmation remains pending. Loopback, unplug, prolonged stress
+are verified for implementation e7f543f; listening is confirmed and
+[stage 10 is closed](../progress/cierre-etapa-10.md). Loopback, unplug, prolonged stress
 and other physical devices/platforms remain limits unless separately exercised.

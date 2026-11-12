@@ -21,7 +21,8 @@ hosted CI/closure 10.4.c remain pending at that increment. The subsequent
 [10.4.b measurement](../progress/etapa-10-medicion-nativa-mezclador.md) records six
 real-device mixed cases/reopens on Speakers Realtek.
 [implementation e7f543f delivery and exact-revision hosted CI](../progress/publicacion-mezclador-10.4c.md)
-are now verified; only mixer listening confirmation remains pending.
+are now verified; mixer listening is confirmed and
+[stage 10 is closed](../progress/cierre-etapa-10.md) within its recorded scope.
 
 On 2026-11-11 the [9.5.c audit](../progress/auditoria-cierre-9.5c.md) verified
 the recorded source/artifact hashes and inspected both successful jobs of

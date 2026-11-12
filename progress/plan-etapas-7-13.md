@@ -21,7 +21,9 @@ audibilidad confirmada por el usuario tras repetición con audífonos.
 **Matriz 10.4.b medida**; ver [resultados nativos](etapa-10-medicion-nativa-mezclador.md).
 [Auditoría local 10.4.c completada](auditoria-cierre-mezclador-10.4c.md).
 [Publicación 10.4.c](publicacion-mezclador-10.4c.md): implementación `e7f543f` entregada en main y CI Linux/Windows correcta.
-Pendiente: confirmación auditiva real; etapa 10 sigue abierta.
+**Etapa 10 cerrada dentro de su alcance:** usuario confirmó «Se escucha» tras la repetición del mezclador.
+[Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
+**Siguiente: 11.1**, contrato y modelo del patrón/secuenciador de 16 pasos.
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -57,15 +59,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                                                                                                                                                           |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.                                                                                                                                |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                                                                                                                                |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Completada: implementación, mediciones, CI y escucha registrada.                                                                                                 |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Núcleo/servicio/aplicación/desktop hasta 10.3.d aceptados localmente; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; escucha y cierre/CI pendientes. |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                                                                                                                                       |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                                                                                                                                       |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                                                                                                                                       |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                                                                                                                                                                            |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.                                                                                                                                                                 |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                                                                                                                                                                 |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Completada: implementación, mediciones, CI y escucha registrada.                                                                                                                                  |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Núcleo/servicio/aplicación/desktop hasta 10.3.d aceptados localmente; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; CI y escucha confirmadas; etapa 10 cerrada dentro de su alcance. |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                                                                                                                                                                        |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                                                                                                                                                                        |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                                                                                                                                                                        |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -190,13 +192,11 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-La matriz **10.4.b** ya se midió correctamente. Registrar la confirmación
-auditiva pendiente para cerrar; auditoría/entrega/CI de implementación **10.4.c**
-completadas conforme al
-[protocolo](../docs/mixer-native-verification.md). [Herramientas 10.4.a](etapa-10-diagnosticos-mezclador.md) listas.
-La aceptación local 10.3.d ya contrasta referencias/ciclo completo y evidencia. [Desktop 10.3.c](etapa-10-desktop-mezclador.md) ya conecta selección,
-recibos, targets/rampas y niveles con cuatro tiras y rutas explícitas. Ver [contrato](../docs/mixer-application.md) y
-[plan de ejecución](plan-siguientes-pasos.md).
+Implementar **11.1**, contrato y modelo del patrón/secuenciador: cuatro filas,
+16 pasos, resolución musical, semántica de edición y transporte/BPM.
+El planificador con offsets de bloque será 11.2.
+[Etapa 10 cerrada](cierre-etapa-10.md); persistencia/exportación de beat y clips
+siguen en 12–13.
 
 ## Etapa 9 — Desglose y aceptación (historial previo al cierre)
 

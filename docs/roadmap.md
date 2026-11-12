@@ -22,14 +22,16 @@ is complete locally. [Mixed diagnostics 10.4.a](mixer-diagnostics.md) and the
 mixed measurements 10.4.b are [recorded](../progress/etapa-10-medicion-nativa-mezclador.md),
 with [local delivery audit](../progress/auditoria-cierre-mezclador-10.4c.md) complete.
 [Implementation delivery and exact-revision CI](../progress/publicacion-mezclador-10.4c.md)
-are verified for e7f543f. Stage 10 remains open for actual mixer listening confirmation.
+are verified for e7f543f. The user confirmed audible mixed output after a replay;
+[stage 10 is closed](../progress/cierre-etapa-10.md) within the recorded limits.
+Next is 11.1, sequencer contract and pattern model.
 Historical delivery detail: 9.1–9.2 are complete and published; 9.2 implementation
 7acc1db passed both hosted jobs in
 [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
 This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests.
 Native sessions and desktop integration are implemented through 9.4.c, with
 physical processing measurements and user-confirmed audibility recorded at closure.
-Stages 10–13 remain to be implemented.
+Stages 11–13 remain to be implemented.
 See the [current kernel report](../progress/etapa-9-voces.md) and
 [resource report](../progress/etapa-9-sampler.md).
 9.3.a now specifies the [loading contract](sample-loading-contract.md), including

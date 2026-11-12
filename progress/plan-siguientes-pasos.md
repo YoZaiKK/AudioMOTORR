@@ -12,13 +12,13 @@ El [contrato 10.1](../docs/mixer-contract.md) y el
 [Servicio 10.3.a](etapa-10-sesiones-mezclador.md) y
 [aplicación 10.3.b](etapa-10-aplicacion-mezclador.md) completados localmente.
 [Desktop 10.3.c](etapa-10-desktop-mezclador.md) también completado localmente.
-[Aceptación 10.3.d](cierre-integracion-mezclador-10.3d.md) completada. [Diagnósticos 10.4.a](etapa-10-diagnosticos-mezclador.md) listos. [Matriz nativa 10.4.b medida](etapa-10-medicion-nativa-mezclador.md); escucha y cierre/CI pendientes.
+[Aceptación 10.3.d](cierre-integracion-mezclador-10.3d.md) completada. [Diagnósticos 10.4.a](etapa-10-diagnosticos-mezclador.md) listos. [Matriz nativa 10.4.b medida](etapa-10-medicion-nativa-mezclador.md); etapa 10 cerrada con escucha y CI en [cierre](cierre-etapa-10.md).
 
 Este documento concreta las próximas entregas del
 [plan general](plan-etapas-7-13.md), sin cambiar su orden ni dar por realizadas
-las tareas propuestas. Las etapas 1–9 están completadas dentro de su alcance;
+las tareas propuestas. Las etapas 1–10 están completadas dentro de su alcance;
 núcleo, servicio, aplicación y desktop hasta 10.3.c están implementados;
-aceptación integrada 10.3.d completada; verificación nativa y cierre 10.4 pendientes. Los reportes anteriores conservan su evidencia fechada.
+aceptación integrada, verificación nativa y cierre 10.4 completados dentro del alcance registrado. Los reportes anteriores conservan su evidencia fechada.
 
 ## Cierre 9.5.b–c — Completado el 2026-11-11
 
@@ -55,30 +55,24 @@ correctas, ambos jobs del SHA entregado inspeccionados, evidencia trazable y
 checklist coherente. Un fallo o dato pendiente se registra antes de declarar
 cerrada la etapa. Este plan no ejecuta commit, push ni publicación.
 
-**Matriz 10.4.b medida:** seis casos/reaperturas Speakers Realtek correctos.
-[Auditoría local 10.4.c completada](auditoria-cierre-mezclador-10.4c.md). Pendiente
-registrar confirmación auditiva real para el cierre; implementación e7f543f
-y CI Linux/Windows ya verificadas en [publicación 10.4.c](publicacion-mezclador-10.4c.md);
-ver [reporte](etapa-10-medicion-nativa-mezclador.md).
-Los [diagnósticos 10.4.a](etapa-10-diagnosticos-mezclador.md) y el
-[protocolo](../docs/mixer-native-verification.md) están implementados. La [aceptación local 10.3.d](cierre-integracion-mezclador-10.3d.md)
-ya contrasta referencias/ciclo completo y corrige las dos regresiones de UI.
-Los runners sampler y mixer conservan caminos separados; la evidencia de
-mixer-native-check registra el procesamiento nativo de mezcla.
-[Desktop 10.3.c](etapa-10-desktop-mezclador.md) ya conecta DTO/IPC/ACL, tipos
-generados, cuatro tiras, rutas de 16 slots y niveles de canal/master.
+**Etapa 10 cerrada dentro de su alcance:** usuario confirmó «Se escucha» tras la repetición del mezclador.
+[Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
+**Siguiente: 11.1**, contrato y modelo del patrón/secuenciador de 16 pasos.
+
+Definir el modelo y semántica de patrones en 11.1; después planificador con
+offsets de bloque (11.2), IPC/cuadrícula (11.3) y referencia integrada (11.4).
 
 ## Etapa 10 — Mezclador de cuatro canales
 
 Objetivo: controlar cuatro canales musicales y obtener una salida mezclada
 verificable. Los 16 slots y las 16 voces del sampler no representan estos canales.
 
-| Paso                | Entrega                                                                                              | Aceptación                                                                                                                                  |
-| ------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 10.1 — especificado | Contrato de mezcla: enrutamiento por slot, pool global, gain/pan/mute, headroom, rampas y medidores. | Contrato y fixtures definidos; núcleo 10.2 y desktop 10.3.c locales, aceptación integrada 10.3.d local; verificación nativa 10.4 pendiente. |
-| 10.2 — local        | Modelo de cuatro canales, rutas capturadas, gain/pan/mute, rampas y medidores por render.            | Fixtures independientes, particiones y memoria verificadas; ver etapa-10-mezclador-motor.md.                                                |
-| 10.3                | Comandos de aplicación/servicio, DTO/IPC y cuatro tiras de mezcla en UI.                             | Controles aplicados y observados de forma coherente; medidores calculados sobre señal real y telemetría acotada.                            |
-| 10.4                | Verificación integrada y cierre.                                                                     | Pruebas de mezcla y regresiones de sampler/transporte, check/build, comprobación nativa correspondiente y CI de la revisión entregada.      |
+| Paso                | Entrega                                                                                              | Aceptación                                                                                                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 10.1 — especificado | Contrato de mezcla: enrutamiento por slot, pool global, gain/pan/mute, headroom, rampas y medidores. | Contrato y fixtures definidos; núcleo 10.2 y desktop 10.3.c locales, aceptación integrada 10.3.d local; etapa 10 cerrada con mediciones, CI y audibilidad confirmada. |
+| 10.2 — local        | Modelo de cuatro canales, rutas capturadas, gain/pan/mute, rampas y medidores por render.            | Fixtures independientes, particiones y memoria verificadas; ver etapa-10-mezclador-motor.md.                                                                          |
+| 10.3                | Comandos de aplicación/servicio, DTO/IPC y cuatro tiras de mezcla en UI.                             | Controles aplicados y observados de forma coherente; medidores calculados sobre señal real y telemetría acotada.                                                      |
+| 10.4                | Verificación integrada y cierre.                                                                     | Pruebas de mezcla y regresiones de sampler/transporte, check/build, comprobación nativa correspondiente y CI de la revisión entregada.                                |
 
 10.1 fija rutas iniciales slot % 4 y captura de destino al disparar, conservando
 el pool global de 16 voces. 10.2 ya contrasta muestras, estado y memoria; el siguiente trabajo conecta
@@ -99,7 +93,7 @@ Desglose del próximo incremento:
    check/build y reporte. Medición/escucha nativa y CI exacta cierran etapa 10 en 10.4.
 
 10.4 se desglosa en: **a, implementado localmente**, herramientas/protocolo y
-benchmarks offline; **b, matriz física medida y escucha pendiente**, seis casos/reaperturas; **c, auditoría/entrega/CI de implementación completadas**,
+benchmarks offline; **b, matriz física medida y escucha confirmada**, seis casos/reaperturas; **c, auditoría/entrega/CI de implementación completadas**,
 con [descripción revisable](entrega-mezclador-etapa-10.md) antes del cierre. No se atribuyen
 mediciones del sampler original al camino mezclado.
 

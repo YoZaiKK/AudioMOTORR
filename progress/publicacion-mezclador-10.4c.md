@@ -1,5 +1,9 @@
 # Publicación y CI del mezclador — 10.4.c
 
+Actualización posterior: usuario confirmó «Se escucha» tras la repetición solicitada.
+[Etapa 10 cerrada](cierre-etapa-10.md); el reporte siguiente conserva el estado
+anterior a esa confirmación.
+
 Fecha: 2026-11-11, hora de México. **Implementación entregada en main y CI
 Linux/Windows correcta. Etapa 10 sigue abierta por confirmación auditiva pendiente.**
 

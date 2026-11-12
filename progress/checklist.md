@@ -3,12 +3,12 @@
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
-Estado actual (2026-11-11): etapas 1–9 completadas dentro de su alcance;
+Estado actual (2026-11-11): etapas 1–10 completadas dentro de su alcance;
 ver [cierre del sampler](cierre-etapa-9.md). Etapa 8 publicada en 1e6bca8,
 con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
 Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
 publicada en c6cf627 con CI Ubuntu/Windows correcta; [cierre](cierre-etapa-7.md).
-Etapa 9 en curso: 9.1–9.2 completadas; implementación 7acc1db con ambos jobs CI
+Historial de etapa 9: 9.1–9.2 completadas; implementación 7acc1db con ambos jobs CI
 correctos en run 42530699397. Se dispone de PCM/fixtures, banco fijo y voces raw;
 preparación cerrada en 9.3 y sesiones manual/CPAL en 9.4.b verificadas sin hardware;
 app/IPC/UI implementados en 9.4.c con mocks; integración auditada localmente en
@@ -28,7 +28,7 @@ escucha confirmada. Auditoría de código/evidencia y CI de `4dc2c6c` correctas;
 ver [auditoría 9.5.c](auditoria-cierre-9.5c.md) y cierre final de etapa 9.
 Ver [reporte actual](etapa-9-diagnosticos-sampler.md).
 Contrato 10.1, núcleo 10.2 y servicio 10.3.a implementados localmente;
-coordinación de aplicación 10.3.b también implementada localmente; desktop 10.3.c implementado localmente; aceptación 10.3.d completada; diagnósticos 10.4.a listos; matriz nativa 10.4.b medida; escucha y cierre/CI pendientes. Las etapas 10–13
+coordinación de aplicación 10.3.b también implementada localmente; desktop 10.3.c implementado localmente; aceptación 10.3.d completada; diagnósticos 10.4.a listos; matriz nativa 10.4.b medida; CI propia y escucha confirmada; [etapa 10 cerrada](cierre-etapa-10.md). Las etapas 11–13
 siguen sin implementación completa. Los apartados anteriores conservan el
 historial de cada incremento; el cierre enlazado arriba registra el estado actual.
 Plan vigente: [etapas 7–13](plan-etapas-7-13.md).
@@ -205,10 +205,10 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 10.3.d: contrastar cuatro WAV/canales y ciclo completo con particiones, pool/mono/estéreo/cancelación; corregir consulta inicial obsoleta y recibo offline.
 - [x] 10.4.a: comandos mixer-bench/mixer-native-check y protocolo; release/gates, referencia de cuatro canales, lifecycle manual y 24 benchmarks offline.
 - [x] 10.4.b: seis casos mixed nativos y seis reaperturas Speakers Realtek, 48000 Hz estéreo f32, fuentes mono/estéreo y 0/1/16 voces; evidencia conservada.
-- [ ] 10.4.b: registrar confirmación auditiva real del mezclador; pregunta enviada, sin respuesta registrada.
+- [x] 10.4.b: registrar «Se escucha» tras la repetición solicitada mono/estéreo, 16 voces y cinco segundos de ventana, por Speakers Realtek.
 - [x] 10.4.c: auditoría local de 136 fuentes, 21 artefactos, doce sesiones/24 benchmarks y Git/CI histórica; entrega revisable preparada.
 - [x] 10.4.c: entregar revisión e7f543f e inspeccionar Linux/Windows success en run 43147510037 del SHA exacto.
-- [ ] Cerrar etapa 10 con escucha registrada, evidencia y CI propias; mantener límites explícitos.
+- [x] Cerrar etapa 10 con escucha registrada, evidencia y CI propias; límites explícitos en cierre-etapa-10.md.
 
 ## Etapa 11 — Secuenciador de 16 pasos
 

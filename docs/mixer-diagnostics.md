@@ -4,7 +4,9 @@
 The existing sampler diagnostics retain their legacy processing path. The
 [local report](../progress/etapa-10-diagnosticos-mezclador.md) records implementation
 checks and offline measurements; the [native protocol](mixer-native-verification.md)
-defines the next physical verification. Stage 10 remains open.
+defines physical verification. The subsequent
+[stage 10 closure](../progress/cierre-etapa-10.md) records measurements, CI and
+user-confirmed audible output within its limits.
 
 ## Commands and gates
 
@@ -123,4 +125,4 @@ hosted CI for the local mixer revision. Those remain 10.4.b–c.
 Subsequent [10.4.b measurements](../progress/etapa-10-medicion-nativa-mezclador.md)
 now record six native cases and reopens on Speakers Realtek.
 [Implementation delivery and exact-revision CI](../progress/publicacion-mezclador-10.4c.md)
-are verified for e7f543f; user listening confirmation remains pending.
+are verified for e7f543f; user listening is confirmed in the stage 10 closure.
