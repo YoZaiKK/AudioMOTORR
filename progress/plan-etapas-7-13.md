@@ -25,7 +25,8 @@ audibilidad confirmada por el usuario tras repetición con audífonos.
 [Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
 **11.1 implementado localmente:** [contrato y modelo del patrón](etapa-11-modelo-patron.md).
 **11.2 implementado localmente:** [planificador y mezcla secuenciada](etapa-11-planificador.md).
-**Siguiente: 11.3**, servicio/aplicación/IPC y cuadrícula de cuatro filas.
+**11.3.a implementado localmente:** [servicio secuenciado](etapa-11-sesiones-secuenciador.md).
+**Siguiente: 11.3.b**, aplicación; después IPC y cuadrícula de cuatro filas.
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -194,7 +195,8 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Implementar **11.3**, sesiones secuenciadas, comandos por FIFO y aplicación/IPC/UI.
+Implementar **11.3.b**, coordinación de aplicación/documento y sesiones preparadas.
+11.3.a ya aporta [sesiones, FIFO y observaciones](etapa-11-sesiones-secuenciador.md).
 11.1 ya aporta [contrato y modelo](etapa-11-modelo-patron.md) de cuatro filas ×
 16 pasos; 11.2 aporta [planificador y reproducción mezclada](etapa-11-planificador.md),
 con referencias de eventos/PCM y memoria. Conservar selección/aceptación/aplicación

@@ -3,8 +3,8 @@ use crate::{
     *,
 };
 use daw_engine::{
-    EngineCommand, EngineConfig, Gain, MixerChannel, MixerSettings, MixerSnapshot,
-    SAMPLE_BANK_SLOTS, SampleBank, Tempo,
+    EngineCommand, EngineConfig, Gain, MixerChannel, MixerSettings, MixerSnapshot, Pattern,
+    SAMPLE_BANK_SLOTS, SampleBank, SequencerSnapshot, Tempo,
 };
 use std::{
     sync::{
@@ -27,12 +27,23 @@ enum Operation {
     NativeSampler(Option<String>, Box<SampleBank>, Tempo),
     ManualMixedSampler(Box<SampleBank>, Tempo, MixerSettings),
     NativeMixedSampler(Option<String>, Box<SampleBank>, Tempo, MixerSettings),
+    ManualSequencedSampler(Box<SampleBank>, Tempo, MixerSettings, Pattern),
+    NativeSequencedSampler(
+        Option<String>,
+        Box<SampleBank>,
+        Tempo,
+        MixerSettings,
+        Pattern,
+    ),
     Shutdown,
     Snapshot,
     Command(EngineCommand),
     Trigger(usize, Gain),
     MixerChannel(usize, MixerChannel),
     MixerRoute(usize, usize),
+    Pattern(Pattern),
+    PatternStep(usize, usize, bool),
+    PatternRowSlot(usize, usize),
     Render(usize),
     Exit,
 }
@@ -214,6 +225,64 @@ impl AudioHandle {
             settings,
         ))
     }
+    /// Explicit sequence session, initially stopped; transfers PCM outside processing.
+    pub fn initialize_manual_sequenced_sampler(
+        &self,
+        bank: SampleBank,
+        tempo: Tempo,
+        settings: MixerSettings,
+        pattern: Pattern,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::ManualSequencedSampler(
+            Box::new(bank),
+            tempo,
+            settings,
+            pattern,
+        ))
+    }
+
+    pub fn initialize_native_sequenced_sampler(
+        &self,
+        device_id: Option<String>,
+        bank: SampleBank,
+        tempo: Tempo,
+        settings: MixerSettings,
+        pattern: Pattern,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::NativeSequencedSampler(
+            device_id,
+            Box::new(bank),
+            tempo,
+            settings,
+            pattern,
+        ))
+    }
+
+    /// Enqueues one atomic Copy replacement. Acceptance does not imply application.
+    pub fn set_pattern(&self, pattern: Pattern) -> Result<CommandAccepted> {
+        match self.request(Operation::Pattern(pattern))? {
+            Response::Accepted(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
+    pub fn set_pattern_step(
+        &self,
+        row: usize,
+        step: usize,
+        enabled: bool,
+    ) -> Result<CommandAccepted> {
+        match self.request(Operation::PatternStep(row, step, enabled))? {
+            Response::Accepted(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
+    pub fn set_pattern_row_slot(&self, row: usize, slot: usize) -> Result<CommandAccepted> {
+        match self.request(Operation::PatternRowSlot(row, slot))? {
+            Response::Accepted(value) => Ok(value),
+            _ => Err(protocol_error()),
+        }
+    }
+
     /// Queue acceptance is distinct from observed applied settings/ramp values.
     pub fn set_mixer_channel(
         &self,
@@ -302,6 +371,7 @@ impl Controller {
                 diagnostics: None,
                 sampler: None,
                 mixer: None,
+                sequencer: None,
             },
         }
     }
@@ -353,6 +423,7 @@ impl Controller {
                 self.snapshot.diagnostics = applied.diagnostics;
                 self.snapshot.sampler = applied.sampler;
                 self.snapshot.mixer = applied.mixer;
+                self.snapshot.sequencer = applied.sequencer;
                 updated = true;
             }
             failure = queues.failure.load(Ordering::Relaxed);
@@ -362,6 +433,7 @@ impl Controller {
             self.queues = None;
             self.snapshot.state = AudioServiceState::Error;
             self.snapshot.mixer = None;
+            self.snapshot.sequencer = None;
             self.snapshot.error = Some(AudioError::new(
                 ErrorCode::StreamError,
                 if failure == 1 {
@@ -392,6 +464,7 @@ impl Controller {
         self.snapshot.diagnostics = None;
         self.snapshot.sampler = None;
         self.snapshot.mixer = None;
+        self.snapshot.sequencer = None;
         self.changed();
     }
 
@@ -412,17 +485,19 @@ impl Controller {
             daw_engine::EngineSnapshot,
             Option<SamplerTelemetry>,
             Option<MixerSnapshot>,
+            Option<SequencerSnapshot>,
         ),
         backend: Backend,
         output: Option<OutputSelection>,
         queues: ControlQueues,
         running: Running,
     ) {
-        let (engine, sampler, mixer) = initial;
+        let (engine, sampler, mixer, sequencer) = initial;
         self.snapshot.state = AudioServiceState::Ready;
         self.snapshot.diagnostics = None;
         self.snapshot.sampler = sampler;
         self.snapshot.mixer = mixer;
+        self.snapshot.sequencer = sequencer;
         self.snapshot.backend = Some(backend);
         self.snapshot.output = output;
         self.snapshot.engine = Some(engine);
@@ -465,6 +540,13 @@ impl Controller {
                 let config = bank.config();
                 self.manual(Source::MixedSampler(bank, settings).engine(config, tempo)?)
             }
+            Operation::ManualSequencedSampler(bank, tempo, settings, pattern) => {
+                self.can_initialize()?;
+                let config = bank.config();
+                self.manual(
+                    Source::SequencedSampler(bank, settings, pattern).engine(config, tempo)?,
+                )
+            }
             Operation::Native(device_id, tempo, frequency) => {
                 self.native(device_id, tempo, Source::Signal(frequency))
             }
@@ -474,6 +556,12 @@ impl Controller {
             Operation::NativeMixedSampler(device_id, bank, tempo, settings) => {
                 self.native(device_id, tempo, Source::MixedSampler(bank, settings))
             }
+            Operation::NativeSequencedSampler(device_id, bank, tempo, settings, pattern) => self
+                .native(
+                    device_id,
+                    tempo,
+                    Source::SequencedSampler(bank, settings, pattern),
+                ),
             Operation::Shutdown => {
                 self.stop();
                 Ok(Response::Done)
@@ -525,6 +613,24 @@ impl Controller {
                 })?;
                 self.enqueue(RealtimeCommand::MixerRoute { slot, channel })
             }
+            Operation::Pattern(pattern) => {
+                self.pattern()?;
+                self.enqueue(RealtimeCommand::Pattern(pattern))
+            }
+            Operation::PatternStep(row, step, enabled) => {
+                let mut pattern = self.pattern()?;
+                pattern.set_step(row, step, enabled).map_err(|error| {
+                    AudioError::new(ErrorCode::InvalidArgument, error.to_string())
+                })?;
+                self.enqueue(RealtimeCommand::PatternStep { row, step, enabled })
+            }
+            Operation::PatternRowSlot(row, slot) => {
+                let mut pattern = self.pattern()?;
+                pattern.set_row_slot(row, slot).map_err(|error| {
+                    AudioError::new(ErrorCode::InvalidArgument, error.to_string())
+                })?;
+                self.enqueue(RealtimeCommand::PatternRowSlot { row, slot })
+            }
             Operation::Render(frames) => {
                 self.require_ready()?;
                 if frames > MANUAL_MAX_FRAMES {
@@ -569,10 +675,11 @@ impl Controller {
         let initial = engine.snapshot();
         let sampler = SamplerTelemetry::for_engine(&engine);
         let mixer = engine.mixer_snapshot();
+        let sequencer = engine.sequencer_snapshot();
         let scratch = vec![0.0; MANUAL_MAX_FRAMES * usize::from(initial.config.channels())];
         let (queues, rt) = Realtime::new(engine);
         self.ready(
-            (initial, sampler, mixer),
+            (initial, sampler, mixer, sequencer),
             Backend::Manual,
             None,
             queues,
@@ -596,7 +703,12 @@ impl Controller {
             match crate::native::open(device_id, tempo, source) {
                 Ok(opened) => {
                     self.ready(
-                        (opened.engine, opened.sampler, opened.mixer),
+                        (
+                            opened.engine,
+                            opened.sampler,
+                            opened.mixer,
+                            opened.sequencer,
+                        ),
                         Backend::Native,
                         Some(opened.output),
                         opened.queues,
@@ -617,6 +729,7 @@ impl Controller {
                     self.snapshot.engine = None;
                     self.snapshot.sampler = None;
                     self.snapshot.mixer = None;
+                    self.snapshot.sequencer = None;
                     self.snapshot.callbacks = 0;
                     self.snapshot.last_applied_command = None;
                     self.snapshot.diagnostics = None;
@@ -654,6 +767,19 @@ impl Controller {
         Ok(Response::Accepted(CommandAccepted { command_id: id }))
     }
 
+    fn pattern(&self) -> Result<Pattern> {
+        self.require_ready()?;
+        self.snapshot
+            .sequencer
+            .map(|sequencer| sequencer.pattern)
+            .ok_or_else(|| {
+                AudioError::new(
+                    ErrorCode::InvalidArgument,
+                    "Initialize a sequenced sampler before editing its pattern",
+                )
+            })
+    }
+
     fn mixer_settings(&self) -> Result<MixerSettings> {
         self.require_ready()?;
         self.snapshot
@@ -684,6 +810,10 @@ impl Controller {
 #[cfg(test)]
 #[path = "service_mixer_tests.rs"]
 mod mixer_tests;
+
+#[cfg(test)]
+#[path = "service_sequencer_tests.rs"]
+mod sequencer_tests;
 
 #[cfg(test)]
 mod tests {

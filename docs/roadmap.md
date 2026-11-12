@@ -28,14 +28,17 @@ are verified for e7f543f. The user confirmed audible mixed output after a replay
 four-row, 16-step domain pattern and [sequencer contract](sequencer-contract.md).
 [11.2 is implemented locally](../progress/etapa-11-planificador.md): exact-phase
 scheduling and opt-in sequenced mixed playback, with independent references.
-Next is 11.3, service/application/IPC and the desktop grid.
+[11.3.a is implemented locally](sequencer-service.md): explicit sessions,
+bounded pattern commands and applied phase/outcomes across complete callbacks.
+11.1–11.2 are committed in `1effd48`; the new service increment is local.
+Next is 11.3.b, application coordination, then IPC and the desktop grid.
 Historical delivery detail: 9.1–9.2 are complete and published; 9.2 implementation
 7acc1db passed both hosted jobs in
 [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
 This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests.
 Native sessions and desktop integration are implemented through 9.4.c, with
 physical processing measurements and user-confirmed audibility recorded at closure.
-Sequencer service/UI and acceptance in 11.3–11.4 and stages 12–13 remain to be implemented.
+Sequencer application/UI and acceptance in 11.3.b–11.4 and stages 12–13 remain to be implemented.
 See the [current kernel report](../progress/etapa-9-voces.md) and
 [resource report](../progress/etapa-9-sampler.md).
 9.3.a now specifies the [loading contract](sample-loading-contract.md), including

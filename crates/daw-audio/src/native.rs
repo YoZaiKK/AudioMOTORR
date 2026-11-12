@@ -6,7 +6,7 @@ use cpal::{
     FromSample, SampleFormat, SizedSample,
     traits::{DeviceTrait, HostTrait, StreamTrait},
 };
-use daw_engine::{EngineConfig, EngineSnapshot, MixerSnapshot, Tempo};
+use daw_engine::{EngineConfig, EngineSnapshot, MixerSnapshot, SequencerSnapshot, Tempo};
 use std::{
     sync::{
         Arc,
@@ -54,6 +54,7 @@ pub(crate) struct Opened {
     pub output: OutputSelection,
     pub sampler: Option<SamplerTelemetry>,
     pub mixer: Option<MixerSnapshot>,
+    pub sequencer: Option<SequencerSnapshot>,
 }
 
 // This mailbox is teardown-only, never touched by process_output. CPAL may drop
@@ -158,7 +159,9 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
     })?;
     let supported = match &source {
         Source::Signal(_) => device.default_output_config().map_err(stream_error)?,
-        Source::Sampler(bank) | Source::MixedSampler(bank, _) => select_sampler_config(
+        Source::Sampler(bank)
+        | Source::MixedSampler(bank, _)
+        | Source::SequencedSampler(bank, ..) => select_sampler_config(
             bank.config(),
             device.supported_output_configs().map_err(stream_error)?,
         )?,
@@ -176,6 +179,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
     let initial = engine.snapshot();
     let sampler = SamplerTelemetry::for_engine(&engine);
     let mixer = engine.mixer_snapshot();
+    let sequencer = engine.sequencer_snapshot();
     let (queues, rt) = Realtime::new(engine);
     let stream = match format {
         SampleFormat::F32 => build::<f32>(&device, supported.config(), rt, &queues),
@@ -203,6 +207,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
         output,
         sampler,
         mixer,
+        sequencer,
     })
 }
 
@@ -285,6 +290,10 @@ fn process_output<T: SizedSample + FromSample<f32>>(
 #[cfg(test)]
 #[path = "native_mixer_tests.rs"]
 mod mixer_tests;
+
+#[cfg(test)]
+#[path = "native_sequencer_tests.rs"]
+mod sequencer_tests;
 
 #[cfg(test)]
 mod tests {

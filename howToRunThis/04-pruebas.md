@@ -1,5 +1,19 @@
 # Ejecutar las pruebas
 
+## Sesiones secuenciadas 11.3.a
+
+```powershell
+cargo test -p daw-audio --no-default-features --locked --test sequencer_service_contract
+cargo test -p daw-audio --features native-audio,rt-diagnostics --locked --lib --test sequencer_service_contract
+```
+
+Comprueban sesiones y patrón por FIFO, límites/IDs, estado aplicado, pérdida de
+observaciones y reinicio. El adaptador nativo se ejercita con PCM en memoria,
+conversión y chunks; no abre hardware. La instrumentación verifica memoria en
+procesamiento y liberación PCM en el propietario. `npm run check` incluye estas
+pruebas. Ver [contrato](../docs/sequencer-service.md) y
+[reporte](../progress/etapa-11-sesiones-secuenciador.md). La cuadrícula sigue pendiente.
+
 ## Planificador y mezcla secuenciada 11.2
 
 ```powershell

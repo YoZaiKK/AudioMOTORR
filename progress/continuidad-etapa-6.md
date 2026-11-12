@@ -37,10 +37,11 @@ y [entrega preparada](entrega-mezclador-etapa-10.md).
 [Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
 **11.1 implementado localmente:** [contrato y modelo del patrón](etapa-11-modelo-patron.md).
 **11.2 implementado localmente:** [planificador y mezcla secuenciada](etapa-11-planificador.md).
-**Siguiente: 11.3**, servicio/aplicación/IPC y cuadrícula de cuatro filas.
+**11.3.a implementado localmente:** [servicio secuenciado](etapa-11-sesiones-secuenciador.md).
+**Siguiente: 11.3.b**, aplicación; después IPC y cuadrícula de cuatro filas.
 Ver [plan de ejecución](plan-siguientes-pasos.md) y [plan general](plan-etapas-7-13.md).
-La implementación de etapa 10 está publicada y tiene CI propia; 11.1–11.2 son
-cambios locales todavía sin commit/push. Los manifiestos anteriores
+La implementación de etapa 10 está publicada y tiene CI propia; 11.1–11.2 están
+en el commit `1effd48`. 11.3.a es un cambio local sin commit/push. Los manifiestos anteriores
 conservan su estado local al capturarse.
 Los hashes de etapa 9 no se atribuyen a las modificaciones del mezclador 10.2.
 Los reportes anteriores conservan sus resultados y estado de publicación fechados.
@@ -61,17 +62,22 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Continuar con **11.3** según el [contrato del secuenciador](../docs/sequencer-contract.md):
-primer incremento **11.3.a, servicio de audio**, con sesiones manuales/CPAL
-explícitas con patrón actual y FIFO acotada. Después aplicación y desktop: documento
-seleccionado frente a aceptado/aplicado, DTOs/IPC/ACL y cuadrícula de 4 × 16.
+Continuar con **11.3.b, aplicación**, según el [contrato del servicio](../docs/sequencer-service.md):
+Project seleccionado frente a cola aceptada y estado aplicado; instalar patrón,
+mezcla y BPM actuales al consumir un banco preparado. Preparación/loading/ready,
+cancelación y errores conservan el lifecycle existente. Después DTOs/IPC/ACL y
+cuadrícula de 4 × 16 en 11.3.c.
 Mantener preparación/cancelación/reapertura, IDs y observaciones perdidas coherentes.
 11.2 aporta `with_sequenced_sampler`, controles directos y `sequencer_snapshot`:
 [reporte](etapa-11-planificador.md) y [evidencia](evidencia-planificador-11.2.json).
-Esos controles pertenecen al propietario de procesamiento, no al hilo de UI.
+11.3.a aporta `AudioHandle::initialize_*_sequenced_sampler`, `set_pattern`,
+`set_pattern_step`, `set_pattern_row_slot` y `ServiceSnapshot.sequencer`:
+[reporte](etapa-11-sesiones-secuenciador.md), [evidencia](evidencia-sesiones-secuenciador-11.3a.json).
+Los controles de AudioHandle son por cola; los de AudioEngine pertenecen al
+propietario de procesamiento. No confundir aceptación y aplicación al editar Project.
 Aceptación integrada/nativa y CI siguen en 11.4.
 [Etapa 10 cerrada](cierre-etapa-10.md) con escucha y CI registradas;
-esas evidencias históricas no validan el código nuevo de 11.1–11.2.
+esas evidencias históricas no validan las fuentes nuevas del secuenciador 11.1–11.3.a.
 
 ## Evidencia histórica anterior al cierre
 

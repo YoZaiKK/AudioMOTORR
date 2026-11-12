@@ -2,7 +2,7 @@
 use crate::{SamplerTelemetry, TriggerReport};
 use daw_engine::{
     AudioEngine, EngineCommand, EngineSnapshot, Gain, MixerChannel, MixerMeters, MixerPeak,
-    MixerSnapshot,
+    MixerSnapshot, Pattern, SequencerSnapshot,
 };
 use rtrb::{Consumer, Producer, RingBuffer};
 use std::sync::{
@@ -37,6 +37,16 @@ pub(crate) enum RealtimeCommand {
         slot: usize,
         channel: usize,
     },
+    Pattern(Pattern),
+    PatternStep {
+        row: usize,
+        step: usize,
+        enabled: bool,
+    },
+    PatternRowSlot {
+        row: usize,
+        slot: usize,
+    },
 }
 impl From<EngineCommand> for RealtimeCommand {
     fn from(value: EngineCommand) -> Self {
@@ -52,6 +62,7 @@ pub(crate) struct AppliedSnapshot {
     pub diagnostics: Option<crate::RealtimeMetrics>,
     pub sampler: Option<SamplerTelemetry>,
     pub mixer: Option<MixerSnapshot>,
+    pub sequencer: Option<SequencerSnapshot>,
 }
 
 pub(crate) struct ControlQueues {
@@ -145,6 +156,24 @@ impl Realtime {
                 }
                 RealtimeCommand::MixerRoute { slot, channel } => {
                     if self.engine.set_mixer_route(slot, channel).is_err() {
+                        self.fail();
+                        return;
+                    }
+                }
+                RealtimeCommand::Pattern(pattern) => {
+                    if self.engine.set_pattern(pattern).is_err() {
+                        self.fail();
+                        return;
+                    }
+                }
+                RealtimeCommand::PatternStep { row, step, enabled } => {
+                    if self.engine.set_pattern_step(row, step, enabled).is_err() {
+                        self.fail();
+                        return;
+                    }
+                }
+                RealtimeCommand::PatternRowSlot { row, slot } => {
+                    if self.engine.set_pattern_row_slot(row, slot).is_err() {
                         self.fail();
                         return;
                     }
@@ -265,6 +294,7 @@ impl Realtime {
             diagnostics: self.diagnostics(),
             sampler: self.sampler,
             mixer: self.mixer,
+            sequencer: self.engine.sequencer_snapshot(),
         });
     }
 
@@ -359,6 +389,10 @@ fn merge_peak(total: &mut MixerPeak, chunk: MixerPeak) {
 #[cfg(test)]
 #[path = "realtime_mixer_tests.rs"]
 mod mixer_tests;
+
+#[cfg(test)]
+#[path = "realtime_sequencer_tests.rs"]
+mod sequencer_tests;
 
 #[cfg(test)]
 mod tests {

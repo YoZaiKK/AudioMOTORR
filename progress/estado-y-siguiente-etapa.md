@@ -4,8 +4,10 @@ Revisión: 2026-11-12. **11.1 implementado localmente:**
 [contrato y modelo del patrón](etapa-11-modelo-patron.md), con
 [evidencia propia](evidencia-modelo-patron-11.1.json). **11.2 implementado localmente:**
 [planificador y mezcla secuenciada](etapa-11-planificador.md), con
-[evidencia propia](evidencia-planificador-11.2.json). Siguiente: **11.3**, servicio,
-aplicación/IPC y cuadrícula con posición observada.
+[evidencia propia](evidencia-planificador-11.2.json). 11.1–11.2 están en el commit
+`1effd48`. **11.3.a implementado localmente:** [servicio](etapa-11-sesiones-secuenciador.md)
+y [evidencia](evidencia-sesiones-secuenciador-11.3a.json).
+Siguiente: **11.3.b**, aplicación; después IPC y cuadrícula con posición observada.
 
 **Núcleo de mezcla 10.2 implementado localmente**, con
 [reporte](etapa-10-mezclador-motor.md) y [huella propia](evidencia-mezclador-10.2.json).
@@ -22,7 +24,7 @@ con [huella propia](evidencia-diagnosticos-mezclador-10.4a.json). [Matriz nativa
 **Etapa 10 cerrada dentro de su alcance:** usuario confirmó «Se escucha» tras la repetición del mezclador.
 [Cierre](cierre-etapa-10.md) y [evidencia](evidencia-cierre-mezclador-10.json).
 El contrato/modelo 11.1 y el motor secuenciado 11.2 están implementados localmente;
-servicio/IPC/UI siguen en 11.3. La implementación de sampler publicada en `4dc2c6c` incluye trazas del
+servicio secuenciado en 11.3.a; aplicación/IPC/UI siguen en 11.3.b/c. La implementación de sampler publicada en `4dc2c6c` incluye trazas del
 runner y generador de fixture 9.5.b. En la auditoría histórica, la API de GitHub confirmó ese SHA en main y ambos
 jobs correctos en [run 42896571891](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42896571891).
 La [auditoría 9.5.c](auditoria-cierre-9.5c.md) verificó al cerrar el sampler los 120 archivos medidos y
@@ -183,4 +185,5 @@ runner sampler opt-in y métricas de liberaciones/todos los canales/histograma. 
 confirmación auditiva y consolidación/CI se completaron en el [cierre](cierre-etapa-9.md). El
 [protocolo nativo](../docs/sampler-native-verification.md) define 9.5.b mediciones
 y 9.5.c cierre/CI. Etapa 9 completada dentro de su alcance; mezcla cerrada con
-mediciones, escucha confirmada y CI. 11.1–11.2 implementados localmente; siguiente 11.3.
+mediciones, escucha confirmada y CI. 11.1–11.2 en `1effd48`, 11.3.a implementado
+localmente; siguiente 11.3.b.

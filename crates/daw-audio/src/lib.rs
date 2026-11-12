@@ -7,8 +7,8 @@ mod service;
 pub use metrics::{MemoryActivity, RealtimeMetrics};
 
 use daw_engine::{
-    AudioEngine, EngineConfig, EngineSnapshot, MixerSettings, MixerSnapshot, SAMPLE_BANK_SLOTS,
-    SampleBank, SamplerTriggerError, Tempo,
+    AudioEngine, EngineConfig, EngineSnapshot, MixerSettings, MixerSnapshot, Pattern,
+    SAMPLE_BANK_SLOTS, SampleBank, SamplerTriggerError, SequencerSnapshot, Tempo,
 };
 use std::fmt;
 
@@ -91,6 +91,8 @@ pub struct ServiceSnapshot {
     pub sampler: Option<SamplerTelemetry>,
     /// Applied mixed-session settings and peaks from the whole backend callback.
     pub mixer: Option<MixerSnapshot>,
+    /// Applied sequenced-session state; latest event only, not a complete history.
+    pub sequencer: Option<SequencerSnapshot>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -100,6 +102,8 @@ pub struct TriggerReport {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Explicit trigger-command telemetry. Active voices also include sequenced notes;
+/// scheduled outcomes/counters live separately in ServiceSnapshot::sequencer.
 pub struct SamplerTelemetry {
     pub occupied_slots: u16,
     pub active_voices: usize,
@@ -132,6 +136,7 @@ pub(crate) enum Source {
     Signal(Option<f64>),
     Sampler(Box<SampleBank>),
     MixedSampler(Box<SampleBank>, MixerSettings),
+    SequencedSampler(Box<SampleBank>, MixerSettings, Pattern),
 }
 impl Source {
     pub(crate) fn engine(self, config: EngineConfig, tempo: Tempo) -> Result<AudioEngine> {
@@ -143,10 +148,15 @@ impl Source {
             Self::MixedSampler(bank, settings) if bank.config() == config => {
                 Ok(AudioEngine::with_mixed_sampler(*bank, tempo, settings))
             }
-            Self::Sampler(_) | Self::MixedSampler(..) => Err(AudioError::new(
-                ErrorCode::InvalidArgument,
-                "Device configuration must match the prepared bank rate and channels",
-            )),
+            Self::SequencedSampler(bank, settings, pattern) if bank.config() == config => Ok(
+                AudioEngine::with_sequenced_sampler(*bank, tempo, settings, pattern),
+            ),
+            Self::Sampler(_) | Self::MixedSampler(..) | Self::SequencedSampler(..) => {
+                Err(AudioError::new(
+                    ErrorCode::InvalidArgument,
+                    "Device configuration must match the prepared bank rate and channels",
+                ))
+            }
         }
     }
 }

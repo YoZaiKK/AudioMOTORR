@@ -4,9 +4,10 @@ Specified 2026-11-12 after [stage 10 closure](../progress/cierre-etapa-10.md).
 **11.1 implemented locally:** editable domain pattern and ordered step events.
 **11.2 implemented locally:** engine scheduler, sequenced mixed rendering and
 direct processing-owner edits. See the [engine report](../progress/etapa-11-planificador.md).
-**11.3 pending:** bounded service commands, application coordination, DTOs and
-desktop grid. **11.4 pending:** integrated reference, diagnostics and delivery
-acceptance. The service/application/UI rules below remain requirements for 11.3.
+**11.3.a implemented locally:** [audio sessions, FIFO and applied observations](sequencer-service.md).
+**11.3.b/c pending:** application coordination, DTOs and desktop grid.
+**11.4 pending:** integrated reference, diagnostics and delivery acceptance.
+Application/UI rules below remain requirements for 11.3.b/c.
 The [11.1 report](../progress/etapa-11-modelo-patron.md) retains its earlier scope.
 
 ## Current engine API
@@ -25,7 +26,8 @@ boundaries, attempted/started notes, missing assets and pool-full rejection.
 `last_event` includes occurrence identity, row/slot, absolute device frame and
 immediate voice result; the voice index is not a stable handle. This is only the
 latest event, so a snapshot is not a complete history. Counters retain evidence
-of earlier outcomes; the current service does not expose any of this yet.
+of earlier outcomes. `ServiceSnapshot.sequencer` now exposes this Rust snapshot
+after complete callbacks; application/IPC/UI exposure follows in 11.3.b/c.
 
 On settled Stop, phase, loop and last boundary/event reset; pattern, mix, tempo,
 bank and lifetime counters remain. A new engine starts fresh counters. Render
@@ -128,7 +130,8 @@ earlier frames may free a voice. At a shared frame, process ordered events befor
 rendering that frame, so an earlier accepted event consumes its voice first.
 Missing assets or a full pool reject only that occurrence; do not steal voices,
 retry it later, abort the pattern or reset phase. Engine snapshots expose
-counters and the latest outcome; service telemetry/loss handling follows in 11.3.
+counters and the latest outcome; [service telemetry/loss handling](sequencer-service.md)
+is implemented in 11.3.a. Application/UI handling follows in 11.3.b/c.
 Internally scheduled events do not acquire application command IDs or enqueue
 one command per note. Any explicit manual triggers retain FIFO application order
 before scheduled events at the callback's first frame.

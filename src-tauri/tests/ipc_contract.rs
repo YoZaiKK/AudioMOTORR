@@ -196,6 +196,7 @@ fn invokes_registered_commands_and_serializes_real_application_responses() {
 #[test]
 fn large_counters_and_identifiers_cross_json_as_decimal_strings() {
     let value = daw_app::ServiceSnapshot {
+        sequencer: None,
         sequence: u64::MAX,
         state: daw_app::AudioServiceState::Ready,
         backend: Some(daw_app::Backend::Manual),

@@ -37,8 +37,12 @@ See the [11.1 report](progress/etapa-11-modelo-patron.md).
 **11.2 is implemented locally:** explicit sequenced mixed playback in the engine,
 exact fractional phase, within-block scheduling, transport and live edits;
 [engine report](progress/etapa-11-planificador.md).
-Next: **11.3, service/application/IPC and the four-row desktop grid**.
-Sequencer service/UI, project persistence and clips remain to be built.
+**11.3.a is implemented locally:** [sequenced audio sessions](docs/sequencer-service.md),
+bounded pattern commands and observed state across whole callbacks;
+[service report](progress/etapa-11-sesiones-secuenciador.md).
+11.1–11.2 are committed in `1effd48`; 11.3.a remains a local change.
+Next: **11.3.b, application coordination**, then IPC and the four-row desktop grid.
+Sequencer application/UI, project persistence and clips remain to be built.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
 sessions, controls transport/tempo/gain and shows exact-ID trigger outcomes or
@@ -80,21 +84,22 @@ README/technical documents are in English; progress and practical guides are in 
 
 ## Next steps
 
-| Stage                      | Next deliverable                                                                           | Acceptance / boundary                                                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 9 — closed                 | Source/evidence audit, native measurements, user-confirmed audible output and CI recorded. | Both jobs successful for 4dc2c6c; acoustic continuity, unplug/stress and platform limits remain explicit.                                            |
-| 10.1–10.2 — delivered core | Four-channel document settings and opt-in deterministic engine mixing implemented.         | [Contract](docs/mixer-contract.md), reference samples, partition invariance and zero processing allocation/free checks.                              |
-| 10.3.a — delivered         | Mixed sessions, shared FIFO controls and complete-callback meter windows implemented.      | [Service contract](docs/mixer-service.md), adapter/lifecycle fixtures and processing memory checks.                                                  |
-| 10.3.b — delivered         | Application selection/acceptance and prepared-bank installation coordinated.               | [Application contract](docs/mixer-application.md), rollback and lifecycle fixtures.                                                                  |
-| 10.3.c — delivered         | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                                                       |
-| 10.3.d — delivered         | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                                                |
-| 10.4.a — delivered         | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                                                     |
-| **10.4.b–c — closed**      | Native measurements, delivery/CI and user-confirmed audible mixer output recorded.         | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                                                           |
-| 11.1 — implemented locally | Domain pattern and sequencer contract.                                                     | Fixed 4 × 16 state, validated slots, ordered events and independent project copies; [report](progress/etapa-11-modelo-patron.md).                    |
-| 11.2 — implemented locally | Engine scheduling and sequenced mixed rendering.                                           | Exact fractional phase, independent event/PCM references, transport/edits and processing memory checks; [report](progress/etapa-11-planificador.md). |
-| 11.3–11.4                  | Service, grid integration and sequencer acceptance.                                        | Applied observations, bounded commands, integrated playback, native diagnostics and delivery CI.                                                     |
-| 12                         | Project persistence and beat export.                                                       | Versioned save/open, relative asset references and offline export of the actual project.                                                             |
-| 13                         | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                                                      |
+| Stage                        | Next deliverable                                                                           | Acceptance / boundary                                                                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 9 — closed                   | Source/evidence audit, native measurements, user-confirmed audible output and CI recorded. | Both jobs successful for 4dc2c6c; acoustic continuity, unplug/stress and platform limits remain explicit.                                                                |
+| 10.1–10.2 — delivered core   | Four-channel document settings and opt-in deterministic engine mixing implemented.         | [Contract](docs/mixer-contract.md), reference samples, partition invariance and zero processing allocation/free checks.                                                  |
+| 10.3.a — delivered           | Mixed sessions, shared FIFO controls and complete-callback meter windows implemented.      | [Service contract](docs/mixer-service.md), adapter/lifecycle fixtures and processing memory checks.                                                                      |
+| 10.3.b — delivered           | Application selection/acceptance and prepared-bank installation coordinated.               | [Application contract](docs/mixer-application.md), rollback and lifecycle fixtures.                                                                                      |
+| 10.3.c — delivered           | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                                                                           |
+| 10.3.d — delivered           | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                                                                    |
+| 10.4.a — delivered           | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                                                                         |
+| **10.4.b–c — closed**        | Native measurements, delivery/CI and user-confirmed audible mixer output recorded.         | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                                                                               |
+| 11.1 — implemented locally   | Domain pattern and sequencer contract.                                                     | Fixed 4 × 16 state, validated slots, ordered events and independent project copies; [report](progress/etapa-11-modelo-patron.md).                                        |
+| 11.2 — implemented locally   | Engine scheduling and sequenced mixed rendering.                                           | Exact fractional phase, independent event/PCM references, transport/edits and processing memory checks; [report](progress/etapa-11-planificador.md).                     |
+| 11.3.a — implemented locally | Sequenced manual/native sessions and bounded pattern commands.                             | Applied phase/outcomes, FIFO budget/loss/restart, native chunk/conversion references and processing memory checks; [report](progress/etapa-11-sesiones-secuenciador.md). |
+| 11.3.b–11.4                  | Application, grid integration and sequencer acceptance.                                    | Selected/accepted/applied state, integrated playback, native diagnostics and delivery CI.                                                                                |
+| 12                           | Project persistence and beat export.                                                       | Versioned save/open, relative asset references and offline export of the actual project.                                                                                 |
+| 13                           | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                                                                          |
 
 The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
 define scope and dependencies. The [execution plan](progress/plan-siguientes-pasos.md)
