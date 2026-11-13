@@ -30,15 +30,27 @@ four-row, 16-step domain pattern and [sequencer contract](sequencer-contract.md)
 scheduling and opt-in sequenced mixed playback, with independent references.
 [11.3.a is implemented locally](sequencer-service.md): explicit sessions,
 bounded pattern commands and applied phase/outcomes across complete callbacks.
-11.1–11.2 are committed in `1effd48`; the new service increment is local.
-Next is 11.3.b, application coordination, then IPC and the desktop grid.
+11.1–11.2 are committed in `1effd48`; service 11.3.a is delivered in `2d4cc28`.
+[11.3.b is implemented locally](sequencer-application.md): selected pattern,
+queue acceptance, applied state and current settings at bank installation.
+[11.3.c is implemented locally](sequencer-desktop.md): generated DTOs/IPC/ACL,
+four-row grid, slots, receipts and observed position; real WebView2 editing/layout verified.
+[11.3.d is accepted locally](sequencer-integration-acceptance.md): decoded beat
+reference, lifecycle/UI/IPC coverage audit and current check/release/build.
+[11.4.a is implemented locally](sequencer-diagnostics.md): 72 offline measurements,
+explicit native runner, deterministic fixtures and a physical verification protocol.
+[11.4.b physical processing is measured](../progress/etapa-11-medicion-nativa-secuenciador.md);
+listening and exact delivery/CI closure remain pending.
+[Stage 12 is implemented locally](project-format.md): portable JSON projects,
+explicit saved-asset preparation, exact beat/tail render and desktop/CLI WAV export.
+Delivery verification is in progress; clips/scenes remain stage 13.
 Historical delivery detail: 9.1–9.2 are complete and published; 9.2 implementation
 7acc1db passed both hosted jobs in
 [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
 This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests.
 Native sessions and desktop integration are implemented through 9.4.c, with
 physical processing measurements and user-confirmed audibility recorded at closure.
-Sequencer application/UI and acceptance in 11.3.b–11.4 and stages 12–13 remain to be implemented.
+Sequencer listening/delivery closure in 11.4.b–c, stage 12 delivery and stage 13 remain open.
 See the [current kernel report](../progress/etapa-9-voces.md) and
 [resource report](../progress/etapa-9-sampler.md).
 9.3.a now specifies the [loading contract](sample-loading-contract.md), including

@@ -2,10 +2,14 @@
 
 mod mixer;
 pub mod offline;
+pub mod project_file;
+pub mod project_render;
 pub mod sample_loading;
 pub mod sampler_session;
-pub use daw_domain::{MixerChannel, MixerSettings};
+mod sequencer;
+pub use daw_domain::{MixerChannel, MixerSettings, Pattern};
 pub use mixer::MixerEdit;
+pub use sequencer::PatternEdit;
 
 pub use daw_audio::{
     AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, MemoryActivity,
@@ -14,7 +18,10 @@ pub use daw_audio::{
 };
 use daw_domain::{Project, ProjectId, Tempo};
 use daw_engine::{EngineCommand, Gain};
-pub use daw_engine::{EngineConfig, SamplerTriggerError, TransportState};
+pub use daw_engine::{
+    EngineConfig, SamplerTriggerError, SequencerBoundary, SequencerCounters, SequencerEvent,
+    SequencerSnapshot, TransportState,
+};
 
 pub struct ProjectSummary {
     pub id: ProjectId,
@@ -26,6 +33,8 @@ pub struct Application {
     project: Project,
     audio: daw_audio::AudioService,
     samples: sampler_session::SamplePreparation,
+    project_path: Option<std::path::PathBuf>,
+    saved_project: Option<Project>,
 }
 
 impl Application {
@@ -34,6 +43,8 @@ impl Application {
             project: Project::default(),
             audio: daw_audio::AudioService::new()?,
             samples: sampler_session::SamplePreparation::default(),
+            project_path: None,
+            saved_project: None,
         })
     }
     pub fn get_project_summary(&self) -> ProjectSummary {

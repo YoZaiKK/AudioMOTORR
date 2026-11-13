@@ -6,7 +6,14 @@ Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 Estado actual (2026-11-12): etapas 1–10 completadas dentro de su alcance;
 11.1 y 11.2 implementados localmente; ver [modelo de patrón](etapa-11-modelo-patron.md)
 y [planificador](etapa-11-planificador.md). 11.3.a implementado localmente:
-[servicio secuenciado](etapa-11-sesiones-secuenciador.md). Siguiente: aplicación 11.3.b.
+[servicio secuenciado](etapa-11-sesiones-secuenciador.md). 11.3.b implementado localmente:
+[aplicación](etapa-11-aplicacion-secuenciador.md). 11.3.c implementado localmente:
+[desktop](etapa-11-desktop-secuenciador.md). 11.3.d aceptada localmente:
+[referencia e integración](cierre-integracion-secuenciador-11.3d.md).
+11.4.a implementada localmente: [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
+11.4.b: matriz física medida, escucha pendiente. Etapa 12 implementada localmente:
+[persistencia/exportación](etapa-12-persistencia-exportacion.md). En curso: entrega/CI;
+después clips/escenas 13, conservando el cierre auditivo de 11 pendiente.
 ver [cierre del sampler](cierre-etapa-9.md). Etapa 8 publicada en 1e6bca8,
 con mediciones release sobre Realtek y CI Linux/Windows correcta en run 42524752652.
 Ver [reporte de etapa 8](etapa-8.md) para checks, build, smoke y límites. Etapa 7 está
@@ -223,16 +230,23 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 11.2: cero asignaciones/liberaciones instrumentadas y liberación PCM fuera del procesamiento.
 - [x] 11.3.a: sesiones manuales/CPAL secuenciadas, FIFO Copy y snapshots observados.
 - [x] 11.3.a: límites/IDs/pérdida/reinicio, chunks/conversión y memoria del adaptador.
-- [ ] 11.3.b: coordinación del documento/preparación y selección/aceptación/aplicación.
-- [ ] 11.3.c: DTOs/IPC/ACL y cuadrícula con posición observada.
-- [ ] 11.3.d: aceptación local integrada de servicio/aplicación/desktop.
-- [ ] 11.4: referencia integrada, diagnósticos, verificación nativa y CI de la entrega.
+- [x] 11.3.b: coordinación del documento/preparación y selección/aceptación/aplicación.
+- [x] 11.3.b: instalación actual, rollback de cola llena, timeout inconcluso y lifecycle con WAV reales.
+- [x] 11.3.c: DTOs/IPC/ACL y cuadrícula con posición observada.
+- [x] 11.3.c: precisión u64/u128, permisos/orden/pérdida, build y edición/layout WebView2 sin abrir audio.
+- [x] 11.3.d: beat WAV de referencia, auditoría de servicio/aplicación/IPC/UI y check/release/build.
+- [x] 11.4.a: diagnósticos explícitos, 72 mediciones offline, lifecycle manual y generador/protocolo nativo.
+- [x] 11.4.b: seis casos físicos y seis reaperturas Realtek/WASAPI, con controles y métricas.
+- [ ] 11.4.b: confirmación auditiva del usuario sobre el secuenciador.
+- [ ] 11.4.c: auditoría, entrega y CI de la revisión correspondiente antes del cierre.
 
 ## Etapa 12 — Persistencia y exportación de beat
 
-- [ ] Versionar documento y resolver migraciones/recursos relativos fuera del callback.
-- [ ] Implementar guardar/abrir y errores de versión, rutas y assets ausentes.
-- [ ] Verificar round-trip y exportación consistente de un beat completo.
+- [x] 12.1: documento JSON v1, referencias relativas y rechazo de versiones no soportadas.
+- [x] 12.2: guardar con copia de assets, abrir validando y errores sin perder selección/archivo.
+- [x] 12.3: exportar beat completo con duración exacta y colas cut/finish, usando el mismo motor.
+- [x] 12.4: flujo aplicación/CLI/IPC/UI y verificación real WebView2 de guardar/abrir/exportar.
+- [ ] 12.4: evidencia/verificación final y CI de la revisión entregada.
 
 ## Etapa 13 — Clips y escenas
 

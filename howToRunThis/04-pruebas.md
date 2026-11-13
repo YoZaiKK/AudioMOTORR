@@ -1,5 +1,81 @@
 # Ejecutar las pruebas
 
+## Persistencia y exportación del beat (12)
+
+```powershell
+cargo test -p daw-app --locked --test project_persistence_contract
+cargo test -p daw-cli --locked --test project_contract
+cargo test -p rust-daw-desktop --locked --test project_ipc_contract
+cargo test -p daw-app -p daw-cli --release --no-default-features --locked --test project_persistence_contract --test project_contract
+npm run test:frontend
+npm run check
+```
+
+20 casos nuevos: dominio aplicado desde la aplicación, round-trip/relocación,
+errores sin perder documento/archivo, PCM/duración/colas por particiones,
+CLI real, IPC/ACL y UI con respuestas tardías/borradores. Frontend suma 63 casos;
+IPC diez. Las pruebas usan audio manual y archivos temporales; no abren hardware.
+La [guía](09-proyectos.md) y el [reporte](../progress/etapa-12-persistencia-exportacion.md)
+incluyen el flujo WebView2 real, con audio sin inicializar.
+
+## Diagnósticos del secuenciador 11.4.a
+
+```powershell
+cargo test -p daw-cli --features offline-diagnostics --locked --bin daw-cli diagnostics::sequencer
+cargo test -p daw-cli --release --features offline-diagnostics --locked --bin daw-cli --test diagnostics_contract
+cargo test -p daw-cli --release --features rt-diagnostics --locked --bin daw-cli --test diagnostics_contract
+```
+
+Seis casos nuevos entre unitarios y CLI, algunos condicionados por feature/perfil.
+El lifecycle usa preparación WAV y audio manual para mono/estéreo y los tres
+patrones, sin abrir CPAL. La CLI release comprueba la matriz y los gates antes
+de I/O. Los comandos de pruebas no ejecutan `sequencer-native-check` con un
+dispositivo válido. Ver [resultados y límites](../progress/etapa-11-diagnosticos-secuenciador.md).
+
+## Aceptación integrada del secuenciador 11.3.d
+
+```powershell
+cargo test -p daw-app --locked --test sequencer_acceptance_contract
+cargo test -p daw-app --release --locked --test sequencer_acceptance_contract --test sequencer_application_contract
+```
+
+Dos casos nuevos: 24 combinaciones de PCM decodificado y 18 de aplicación/sesión,
+con BPM fraccionales, salidas mono/estéreo y varios bloques. La referencia calcula
+eventos y señal independientemente; los WAV se eliminan después de preparar.
+No abren un dispositivo físico. Se incluyen en `npm run check`; consultar
+[matriz y límites](../docs/sequencer-integration-acceptance.md) y
+[reporte](../progress/cierre-integracion-secuenciador-11.3d.md).
+
+## Cuadrícula e IPC del secuenciador 11.3.c
+
+```powershell
+npm run bindings:check
+npm run test:frontend
+cargo test -p rust-daw-desktop --locked --test ipc_contract --test sequencer_ipc_contract
+npm run check
+npm run desktop:build -- --debug --no-bundle
+```
+
+Frontend: 54 casos, incluidos selección/aplicación, respuestas tardías, pérdida,
+errores y posición observada. IPC: siete casos con validación de patrón fijo,
+precisión u64/u128 y permisos por ventana. No abren audio. El reporte incluye
+[capturas de WebView2 real](../progress/etapa-11-desktop-secuenciador.md), con
+audio sin inicializar. Ver [guía](08-secuenciador.md).
+
+## Patrón en la aplicación 11.3.b
+
+```powershell
+cargo test -p daw-app --no-default-features --locked --lib --test sequencer_application_contract
+cargo test -p daw-app --features native-audio --locked --lib --test sequencer_application_contract
+```
+
+Verifican documento seleccionado, aceptación y patrón aplicado, instalación de
+WAV preparados tras borrar originales, FIFO/cola llena, pausa/BPM/rutas, reinicio
+y errores. Incluyen preparación bloqueada y una respuesta perdida modelada tras
+encolar realmente el comando, sin compensación automática. No abren hardware.
+`npm run check` las incluye. Ver [contrato](../docs/sequencer-application.md) y
+[reporte](../progress/etapa-11-aplicacion-secuenciador.md). La cuadrícula sigue en 11.3.c.
+
 ## Sesiones secuenciadas 11.3.a
 
 ```powershell

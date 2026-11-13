@@ -5,9 +5,11 @@ Specified 2026-11-12 after [stage 10 closure](../progress/cierre-etapa-10.md).
 **11.2 implemented locally:** engine scheduler, sequenced mixed rendering and
 direct processing-owner edits. See the [engine report](../progress/etapa-11-planificador.md).
 **11.3.a implemented locally:** [audio sessions, FIFO and applied observations](sequencer-service.md).
-**11.3.b/c pending:** application coordination, DTOs and desktop grid.
-**11.4 pending:** integrated reference, diagnostics and delivery acceptance.
-Application/UI rules below remain requirements for 11.3.b/c.
+**11.3.b implemented locally:** [application coordination](sequencer-application.md).
+**11.3.c implemented locally:** [DTOs/IPC/ACL and desktop grid](sequencer-desktop.md).
+**11.3.d accepted locally:** [decoded beat and integration coverage](sequencer-integration-acceptance.md).
+**11.4.a implemented locally:** [sequencer diagnostics and native protocol](sequencer-diagnostics.md).
+**11.4.b–c pending:** native reference/measurements/listening and delivery acceptance.
 The [11.1 report](../progress/etapa-11-modelo-patron.md) retains its earlier scope.
 
 ## Current engine API
@@ -27,7 +29,8 @@ boundaries, attempted/started notes, missing assets and pool-full rejection.
 immediate voice result; the voice index is not a stable handle. This is only the
 latest event, so a snapshot is not a complete history. Counters retain evidence
 of earlier outcomes. `ServiceSnapshot.sequencer` now exposes this Rust snapshot
-after complete callbacks; application/IPC/UI exposure follows in 11.3.b/c.
+after complete callbacks. Application-selected pattern and acceptance are now
+coordinated in 11.3.b and exposed through scoped IPC/UI in 11.3.c.
 
 On settled Stop, phase, loop and last boundary/event reset; pattern, mix, tempo,
 bank and lifetime counters remain. A new engine starts fresh counters. Render
@@ -131,7 +134,8 @@ rendering that frame, so an earlier accepted event consumes its voice first.
 Missing assets or a full pool reject only that occurrence; do not steal voices,
 retry it later, abort the pattern or reset phase. Engine snapshots expose
 counters and the latest outcome; [service telemetry/loss handling](sequencer-service.md)
-is implemented in 11.3.a. Application/UI handling follows in 11.3.b/c.
+is implemented in 11.3.a. Application handling is implemented in 11.3.b;
+desktop handling is implemented in 11.3.c.
 Internally scheduled events do not acquire application command IDs or enqueue
 one command per note. Any explicit manual triggers retain FIFO application order
 before scheduled events at the callback's first frame.
@@ -170,5 +174,7 @@ Persistence and a saved transport position remain outside stage 11.
   missing assets, full pool, counters and zero allocation/free in processing.
 - 11.3: bounded command acceptance/application, preparation/lifecycle recovery,
   generated bindings/ACL, four-row grid and observed position with loss handling.
-- 11.4: reference beat through the full stack, regression checks/build, relevant
-  native measurements and exact-revision CI before closing the stage.
+  [Local integration acceptance](sequencer-integration-acceptance.md) now adds
+  a decoded beat reference, coverage audit and current regression checks/build.
+- 11.4: explicit sequencer diagnostics, reference beat on the native path,
+  relevant measurements/listening and exact-revision CI before closing the stage.

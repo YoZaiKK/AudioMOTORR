@@ -160,6 +160,14 @@ impl Application {
         config: EngineConfig,
         files: Vec<SampleFileSelection>,
     ) -> Result<PreparationSnapshot> {
+        self.start_sample_preparation(config, files, true)
+    }
+    pub(crate) fn start_sample_preparation(
+        &mut self,
+        config: EngineConfig,
+        files: Vec<SampleFileSelection>,
+        update_references: bool,
+    ) -> Result<PreparationSnapshot> {
         self.samples.poll();
         self.samples.ensure_idle()?;
         if self.get_engine_snapshot()?.state != AudioServiceState::Uninitialized {
@@ -191,6 +199,24 @@ impl Application {
             .checked_add(1)
             .ok_or_else(|| invalid("Preparation IDs exhausted"))?;
         let cancel = Arc::new(AtomicBool::new(false));
+        let mut selected = self.project.clone();
+        if update_references {
+            for slot in 0..16 {
+                selected
+                    .set_asset(slot, None)
+                    .map_err(|e| invalid(e.to_string()))?;
+            }
+            for file in &files {
+                let absolute =
+                    std::path::absolute(&file.path).map_err(|e| invalid(e.to_string()))?;
+                let path = absolute
+                    .to_str()
+                    .ok_or_else(|| invalid("Project asset paths must be UTF-8"))?;
+                selected
+                    .set_asset(file.slot, Some(path.to_owned()))
+                    .map_err(|e| invalid(e.to_string()))?;
+            }
+        }
         let worker_cancel = Arc::clone(&cancel);
         let coordinator = self.samples.coordinator.clone();
         let worker = thread::Builder::new()
@@ -207,6 +233,9 @@ impl Application {
             })
             .map_err(|error| AudioError::new(ErrorCode::ServiceClosed, error.to_string()))?;
         self.samples.worker = Some(worker);
+        if update_references {
+            self.project = selected;
+        }
         self.samples.cancel = cancel;
         self.samples.next_id = next_id;
         self.samples.snapshot.preparation_id = Some(id);
@@ -307,11 +336,45 @@ impl Application {
             *self.project.mixer(),
         )
     }
+    /// Installs current selected pattern, mix and tempo after taking the prepared
+    /// bank. No re-reading assets, implicit Play or preparation-time settings copy.
+    pub fn initialize_sequenced_sampler(
+        &mut self,
+        preparation_id: u64,
+        device_id: Option<String>,
+    ) -> Result<ServiceSnapshot> {
+        let bank = self.take_sample_bank(preparation_id)?;
+        self.audio.handle().initialize_native_sequenced_sampler(
+            device_id,
+            bank,
+            self.project.tempo(),
+            *self.project.mixer(),
+            *self.project.pattern(),
+        )
+    }
+
+    pub fn initialize_manual_sequenced_sampler(
+        &mut self,
+        preparation_id: u64,
+    ) -> Result<ServiceSnapshot> {
+        let bank = self.take_sample_bank(preparation_id)?;
+        self.audio.handle().initialize_manual_sequenced_sampler(
+            bank,
+            self.project.tempo(),
+            *self.project.mixer(),
+            *self.project.pattern(),
+        )
+    }
+
     pub fn trigger_sample(&self, slot: usize, gain: f64) -> Result<crate::CommandAccepted> {
         let gain = Gain::new(gain).map_err(|error| invalid(error.to_string()))?;
         self.audio.handle().trigger_sample(slot, gain)
     }
 }
+
+#[cfg(test)]
+#[path = "sequencer_preparation_tests.rs"]
+mod sequencer_tests;
 
 #[cfg(test)]
 mod tests {

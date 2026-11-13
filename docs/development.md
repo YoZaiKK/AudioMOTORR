@@ -288,7 +288,8 @@ export (7.3). New offline_contract and export_contract
 tests cover block reuse, live-state independence, exact reopened WAV samples,
 metadata, path/size errors, and injected writer failures. The nine silence cases
 remain regressions. WAV tests use exclusive temporary output directories.
-The CLI export-wav command is device-free; hound 3.5.1 is pinned only there.
+The CLI export-wav command is device-free. Stage 12 additionally pins hound 3.5.1
+in daw-app for shared device-free beat export; see [project persistence/export](project-format.md).
 Local and remote evidence is separated in the [export report](../progress/etapa-7-exportacion.md).
 Stage 7 is closed: implementation c6cf627 passed both hosted jobs in
 [run 42419963899](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42419963899).

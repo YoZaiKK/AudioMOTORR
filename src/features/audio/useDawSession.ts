@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { apiError, desktopClient } from "../../shared/api/desktop-client";
 import { observeTrigger, type TriggerObservation } from "./trigger-observation";
 import { observeMixer, type MixerObservation } from "./mixer-observation";
+import { observePattern, type PatternObservation } from "./pattern-observation";
 import type {
   ApiError,
   AppInfoDto,
@@ -13,6 +14,11 @@ import type {
   SampleFileDto,
   MixerSettingsDto,
   MixerEditDto,
+  PatternDto,
+  PatternEditDto,
+  ProjectDocumentDto,
+  BeatExportDto,
+  BeatExportRequestDto,
 } from "../../shared/api/generated/api";
 
 function acknowledged(snapshot: ServiceSnapshotDto | null, id: string) {
@@ -25,12 +31,25 @@ export function useDawSession() {
   const native = desktopClient.available();
   const [info, setInfo] = useState<AppInfoDto | null>(null);
   const [project, setProject] = useState<ProjectSummaryDto | null>(null);
+  const [document, setDocument] = useState<ProjectDocumentDto | null>(null);
+  const [documentVersion, setDocumentVersion] = useState(0);
+  const [beatExport, setBeatExport] = useState<{
+    path: string;
+    report: BeatExportDto;
+  } | null>(null);
+  const documentGeneration = useRef(0);
   const [devices, setDevices] = useState<OutputDeviceDto[]>([]);
   const [snapshot, setSnapshot] = useState<ServiceSnapshotDto | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [connected, setConnected] = useState(false);
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
+  const [pattern, setPattern] = useState<PatternDto | null>(null);
+  const [patternEdit, setPatternEdit] = useState<
+    PatternObservation | "offline" | null
+  >(null);
+  const patternGeneration = useRef(0);
+  const patternSelectionGeneration = useRef(0);
   const [mixerSettings, setMixerSettings] = useState<MixerSettingsDto | null>(
     null,
   );
@@ -51,6 +70,21 @@ export function useDawSession() {
   const mixerSelectionGeneration = useRef(0);
   const mounted = useRef(false);
   const working = useRef(false);
+  const syncDocument = useCallback(() => {
+    const generation = ++documentGeneration.current;
+    void desktopClient.document().then(
+      (next) => {
+        if (mounted.current && generation === documentGeneration.current) {
+          setDocument(next);
+          setProject(next.summary);
+        }
+      },
+      (reason) => {
+        if (mounted.current && generation === documentGeneration.current)
+          setError(apiError(reason));
+      },
+    );
+  }, []);
   const observe = useCallback((next: ServiceSnapshotDto) => {
     if (
       current.current &&
@@ -59,7 +93,14 @@ export function useDawSession() {
       return;
     current.current = next;
     if (next.state !== "ready" || !next.mixer) mixerGeneration.current += 1;
+    if (next.state !== "ready" || !next.sequencer)
+      patternGeneration.current += 1;
     setSnapshot(next);
+    setPatternEdit((previous) =>
+      previous && previous !== "offline"
+        ? observePattern(next, previous)
+        : previous,
+    );
     setMixerEdit((previous) =>
       previous && previous !== "offline"
         ? observeMixer(next, previous)
@@ -101,19 +142,36 @@ export function useDawSession() {
           const initial = await desktopClient.snapshot();
           if (disposed) return;
           observe(initial);
-          const [appInfo, summary] = await Promise.all([
+          const [appInfo, summary, selectedDocument] = await Promise.all([
             desktopClient.appInfo(),
             desktopClient.project(),
+            desktopClient.document(),
           ]);
           if (disposed) return;
           setInfo(appInfo);
           setProject(summary);
+          setDocument(selectedDocument);
+          setDocumentVersion((previous) => previous + 1);
           setConnected(true);
           const failed = (reason: unknown) => {
             if (!disposed) setError(apiError(reason));
           };
           const selectionGeneration = mixerSelectionGeneration.current;
+          const patternSelection = patternSelectionGeneration.current;
           await Promise.all([
+            desktopClient.pattern().then(
+              (selected) => {
+                if (
+                  !disposed &&
+                  patternSelection === patternSelectionGeneration.current
+                )
+                  setPattern(selected);
+              },
+              (reason) => {
+                if (patternSelection === patternSelectionGeneration.current)
+                  failed(reason);
+              },
+            ),
             desktopClient.mixer().then(
               (settings) => {
                 if (
@@ -183,7 +241,9 @@ export function useDawSession() {
       setError(null);
       try {
         const result = await operation();
-        if (mounted.current) success(result);
+        if (!mounted.current) return;
+        success(result);
+        return result;
       } catch (reason) {
         if (mounted.current) setError(apiError(reason));
       } finally {
@@ -204,6 +264,7 @@ export function useDawSession() {
   const command = (action: () => Promise<CommandAcceptedDto>) =>
     run(action, accepted);
   const edited = (edit: MixerEditDto, generation: number) => {
+    syncDocument();
     mixerSelectionGeneration.current += 1;
     setMixerSettings(edit.settings);
     setMixerEdit(
@@ -224,14 +285,43 @@ export function useDawSession() {
       },
       ({ edit, generation }) => edited(edit, generation),
     );
-  const initializeSampler = (deviceId: string | null, mixed: boolean) =>
+  const editPattern = (action: () => Promise<PatternEditDto>) =>
+    run(
+      async () => {
+        const generation = patternGeneration.current;
+        return { edit: await action(), generation };
+      },
+      ({ edit, generation }) => {
+        syncDocument();
+        patternSelectionGeneration.current += 1;
+        setPattern(edit.pattern);
+        setPatternEdit(
+          edit.accepted
+            ? observePattern(current.current, {
+                commandId: edit.accepted.commandId,
+                status:
+                  generation === patternGeneration.current
+                    ? "pending"
+                    : "unknown",
+              })
+            : "offline",
+        );
+      },
+    );
+  const initializeSampler = (
+    deviceId: string | null,
+    mode: "raw" | "mixed" | "sequenced",
+  ) =>
     preparation?.preparationId &&
     run(
       async () => {
         try {
-          const initialize = mixed
-            ? desktopClient.initializeMixedSampler
-            : desktopClient.initializeSampler;
+          const initialize =
+            mode === "sequenced"
+              ? desktopClient.initializeSequencedSampler
+              : mode === "mixed"
+                ? desktopClient.initializeMixedSampler
+                : desktopClient.initializeSampler;
           return await initialize(preparation.preparationId!, deviceId);
         } finally {
           try {
@@ -248,11 +338,62 @@ export function useDawSession() {
       },
     );
   const ready = connected && snapshot?.state === "ready";
+  const applyDocument = (next: ProjectDocumentDto, replace: boolean) => {
+    setDocument(next);
+    setProject(next.summary);
+    if (replace) {
+      setDocumentVersion((previous) => previous + 1);
+      patternSelectionGeneration.current += 1;
+      mixerSelectionGeneration.current += 1;
+      setPattern(next.pattern);
+      setMixerSettings(next.mixer);
+      setPatternEdit(null);
+      setMixerEdit(null);
+      setBeatExport(null);
+    }
+  };
   return {
     native,
     connected,
     info,
     project,
+    document,
+    documentVersion,
+    beatExport,
+    refreshDocument: () =>
+      run(
+        () => {
+          documentGeneration.current += 1;
+          return desktopClient.document();
+        },
+        (next) => applyDocument(next, false),
+      ),
+    saveProject: (path: string, overwrite: boolean, title: string) =>
+      run(
+        () => {
+          documentGeneration.current += 1;
+          return desktopClient.saveProject(path, overwrite, title);
+        },
+        (next) => applyDocument(next, false),
+      ),
+    openProject: (path: string) =>
+      run(
+        () => {
+          documentGeneration.current += 1;
+          return desktopClient.openProject(path);
+        },
+        (next) => applyDocument(next, true),
+      ),
+    prepareProjectSamples: (sampleRate: number, channels: number) =>
+      run(
+        () => desktopClient.prepareProjectSamples(sampleRate, channels),
+        observePreparation,
+      ),
+    exportBeat: (request: BeatExportRequestDto) =>
+      run(
+        () => desktopClient.exportBeat(request),
+        (report) => setBeatExport({ path: request.outputPath, report }),
+      ),
     devices,
     snapshot,
     busy,
@@ -263,6 +404,19 @@ export function useDawSession() {
     trigger,
     mixerSettings,
     mixerEdit,
+    pattern,
+    patternEdit,
+    refreshPattern: () =>
+      run(() => {
+        patternSelectionGeneration.current += 1;
+        return desktopClient.pattern();
+      }, setPattern),
+    setPattern: (pattern: PatternDto) =>
+      editPattern(() => desktopClient.setPattern(pattern)),
+    setPatternStep: (row: number, step: number, enabled: boolean) =>
+      editPattern(() => desktopClient.patternStep(row, step, enabled)),
+    setPatternRowSlot: (row: number, slot: number) =>
+      editPattern(() => desktopClient.patternRowSlot(row, slot)),
     refreshMixer: () =>
       run(() => {
         mixerSelectionGeneration.current += 1;
@@ -283,7 +437,10 @@ export function useDawSession() {
     ) =>
       run(
         () => desktopClient.prepareSamples(sampleRate, channels, files),
-        observePreparation,
+        (next) => {
+          observePreparation(next);
+          syncDocument();
+        },
       ),
     cancelPreparation: () =>
       preparation?.preparationId &&
@@ -292,9 +449,11 @@ export function useDawSession() {
         observePreparation,
       ),
     initializeSampler: (deviceId: string | null) =>
-      initializeSampler(deviceId, false),
+      initializeSampler(deviceId, "raw"),
     initializeMixedSampler: (deviceId: string | null) =>
-      initializeSampler(deviceId, true),
+      initializeSampler(deviceId, "mixed"),
+    initializeSequencedSampler: (deviceId: string | null) =>
+      initializeSampler(deviceId, "sequenced"),
     triggerSample: (slot: number, gain: number) =>
       run(
         () => desktopClient.triggerSample(slot, gain),
@@ -315,7 +474,14 @@ export function useDawSession() {
     play: () => command(desktopClient.play),
     pause: () => command(desktopClient.pause),
     stop: () => command(desktopClient.stop),
-    setTempo: (bpm: number) => command(() => desktopClient.tempo(bpm)),
+    setTempo: (bpm: number) =>
+      run(
+        () => desktopClient.tempo(bpm),
+        (reply) => {
+          accepted(reply);
+          syncDocument();
+        },
+      ),
     setGain: (gain: number) => command(() => desktopClient.gain(gain)),
   };
 }

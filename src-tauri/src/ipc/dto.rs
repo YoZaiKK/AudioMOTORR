@@ -1,3 +1,4 @@
+pub use super::project_dto::*;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -158,6 +159,7 @@ pub struct ServiceSnapshotDto {
     pub error: Option<ApiError>,
     pub sampler: Option<SamplerTelemetryDto>,
     pub mixer: Option<MixerSnapshotDto>,
+    pub sequencer: Option<SequencerSnapshotDto>,
 }
 
 impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
@@ -205,6 +207,7 @@ impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
             callbacks: value.callbacks.to_string(),
             last_applied_command: value.last_applied_command.map(|id| id.to_string()),
             error: value.error.map(Into::into),
+            sequencer: value.sequencer.map(Into::into),
             mixer: value.mixer.map(|mixer| MixerSnapshotDto {
                 settings: mixer.settings.into(),
                 channels: mixer.channels.map(|channel| MixerChannelSnapshotDto {
@@ -308,6 +311,10 @@ pub fn bindings_text() -> String {
         ApiError::decl(&cfg),
         AppInfoDto::decl(&cfg),
         ProjectSummaryDto::decl(&cfg),
+        ProjectDocumentDto::decl(&cfg),
+        BeatTailDto::decl(&cfg),
+        BeatExportRequestDto::decl(&cfg),
+        BeatExportDto::decl(&cfg),
         CommandAcceptedDto::decl(&cfg),
         ServiceStateDto::decl(&cfg),
         TransportStateDto::decl(&cfg),
@@ -331,11 +338,162 @@ pub fn bindings_text() -> String {
         MixerPeakDto::decl(&cfg),
         MixerMetersDto::decl(&cfg),
         MixerSnapshotDto::decl(&cfg),
+        PatternDto::decl(&cfg),
+        PatternEditDto::decl(&cfg),
+        SequencerBoundaryDto::decl(&cfg),
+        SequencerCountersDto::decl(&cfg),
+        SequencerEventDto::decl(&cfg),
+        SequencerSnapshotDto::decl(&cfg),
     ];
     format!(
         "// Generated from Rust DTOs by ts-rs. Run npm run bindings:generate.\n{}\n",
         declarations.map(|d| format!("export {d}")).join("\n")
     )
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PatternDto {
+    pub steps: [[bool; 16]; 4],
+    pub slots: [u8; 4],
+}
+impl From<daw_app::Pattern> for PatternDto {
+    fn from(pattern: daw_app::Pattern) -> Self {
+        Self {
+            steps: std::array::from_fn(|row| {
+                std::array::from_fn(|step| pattern.step(row, step).expect("fixed pattern cell"))
+            }),
+            slots: std::array::from_fn(|row| {
+                pattern.row_slot(row).expect("fixed pattern row") as u8
+            }),
+        }
+    }
+}
+impl TryFrom<PatternDto> for daw_app::Pattern {
+    type Error = daw_app::AudioError;
+    fn try_from(value: PatternDto) -> Result<Self, Self::Error> {
+        let mut pattern = Self::default();
+        for row in 0..4 {
+            pattern
+                .set_row_slot(row, usize::from(value.slots[row]))
+                .map_err(|error| {
+                    daw_app::AudioError::new(daw_app::ErrorCode::InvalidArgument, error.to_string())
+                })?;
+            for step in 0..16 {
+                pattern
+                    .set_step(row, step, value.steps[row][step])
+                    .expect("fixed pattern cell");
+            }
+        }
+        Ok(pattern)
+    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct PatternEditDto {
+    pub pattern: PatternDto,
+    pub accepted: Option<CommandAcceptedDto>,
+}
+impl From<daw_app::PatternEdit> for PatternEditDto {
+    fn from(edit: daw_app::PatternEdit) -> Self {
+        Self {
+            pattern: edit.pattern.into(),
+            accepted: edit.accepted.map(Into::into),
+        }
+    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct SequencerBoundaryDto {
+    pub loop_index: String,
+    pub step: u8,
+    pub musical_frame: String,
+}
+impl From<daw_app::SequencerBoundary> for SequencerBoundaryDto {
+    fn from(value: daw_app::SequencerBoundary) -> Self {
+        Self {
+            loop_index: value.loop_index.to_string(),
+            step: value.step as u8,
+            musical_frame: value.musical_frame.to_string(),
+        }
+    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct SequencerCountersDto {
+    pub boundaries: String,
+    pub attempted: String,
+    pub started: String,
+    pub missing_asset: String,
+    pub pool_full: String,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct SequencerEventDto {
+    pub boundary: SequencerBoundaryDto,
+    pub row: u8,
+    pub slot: u8,
+    pub device_frame: String,
+    pub outcome: TriggerOutcomeDto,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct SequencerSnapshotDto {
+    pub pattern: PatternDto,
+    pub musical_frames: String,
+    pub loop_index: String,
+    pub step: u8,
+    pub phase_numerator: String,
+    pub phase_denominator: String,
+    pub last_boundary: Option<SequencerBoundaryDto>,
+    pub counters: SequencerCountersDto,
+    pub last_event: Option<SequencerEventDto>,
+}
+impl From<daw_app::SequencerSnapshot> for SequencerSnapshotDto {
+    fn from(value: daw_app::SequencerSnapshot) -> Self {
+        Self {
+            pattern: value.pattern.into(),
+            musical_frames: value.musical_frames.to_string(),
+            loop_index: value.loop_index.to_string(),
+            step: value.step as u8,
+            phase_numerator: value.phase_numerator.to_string(),
+            phase_denominator: value.phase_denominator.to_string(),
+            last_boundary: value.last_boundary.map(Into::into),
+            counters: SequencerCountersDto {
+                boundaries: value.counters.boundaries.to_string(),
+                attempted: value.counters.attempted.to_string(),
+                started: value.counters.started.to_string(),
+                missing_asset: value.counters.missing_asset.to_string(),
+                pool_full: value.counters.pool_full.to_string(),
+            },
+            last_event: value.last_event.map(|event| SequencerEventDto {
+                boundary: event.boundary.into(),
+                row: event.row as u8,
+                slot: event.slot as u8,
+                device_frame: event.device_frame.to_string(),
+                outcome: match event.outcome {
+                    Ok(voice) => TriggerOutcomeDto::Started { voice: voice as u8 },
+                    Err(reason) => TriggerOutcomeDto::Rejected {
+                        reason: match reason {
+                            daw_app::SamplerTriggerError::MissingAsset => {
+                                TriggerRejectionDto::MissingAsset
+                            }
+                            daw_app::SamplerTriggerError::PoolFull => TriggerRejectionDto::PoolFull,
+                            daw_app::SamplerTriggerError::NoSampler => {
+                                TriggerRejectionDto::NoSampler
+                            }
+                            daw_app::SamplerTriggerError::InvalidSlot => {
+                                TriggerRejectionDto::InvalidSlot
+                            }
+                            daw_app::SamplerTriggerError::NotPlaying => {
+                                TriggerRejectionDto::NotPlaying
+                            }
+                        },
+                    },
+                },
+            }),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

@@ -1,0 +1,1132 @@
+{
+  "format_version": 1,
+  "stage": "11.4.b",
+  "status": "native_processing_measured_listening_pending",
+  "recorded_utc": "2026-11-13T00:14:41.356Z",
+  "base_revision": "2d4cc285434383b451116925f4227219d4bc5171",
+  "prior_stage": {
+    "path": "progress/evidencia-diagnosticos-secuenciador-11.4a.json",
+    "sha256": "7639753ab43172762efed075065c1825fb434c8b6427716a41623b809da30294",
+    "source_fingerprint_sha256": "b2cfa93451ef73188557aecee552affc79f7b5c524981303ac1007af95b676cc"
+  },
+  "source_fingerprint_sha256": "b2cfa93451ef73188557aecee552affc79f7b5c524981303ac1007af95b676cc",
+  "source_file_count": 156,
+  "scope": "Six physical WASAPI cases and six reopens at 48k stereo; mono/stereo source banks x empty/beat/dense at 127.25 BPM, one initial bar plus control phases",
+  "binary": {
+    "path": "target/stage11-4b-20261112/cli-native.exe",
+    "sha256": "cefb9e2844c8c93fb261fd5af2c9e42b538bad2a5316b395c8415c51d60f3e59"
+  },
+  "device": {
+    "id": "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+    "name": "Speakers (2- Realtek(R) Audio)",
+    "host": "WASAPI",
+    "requested_rate": 48000,
+    "requested_channels": 2
+  },
+  "environment": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "cpu": "11th Gen Intel(R) Core(TM) i7-1185G7 @ 3.00GHz"
+  },
+  "enumeration": {
+    "path": "target/stage11-4b-20261112/devices.log",
+    "sha256": "3b5989a48f19de288979ff828b24e6e58e6f61796c58c28ffc9fcaf82762bdfd"
+  },
+  "raw_matrix": {
+    "path": "target/stage11-4b-20261112/matrix.json",
+    "sha256": "05f0e11ba462a9519275faa8acda6ff911cbf839f36ea36c99697c10b2035c4b"
+  },
+  "fixtures": [
+    {
+      "channels": 1,
+      "manifest": {
+        "path": "target/stage11-4b-20261112/fixtures-1/manifest.json",
+        "sha256": "5f3156d6c948f674bf010291be515ad2887531370a1cb7f39e1425f6e04dead9"
+      },
+      "files": [
+        {
+          "path": "target/stage11-4b-20261112/fixtures-1/kick.wav",
+          "sha256": "cf9beaeab153a16e09dc78f54eddc75d1fd7529ea2a9ff003fed5576a6492b33",
+          "frames": 5760
+        },
+        {
+          "path": "target/stage11-4b-20261112/fixtures-1/snare.wav",
+          "sha256": "b2957db282db3cb7155600d2215f51632cd03ba759f69bfac11c035cf835c8b2",
+          "frames": 8640
+        },
+        {
+          "path": "target/stage11-4b-20261112/fixtures-1/hat.wav",
+          "sha256": "1a334278335ce74531dd367354acec06d6142b8f0334ae1a4e4710023639379a",
+          "frames": 2880
+        },
+        {
+          "path": "target/stage11-4b-20261112/fixtures-1/accent.wav",
+          "sha256": "faf1326238a4546556b653146fb060c0a652a108ced77efe883d679d58f61021",
+          "frames": 11520
+        }
+      ]
+    },
+    {
+      "channels": 2,
+      "manifest": {
+        "path": "target/stage11-4b-20261112/fixtures-2/manifest.json",
+        "sha256": "0b1fd42ed999c99bc86ec446c6158557781c34cc62a967a28a54d3d0ea4098c3"
+      },
+      "files": [
+        {
+          "path": "target/stage11-4b-20261112/fixtures-2/kick.wav",
+          "sha256": "6e58a77cedf2602356343eca404b9857768cbdf2d83dcc8f083394c57ecc8cff",
+          "frames": 5760
+        },
+        {
+          "path": "target/stage11-4b-20261112/fixtures-2/snare.wav",
+          "sha256": "8626903fb17456fa710271105225c94077855f1db26223083202c01d1a0c298a",
+          "frames": 8640
+        },
+        {
+          "path": "target/stage11-4b-20261112/fixtures-2/hat.wav",
+          "sha256": "efce779e13d0027e22c99c612773169c5b0d5f88594a0f2d8696eff2b07a6eda",
+          "frames": 2880
+        },
+        {
+          "path": "target/stage11-4b-20261112/fixtures-2/accent.wav",
+          "sha256": "3b69a7d43ed8039a760a2642aa421994342c82800065f9a970e999d2c5beebaa",
+          "frames": 11520
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "source_channels": 1,
+      "pattern": "empty",
+      "command": "target/stage11-4b-20261112/cli-native.exe sequencer-native-check --input-dir target/stage11-4b-20261112/fixtures-1 --device wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3} --sample-rate 48000 --channels 2 --pattern empty --bpm 127.25 --bars 1",
+      "started_utc": "2026-11-13T00:10:19.372Z",
+      "finished_utc": "2026-11-13T00:10:22.581Z",
+      "exit_code": 0,
+      "log": {
+        "path": "target/stage11-4b-20261112/1-empty.log",
+        "sha256": "2cb3266a6a7decd8a65b5233c8f0c6e41bdf836ca805650a931948bb29694ff0"
+      },
+      "phase_labels": [
+        "reference-workload",
+        "stop-reset",
+        "missing-slot-observed",
+        "paused-edits",
+        "muted-running",
+        "unmuted-running",
+        "stop-reset",
+        "reopened-signal",
+        "stop-reset"
+      ],
+      "sessions": [
+        {
+          "session": "initial",
+          "measured_callbacks": 248,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 117300,
+          "max_load_ratio": 0.01173,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 119616,
+          "signal_peak": 0.0031507758,
+          "max_sample_jump": 0.002569796,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 131071
+        },
+        {
+          "session": "reopened",
+          "measured_callbacks": 4,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 74400,
+          "max_load_ratio": 0.003381818181818182,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 2496,
+          "signal_peak": 0.0024169162,
+          "max_sample_jump": 0.0016387738,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 131071
+        }
+      ]
+    },
+    {
+      "source_channels": 1,
+      "pattern": "beat",
+      "command": "target/stage11-4b-20261112/cli-native.exe sequencer-native-check --input-dir target/stage11-4b-20261112/fixtures-1 --device wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3} --sample-rate 48000 --channels 2 --pattern beat --bpm 127.25 --bars 1",
+      "started_utc": "2026-11-13T00:10:22.586Z",
+      "finished_utc": "2026-11-13T00:10:25.790Z",
+      "exit_code": 0,
+      "log": {
+        "path": "target/stage11-4b-20261112/1-beat.log",
+        "sha256": "87d4697046d53c4c8aac2f1613b4a31b42185344140b4fb404c80811ee0576a2"
+      },
+      "phase_labels": [
+        "reference-workload",
+        "stop-reset",
+        "missing-slot-observed",
+        "paused-edits",
+        "muted-running",
+        "unmuted-running",
+        "stop-reset",
+        "reopened-signal",
+        "stop-reset"
+      ],
+      "sessions": [
+        {
+          "session": "initial",
+          "measured_callbacks": 248,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 115600,
+          "max_load_ratio": 0.01156,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 119616,
+          "signal_peak": 0.0034247914,
+          "max_sample_jump": 0.0036124666,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 131071
+        },
+        {
+          "session": "reopened",
+          "measured_callbacks": 3,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 43500,
+          "max_load_ratio": 0.002,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 2016,
+          "signal_peak": 0.0024169162,
+          "max_sample_jump": 0.0016387738,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 65535
+        }
+      ]
+    },
+    {
+      "source_channels": 1,
+      "pattern": "dense",
+      "command": "target/stage11-4b-20261112/cli-native.exe sequencer-native-check --input-dir target/stage11-4b-20261112/fixtures-1 --device wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3} --sample-rate 48000 --channels 2 --pattern dense --bpm 127.25 --bars 1",
+      "started_utc": "2026-11-13T00:10:25.792Z",
+      "finished_utc": "2026-11-13T00:10:29.039Z",
+      "exit_code": 0,
+      "log": {
+        "path": "target/stage11-4b-20261112/1-dense.log",
+        "sha256": "c8dea628a47c93fa5346ee0dcd024eadd5e079c1c100b9ce1738098e9d332b1f"
+      },
+      "phase_labels": [
+        "reference-workload",
+        "stop-reset",
+        "missing-slot-observed",
+        "paused-edits",
+        "muted-running",
+        "unmuted-running",
+        "stop-reset",
+        "reopened-signal",
+        "stop-reset"
+      ],
+      "sessions": [
+        {
+          "session": "initial",
+          "measured_callbacks": 251,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 135800,
+          "max_load_ratio": 0.01358,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 121056,
+          "signal_peak": 0.0049330425,
+          "max_sample_jump": 0.003654668,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 131071
+        },
+        {
+          "session": "reopened",
+          "measured_callbacks": 3,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 41700,
+          "max_load_ratio": 0.0018954545454545454,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 2016,
+          "signal_peak": 0.0024169162,
+          "max_sample_jump": 0.0016387738,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 16383,
+          "p99_upper_ns": 65535
+        }
+      ]
+    },
+    {
+      "source_channels": 2,
+      "pattern": "empty",
+      "command": "target/stage11-4b-20261112/cli-native.exe sequencer-native-check --input-dir target/stage11-4b-20261112/fixtures-2 --device wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3} --sample-rate 48000 --channels 2 --pattern empty --bpm 127.25 --bars 1",
+      "started_utc": "2026-11-13T00:10:29.158Z",
+      "finished_utc": "2026-11-13T00:10:32.375Z",
+      "exit_code": 0,
+      "log": {
+        "path": "target/stage11-4b-20261112/2-empty.log",
+        "sha256": "8d8853b8edf2cb93d0618a4c029bee8c15632a871bde356e100f27891e8bafb3"
+      },
+      "phase_labels": [
+        "reference-workload",
+        "stop-reset",
+        "missing-slot-observed",
+        "paused-edits",
+        "muted-running",
+        "unmuted-running",
+        "stop-reset",
+        "reopened-signal",
+        "stop-reset"
+      ],
+      "sessions": [
+        {
+          "session": "initial",
+          "measured_callbacks": 248,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 120900,
+          "max_load_ratio": 0.01209,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 119616,
+          "signal_peak": 0.0031507758,
+          "max_sample_jump": 0.002569796,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 131071
+        },
+        {
+          "session": "reopened",
+          "measured_callbacks": 3,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 59300,
+          "max_load_ratio": 0.0026954545454545456,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 2016,
+          "signal_peak": 0.0024169162,
+          "max_sample_jump": 0.0016387738,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 16383,
+          "p99_upper_ns": 65535
+        }
+      ]
+    },
+    {
+      "source_channels": 2,
+      "pattern": "beat",
+      "command": "target/stage11-4b-20261112/cli-native.exe sequencer-native-check --input-dir target/stage11-4b-20261112/fixtures-2 --device wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3} --sample-rate 48000 --channels 2 --pattern beat --bpm 127.25 --bars 1",
+      "started_utc": "2026-11-13T00:10:32.377Z",
+      "finished_utc": "2026-11-13T00:10:35.608Z",
+      "exit_code": 0,
+      "log": {
+        "path": "target/stage11-4b-20261112/2-beat.log",
+        "sha256": "1f8198a893939a448a0122ce48db55591771214942a904104ce4feca66f55f4a"
+      },
+      "phase_labels": [
+        "reference-workload",
+        "stop-reset",
+        "missing-slot-observed",
+        "paused-edits",
+        "muted-running",
+        "unmuted-running",
+        "stop-reset",
+        "reopened-signal",
+        "stop-reset"
+      ],
+      "sessions": [
+        {
+          "session": "initial",
+          "measured_callbacks": 248,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 144700,
+          "max_load_ratio": 0.01447,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 119616,
+          "signal_peak": 0.0034247914,
+          "max_sample_jump": 0.0036124666,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 131071
+        },
+        {
+          "session": "reopened",
+          "measured_callbacks": 4,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 129600,
+          "max_load_ratio": 0.005890909090909091,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 2496,
+          "signal_peak": 0.0024169162,
+          "max_sample_jump": 0.0016387738,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 131071
+        }
+      ]
+    },
+    {
+      "source_channels": 2,
+      "pattern": "dense",
+      "command": "target/stage11-4b-20261112/cli-native.exe sequencer-native-check --input-dir target/stage11-4b-20261112/fixtures-2 --device wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3} --sample-rate 48000 --channels 2 --pattern dense --bpm 127.25 --bars 1",
+      "started_utc": "2026-11-13T00:10:35.610Z",
+      "finished_utc": "2026-11-13T00:10:38.867Z",
+      "exit_code": 0,
+      "log": {
+        "path": "target/stage11-4b-20261112/2-dense.log",
+        "sha256": "5e23ff2737e1fa9fec81dd4842b81faa19ffa5af294d8cfd092fc2eb9b7995c2"
+      },
+      "phase_labels": [
+        "reference-workload",
+        "stop-reset",
+        "missing-slot-observed",
+        "paused-edits",
+        "muted-running",
+        "unmuted-running",
+        "stop-reset",
+        "reopened-signal",
+        "stop-reset"
+      ],
+      "sessions": [
+        {
+          "session": "initial",
+          "measured_callbacks": 250,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 180200,
+          "max_load_ratio": 0.01802,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 120576,
+          "signal_peak": 0.0049330425,
+          "max_sample_jump": 0.003654668,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 65535,
+          "p99_upper_ns": 262143
+        },
+        {
+          "session": "reopened",
+          "measured_callbacks": 4,
+          "min_callback_frames": 480,
+          "max_callback_frames": 1056,
+          "max_processing_ns": 55600,
+          "max_load_ratio": 0.00266,
+          "deadline_misses": 0,
+          "allocations": 0,
+          "allocated_bytes": 0,
+          "deallocations": 0,
+          "freed_bytes": 0,
+          "measured_frames": 2496,
+          "signal_peak": 0.0024169162,
+          "max_sample_jump": 0.0016387738,
+          "non_finite_samples": 0,
+          "p50_upper_ns": 32767,
+          "p99_upper_ns": 65535
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "cases": 6,
+    "sessions": 12,
+    "max_processing_ns": 180200,
+    "max_load_ratio": 0.01802,
+    "allocations": 0,
+    "deallocations": 0,
+    "non_finite_samples": 0,
+    "deadline_misses": 0,
+    "scope": "Cumulative metrics per entire session including control phases; histogram percentiles are upper bounds"
+  },
+  "listening": {
+    "status": "pending",
+    "question": "User asked asynchronously after actual playback; no earlier listening confirmation is attributed to the sequencer"
+  },
+  "limits": [
+    "No acoustic loopback",
+    "No physical unplug",
+    "No prolonged stress",
+    "No other physical devices/formats/platforms",
+    "Short dense native assets do not guarantee pool exhaustion"
+  ],
+  "publication": {
+    "status": "not_committed_or_pushed",
+    "new_revision_ci": "not_run"
+  },
+  "next": "Listening observation; audit/delivery/CI 11.4.c; independent stage 12 work continues",
+  "files": [
+    {
+      "path": ".editorconfig",
+      "sha256": "fc6e7f6079814ca4bd011233678057bc0d9c98598005543ba91827af20988363"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "3594911a71711ca8e8d2c80d3af020c3ff5033e3a34a97fee726fa12c5a50228"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "2e3f9f7bb467dd5f0d7f44a952ce0e5d6483d33d68c1278cb5512acea1589160"
+    },
+    {
+      "path": ".node-version",
+      "sha256": "0c4bf84f9bedd485b2c4eac05f59e35addc86ce7dbf0d90435528e04384c6314"
+    },
+    {
+      "path": ".npmrc",
+      "sha256": "3b88d1057add6f92ec23dc22dd017e312ded13a042deb0ba6f08bad85d936456"
+    },
+    {
+      "path": ".prettierignore",
+      "sha256": "3ac9d97959754bf4b450f231e7f94395d8340e674c36481768405f10023e171a"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "1a3f4c34ac94a2040057545b28da8243864cc4e69fa639728c483d00d8ae9c58"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "e9a6cf01bca5fb39a4db573b8a90372aafb225a7fa724492a01d0a86f52157b5"
+    },
+    {
+      "path": "crates/daw-app/Cargo.toml",
+      "sha256": "303b12ab294c537fcf749c5744c96dd05bf2da679195478a4e9a9ed8be2b5649"
+    },
+    {
+      "path": "crates/daw-app/src/lib.rs",
+      "sha256": "e7ef15694b66339392371236a9149efd92d19adbb15681d0ada75dd4635e3166"
+    },
+    {
+      "path": "crates/daw-app/src/mixer.rs",
+      "sha256": "b399870ca5d44ad1bb345f8b490948eb15644086e9acab9b286182d71c18a4ee"
+    },
+    {
+      "path": "crates/daw-app/src/offline.rs",
+      "sha256": "b2e8b8463f739dd82ce607b93501948383e36b99555e6b0103bd7b2adf818f44"
+    },
+    {
+      "path": "crates/daw-app/src/sample_loading.rs",
+      "sha256": "375439fa9e2813f3ee41a9e69e306b4864e5955e8f14ec6606221ab1c2f14c76"
+    },
+    {
+      "path": "crates/daw-app/src/sample_loading/bank.rs",
+      "sha256": "e391e0c14dafe12149e25630b7c04df7fff45c9f40ab3c337b67ceb7ad7db941"
+    },
+    {
+      "path": "crates/daw-app/src/sample_loading/bank/failure_tests.rs",
+      "sha256": "9a9a4dd6620c8ab53a427b14c2df4b94e7c9f9c05f6ab25f0ce5d211fdd9bdc8"
+    },
+    {
+      "path": "crates/daw-app/src/sampler_session.rs",
+      "sha256": "bdb841657414ece4db9fcdc5f6f91c87877ec722b25d2f2d28886f4f70435c62"
+    },
+    {
+      "path": "crates/daw-app/src/sequencer.rs",
+      "sha256": "1d5bbd580802f2738a9a27391bf804f91e75d7a1bd2592c4709c82d1c328081b"
+    },
+    {
+      "path": "crates/daw-app/src/sequencer_preparation_tests.rs",
+      "sha256": "9cecd6e135454e52d896688c00b9a6ab86d5f65aedc95da8b0c40972017f0f3d"
+    },
+    {
+      "path": "crates/daw-app/tests/application_contract.rs",
+      "sha256": "3c7d52d72dfc376cb18da7325e0ef82e550751b292f4ee083c152d4e63d6ceae"
+    },
+    {
+      "path": "crates/daw-app/tests/bank_preparation_contract.rs",
+      "sha256": "a0614bf81887ac3b5800ab9ab64d1e16165deed90b57081256a39f8e083fbd0e"
+    },
+    {
+      "path": "crates/daw-app/tests/loaded_sampler_contract.rs",
+      "sha256": "26c1a96ba3dad02bcc74bd1dbbc977bd093856a0fb8351438e67ccaadb5ce130"
+    },
+    {
+      "path": "crates/daw-app/tests/mixer_acceptance_contract.rs",
+      "sha256": "8f98abf4dc230fec80a1d537eb1d45cd18115119d92bd6f4a2cd2645719c5d81"
+    },
+    {
+      "path": "crates/daw-app/tests/mixer_application_contract.rs",
+      "sha256": "0b787dec605e64c84a77f81af6bc5c98c2f707b1a331dedf489b9222198e86cc"
+    },
+    {
+      "path": "crates/daw-app/tests/offline_contract.rs",
+      "sha256": "f909c10520fa999034e942cdd1a956d7c4e83a2f48a6ed2ddf0b8fb6dc57b12d"
+    },
+    {
+      "path": "crates/daw-app/tests/sample_loading_contract.rs",
+      "sha256": "daea66f330a8cae5cfbc6defa3462dae4007f2627375abcd2657fdb3939e92a7"
+    },
+    {
+      "path": "crates/daw-app/tests/sampler_application_contract.rs",
+      "sha256": "28008a5e167051980a4da407a44f99f82b671d17985664e5874548a87c8b0738"
+    },
+    {
+      "path": "crates/daw-app/tests/sequencer_acceptance_contract.rs",
+      "sha256": "1e613e69bac071991f61c5af9f81a6c6039ebf0c9b3f4b7ddf3f29be7b5b56f3"
+    },
+    {
+      "path": "crates/daw-app/tests/sequencer_application_contract.rs",
+      "sha256": "ecb1554382a212b6436c63cf9e1a7319d85d2474b7080bc4b02e1af558288cc1"
+    },
+    {
+      "path": "crates/daw-app/tests/support/sample_files.rs",
+      "sha256": "d9d80251e3cf326fd397077c4d421740dd2271d2c1685e3fd76c51819ec18e4d"
+    },
+    {
+      "path": "crates/daw-app/tests/support/wav_fixtures.rs",
+      "sha256": "2dff6a038bdbe48978ea985e190e4845aa4c33cf4f97294c365c969528bd13dc"
+    },
+    {
+      "path": "crates/daw-audio/Cargo.toml",
+      "sha256": "f7676c4ddcbc370b564dd52748fd1175e6c1f9bcd4d277fa00b18dd0936908cd"
+    },
+    {
+      "path": "crates/daw-audio/src/lib.rs",
+      "sha256": "219c3f6af60655fae352f8a3cb608d1ba9613dec283cffd5d40f3fa63cf30454"
+    },
+    {
+      "path": "crates/daw-audio/src/metrics.rs",
+      "sha256": "e417d7c79ca1ad71da8e308bb14d5ef638e430962e28d284d5bff76873594421"
+    },
+    {
+      "path": "crates/daw-audio/src/native.rs",
+      "sha256": "1c6111088aa916f8e279818754684bc9d1c75d0837ce108ed2be023940524875"
+    },
+    {
+      "path": "crates/daw-audio/src/native_mixer_tests.rs",
+      "sha256": "1b1850481631e3b3906d353bd127b85267c861ed7274599d3866530802c3a02d"
+    },
+    {
+      "path": "crates/daw-audio/src/native_sequencer_tests.rs",
+      "sha256": "42a2c68e4862833f7bea9ce908b9f619224c0522b7584495b00586af17534baf"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime.rs",
+      "sha256": "abca61aebd0638d7a3a20c6a3bae771eb16a18888f6e0218fd3581fa58e79d52"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime_mixer_tests.rs",
+      "sha256": "e1707bfa6497668e2d3be124c2c777625221df328dc997b58d17a72e8cfaa89e"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime_sequencer_tests.rs",
+      "sha256": "0cf53c609f959d6e77871bb0f0bee2cc84acdbc432390d758a19aae4b87c986a"
+    },
+    {
+      "path": "crates/daw-audio/src/service.rs",
+      "sha256": "3c77d04d1a4163ea81f2212fee95ff3409380cf35bf15035ca5a96b0d5eca2de"
+    },
+    {
+      "path": "crates/daw-audio/src/service_mixer_tests.rs",
+      "sha256": "d52fbafb9267bf35110b97452dc29aeb8074e4070c9be9f00887ba92128db8ea"
+    },
+    {
+      "path": "crates/daw-audio/src/service_sequencer_tests.rs",
+      "sha256": "a226dac4cae0a8929f1921af64f08ca190be9afe1e4c29a4771d3add9478ed1f"
+    },
+    {
+      "path": "crates/daw-audio/tests/mixer_memory_contract.rs",
+      "sha256": "43636bd029e9bc145460bd80e2a2da0a359873a5e0540ac139bb677059d1eeb1"
+    },
+    {
+      "path": "crates/daw-audio/tests/mixer_service_contract.rs",
+      "sha256": "471edbf3f23caf7727ad8e2b264bf809f3a3df8a8b27ae1da2ca623ca9ce2de8"
+    },
+    {
+      "path": "crates/daw-audio/tests/sampler_memory_contract.rs",
+      "sha256": "bee7b3d06773bcd49ba2544ddf86a333178fce7437c98d5db6ba7b0df3021709"
+    },
+    {
+      "path": "crates/daw-audio/tests/sampler_service_contract.rs",
+      "sha256": "b79e73085700406f32e7660b9c6f3213b2886bc98ef099593f49ebf257ae37fd"
+    },
+    {
+      "path": "crates/daw-audio/tests/sequencer_memory_contract.rs",
+      "sha256": "421739a46f7ab8ecd20cbba274513e1d8040a34c711c9db06b16fdc184de5e1e"
+    },
+    {
+      "path": "crates/daw-audio/tests/sequencer_service_contract.rs",
+      "sha256": "b1cba41210058731c0e0a3dcaaa2834f7d2a9d36f2d83ae1cc260d3f22d2d12a"
+    },
+    {
+      "path": "crates/daw-audio/tests/service_contract.rs",
+      "sha256": "3409db181e2409dd055087096e6f495ac08aae61eff86a47ff73ea45bc4ac257"
+    },
+    {
+      "path": "crates/daw-audio/tests/sine_service_contract.rs",
+      "sha256": "175e3a34a205cfbdd2d097cf28b9d8fcb156a27341131f0bcfeae21dd1a1eadc"
+    },
+    {
+      "path": "crates/daw-cli/Cargo.toml",
+      "sha256": "c750bedb6de6b01463cddc0ed9fa253d3ca590d259217c3223893fbef9f623ab"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics.rs",
+      "sha256": "8f28082a8c791ca00d0daf82183f60ae536f8657bff6d9f5b815475095788b65"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/mixer_bench.rs",
+      "sha256": "719811104850cd5df5a66969ec796a68dffdd88a5f60366ec2612fa9076815f1"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/mixer_native.rs",
+      "sha256": "5f8d3a8a83f748619763661cf535b96da93de91c9e7e64cc0f8e8c1e7b681f86"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/sampler.rs",
+      "sha256": "a122bb1a1b44f7199dc89955f9cb742bc6f851ca7d30da321da9eb966a9ba2ae"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/sampler_native.rs",
+      "sha256": "e1716fa5ccf40fab6e1a50cd752499719b06925fb5d0e2cc5dcc594b0c7d1ce4"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/sequencer_bench.rs",
+      "sha256": "ca84a847395883f3378d0ac1b058e59908851084e9c4fef513e2aad196f5462a"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/sequencer_native.rs",
+      "sha256": "5728780a190376ada31f708ee1e1ebbdf540df8251d2bde553c003281387a2f7"
+    },
+    {
+      "path": "crates/daw-cli/src/export.rs",
+      "sha256": "0f6a6f2a460a21ac45d62b07d04bb39946fbeb4c3464a4e4d679d3ab58c79e19"
+    },
+    {
+      "path": "crates/daw-cli/src/main.rs",
+      "sha256": "1dcd3acd53896e97209431e63cf8f7becd98abcc5e7d0716757a9e1f6228e1fb"
+    },
+    {
+      "path": "crates/daw-cli/tests/diagnostics_contract.rs",
+      "sha256": "b1a37e4fb6aba54f22ff1f3708b23e101ba4bdae82d301a0ea1c9874a67b6d85"
+    },
+    {
+      "path": "crates/daw-cli/tests/export_contract.rs",
+      "sha256": "b918dcd509fe6854a3645bc8d19bb004cf4675298179a12871d92e805b1a70d4"
+    },
+    {
+      "path": "crates/daw-cli/tests/sample_loading_memory_contract.rs",
+      "sha256": "7ee8262016ceb40d917d5213eafa7e209a195368c22aff4e3ebcff23b85411aa"
+    },
+    {
+      "path": "crates/daw-cli/tests/smoke.rs",
+      "sha256": "0ae14c1f6b3698ba65518ca1d6cfeba60c037566ab7b3e47cdb5e828557337ae"
+    },
+    {
+      "path": "crates/daw-domain/Cargo.toml",
+      "sha256": "ee430a859653e5d533c5537415dbe1dec141f129b194d7e48181c12f8a7aedfe"
+    },
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "sha256": "dceb8cb8f0c6bd1317ce8218eb1888e1f02f9d55c84166eff9257124c95355cf"
+    },
+    {
+      "path": "crates/daw-domain/src/mixer.rs",
+      "sha256": "8af6bc0d9fa94bd2ab99aed85672d268e7efc918b6459789f5e7cdc45f5f6572"
+    },
+    {
+      "path": "crates/daw-domain/src/pattern.rs",
+      "sha256": "30a155566c84f1cce93ce57727a209056351e98769274a5160432d7289b9e85d"
+    },
+    {
+      "path": "crates/daw-domain/tests/mixer_contract.rs",
+      "sha256": "beef4708becc2239001062f6d115428c8e9f7370a058ab1baa86ff871475b796"
+    },
+    {
+      "path": "crates/daw-domain/tests/pattern_contract.rs",
+      "sha256": "aa00f8b7338940e7c6203dd064e2462549df693582a0a1278b3967690dd4ebb7"
+    },
+    {
+      "path": "crates/daw-engine/Cargo.toml",
+      "sha256": "4466ec2df843ae6dcb4ad415cac9cb93eb3211da070fe259f4710a7d4666c7d1"
+    },
+    {
+      "path": "crates/daw-engine/src/gain.rs",
+      "sha256": "c5a1ff6fb10b8ca492b399e024c65bf0ccefd54c661399bd5195fe8822cfcded"
+    },
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "sha256": "769f646e633d904711c4ef4b661a3701f1a2b9454e7388ec6c9784b2e70b5417"
+    },
+    {
+      "path": "crates/daw-engine/src/mixer.rs",
+      "sha256": "50c0c54e41da2c1c247431ba1930f8c65ab18b4ff4b8eb70b68e135613166456"
+    },
+    {
+      "path": "crates/daw-engine/src/oscillator.rs",
+      "sha256": "3c67065e00abbd72d561bd454912c74987d8cbb440351c9101c5d4c686097712"
+    },
+    {
+      "path": "crates/daw-engine/src/sample.rs",
+      "sha256": "4702ba1b2e0175590004483c728141d8f721ea2e1893aaad2c58de99da60a430"
+    },
+    {
+      "path": "crates/daw-engine/src/sampler.rs",
+      "sha256": "1450b3f34e1505d2f619f2b7e63ba4549ae5feb206bf049ff7d1d077c812eaf7"
+    },
+    {
+      "path": "crates/daw-engine/src/sequencer.rs",
+      "sha256": "dc322366125bf3569c98e333a1e62a8b814f5fc0f9040ed7efb500371f37fd4a"
+    },
+    {
+      "path": "crates/daw-engine/tests/mixer_contract.rs",
+      "sha256": "cfff7c53327461ca4beab3a3a7e82328dcf405964adcec2cf68ff7622f97a388"
+    },
+    {
+      "path": "crates/daw-engine/tests/oscillator_contract.rs",
+      "sha256": "396130c3cb4bf5be5d87e13e15da00863aedb4cc941a883e0c37bbd905fecfed"
+    },
+    {
+      "path": "crates/daw-engine/tests/ramp_contract.rs",
+      "sha256": "3b8eea47efc8cca0f4a3d2e3aa92e609f79ddc47f1bd0b9e6b0c220c2713d91e"
+    },
+    {
+      "path": "crates/daw-engine/tests/render_contract.rs",
+      "sha256": "c36be622771bc6827ee2cf91131e097af109d7dcc4540215e19b7fff1eddc3fa"
+    },
+    {
+      "path": "crates/daw-engine/tests/sample_resource_contract.rs",
+      "sha256": "30a9f4ead45609811483965383e28bd22224c4abc5e534d720cfb51142747f36"
+    },
+    {
+      "path": "crates/daw-engine/tests/sampler_contract.rs",
+      "sha256": "65e1eb38087a066217040d7d5dcabbce8664018aff7d099faf5056b8a9435c34"
+    },
+    {
+      "path": "crates/daw-engine/tests/sampler_engine_contract.rs",
+      "sha256": "73f9ec8a03ff65964480e6afcad223b157620e358a5c9c1b2598410cb3f5b692"
+    },
+    {
+      "path": "crates/daw-engine/tests/sequencer_contract.rs",
+      "sha256": "aead2a0c997c33412152b88d678957bd22ca85605100b6401d2c11844efe96b9"
+    },
+    {
+      "path": "crates/daw-engine/tests/sequencer_reference.rs",
+      "sha256": "3d041d5f5689142bee2dc04e60a63346a9a67cec5f337695868055afb6913365"
+    },
+    {
+      "path": "crates/daw-engine/tests/support/sampler_fixtures.rs",
+      "sha256": "ace5243cfb255f7d85d1de139e17f88cedf768778ad8c47679275dd86fd6b006"
+    },
+    {
+      "path": "eslint.config.js",
+      "sha256": "be509a05372ebb40c371665fc8db81ba8c458d5051c80740c06fbb7628fd748d"
+    },
+    {
+      "path": "howToRunThis/run-cli-cases.mjs",
+      "sha256": "16c8d4a8679e02399cdc3373f9f61f1731b6d804292eb8722b21bfa1e48bd14a"
+    },
+    {
+      "path": "howToRunThis/test-files/cli-cases.json",
+      "sha256": "8e95c017a95c1bd4ba1d38b0e3f7f1ba1eff1184a27829c352264d256a681878"
+    },
+    {
+      "path": "howToRunThis/test-files/expected-output.txt",
+      "sha256": "867824d9deaf0618253ce3c1b1a915c7398a20784e62eabfeda6a99803e531ab"
+    },
+    {
+      "path": "index.html",
+      "sha256": "192faba66e5c34e6ff6624c0fb2eac27bd4ff376ea29011e9ef0b6088e9025b8"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "abccdceae11e9a00dcf184d6039b2e55fc8397cdf4204c883ddeb2b61ba4cfbd"
+    },
+    {
+      "path": "package.json",
+      "sha256": "b6aa1da4a4e58c31b83a6d87d3bd6551cf9914c60b3d178b913edde66f9a3c64"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "c33d1f0b1b8fda448bea32d7dc867aa64947c87169fd9de7122ffccad1dd80f9"
+    },
+    {
+      "path": "scripts/check.mjs",
+      "sha256": "96484d6075128f66dd05f2dfcae911bb73ca99a3b2dd1d776ab081e258549f02"
+    },
+    {
+      "path": "scripts/desktop-smoke.mjs",
+      "sha256": "3662227a6b07be803ed06352f64e7c9d6422710f3776e8fcf4f2866ecd74030e"
+    },
+    {
+      "path": "scripts/desktop-smoke.ps1",
+      "sha256": "23cd4979b2113ef73ce9ff3c95531e4ff47d6d30d6cd56d57d0db4c5f3ab5c75"
+    },
+    {
+      "path": "scripts/doctor.ps1",
+      "sha256": "b40f4ea0ee23621a8b94da44bd35910823fec7770147b124258b19acf16be691"
+    },
+    {
+      "path": "scripts/sampler-stereo-fixture.mjs",
+      "sha256": "c6df98985c8aad72bf8ce026e3aa5ce9a400c58afa8fc8f2e11f094200af06dd"
+    },
+    {
+      "path": "scripts/sequencer-fixtures.mjs",
+      "sha256": "2de7839e1c768568dc9387b95d915f4e707fe93596077b551b018a551bd8cf35"
+    },
+    {
+      "path": "src-tauri/.gitignore",
+      "sha256": "8a460714d8a02659573400de0c2f2dcc756e63ca511497c3b8f068b63657bb01"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "sha256": "349b8dd695dcfb5d9dd75a970405e127639205092abac0d10b6cf0fce5f0b997"
+    },
+    {
+      "path": "src-tauri/build.rs",
+      "sha256": "66128dd619ed4c416d79861c5e4e3091019b6496bf100b00d9f60ee4d2506116"
+    },
+    {
+      "path": "src-tauri/capabilities/default.json",
+      "sha256": "79e4972584e861c790dfb68cce3afe0e2f7039e71d6f88b08156b5243d193826"
+    },
+    {
+      "path": "src-tauri/icons/128x128.png",
+      "sha256": "eeebf55d8ffe07348786b9057af253e3ca08c56b6a8f8893826381430e3c0b7b"
+    },
+    {
+      "path": "src-tauri/icons/128x128@2x.png",
+      "sha256": "2998b41d0c9278b08e8b3874e094920034fe983a46053c9d62764225f58ab7b0"
+    },
+    {
+      "path": "src-tauri/icons/32x32.png",
+      "sha256": "aaa96d0c53b756b77c7f46aeb72290f42256c786c69be68f6bcdeb9c7492a48e"
+    },
+    {
+      "path": "src-tauri/icons/Square107x107Logo.png",
+      "sha256": "33446a858d982a529554e562114673f8b15620588137cf0bf6c56a7441c78cd7"
+    },
+    {
+      "path": "src-tauri/icons/Square142x142Logo.png",
+      "sha256": "633d6dba504faa844b309e01272386e4523cddd4a3639c77c0eb5d2ce3eac752"
+    },
+    {
+      "path": "src-tauri/icons/Square150x150Logo.png",
+      "sha256": "d90061ad71e6f5882b759d80cf58cc16aa5021fa29ba4b2614adea982a4d7ee5"
+    },
+    {
+      "path": "src-tauri/icons/Square284x284Logo.png",
+      "sha256": "5feaa4f18f404843551756dd2791d7654ef471b6b007767ae40f60c7aebcad5b"
+    },
+    {
+      "path": "src-tauri/icons/Square30x30Logo.png",
+      "sha256": "68bc1b585f5685e0922f14b1ca7eb2d618213c684c89e759c6a5eb8578c3fe8d"
+    },
+    {
+      "path": "src-tauri/icons/Square310x310Logo.png",
+      "sha256": "5df8d779ab57c63ee06ed237b94c3c0954711e88117dccfa72b2aec5d83b0d80"
+    },
+    {
+      "path": "src-tauri/icons/Square44x44Logo.png",
+      "sha256": "c46208286b1ea1b4841b714972f3cb0a8abc6d3bfa71a29238f7b4d62f511f89"
+    },
+    {
+      "path": "src-tauri/icons/Square71x71Logo.png",
+      "sha256": "cb0ea93cbd13509d32c6bc06da71687e73d673d166fde91b23061771abe16b86"
+    },
+    {
+      "path": "src-tauri/icons/Square89x89Logo.png",
+      "sha256": "2208da1d741a20e902a59d7c39a5e58af74ec823db13113bf8ac6f555fa25bca"
+    },
+    {
+      "path": "src-tauri/icons/StoreLogo.png",
+      "sha256": "9f84d0ce09df51bac0a4855042b3e49b190cc2b9761cd5eab61ebec5cd343820"
+    },
+    {
+      "path": "src-tauri/icons/icon.icns",
+      "sha256": "1535d355994f8ee82da91384d2a29e04d5b4440f3e6051b5c8b06e7a62283693"
+    },
+    {
+      "path": "src-tauri/icons/icon.ico",
+      "sha256": "e38ca88e1d5490f3dcbc3c3fa525f7fcb7b80fff3cb2f3a4eb1b2d018c0915c1"
+    },
+    {
+      "path": "src-tauri/icons/icon.png",
+      "sha256": "6413bfe9d546e5225fc9256a0ecec48df3a1272ea4bdc91c15b8e000222a95d3"
+    },
+    {
+      "path": "src-tauri/src/bin/bindings.rs",
+      "sha256": "54924011512ac920d162d185a53b88146714958980cdd33b6bf449134ddea82f"
+    },
+    {
+      "path": "src-tauri/src/ipc/command_names.rs",
+      "sha256": "1811855ed54eb51b48c1f8fc402d7843db8699879dd748f6bb53a79782cadcae"
+    },
+    {
+      "path": "src-tauri/src/ipc/commands.rs",
+      "sha256": "ba7e0a11010642964730c5195d4ab4f1b73ca0f81e6cd6fe827761519482037b"
+    },
+    {
+      "path": "src-tauri/src/ipc/dto.rs",
+      "sha256": "adcfc0c2de79aaeacc7838ae4e83482e662469fa39fb9d91f9b89ed1d33c4fb4"
+    },
+    {
+      "path": "src-tauri/src/ipc/mod.rs",
+      "sha256": "00d8a9dd47b304c579982639671c7c83a496d452486d996007410371c8103ff7"
+    },
+    {
+      "path": "src-tauri/src/ipc/state.rs",
+      "sha256": "cf9f064c594b25d4371ce347e4ed8fb9692099f6286e18d1f18a0d8b6b8da86e"
+    },
+    {
+      "path": "src-tauri/src/lib.rs",
+      "sha256": "c3a5ccd64f97e8568e145d9903defd32cdddf7d747d29f6e1fe2649a0c038ee4"
+    },
+    {
+      "path": "src-tauri/src/main.rs",
+      "sha256": "469bccdd097c209ef4912f006d1fc94f2fc33308796c23365ccfd1089956a0e7"
+    },
+    {
+      "path": "src-tauri/src/snapshots.rs",
+      "sha256": "2556a354d93413a4747a3d9cd758b2c8e83a95ef03a06dfe461ce70f076ed82c"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "sha256": "97c566c569f0c5ae4ec5725c36ee9e03cad5c900d6d188b72f531622ac9bb5d9"
+    },
+    {
+      "path": "src-tauri/tests/ipc_contract.rs",
+      "sha256": "7068a4542ef608f6451930c0c047dbab4ec398d3116e15f984bfa0b2cd38ce0d"
+    },
+    {
+      "path": "src-tauri/tests/sequencer_ipc_contract.rs",
+      "sha256": "83c6532fda18d7bdea0dd15a6e0272f77ae348c9e19d76c9cf12c10e12c0a89c"
+    },
+    {
+      "path": "src-tauri/tests/snapshot_publication.rs",
+      "sha256": "93bafcc2a3b903b378405608f200b67fc3315a07f42a90fcbd84f864369f67e5"
+    },
+    {
+      "path": "src/app/App.test.tsx",
+      "sha256": "bd2856af1d9f5d2ccd503db63447a887ec0aa015c394ac83c34abb00a5fc9a82"
+    },
+    {
+      "path": "src/app/App.tsx",
+      "sha256": "cfdbdf0e3414b25aab85b48dbadd53918c91c78de899bf5ffefc68279eadabcc"
+    },
+    {
+      "path": "src/app/styles.css",
+      "sha256": "6d99012e015e2dfae511a935093454885921d9acd5f3257ee532d3b51426945f"
+    },
+    {
+      "path": "src/features/audio/AudioPanel.tsx",
+      "sha256": "4287906e6cb73d0b58f9a317bad27cf26c64481259dbeed0786492088ae9a58b"
+    },
+    {
+      "path": "src/features/audio/MixerPanel.tsx",
+      "sha256": "11876cf00e32b00f0f4884e3eeded5dc3a30517de7b93ce20b210516532fdcb6"
+    },
+    {
+      "path": "src/features/audio/SamplerPanel.tsx",
+      "sha256": "a79c3f525ab56ba6e28922ee27f37253bb16beefdefdfd342f3652fdc4963dd9"
+    },
+    {
+      "path": "src/features/audio/SequencerPanel.tsx",
+      "sha256": "9672c7b1b9a44bd82181e54a6185f83c6878e7350ae2c8e89593bc5289e8f017"
+    },
+    {
+      "path": "src/features/audio/mixer-observation.ts",
+      "sha256": "27439ee0f61aefe6ec99a938d659dc20589bd05b10b9002041b292af405066d3"
+    },
+    {
+      "path": "src/features/audio/pattern-observation.ts",
+      "sha256": "9c3ad4e14737d6b635762b1eea1f92c1c2e824d3fde1045c0114a471292201b2"
+    },
+    {
+      "path": "src/features/audio/trigger-observation.ts",
+      "sha256": "579fcaf65d10b799571346def51066625eae10ee205a6c0d2d8611b03d3ae116"
+    },
+    {
+      "path": "src/features/audio/useDawSession.ts",
+      "sha256": "3277a1b1ca2cfe26508c45e384d2f452e0bfb288b2afc57cc662732d5c55ea23"
+    },
+    {
+      "path": "src/features/engine-status/EngineStatusPanel.tsx",
+      "sha256": "e852bba91b274c87e547f05c46fc0d7278378d59a346f9680052c45eab9429ae"
+    },
+    {
+      "path": "src/features/transport/TransportBar.tsx",
+      "sha256": "ea18a0053ecae83fa858cf79b3ab5f97870378ead29a684636c324a9acecdb41"
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "4d139586f6661dae57b597fefca7ea36635c03f5f90814e8c7453931cb83bbaf"
+    },
+    {
+      "path": "src/shared/api/desktop-client.test.ts",
+      "sha256": "b207432b6ef05119f1caefb03e12eaebac5a8c9a531607aaf3a054419dd74531"
+    },
+    {
+      "path": "src/shared/api/desktop-client.ts",
+      "sha256": "549b16f819e567b026b7c6afddc17cbdc5917c598fefb8219d971dec0a5973d5"
+    },
+    {
+      "path": "src/shared/api/generated/api.ts",
+      "sha256": "8b8152197d5b0061705b42868cceb9c75881210520423323b5fea9d8c71df281"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "2cddd4b8027c271d44d05dd1221761b4690bb8ffdd315f06d807f2f5920740fd"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "ff2374733a8b9d419a01998f35993fee442b1f92ab7e80a981b9eed2c2762782"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "d99bf712f2b4ad44129ee21f5f131568b0ede0e7d2bb266bc90d5580890417aa"
+    }
+  ]
+}

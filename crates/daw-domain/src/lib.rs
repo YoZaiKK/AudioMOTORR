@@ -16,6 +16,7 @@ pub enum DomainError {
     InvalidProjectId,
     EmptyTitle,
     InvalidTempo,
+    InvalidAsset,
 }
 
 impl fmt::Display for DomainError {
@@ -24,6 +25,7 @@ impl fmt::Display for DomainError {
             Self::InvalidProjectId => "el identificador del proyecto debe ser distinto de cero",
             Self::EmptyTitle => "el título no puede estar vacío",
             Self::InvalidTempo => "el tempo debe ser finito y estar entre 20 y 300 BPM",
+            Self::InvalidAsset => "referencia de sample vacía, inválida o slot fuera de rango",
         })
     }
 }
@@ -80,6 +82,7 @@ pub struct Project {
     tempo: Tempo,
     mixer: MixerSettings,
     pattern: Pattern,
+    assets: [Option<String>; SAMPLE_SLOTS],
 }
 
 impl Project {
@@ -94,6 +97,7 @@ impl Project {
             tempo,
             mixer: MixerSettings::default(),
             pattern: Pattern::default(),
+            assets: [const { None }; SAMPLE_SLOTS],
         })
     }
 
@@ -103,6 +107,32 @@ impl Project {
 
     pub fn title(&self) -> &str {
         &self.title
+    }
+
+    pub fn set_title(&mut self, title: &str) -> Result<(), DomainError> {
+        let title = title.trim();
+        if title.is_empty() {
+            return Err(DomainError::EmptyTitle);
+        }
+        self.title = title.to_owned();
+        Ok(())
+    }
+
+    pub fn assets(&self) -> &[Option<String>; SAMPLE_SLOTS] {
+        &self.assets
+    }
+
+    /// Working references may be absolute; the persistence adapter relocates them.
+    pub fn set_asset(&mut self, slot: usize, path: Option<String>) -> Result<(), DomainError> {
+        if slot >= SAMPLE_SLOTS
+            || path
+                .as_ref()
+                .is_some_and(|p| p.is_empty() || p.len() > 32_768 || p.contains('\0'))
+        {
+            return Err(DomainError::InvalidAsset);
+        }
+        self.assets[slot] = path;
+        Ok(())
     }
 
     pub const fn tempo(&self) -> Tempo {
@@ -138,6 +168,7 @@ impl Default for Project {
             tempo: Tempo::default(),
             mixer: MixerSettings::default(),
             pattern: Pattern::default(),
+            assets: [const { None }; SAMPLE_SLOTS],
         }
     }
 }

@@ -1,0 +1,314 @@
+{
+  "recorded_utc": "2026-11-13T01:14:24.446Z",
+  "runtime": "Real Windows Tauri/WebView2 debug desktop",
+  "executable_sha256": "96ad32996c59aa2f05ea27299b76b95abc54a7af27c0ae4c3729aca3cd154059",
+  "source_file_count": 164,
+  "source_fingerprint_sha256": "9a1cdc442eb36256a03bef4a4d4417dadc4739db368812f29cc52ca8e823df39",
+  "scope": "Actual UI cell edits, title/path save, relative asset copy, selected-pattern modification, persisted reopen and float32 beat export. Assets prepared/cancelled through Rust IPC. Audio remained uninitialized; no hearing/timing claim.",
+  "state": {
+    "sequence": "0",
+    "state": "uninitialized",
+    "backend": null,
+    "output": null,
+    "engine": null,
+    "callbacks": "0",
+    "lastAppliedCommand": null,
+    "error": null,
+    "sampler": null,
+    "mixer": null,
+    "sequencer": null
+  },
+  "saved": {
+    "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage12-20261112\\ui-demo-1\\portable-beat.json",
+    "dirty": false,
+    "summary": {
+      "id": "1",
+      "title": "Beat portátil · etapa 12",
+      "tempo": 120
+    },
+    "pattern": {
+      "steps": [
+        [
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true
+        ]
+      ],
+      "slots": [0, 1, 2, 3]
+    },
+    "mixer": {
+      "channels": [
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        },
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        },
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        },
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        }
+      ],
+      "routes": [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
+    },
+    "assets": [
+      "audiomotorr-assets-22892-0/slot-0.wav",
+      "audiomotorr-assets-22892-0/slot-1.wav",
+      "audiomotorr-assets-22892-0/slot-2.wav",
+      "audiomotorr-assets-22892-0/slot-3.wav",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "status": {
+    "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage12-20261112\\ui-demo-1\\portable-beat.json",
+    "dirty": false,
+    "summary": {
+      "id": "1",
+      "title": "Beat portátil · etapa 12",
+      "tempo": 120
+    },
+    "pattern": {
+      "steps": [
+        [
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true
+        ]
+      ],
+      "slots": [0, 1, 2, 3]
+    },
+    "mixer": {
+      "channels": [
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        },
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        },
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        },
+        {
+          "gain": 1,
+          "pan": 0,
+          "muted": false
+        }
+      ],
+      "routes": [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
+    },
+    "assets": [
+      "audiomotorr-assets-22892-0/slot-0.wav",
+      "audiomotorr-assets-22892-0/slot-1.wav",
+      "audiomotorr-assets-22892-0/slot-2.wav",
+      "audiomotorr-assets-22892-0/slot-3.wav",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "export_text": "Última exportación: C:\\proyectos\\rust\\MOTORUST\\target\\stage12-20261112\\ui-demo-1\\portable-beat.wav · 197520 frames (192000 musicales + 5520 de cola) · 36 notas iniciadas · 0 rechazadas por voces llenas.",
+  "artifacts": [
+    {
+      "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage12-20261112\\ui-demo-1\\portable-beat.json",
+      "sha256": "9f5f4b4984c5ae7f460567990fe5db06e1047b89047092bf3ceab42b2a59fab5"
+    },
+    {
+      "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage12-20261112\\ui-demo-1\\portable-beat.wav",
+      "sha256": "597ed0722ad595ce2d132afa87c123ea81ed53f7505bc213be0bfe903861e140"
+    }
+  ],
+  "captures": [
+    {
+      "path": "docs/screenshots/stage12-project-wide.png",
+      "sha256": "8c14e15016883429ff030e75ed88dca15cbde0a6d42d0bffb4335bd6d9f3218f",
+      "layout": {
+        "width": 1000,
+        "height": 700,
+        "pageWidth": 985,
+        "panelTop": 1001.5,
+        "panelHeight": 949.15625
+      }
+    },
+    {
+      "path": "docs/screenshots/stage12-project-narrow.png",
+      "sha256": "7bc98f4beb8f4f0154c6f4e4d289cb563a6c1e413c01d8c857fda49ee5f23356",
+      "layout": {
+        "width": 360,
+        "height": 900,
+        "pageWidth": 345,
+        "panelTop": 1239.15625,
+        "panelHeight": 1588.09375
+      }
+    }
+  ]
+}

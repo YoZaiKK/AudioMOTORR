@@ -60,11 +60,18 @@ cerrada la etapa. Este plan no ejecuta commit, push ni publicación.
 **11.1 implementado localmente:** [contrato y modelo del patrón](etapa-11-modelo-patron.md).
 **11.2 implementado localmente:** [planificador y mezcla secuenciada](etapa-11-planificador.md).
 **11.3.a implementado localmente:** [servicio secuenciado](etapa-11-sesiones-secuenciador.md).
-**Siguiente: 11.3.b**, aplicación; después IPC y cuadrícula de cuatro filas.
+**11.3.b implementado localmente:** [aplicación](etapa-11-aplicacion-secuenciador.md).
+**11.3.c implementado localmente:** [desktop](etapa-11-desktop-secuenciador.md).
+**11.3.d aceptada localmente:** [beat de referencia e integración](cierre-integracion-secuenciador-11.3d.md).
+**11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
+**11.4.b medida:** [seis casos físicos y reaperturas](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
+**Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
+En curso: auditoría/entrega/CI y cierre; [continuidad](ejecucion-11.4b-12.md).
 
 El modelo 11.1 y el planificador con offsets de bloque 11.2 están implementados.
-11.3.a ya conecta sesiones, FIFO y estado observado. Siguen aplicación/IPC/cuadrícula
-(11.3.b/c), aceptación local 11.3.d y referencia integrada 11.4.
+11.3.a ya conecta sesiones, FIFO y estado observado; 11.3.b coordina el documento
+y la instalación; 11.3.c expone IPC/cuadrícula. 11.3.d completa la aceptación
+local con WAV reales y referencias independientes. Sigue cierre nativo/entrega 11.4.
 La etapa 11 completa sigue abierta.
 
 ## Etapa 10 — Mezclador de cuatro canales
@@ -111,7 +118,11 @@ Objetivo: reproducir un patrón de cuatro canales a tempo controlado.
 [evidencia](evidencia-modelo-patron-11.1.json). **11.2 implementado localmente**,
 con [reporte](etapa-11-planificador.md) y [evidencia](evidencia-planificador-11.2.json).
 Servicio 11.3.a implementado localmente: [reporte](etapa-11-sesiones-secuenciador.md)
-y [evidencia](evidencia-sesiones-secuenciador-11.3a.json). Aplicación/IPC/UI siguen pendientes.
+y [evidencia](evidencia-sesiones-secuenciador-11.3a.json). Aplicación 11.3.b implementada:
+[reporte](etapa-11-aplicacion-secuenciador.md), [evidencia](evidencia-aplicacion-secuenciador-11.3b.json).
+IPC/UI 11.3.c implementados localmente: [reporte](etapa-11-desktop-secuenciador.md)
+y [evidencia](evidencia-desktop-secuenciador-11.3c.json).
+Aceptación integrada 11.3.d [completada localmente](cierre-integracion-secuenciador-11.3d.md).
 
 | Paso | Entrega                                                                                | Aceptación                                                                                                                                  |
 | ---- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -123,19 +134,34 @@ y [evidencia](evidencia-sesiones-secuenciador-11.3a.json). Aplicación/IPC/UI si
 **Hito de producto:** al cerrar 11 se puede crear y reproducir un beat en memoria.
 Guardar ese beat y exportarlo pertenecen a 12.
 
-Desglose de 11.3: **11.3.a completado localmente; siguiente 11.3.b**.
+Desglose de 11.3: **11.3.a/b/c completados localmente; siguiente 11.3.d**.
 
 1. **11.3.a — Servicio de audio, implementado localmente:** sesiones secuenciadas manuales/CPAL, patrón instalado
    explícitamente, controles Copy por la FIFO existente y snapshot observado.
    Aplicar comandos una vez al inicio del callback; comprobar chunks, pérdida,
    overflow y propiedad del PCM al cerrar/reabrir.
-2. **11.3.b — Aplicación:** Project seleccionado, cola aceptada y estado aplicado
+2. **11.3.b — Aplicación, implementada localmente:** Project seleccionado, cola aceptada y estado aplicado
    diferenciados; preparación/cancelación y sesiones con patrón/tempo/mezcla
    actuales. Errores/cola llena sin mutar el documento.
-3. **11.3.c — Desktop:** DTOs/bindings/IPC/ACL y cuadrícula 4 × 16 con slots por fila y
+3. **11.3.c — Desktop, implementado localmente:** DTOs/bindings/IPC/ACL y cuadrícula 4 × 16 con slots por fila y
    playhead observado; ninguna nota programada desde un temporizador de UI.
-4. **11.3.d — Aceptación local:** fixtures de servicio/aplicación y pruebas IPC/UI de
-   orden, pérdida y lifecycle; check/build y reporte antes del cierre 11.4.
+4. **11.3.d — Aceptación local, completada:** dos casos nuevos con 42 combinaciones
+   de WAV/PCM/documento/sesión, auditoría de lifecycle/errores/IPC/UI, check,
+   release y build. [Reporte](cierre-integracion-secuenciador-11.3d.md).
+
+El cierre 11.4 se ejecutará en este orden:
+
+1. **11.4.a — Diagnósticos y protocolo, completados localmente:** comandos explícitos,
+   referencia PCM/eventos, 72 mediciones offline release y memoria verificada;
+   runner nativo probado con backend manual y generador de cuatro WAV con hashes.
+   [Reporte](etapa-11-diagnosticos-secuenciador.md) y protocolo listos para 11.4.b.
+   Los benchmarks de sampler/mezclador no inicializan
+   el secuenciador y no se reutilizan como medición de este camino.
+2. **11.4.b — Matriz física y escucha:** medir dispositivo/configuración reales,
+   controles, errores/reaperturas y audición identificada. Conservar los límites
+   de loopback, desconexión física, duración y otras plataformas.
+3. **11.4.c — Auditoría y entrega:** consolidar evidencia de la revisión final,
+   verificar check/build y CI del SHA entregado, y cerrar solo al cumplir criterios.
 
 ## Etapa 12 — Guardar, abrir y exportar beats
 
@@ -147,6 +173,9 @@ Desglose de 11.3: **11.3.a completado localmente; siguiente 11.3.b**.
 | 12.4 | Flujo integrado y cierre.                                                     | Crear beat, guardar, cerrar, reabrir y exportar con fixtures reproducibles, check/build y CI de la entrega.                             |
 
 **Hito de producto:** sesión musical recuperable y beat exportable.
+12.1–12.3 y el flujo local de 12.4 ya están implementados y probados; ver
+[reporte](etapa-12-persistencia-exportacion.md). Entrega/CI y cierre auditivo de
+etapa 11 se registran en [continuidad](ejecucion-11.4b-12.md).
 
 ## Etapa 13 — Clips y escenas
 

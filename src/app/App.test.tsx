@@ -13,12 +13,19 @@ import type {
   ServiceSnapshotDto,
   MixerSettingsDto,
   MixerEditDto,
+  PatternDto,
+  ProjectDocumentDto,
 } from "../shared/api/generated/api";
 
 const client = vi.hoisted(() => ({
   available: vi.fn(),
   appInfo: vi.fn(),
   project: vi.fn(),
+  document: vi.fn(),
+  saveProject: vi.fn(),
+  openProject: vi.fn(),
+  prepareProjectSamples: vi.fn(),
+  exportBeat: vi.fn(),
   devices: vi.fn(),
   initialize: vi.fn(),
   shutdown: vi.fn(),
@@ -38,6 +45,11 @@ const client = vi.hoisted(() => ({
   mixerChannel: vi.fn(),
   mixerRoute: vi.fn(),
   initializeMixedSampler: vi.fn(),
+  pattern: vi.fn(),
+  setPattern: vi.fn(),
+  patternStep: vi.fn(),
+  patternRowSlot: vi.fn(),
+  initializeSequencedSampler: vi.fn(),
 }));
 vi.mock("../shared/api/desktop-client", async (original) => ({
   ...(await original<typeof import("../shared/api/desktop-client")>()),
@@ -56,6 +68,7 @@ const empty: ServiceSnapshotDto = {
   error: null,
   sampler: null,
   mixer: null,
+  sequencer: null,
 };
 const ready: ServiceSnapshotDto = {
   ...empty,
@@ -78,6 +91,40 @@ const ready: ServiceSnapshotDto = {
   },
 };
 const listeners = new Set<(value: ServiceSnapshotDto) => void>();
+function emptyPattern(): PatternDto {
+  return {
+    steps: Array.from({ length: 4 }, () =>
+      Array(16).fill(false),
+    ) as PatternDto["steps"],
+    slots: [0, 1, 2, 3],
+  };
+}
+function sequenceReady(
+  sequence = "1",
+  pattern = emptyPattern(),
+): ServiceSnapshotDto {
+  return {
+    ...mixedReady,
+    sequence,
+    sequencer: {
+      pattern,
+      musicalFrames: "0",
+      loopIndex: "0",
+      step: 0,
+      phaseNumerator: "0",
+      phaseDenominator: "202661983231672320000",
+      lastBoundary: null,
+      lastEvent: null,
+      counters: {
+        boundaries: "0",
+        attempted: "0",
+        started: "0",
+        missingAsset: "0",
+        poolFull: "0",
+      },
+    },
+  };
+}
 const prepared: PreparationSnapshotDto = {
   sequence: "2",
   preparationId: "1",
@@ -154,8 +201,17 @@ beforeEach(() => {
     tempo: 120,
   });
   client.devices.mockResolvedValue([]);
+  client.document.mockResolvedValue({
+    path: null,
+    dirty: true,
+    summary: { id: "1", title: "Proyecto sin título", tempo: 120 },
+    pattern: emptyPattern(),
+    mixer: mixerSettings,
+    assets: Array(16).fill(null),
+  });
   client.snapshot.mockResolvedValue(empty);
   client.mixer.mockResolvedValue(mixerSettings);
+  client.pattern.mockResolvedValue(emptyPattern());
   client.preparation.mockResolvedValue({
     sequence: "0",
     preparationId: null,
@@ -174,6 +230,720 @@ beforeEach(() => {
   });
 });
 afterEach(cleanup);
+
+function documentFixture(): ProjectDocumentDto {
+  return {
+    path: null,
+    dirty: true,
+    summary: { id: "1", title: "Proyecto sin título", tempo: 120 },
+    pattern: emptyPattern(),
+    mixer: structuredClone(mixerSettings),
+    assets: Array(16).fill(null) as ProjectDocumentDto["assets"],
+  };
+}
+describe("project persistence and beat export", () => {
+  it("saves title/path explicitly and only replaces the current saved destination automatically", async () => {
+    const saved = {
+      ...documentFixture(),
+      path: "C:\\beats\\one.json",
+      dirty: false,
+      summary: { id: "9007199254740993", title: "Mi beat", tempo: 120 },
+    };
+    client.saveProject.mockResolvedValue(saved);
+    render(<App />);
+    await connected();
+    fireEvent.change(screen.getByLabelText("Archivo de proyecto"), {
+      target: { value: saved.path },
+    });
+    fireEvent.change(screen.getByLabelText("Título del proyecto"), {
+      target: { value: "Mi beat" },
+    });
+    fireEvent.change(screen.getByLabelText("Archivo WAV del beat"), {
+      target: { value: "chosen.wav" },
+    });
+    fireEvent.change(screen.getByLabelText("Compases a exportar"), {
+      target: { value: "3" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar proyecto" }));
+    await waitFor(() =>
+      expect(client.saveProject).toHaveBeenCalledWith(
+        saved.path,
+        false,
+        "Mi beat",
+      ),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("project-file-state").textContent).toBe(
+        "Proyecto guardado",
+      ),
+    );
+    expect(
+      (screen.getByLabelText("Archivo WAV del beat") as HTMLInputElement).value,
+    ).toBe("chosen.wav");
+    expect(
+      (screen.getByLabelText("Compases a exportar") as HTMLInputElement).value,
+    ).toBe("3");
+    fireEvent.click(screen.getByRole("button", { name: "Guardar proyecto" }));
+    await waitFor(() =>
+      expect(client.saveProject).toHaveBeenLastCalledWith(
+        saved.path,
+        true,
+        "Mi beat",
+      ),
+    );
+    expect(client.play).not.toHaveBeenCalled();
+    expect(client.initializeSequencedSampler).not.toHaveBeenCalled();
+  });
+  it("opens one selected document atomically and prepares its assets only on an explicit click", async () => {
+    const opened = documentFixture();
+    opened.path = "C:\\beats\\saved.json";
+    opened.dirty = false;
+    opened.summary.title = "Beat abierto";
+    opened.pattern.steps[2][15] = true;
+    opened.assets[2] = "assets/hat.wav";
+    opened.mixer.channels[2].muted = true;
+    client.openProject.mockResolvedValue(opened);
+    client.prepareProjectSamples.mockResolvedValue(prepared);
+    render(<App />);
+    await connected();
+    fireEvent.change(screen.getByLabelText("Archivo de proyecto"), {
+      target: { value: opened.path },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Abrir proyecto" }));
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: "Fila 3, paso 16" })
+          .getAttribute("aria-pressed"),
+      ).toBe("true"),
+    );
+    expect(
+      (screen.getByLabelText("Título del proyecto") as HTMLInputElement).value,
+    ).toBe("Beat abierto");
+    expect(client.prepareProjectSamples).not.toHaveBeenCalled();
+    expect(client.play).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Preparar samples del proyecto" }),
+    );
+    await waitFor(() =>
+      expect(client.prepareProjectSamples).toHaveBeenCalledWith(48000, 2),
+    );
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: "Abrir proyecto" })
+          .hasAttribute("disabled"),
+      ).toBe(true),
+    );
+    expect(client.initializeSequencedSampler).not.toHaveBeenCalled();
+  });
+  it("exports exact string frame counts without changing transport and disables opening during playback", async () => {
+    const playing = sequenceReady();
+    playing.engine = {
+      ...playing.engine!,
+      transport: "playing",
+      requestedTransport: "playing",
+    };
+    client.snapshot.mockResolvedValue(playing);
+    client.exportBeat.mockResolvedValue({
+      musicalFrames: "9007199254740993",
+      tailFrames: "7",
+      totalFrames: "9007199254741000",
+      counters: {
+        boundaries: "16",
+        attempted: "18",
+        started: "18",
+        missingAsset: "0",
+        poolFull: "0",
+      },
+    });
+    render(<App />);
+    await connected();
+    expect(
+      screen
+        .getByRole("button", { name: "Abrir proyecto" })
+        .hasAttribute("disabled"),
+    ).toBe(true);
+    fireEvent.change(screen.getByLabelText("Archivo WAV del beat"), {
+      target: { value: "C:\\beats\\one.wav" },
+    });
+    fireEvent.change(screen.getByLabelText("Compases a exportar"), {
+      target: { value: "2" },
+    });
+    fireEvent.change(screen.getByLabelText("Final del beat"), {
+      target: { value: "cut" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Exportar beat" }));
+    await waitFor(() =>
+      expect(client.exportBeat).toHaveBeenCalledWith({
+        outputPath: "C:\\beats\\one.wav",
+        sampleRate: 48000,
+        channels: 2,
+        bars: 2,
+        blockSize: 256,
+        tail: "cut",
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("beat-export-result").textContent).toContain(
+        "9007199254741000",
+      ),
+    );
+    expect(client.stop).not.toHaveBeenCalled();
+    expect(client.pause).not.toHaveBeenCalled();
+  });
+  it("preserves visible selection on failed save/open/export and does not invent output", async () => {
+    client.saveProject.mockRejectedValue({
+      code: "invalidArgument",
+      message: "destination exists",
+    });
+    client.openProject.mockRejectedValue({
+      code: "invalidArgument",
+      message: "missing asset",
+    });
+    client.exportBeat.mockRejectedValue({
+      code: "invalidArgument",
+      message: "WAV already exists",
+    });
+    render(<App />);
+    await connected();
+    fireEvent.click(screen.getByRole("button", { name: "Guardar proyecto" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toContain(
+        "destination exists",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Abrir proyecto" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toContain("missing asset"),
+    );
+    expect(
+      (screen.getByLabelText("Título del proyecto") as HTMLInputElement).value,
+    ).toBe("Proyecto sin título");
+    fireEvent.click(screen.getByRole("button", { name: "Exportar beat" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toContain(
+        "WAV already exists",
+      ),
+    );
+    expect(screen.queryByTestId("beat-export-result")).toBeNull();
+  });
+  it("ignores a background document reply superseded by opening another project", async () => {
+    let reply!: (value: ProjectDocumentDto) => void;
+    client.document
+      .mockResolvedValueOnce(documentFixture())
+      .mockImplementationOnce(
+        () =>
+          new Promise<ProjectDocumentDto>((resolve) => {
+            reply = resolve;
+          }),
+      );
+    const selected = emptyPattern();
+    selected.steps[0][0] = true;
+    client.patternStep.mockResolvedValue({ pattern: selected, accepted: null });
+    const opened = documentFixture();
+    opened.path = "new.json";
+    opened.summary.title = "New document";
+    client.openProject.mockResolvedValue(opened);
+    render(<App />);
+    await connected();
+    fireEvent.click(screen.getByRole("button", { name: "Fila 1, paso 1" }));
+    await waitFor(() => expect(client.document).toHaveBeenCalledTimes(2));
+    fireEvent.click(screen.getByRole("button", { name: "Abrir proyecto" }));
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Título del proyecto") as HTMLInputElement)
+          .value,
+      ).toBe("New document"),
+    );
+    await act(async () => reply(documentFixture()));
+    expect(
+      (screen.getByLabelText("Título del proyecto") as HTMLInputElement).value,
+    ).toBe("New document");
+    expect(
+      (screen.getByLabelText("Archivo de proyecto") as HTMLInputElement).value,
+    ).toBe("new.json");
+  });
+  it("consulting the document preserves unsaved title and destination drafts", async () => {
+    render(<App />);
+    await connected();
+    fireEvent.change(screen.getByLabelText("Título del proyecto"), {
+      target: { value: "Unsaved title" },
+    });
+    fireEvent.change(screen.getByLabelText("Archivo de proyecto"), {
+      target: { value: "save-as.json" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Consultar proyecto" }));
+    await waitFor(() => expect(client.document).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: "Consultar proyecto" })
+          .hasAttribute("disabled"),
+      ).toBe(false),
+    );
+    expect(
+      (screen.getByLabelText("Título del proyecto") as HTMLInputElement).value,
+    ).toBe("Unsaved title");
+    expect(
+      (screen.getByLabelText("Archivo de proyecto") as HTMLInputElement).value,
+    ).toBe("save-as.json");
+  });
+  it("disables native project actions in browser mode", async () => {
+    client.available.mockReturnValue(false);
+    render(<App />);
+    for (const name of [
+      "Guardar proyecto",
+      "Abrir proyecto",
+      "Consultar proyecto",
+      "Preparar samples del proyecto",
+      "Exportar beat",
+    ])
+      expect(
+        screen.getByRole("button", { name }).hasAttribute("disabled"),
+      ).toBe(true);
+    expect(client.document).not.toHaveBeenCalled();
+    expect(client.exportBeat).not.toHaveBeenCalled();
+  });
+  it("ignores startup pattern and mixer replies after an opened document replaced them", async () => {
+    let oldPattern!: (value: PatternDto) => void;
+    let oldMixer!: (value: MixerSettingsDto) => void;
+    client.pattern.mockImplementationOnce(
+      () =>
+        new Promise<PatternDto>((resolve) => {
+          oldPattern = resolve;
+        }),
+    );
+    client.mixer.mockImplementationOnce(
+      () =>
+        new Promise<MixerSettingsDto>((resolve) => {
+          oldMixer = resolve;
+        }),
+    );
+    const opened = documentFixture();
+    opened.path = "opened.json";
+    opened.pattern.steps[3][15] = true;
+    opened.mixer.channels[0].gain = 0.25;
+    client.openProject.mockResolvedValue(opened);
+    render(<App />);
+    await connected();
+    fireEvent.click(screen.getByRole("button", { name: "Abrir proyecto" }));
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: "Fila 4, paso 16" })
+          .getAttribute("aria-pressed"),
+      ).toBe("true"),
+    );
+    await act(async () => {
+      oldPattern(emptyPattern());
+      oldMixer(mixerSettings);
+    });
+    expect(
+      screen
+        .getByRole("button", { name: "Fila 4, paso 16" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(
+      (screen.getByLabelText("Archivo de proyecto") as HTMLInputElement).value,
+    ).toBe("opened.json");
+  });
+});
+
+describe("sixteen-step sequencer", () => {
+  it("edits all four rows offline and clears the pattern with one atomic replacement", async () => {
+    const selected = emptyPattern();
+    selected.steps[3][15] = true;
+    selected.slots[3] = 15;
+    client.patternStep.mockResolvedValue({ pattern: selected, accepted: null });
+    client.patternRowSlot.mockResolvedValue({
+      pattern: selected,
+      accepted: null,
+    });
+    render(<App />);
+    await connected();
+    const step = screen.getByRole("button", { name: "Fila 4, paso 16" });
+    await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+    expect(document.querySelectorAll(".step-grid tbody button")).toHaveLength(
+      64,
+    );
+    fireEvent.click(step);
+    await waitFor(() => expect(step.getAttribute("aria-pressed")).toBe("true"));
+    expect(client.patternStep).toHaveBeenCalledWith(3, 15, true);
+    expect(step.getAttribute("data-applied")).toBe("none");
+    expect(screen.getByTestId("pattern-outcome").textContent).toContain(
+      "sin enviar comandos",
+    );
+    fireEvent.change(screen.getByLabelText("Fila 4"), {
+      target: { value: "15" },
+    });
+    await waitFor(() =>
+      expect(client.patternRowSlot).toHaveBeenCalledWith(3, 15),
+    );
+    const cleared = structuredClone(selected);
+    cleared.steps.forEach((row) => row.fill(false));
+    client.setPattern.mockResolvedValue({ pattern: cleared, accepted: null });
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: "Vaciar patrón" })
+          .hasAttribute("disabled"),
+      ).toBe(false),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Vaciar patrón" }));
+    await waitFor(() =>
+      expect(step.getAttribute("aria-pressed")).toBe("false"),
+    );
+    expect(client.setPattern).toHaveBeenCalledWith(cleared);
+    expect(client.setPattern).toHaveBeenCalledTimes(1);
+    expect(client.initializeSequencedSampler).not.toHaveBeenCalled();
+    expect(client.play).not.toHaveBeenCalled();
+  });
+
+  it("initializes a prepared sequenced session explicitly without Play and keeps offline receipts truthful", async () => {
+    const selected = emptyPattern();
+    selected.steps[0][0] = true;
+    client.patternStep.mockResolvedValue({ pattern: selected, accepted: null });
+    client.preparation.mockResolvedValueOnce(prepared).mockResolvedValue({
+      ...prepared,
+      sequence: "3",
+      state: "idle",
+      occupiedSlots: 0,
+    });
+    client.initializeSequencedSampler.mockResolvedValue(
+      sequenceReady("1", selected),
+    );
+    render(<App />);
+    await connected();
+    const step = screen.getByRole("button", { name: "Fila 1, paso 1" });
+    await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(step);
+    await screen.findByTestId("pattern-outcome");
+    const initialize = screen.getByRole("button", {
+      name: "Inicializar secuenciador",
+    });
+    await waitFor(() =>
+      expect(initialize.hasAttribute("disabled")).toBe(false),
+    );
+    fireEvent.click(initialize);
+    await waitFor(() =>
+      expect(client.initializeSequencedSampler).toHaveBeenCalledWith("1", null),
+    );
+    await waitFor(() => expect(step.getAttribute("data-applied")).toBe("true"));
+    expect(screen.getByTestId("pattern-outcome").textContent).toContain(
+      "sin enviar comandos",
+    );
+    expect(screen.getByTestId("pattern-position").textContent).toBe(
+      "Sin paso observado",
+    );
+    expect(client.play).not.toHaveBeenCalled();
+  });
+
+  it("keeps selected and applied steps separate and uses exact observed IDs and position", async () => {
+    const initial = sequenceReady();
+    initial.lastAppliedCommand = "9007199254740992";
+    client.snapshot.mockResolvedValue(initial);
+    const selected = emptyPattern();
+    selected.steps[0][0] = true;
+    client.patternStep.mockResolvedValue({
+      pattern: selected,
+      accepted: { commandId: "9007199254740993" },
+    });
+    render(<App />);
+    await connected();
+    const step = screen.getByRole("button", { name: "Fila 1, paso 1" });
+    await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(step);
+    await waitFor(() => expect(step.getAttribute("aria-pressed")).toBe("true"));
+    expect(step.getAttribute("data-applied")).toBe("false");
+    expect(screen.getByTestId("pattern-outcome").textContent).toContain(
+      "esperando procesamiento",
+    );
+    const processed = sequenceReady("9007199254740993", selected);
+    processed.lastAppliedCommand = "9007199254740993";
+    processed.sequencer!.lastBoundary = {
+      loopIndex: "9007199254740993",
+      step: 7,
+      musicalFrame: "9007199254740993",
+    };
+    emit(processed);
+    expect(step.getAttribute("data-applied")).toBe("true");
+    expect(screen.getByTestId("pattern-outcome").textContent).toContain(
+      "procesado;",
+    );
+    expect(screen.getByTestId("pattern-position").textContent).toContain(
+      "8 · vuelta 9007199254740994",
+    );
+    expect(
+      document.querySelectorAll('.step-grid [aria-current="step"]'),
+    ).toHaveLength(4);
+    emit({ ...initial, sequence: "9007199254740992" });
+    vi.useFakeTimers();
+    try {
+      act(() => vi.advanceTimersByTime(10000));
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(screen.getByTestId("pattern-position").textContent).toContain(
+      "8 · vuelta 9007199254740994",
+    );
+    expect(client.play).not.toHaveBeenCalled();
+  });
+
+  it("handles a processed snapshot that arrives before the edit reply", async () => {
+    client.snapshot.mockResolvedValue(sequenceReady());
+    let reply!: (value: {
+      pattern: PatternDto;
+      accepted: { commandId: string };
+    }) => void;
+    client.patternStep.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          reply = resolve;
+        }),
+    );
+    render(<App />);
+    await connected();
+    const step = screen.getByRole("button", { name: "Fila 1, paso 1" });
+    await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(step);
+    const selected = emptyPattern();
+    selected.steps[0][0] = true;
+    emit({ ...sequenceReady("2", selected), lastAppliedCommand: "19" });
+    await act(async () =>
+      reply({ pattern: selected, accepted: { commandId: "19" } }),
+    );
+    expect(screen.getByTestId("pattern-outcome").textContent).toContain(
+      "procesado;",
+    );
+    expect(step.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it.each([false, true])(
+    "never confirms an old edit after session loss (late reply %s)",
+    async (late) => {
+      client.snapshot.mockResolvedValue(sequenceReady());
+      const selected = emptyPattern();
+      selected.steps[0][0] = true;
+      let reply!: (value: {
+        pattern: PatternDto;
+        accepted: { commandId: string };
+      }) => void;
+      if (late)
+        client.patternStep.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              reply = resolve;
+            }),
+        );
+      else
+        client.patternStep.mockResolvedValue({
+          pattern: selected,
+          accepted: { commandId: "9" },
+        });
+      render(<App />);
+      await connected();
+      const step = screen.getByRole("button", { name: "Fila 1, paso 1" });
+      await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+      fireEvent.click(step);
+      await waitFor(() => expect(client.patternStep).toHaveBeenCalled());
+      if (!late) await screen.findByTestId("pattern-outcome");
+      emit({ ...empty, sequence: "2" });
+      emit({ ...sequenceReady("3"), lastAppliedCommand: "99" });
+      if (late)
+        await act(async () =>
+          reply({ pattern: selected, accepted: { commandId: "9" } }),
+        );
+      expect(screen.getByTestId("pattern-outcome").textContent).toContain(
+        "desconocida",
+      );
+      expect(step.getAttribute("data-applied")).toBe("false");
+    },
+  );
+
+  it.each(["reply", "error"])(
+    "ignores a superseded startup pattern %s after refresh and editing",
+    async (outcome) => {
+      let resolve!: (value: PatternDto) => void;
+      let reject!: (reason: unknown) => void;
+      client.pattern.mockImplementationOnce(
+        () =>
+          new Promise((yes, no) => {
+            resolve = yes;
+            reject = no;
+          }),
+      );
+      client.pattern.mockResolvedValueOnce(emptyPattern());
+      const selected = emptyPattern();
+      selected.steps[2][4] = true;
+      client.patternStep.mockResolvedValue({
+        pattern: selected,
+        accepted: null,
+      });
+      render(<App />);
+      await connected();
+      fireEvent.click(screen.getByRole("button", { name: "Consultar patrón" }));
+      const step = screen.getByRole("button", { name: "Fila 3, paso 5" });
+      await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+      fireEvent.click(step);
+      await waitFor(() =>
+        expect(step.getAttribute("aria-pressed")).toBe("true"),
+      );
+      await act(async () => {
+        if (outcome === "reply") resolve(emptyPattern());
+        else
+          reject({
+            code: "timeout",
+            message: "Old pattern query",
+            details: null,
+          });
+      });
+      expect(step.getAttribute("aria-pressed")).toBe("true");
+      expect(screen.queryByRole("alert")).toBeNull();
+    },
+  );
+
+  it("preserves selection on queue full and shows observed note rejections separately", async () => {
+    client.snapshot.mockResolvedValue(sequenceReady());
+    client.patternStep.mockRejectedValue({
+      code: "queueFull",
+      message: "Pattern queue full",
+      details: null,
+    });
+    render(<App />);
+    await connected();
+    const step = screen.getByRole("button", { name: "Fila 1, paso 1" });
+    await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(step);
+    await screen.findByRole("alert");
+    expect(step.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.queryByTestId("pattern-outcome")).toBeNull();
+    const snapshot = sequenceReady("2");
+    snapshot.sequencer!.counters.missingAsset = "9007199254740993";
+    snapshot.sequencer!.lastEvent = {
+      boundary: { loopIndex: "0", step: 0, musicalFrame: "0" },
+      row: 0,
+      slot: 15,
+      deviceFrame: "0",
+      outcome: { status: "rejected", reason: "missingAsset" },
+    };
+    emit(snapshot);
+    expect(screen.getByTestId("pattern-counts").textContent).toContain(
+      "9007199254740993 sin sample",
+    );
+    expect(screen.getByTestId("pattern-event").textContent).toContain(
+      "rechazada: slot vacío",
+    );
+  });
+
+  it("does not compensate a timed-out edit even if the engine later observes a new pattern", async () => {
+    client.snapshot.mockResolvedValue(sequenceReady());
+    client.patternStep.mockRejectedValue({
+      code: "timeout",
+      message: "Acceptance unknown",
+      details: null,
+    });
+    render(<App />);
+    await connected();
+    const step = screen.getByRole("button", { name: "Fila 1, paso 1" });
+    await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+    fireEvent.click(step);
+    await screen.findByRole("alert");
+    const applied = emptyPattern();
+    applied.steps[0][0] = true;
+    emit({ ...sequenceReady("2", applied), lastAppliedCommand: "1" });
+    expect(step.getAttribute("aria-pressed")).toBe("false");
+    expect(step.getAttribute("data-applied")).toBe("true");
+    expect(screen.queryByTestId("pattern-outcome")).toBeNull();
+    expect(client.patternStep).toHaveBeenCalledTimes(1);
+    expect(client.setPattern).not.toHaveBeenCalled();
+  });
+
+  it.each(["loading", "cancelling"] as const)(
+    "allows document editing during preparation %s",
+    async (state) => {
+      client.preparation.mockResolvedValue({ ...prepared, state });
+      const selected = emptyPattern();
+      selected.steps[1][3] = true;
+      client.patternStep.mockResolvedValue({
+        pattern: selected,
+        accepted: null,
+      });
+      render(<App />);
+      await connected();
+      const step = screen.getByRole("button", { name: "Fila 2, paso 4" });
+      await waitFor(() => expect(step.hasAttribute("disabled")).toBe(false));
+      fireEvent.click(step);
+      await waitFor(() =>
+        expect(step.getAttribute("aria-pressed")).toBe("true"),
+      );
+      expect(
+        screen
+          .getByRole("button", { name: "Inicializar secuenciador" })
+          .hasAttribute("disabled"),
+      ).toBe(true);
+    },
+  );
+
+  it("disables pattern edits in browser mode and in legacy sessions", async () => {
+    client.available.mockReturnValue(false);
+    const view = render(<App />);
+    expect(
+      screen
+        .getByRole("button", { name: "Fila 1, paso 1" })
+        .hasAttribute("disabled"),
+    ).toBe(true);
+    expect(client.pattern).not.toHaveBeenCalled();
+    view.unmount();
+    client.available.mockReturnValue(true);
+    client.snapshot.mockResolvedValue(mixedReady);
+    render(<App />);
+    await connected();
+    expect(
+      screen
+        .getByRole("button", { name: "Fila 1, paso 1" })
+        .hasAttribute("disabled"),
+    ).toBe(true);
+    expect(
+      screen.getByText(/Cierra audio e inicializa el secuenciador/),
+    ).toBeTruthy();
+  });
+
+  it("refreshes consumed preparation after initialization fails and preserves selected pattern", async () => {
+    const selected = emptyPattern();
+    selected.steps[0][0] = true;
+    client.pattern.mockResolvedValue(selected);
+    client.preparation.mockResolvedValueOnce(prepared).mockResolvedValue({
+      ...prepared,
+      sequence: "3",
+      state: "idle",
+      occupiedSlots: 0,
+      retainedPcmBytes: "0",
+    });
+    client.initializeSequencedSampler.mockRejectedValue({
+      code: "deviceAbsent",
+      message: "Output missing",
+      details: null,
+    });
+    render(<App />);
+    await connected();
+    const initialize = screen.getByRole("button", {
+      name: "Inicializar secuenciador",
+    });
+    await waitFor(() =>
+      expect(initialize.hasAttribute("disabled")).toBe(false),
+    );
+    fireEvent.click(initialize);
+    await screen.findByRole("alert");
+    await waitFor(() => expect(initialize.hasAttribute("disabled")).toBe(true));
+    expect(
+      screen
+        .getByRole("button", { name: "Fila 1, paso 1" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(client.play).not.toHaveBeenCalled();
+  });
+});
 
 describe("four-channel mixer", () => {
   it("ignores a superseded startup settings error after a successful refresh", async () => {

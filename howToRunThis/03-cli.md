@@ -1,5 +1,39 @@
 # CLI y archivos de prueba
 
+## Proyectos y exportación del beat (12)
+
+```powershell
+cargo run -p daw-cli --no-default-features --locked -- project-check --project C:\Music\mi-beat.json
+cargo run -p daw-cli --no-default-features --locked -- export-beat --project C:\Music\mi-beat.json --output C:\Music\mi-beat.wav --bars 4 --tail finish --block-size 127 --sample-rate 48000 --channels 2
+```
+
+No crean servicio vivo ni abren dispositivos. `project-check` valida JSON v1 y
+sus referencias. `export-beat` decodifica assets y usa el mismo motor secuenciado;
+admite cortar o completar colas, rechaza destinos existentes e informa frames
+y contadores. Ver [guía completa](09-proyectos.md) y [contrato](../docs/project-format.md).
+
+## Diagnósticos del secuenciador (11.4.a)
+
+```powershell
+cargo run -p daw-cli --release --features offline-diagnostics --locked -- sequencer-bench --bars 2 --channels 2
+cargo run -p daw-cli --release --features offline-diagnostics --locked -- sequencer-bench --pattern dense --bpm 300 --block-size 127 --bars 1
+node scripts/sequencer-fixtures.mjs target/sequencer-fixtures-NUEVO --channels 2
+```
+
+El benchmark no abre dispositivos: contrasta PCM, fase/eventos, medidores y memoria
+con un oráculo independiente. Por defecto recorre bloques 1/127/256/4096, patrones
+empty/beat/dense y BPM 95.5/127.25/300 durante dos compases; admite también 20 BPM,
+--bars 1–8 y --channels 1/2. Los tiempos y excesos nominales son observaciones offline.
+El generador crea cuatro WAV float32 breves y hashes, sin sobrescribir directorios.
+
+`sequencer-native-check` ya está implementado, pero abre audio físico y se ejecutará
+en 11.4.b. Exige --input-dir con kick/snare/hat/accent.wav y --device explícito;
+configuración compatible, --pattern, --bpm y --bars 1–2. Incluso empty genera
+sonido en sus fases posteriores de controles/reapertura. Ver
+[contrato](../docs/sequencer-diagnostics.md),
+[protocolo](../docs/sequencer-native-verification.md) y
+[mediciones offline](../progress/etapa-11-diagnosticos-secuenciador.md).
+
 Las [pruebas nativas 9.5.b](../progress/etapa-9-medicion-nativa.md) registran seis
 casos Realtek/WASAPI correctos con IDs/resultados y métricas de reapertura. Para
 reproducir la entrada estéreo en una ruta nueva:

@@ -5,6 +5,7 @@ use std::{error::Error, process::ExitCode};
 #[cfg(any(feature = "rt-diagnostics", feature = "offline-diagnostics"))]
 mod diagnostics;
 mod export;
+mod project_commands;
 
 const HELP: &str = "Usage: daw-cli smoke [--frames N | --seconds N] [--block-size 1..4096]\n       daw-cli export-wav --output PATH --frames N [--block-size 1..4096] [--sample-rate HZ] [--channels 1|2] [--frequency HZ] [--amplitude 0..1]\n       daw-cli devices\n       daw-cli live-smoke [--seconds 1..60] [--device ID]\nExport defaults: 48000 Hz, stereo, 440 Hz sine, peak amplitude 0.1, block 256, float32 WAV; never overwrites.\nNative commands require --features native-audio. Smoke uses 48000 Hz stereo.\nRelease diagnostics (--features rt-diagnostics):\n       daw-cli engine-bench [--block-size 1..4096] [--iterations N]\n       daw-cli tone-check [--seconds 1..60] [--frequency HZ] [--device ID]";
 
@@ -22,17 +23,24 @@ const SAMPLER_HELP: &str = "Sampler diagnostics (release only):\n       daw-cli 
 
 const MIXER_HELP: &str = "Mixer diagnostics (release only):\n       daw-cli mixer-bench [--block-size 1..4096] [--voices 0|1|16] [--iterations 1..1000000] [--channels 1|2]\n       daw-cli mixer-native-check --input PATH --device ID [--sample-rate 100..192000] [--channels 1|2] [--voices 0|1|16] [--seconds 1..5]\nMixer bench uses four synthetic assets with separate routes/gain/pan/mute, at 48000 Hz.\nNative mixer loads the WAV into four slots; requires seconds+4 through 15 seconds of PCM. It exercises controls and sound after the initial 0/1/16-voice window.\nRequires offline-diagnostics for bench, rt-diagnostics for native. Native output is explicit; no acoustic loopback claim.";
 
+const SEQUENCER_HELP: &str = "Sequencer diagnostics (release only):\n       daw-cli sequencer-bench [--block-size 1..4096] [--pattern empty|beat|dense] [--bpm 20|95.5|127.25|300] [--bars 1..8] [--channels 1|2]\n       daw-cli sequencer-native-check --input-dir DIR --device ID [--sample-rate 100..192000] [--channels 1|2] [--pattern empty|beat|dense] [--bpm 20|95.5|127.25|300] [--bars 1..2]\nBench defaults: blocks 1/127/256/4096, all three patterns, BPM 95.5/127.25/300, two bars, 48000 Hz stereo; independent PCM/event oracle and memory checks. Requires offline-diagnostics.\nNative defaults: beat, 127.25 BPM, one bar, 48000 Hz stereo. Requires rt-diagnostics, explicit device, and kick/snare/hat/accent.wav assets lasting >0 through 2 seconds. Later control/reopen phases generate sound even with an empty initial pattern. Processing observations do not prove listening.";
+
+const PROJECT_HELP: &str = "Project commands (device-free):\n       daw-cli project-check --project PATH\n       daw-cli export-beat --project PATH --output PATH [--bars 1..4096] [--tail cut|finish] [--block-size 1..4096] [--sample-rate 100..192000] [--channels 1|2]\nBeat defaults: one bar, finish sample tails, 48000 Hz stereo, block 256, float32 WAV. Sources must match output sample rate; no overwrite, live service or device opened.";
+
 fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
     let Some(command) = args.first() else {
-        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}");
+        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}\n{SEQUENCER_HELP}\n{PROJECT_HELP}");
         return Ok(());
     };
     if command == "--help" || command == "-h" {
-        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}");
+        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}\n{SEQUENCER_HELP}\n{PROJECT_HELP}");
         return Ok(());
     }
     if command == "export-wav" {
         return export::run(&args[1..]);
+    }
+    if matches!(command.as_str(), "project-check" | "export-beat") {
+        return project_commands::run(command, &args[1..]).map_err(|error| error as Box<dyn Error>);
     }
     if matches!(
         command.as_str(),
@@ -42,6 +50,8 @@ fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
             | "sampler-native-check"
             | "mixer-bench"
             | "mixer-native-check"
+            | "sequencer-bench"
+            | "sequencer-native-check"
     ) {
         #[cfg(any(feature = "rt-diagnostics", feature = "offline-diagnostics"))]
         {

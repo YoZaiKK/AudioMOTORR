@@ -1,6 +1,11 @@
 pub const COMMANDS: &[&str] = &[
     "get_app_info",
     "get_project_summary",
+    "get_project_document",
+    "save_project",
+    "open_project",
+    "prepare_project_samples",
+    "export_project_beat",
     "list_output_devices",
     "initialize_audio",
     "shutdown_audio",
@@ -19,4 +24,9 @@ pub const COMMANDS: &[&str] = &[
     "mixer_set_channel",
     "mixer_set_route",
     "initialize_mixed_sampler",
+    "get_pattern",
+    "sequencer_set_pattern",
+    "sequencer_set_step",
+    "sequencer_set_row_slot",
+    "initialize_sequenced_sampler",
 ];

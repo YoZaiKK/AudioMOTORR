@@ -1,5 +1,16 @@
 # Cómo ejecutar y comprobar AudioMOTORR
 
+Estado actual 2026-11-12: UI de sampler, mezclador y **secuenciador de 4 × 16**
+implementada. Ver [guía del patrón](08-secuenciador.md), con capturas reales de
+edición en WebView2; su aceptación física/nativa completa sigue en 11.4.
+Las etapas 9 y 10 están cerradas dentro del alcance de sus reportes.
+11.4.a ya añade [diagnósticos del secuenciador y fixtures](03-cli.md), con
+mediciones offline y protocolo para 11.4.b.
+La matriz física del secuenciador ya pasó seis casos y seis reaperturas; la
+escucha sigue pendiente. Etapa 12 añade [guardar, abrir y exportar beats](09-proyectos.md),
+con copias de assets, rutas relativas y capturas reales del flujo de archivos.
+El párrafo fechado siguiente conserva el registro anterior de preparación/sampler.
+
 Actualización 2026-11-10: 9.3.a fija el
 [contrato de carga WAV](../docs/sample-loading-contract.md) y los presupuestos;
 9.3.b ya carga un recurso individual desde Rust con preflight/decodificación
@@ -41,13 +52,15 @@ Inicializar audio abre una salida; Play inicia el transporte. **Silencio es la
 fuente predeterminada**. Seleccionar Senoide antes de inicializar permite reproducir
 un tono, ajustar frecuencia y aplicar volumen con rampas de 5 ms. Ver
 [walkthrough](02-interfaz.md). El [sampler](06-sampler.md) permite cargar un banco
-y dispararlo explícitamente. No hay secuenciador ni guardar/abrir proyectos. La CLI permite exportar una senoide offline; ver [export-wav](03-cli.md).
+y dispararlo explícitamente. El [secuenciador](08-secuenciador.md) reproduce un patrón
+en memoria al inicializarlo y dar Play. Guardar/abrir proyectos y exportar beats
+siguen pendientes; la CLI permite exportar una senoide offline: [export-wav](03-cli.md).
 
 Los [casos JSON](test-files/cli-cases.json) son datos para el ejecutor de pruebas,
 no proyectos que la aplicación pueda importar. La [salida de referencia](test-files/expected-output.txt)
 es ilustrativa; el ejecutor imprime los resultados reales de cada ejecución.
 
-Las siete capturas son de WebView2 real y un dispositivo real. Sus fechas y
+Las siete capturas del recorrido histórico son de WebView2 real y un dispositivo real. Sus fechas y
 configuración están en [metadata.json](screenshots/metadata.json). Los contadores
 varían entre ejecuciones; las capturas no demuestran continuidad audible ni ausencia
 de dropouts. Linux nativo/macOS siguen sin verificación; Ubuntu headless dispone

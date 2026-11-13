@@ -1,0 +1,128 @@
+{
+  "recorded_utc": "2026-11-12T22:25:18.031Z",
+  "runtime": "Real Windows Tauri/WebView2 window, bundled desktop debug build",
+  "source_file_count": 152,
+  "source_fingerprint_sha256": "53c65f983cc71fcf9b684452495cfe395729d2588df6ac6220f325b3a61f859b",
+  "executable_sha256": "b8183b41503a09d736c7c8f140cc9636f4062d4c99ed3378b14d0357d2805ebd",
+  "scope": "Actual UI edits confirmed through Rust IPC; audio remained uninitialized. Narrow viewport emulated with CDP at 360 CSS pixels. No native playback, timing or listening claim.",
+  "pattern": {
+    "steps": [
+      [
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
+    ],
+    "slots": [0, 1, 2, 15]
+  },
+  "state": {
+    "sequence": "0",
+    "state": "uninitialized",
+    "backend": null,
+    "output": null,
+    "engine": null,
+    "callbacks": "0",
+    "lastAppliedCommand": null,
+    "error": null,
+    "sampler": null,
+    "mixer": null,
+    "sequencer": null
+  },
+  "captures": [
+    {
+      "path": "docs/screenshots/stage11-sequencer-wide.png",
+      "sha256": "a84e5db2bf474d9cc04cfa3c70613bbc97f1b496cdbb6050a8eccdb241a6c5c1",
+      "layout": {
+        "width": 1000,
+        "height": 700,
+        "pageWidth": 985,
+        "panelBottom": 1019.09375,
+        "gridWidth": 802,
+        "gridContentWidth": 802,
+        "buttons": 64,
+        "selected": 16
+      }
+    },
+    {
+      "path": "docs/screenshots/stage11-sequencer-narrow.png",
+      "sha256": "2098e103044b5421fe3bca2893e1414aa05e52985c0199d0fe8867208ed652a8",
+      "layout": {
+        "width": 360,
+        "height": 900,
+        "pageWidth": 345,
+        "panelBottom": 1282.34375,
+        "gridWidth": 279,
+        "gridContentWidth": 788,
+        "buttons": 64,
+        "selected": 16
+      }
+    }
+  ]
+}

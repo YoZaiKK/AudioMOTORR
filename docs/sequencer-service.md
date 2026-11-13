@@ -2,8 +2,9 @@
 
 Implemented locally on 2026-11-12 after the [11.2 engine](sequencer-contract.md).
 The public Rust audio service now initializes sequenced sessions, queues pattern
-edits and observes applied musical state. Application coordination and desktop
-exposure remain 11.3.b/c. See the [stage report](../progress/etapa-11-sesiones-secuenciador.md).
+edits and observes applied musical state. [Application coordination](sequencer-application.md)
+is implemented in 11.3.b; [desktop exposure](sequencer-desktop.md) is implemented in 11.3.c.
+See the [stage report](../progress/etapa-11-sesiones-secuenciador.md).
 
 ## Initialization and ownership
 
@@ -98,7 +99,8 @@ and complete-window mixer peaks. Instrumentation covers drain, render,
 conversion, aggregation and publication with zero allocations/frees, plus a
 positive PCM teardown check on the owner.
 
-Application-selected document coordination is 11.3.b; generated DTOs/IPC/ACL and
-the grid are 11.3.c; integrated acceptance is 11.3.d. Native hardware diagnostics
+Application-selected document coordination is [implemented in 11.3.b](sequencer-application.md);
+generated DTOs/IPC/ACL and the grid are [implemented in 11.3.c](sequencer-desktop.md);
+integrated acceptance is [complete locally in 11.3.d](sequencer-integration-acceptance.md). Native hardware diagnostics
 and exact-revision CI close stage 11 in 11.4. Adapter tests are not hardware
 timing measurements or an auditory acceptance.

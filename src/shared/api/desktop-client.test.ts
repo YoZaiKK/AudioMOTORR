@@ -15,6 +15,40 @@ beforeEach(() => {
   transport.isTauri.mockReturnValue(true);
   transport.invoke.mockResolvedValue(undefined);
 });
+it("uses scoped project commands and preserves export options as a single typed request", async () => {
+  await desktopClient.document();
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "get_project_document",
+    undefined,
+  );
+  await desktopClient.saveProject("C:\\beats\\a.json", false, "Beat");
+  expect(transport.invoke).toHaveBeenLastCalledWith("save_project", {
+    path: "C:\\beats\\a.json",
+    overwrite: false,
+    title: "Beat",
+  });
+  await desktopClient.openProject("a.json");
+  expect(transport.invoke).toHaveBeenLastCalledWith("open_project", {
+    path: "a.json",
+  });
+  await desktopClient.prepareProjectSamples(48000, 2);
+  expect(transport.invoke).toHaveBeenLastCalledWith("prepare_project_samples", {
+    sampleRate: 48000,
+    channels: 2,
+  });
+  const request = {
+    outputPath: "beat.wav",
+    sampleRate: 48000,
+    channels: 2,
+    bars: 3,
+    blockSize: 127,
+    tail: "finish" as const,
+  };
+  await desktopClient.exportBeat(request);
+  expect(transport.invoke).toHaveBeenLastCalledWith("export_project_beat", {
+    request,
+  });
+});
 it("uses Tauri command names, camelCase arguments and the snapshot event", async () => {
   await desktopClient.initialize("device-id");
   expect(transport.invoke).toHaveBeenLastCalledWith("initialize_audio", {
@@ -113,4 +147,40 @@ it("rejects native calls in browser mode without invoking Tauri", async () => {
     code: "nativeAudioDisabled",
   });
   expect(transport.invoke).not.toHaveBeenCalled();
+});
+
+it("passes pattern payloads and exact preparation identifiers to the new commands", async () => {
+  const pattern = {
+    steps: Array.from({ length: 4 }, () => Array(16).fill(false)),
+    slots: [0, 1, 2, 3],
+  } as Parameters<typeof desktopClient.setPattern>[0];
+  await desktopClient.pattern();
+  expect(transport.invoke).toHaveBeenLastCalledWith("get_pattern", undefined);
+  await desktopClient.setPattern(pattern);
+  expect(transport.invoke).toHaveBeenLastCalledWith("sequencer_set_pattern", {
+    pattern,
+  });
+  await desktopClient.patternStep(3, 15, true);
+  expect(transport.invoke).toHaveBeenLastCalledWith("sequencer_set_step", {
+    row: 3,
+    step: 15,
+    enabled: true,
+  });
+  await desktopClient.patternRowSlot(3, 15);
+  expect(transport.invoke).toHaveBeenLastCalledWith("sequencer_set_row_slot", {
+    row: 3,
+    slot: 15,
+  });
+  await desktopClient.initializeSequencedSampler(
+    "9007199254740993",
+    "device-id",
+  );
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "initialize_sequenced_sampler",
+    { preparationId: "9007199254740993", deviceId: "device-id" },
+  );
+  transport.isTauri.mockReturnValue(false);
+  await expect(desktopClient.pattern()).rejects.toMatchObject({
+    code: "nativeAudioDisabled",
+  });
 });

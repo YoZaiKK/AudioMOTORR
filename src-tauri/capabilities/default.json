@@ -1,13 +1,18 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Local main window: audio application commands and snapshot subscriptions only.",
+  "description": "Local main window: audio, project files, beat export and snapshot subscriptions.",
   "windows": ["main"],
   "permissions": [
     "core:event:allow-listen",
     "core:event:allow-unlisten",
     "allow-get-app-info",
     "allow-get-project-summary",
+    "allow-get-project-document",
+    "allow-save-project",
+    "allow-open-project",
+    "allow-prepare-project-samples",
+    "allow-export-project-beat",
     "allow-list-output-devices",
     "allow-initialize-audio",
     "allow-shutdown-audio",
@@ -25,6 +30,11 @@
     "allow-get-mixer-settings",
     "allow-mixer-set-channel",
     "allow-mixer-set-route",
-    "allow-initialize-mixed-sampler"
+    "allow-initialize-mixed-sampler",
+    "allow-get-pattern",
+    "allow-sequencer-set-pattern",
+    "allow-sequencer-set-step",
+    "allow-sequencer-set-row-slot",
+    "allow-initialize-sequenced-sampler"
   ]
 }

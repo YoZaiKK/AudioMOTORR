@@ -26,7 +26,13 @@ audibilidad confirmada por el usuario tras repetición con audífonos.
 **11.1 implementado localmente:** [contrato y modelo del patrón](etapa-11-modelo-patron.md).
 **11.2 implementado localmente:** [planificador y mezcla secuenciada](etapa-11-planificador.md).
 **11.3.a implementado localmente:** [servicio secuenciado](etapa-11-sesiones-secuenciador.md).
-**Siguiente: 11.3.b**, aplicación; después IPC y cuadrícula de cuatro filas.
+**11.3.b implementado localmente:** [aplicación](etapa-11-aplicacion-secuenciador.md).
+**11.3.c implementado localmente:** [desktop](etapa-11-desktop-secuenciador.md).
+**11.3.d aceptada localmente:** [beat de referencia e integración](cierre-integracion-secuenciador-11.3d.md).
+**11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
+**11.4.b medida:** [matriz física](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
+**Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
+En curso: entrega/CI y cierre; ver [continuidad](ejecucion-11.4b-12.md).
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -195,7 +201,15 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Implementar **11.3.b**, coordinación de aplicación/documento y sesiones preparadas.
+Continuar con **verificación final, entrega/CI y cierre**. Los seis casos físicos
+y reaperturas ya pasaron con 156 fuentes; la escucha sigue pendiente. La etapa
+12 está implementada y el flujo real WebView2 está verificado; se está consolidando
+la evidencia de 164 fuentes y la CI de la revisión entregada.
+11.4.a ya aporta [diagnósticos explícitos, 72 mediciones offline y protocolo](etapa-11-diagnosticos-secuenciador.md).
+11.3.d ya acepta localmente [beat de referencia, lifecycle e integración](cierre-integracion-secuenciador-11.3d.md).
+Seguirán medición/escucha física en 11.4.b y auditoría/entrega/CI en 11.4.c.
+11.3.c ya expone [DTOs/IPC/ACL y cuadrícula](etapa-11-desktop-secuenciador.md).
+11.3.b coordina [documento y sesiones preparadas](etapa-11-aplicacion-secuenciador.md).
 11.3.a ya aporta [sesiones, FIFO y observaciones](etapa-11-sesiones-secuenciador.md).
 11.1 ya aporta [contrato y modelo](etapa-11-modelo-patron.md) de cuatro filas ×
 16 pasos; 11.2 aporta [planificador y reproducción mezclada](etapa-11-planificador.md),

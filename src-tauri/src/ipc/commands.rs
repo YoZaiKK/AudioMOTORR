@@ -27,6 +27,68 @@ pub async fn get_project_summary(
     with_app(state, |app| Ok(app.get_project_summary().into())).await
 }
 #[tauri::command]
+pub async fn get_project_document(
+    state: State<'_, Arc<DesktopState>>,
+) -> Result<ProjectDocumentDto, ApiError> {
+    with_app(state, |app| Ok(app.project_status().into())).await
+}
+#[tauri::command]
+pub async fn save_project(
+    state: State<'_, Arc<DesktopState>>,
+    path: String,
+    overwrite: bool,
+    title: String,
+) -> Result<ProjectDocumentDto, ApiError> {
+    with_app(state, move |app| {
+        app.save_project_titled(std::path::Path::new(&path), overwrite, &title)
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn open_project(
+    state: State<'_, Arc<DesktopState>>,
+    path: String,
+) -> Result<ProjectDocumentDto, ApiError> {
+    with_app(state, move |app| {
+        app.open_project(std::path::Path::new(&path))
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn prepare_project_samples(
+    state: State<'_, Arc<DesktopState>>,
+    sample_rate: u32,
+    channels: u16,
+) -> Result<PreparationSnapshotDto, ApiError> {
+    with_app(state, move |app| {
+        let config = daw_app::EngineConfig::new(sample_rate, channels).map_err(|e| {
+            daw_app::AudioError::new(daw_app::ErrorCode::InvalidArgument, e.to_string())
+        })?;
+        app.prepare_project_samples(config).map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn export_project_beat(
+    state: State<'_, Arc<DesktopState>>,
+    request: BeatExportRequestDto,
+) -> Result<BeatExportDto, ApiError> {
+    with_app(state, move |app| {
+        let options = request.options()?;
+        let invalid = |error: Box<dyn std::error::Error + Send + Sync>| {
+            daw_app::AudioError::new(daw_app::ErrorCode::InvalidArgument, error.to_string())
+        };
+        let render = app.project_render(options).map_err(invalid)?;
+        render
+            .write_wav(std::path::Path::new(&request.output_path))
+            .map(Into::into)
+            .map_err(invalid)
+    })
+    .await
+}
+#[tauri::command]
 pub async fn list_output_devices(
     state: State<'_, Arc<DesktopState>>,
 ) -> Result<Vec<OutputDeviceDto>, ApiError> {
@@ -109,6 +171,59 @@ fn preparation_id(value: &str) -> daw_app::Result<u64> {
                 "Expected a canonical decimal preparation ID",
             )
         })
+}
+
+#[tauri::command]
+pub async fn get_pattern(state: State<'_, Arc<DesktopState>>) -> Result<PatternDto, ApiError> {
+    with_app(state, |app| Ok(app.get_pattern().into())).await
+}
+#[tauri::command]
+pub async fn sequencer_set_pattern(
+    state: State<'_, Arc<DesktopState>>,
+    pattern: PatternDto,
+) -> Result<PatternEditDto, ApiError> {
+    with_app(state, move |app| {
+        app.sequencer_set_pattern(pattern.try_into()?)
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn sequencer_set_step(
+    state: State<'_, Arc<DesktopState>>,
+    row: u8,
+    step: u8,
+    enabled: bool,
+) -> Result<PatternEditDto, ApiError> {
+    with_app(state, move |app| {
+        app.sequencer_set_step(usize::from(row), usize::from(step), enabled)
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn sequencer_set_row_slot(
+    state: State<'_, Arc<DesktopState>>,
+    row: u8,
+    slot: u8,
+) -> Result<PatternEditDto, ApiError> {
+    with_app(state, move |app| {
+        app.sequencer_set_row_slot(usize::from(row), usize::from(slot))
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn initialize_sequenced_sampler(
+    state: State<'_, Arc<DesktopState>>,
+    preparation_id: String,
+    device_id: Option<String>,
+) -> Result<ServiceSnapshotDto, ApiError> {
+    with_app(state, move |app| {
+        app.initialize_sequenced_sampler(self::preparation_id(&preparation_id)?, device_id)
+            .map(Into::into)
+    })
+    .await
 }
 
 #[tauri::command]

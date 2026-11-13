@@ -1,5 +1,19 @@
 # Implemented architecture
 
+Stage 11 now adds exact-phase engine sequencing, bounded sequenced sessions,
+application-selected patterns and a [desktop grid](sequencer-desktop.md) with
+generated DTOs, scoped IPC and observed position. Pattern selection, queue
+acceptance and applied state stay separate; React never schedules musical events.
+[Acceptance 11.3.d](sequencer-integration-acceptance.md) connects real WAV
+preparation to independent PCM/event references and application/service observations.
+[Diagnostics 11.4.a](sequencer-diagnostics.md) add explicit sequenced CLI paths,
+offline render timing/reference checks and a native runner using existing APIs.
+The dated foundation description below retains earlier delivery context.
+Stage 12 adds document asset references, bounded versioned JSON I/O with portable
+asset copies and a separate beat renderer/exporter in daw-app. The desktop/CLI
+call these control-side APIs; the live engine and audio callback ownership remain
+unchanged. See [project format and export](project-format.md).
+
 This describes the foundation, offline export, native audition, and initial
 sampler resources, raw voice kernel, WAV preparation, AudioEngine sessions and desktop controls as of
 2026-11-11. Stage 10.2 also adds validated document mixer settings and an opt-in
@@ -22,7 +36,8 @@ rules are in the [realtime contract](realtime-contract.md); the rationale is in
 
 The [offline oscillator contract](offline-oscillator.md) describes the optional
 sine module inside the engine, independent application offline coordination,
-and CLI WAV I/O. hound 3.5.1 is confined to CLI. The live service and desktop can
+and CLI sine WAV I/O. hound 3.5.1 is also pinned in daw-app for shared beat WAV
+export in stage 12, always outside processing. The live service and desktop can
 explicitly initialize the same oscillator with gain ramps; see
 [native audition](native-audition.md). The export branch runs before Application::new,
 so exporting creates no audio service thread.
@@ -39,6 +54,7 @@ flowchart TD
     CLI[daw-cli: smoke and native commands] --> App
     CLI --> Engine[daw-engine: rendering and transport]
     CLI --> Hound[hound: WAV encoding and decoding]
+    App --> Hound
     App --> Audio[daw-audio: service and backends]
     App --> Engine
     App --> Domain[daw-domain: editable Project and validated types]

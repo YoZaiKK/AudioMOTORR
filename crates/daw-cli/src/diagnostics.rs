@@ -10,6 +10,8 @@ mod mixer_bench;
 mod mixer_native;
 mod sampler;
 mod sampler_native;
+mod sequencer_bench;
+mod sequencer_native;
 
 pub fn run(command: &str, args: &[String]) -> Result<(), Box<dyn Error>> {
     if cfg!(debug_assertions) {
@@ -28,6 +30,12 @@ pub fn run(command: &str, args: &[String]) -> Result<(), Box<dyn Error>> {
     }
     if command == "mixer-native-check" {
         return mixer_native::run(args);
+    }
+    if command == "sequencer-bench" {
+        return sequencer_bench::run(args);
+    }
+    if command == "sequencer-native-check" {
+        return sequencer_native::run(args);
     }
     let (mut seconds, mut block, mut iterations, mut frequency) =
         (2u64, 127usize, 20_000usize, 440.0f64);

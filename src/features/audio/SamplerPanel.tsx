@@ -151,9 +151,22 @@ export function SamplerPanel({ session }: { session: DawSession }) {
       >
         Inicializar con mezcla
       </button>
+      <button
+        disabled={
+          disabled ||
+          !session.pattern ||
+          !session.mixerSettings ||
+          session.snapshot?.state !== "uninitialized" ||
+          prepared?.state !== "ready"
+        }
+        onClick={() => void session.initializeSequencedSampler(device || null)}
+      >
+        Inicializar secuenciador
+      </button>
       <p className="muted">
         Inicializar abre la salida con el formato exacto del banco y lo consume,
-        incluso si falla. Después pulsa Play y dispara un slot. Stop conserva el
+        incluso si falla. Después pulsa Play: el secuenciador repite el patrón;
+        los otros modos permiten disparar slots manualmente. Stop conserva el
         banco; Cerrar audio lo libera.
       </p>
       <div className="actions">
@@ -207,6 +220,12 @@ export function SamplerPanel({ session }: { session: DawSession }) {
         <p>
           Voces observadas: {sampler.activeVoices}/16 · iniciados:{" "}
           {sampler.started} · rechazados: {sampler.rejected}
+        </p>
+      )}
+      {session.snapshot?.sequencer && (
+        <p className="muted">
+          Estos contadores corresponden a disparos manuales; las notas del
+          patrón se muestran en el secuenciador.
         </p>
       )}
       {trigger && (

@@ -1,3 +1,31 @@
+.project-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  margin: 16px 0;
+}
+.project-fields label {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.project-fields input,
+.project-fields select {
+  width: 100%;
+  min-width: 0;
+}
+.project-panel {
+  overflow-wrap: anywhere;
+}
+.project-panel details {
+  margin: 16px 0;
+}
+@media (max-width: 600px) {
+  .project-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
 :root {
   font-family: Inter, "Segoe UI", system-ui, sans-serif;
   color: #e7eaf0;
@@ -237,6 +265,94 @@ label[for="sine-frequency"] {
 }
 summary {
   cursor: pointer;
+}
+.sequencer-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sequencer-title h2 {
+  margin: 8px 0 0;
+}
+.sequencer-title .actions {
+  margin: 0;
+}
+.sequencer-scroll {
+  overflow-x: auto;
+  padding: 6px 4px 12px;
+}
+.step-grid {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: separate;
+  border-spacing: 3px 8px;
+  table-layout: fixed;
+}
+.step-grid th:first-child {
+  width: 138px;
+  text-align: left;
+  padding-right: 8px;
+}
+.step-grid thead th {
+  font-size: 0.75rem;
+  color: #b4bdcb;
+}
+.step-grid select {
+  margin: 6px 0;
+  padding: 6px 4px;
+  font-size: 0.8rem;
+}
+.step-grid small {
+  font-size: 0.7rem;
+  color: #b4bdcb;
+  font-weight: 400;
+}
+.step-grid td {
+  padding: 0;
+}
+.step-grid .beat-start {
+  border-left: 2px solid #465368;
+  padding-left: 4px;
+}
+.step-grid button {
+  position: relative;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 0 12px;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.step-grid button[aria-pressed="true"] {
+  background: #86d6b3;
+  color: #101a17;
+  border-color: #86d6b3;
+}
+.step-grid button[data-applied="true"]::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  bottom: 4px;
+  left: calc(50% - 2px);
+  background: currentColor;
+}
+.step-grid button[aria-current="step"] {
+  outline: 2px solid #efcc85;
+  outline-offset: 1px;
+}
+.step-grid button:focus-visible {
+  outline: 3px solid #e7eaf0;
+  outline-offset: 3px;
+}
+.sequencer-position {
+  color: #efcc85;
+  font-variant-numeric: tabular-nums;
+}
+.step-legend {
+  font-size: 0.8rem;
 }
 @media (max-width: 760px) {
   .mixer-grid,

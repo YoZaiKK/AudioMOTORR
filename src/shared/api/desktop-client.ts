@@ -11,6 +11,11 @@ import type {
   SampleFileDto,
   MixerSettingsDto,
   MixerEditDto,
+  PatternDto,
+  PatternEditDto,
+  ProjectDocumentDto,
+  BeatExportRequestDto,
+  BeatExportDto,
 } from "./generated/api";
 
 export function apiError(error: unknown): ApiError {
@@ -34,7 +39,7 @@ async function call<T>(
   if (!isTauri())
     throw {
       code: "nativeAudioDisabled",
-      message: "Requiere Tauri para audio",
+      message: "Requiere la aplicación de escritorio",
       details: null,
     } satisfies ApiError;
   try {
@@ -47,7 +52,26 @@ export const desktopClient = {
   available: isTauri,
   appInfo: () => call<AppInfoDto>("get_app_info"),
   project: () => call<ProjectSummaryDto>("get_project_summary"),
+  document: () => call<ProjectDocumentDto>("get_project_document"),
+  saveProject: (path: string, overwrite: boolean, title: string) =>
+    call<ProjectDocumentDto>("save_project", { path, overwrite, title }),
+  openProject: (path: string) =>
+    call<ProjectDocumentDto>("open_project", { path }),
+  prepareProjectSamples: (sampleRate: number, channels: number) =>
+    call<PreparationSnapshotDto>("prepare_project_samples", {
+      sampleRate,
+      channels,
+    }),
+  exportBeat: (request: BeatExportRequestDto) =>
+    call<BeatExportDto>("export_project_beat", { request }),
   mixer: () => call<MixerSettingsDto>("get_mixer_settings"),
+  pattern: () => call<PatternDto>("get_pattern"),
+  setPattern: (pattern: PatternDto) =>
+    call<PatternEditDto>("sequencer_set_pattern", { pattern }),
+  patternStep: (row: number, step: number, enabled: boolean) =>
+    call<PatternEditDto>("sequencer_set_step", { row, step, enabled }),
+  patternRowSlot: (row: number, slot: number) =>
+    call<PatternEditDto>("sequencer_set_row_slot", { row, slot }),
   mixerChannel: (channel: number, gain: number, pan: number, muted: boolean) =>
     call<MixerEditDto>("mixer_set_channel", { channel, gain, pan, muted }),
   mixerRoute: (slot: number, channel: number) =>
@@ -85,6 +109,14 @@ export const desktopClient = {
     call<ServiceSnapshotDto>("initialize_sampler", { preparationId, deviceId }),
   initializeMixedSampler: (preparationId: string, deviceId: string | null) =>
     call<ServiceSnapshotDto>("initialize_mixed_sampler", {
+      preparationId,
+      deviceId,
+    }),
+  initializeSequencedSampler: (
+    preparationId: string,
+    deviceId: string | null,
+  ) =>
+    call<ServiceSnapshotDto>("initialize_sequenced_sampler", {
       preparationId,
       deviceId,
     }),

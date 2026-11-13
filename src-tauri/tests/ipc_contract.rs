@@ -325,6 +325,11 @@ fn app_acl_does_not_grant_commands_to_other_windows() {
         "mixer_set_channel",
         "mixer_set_route",
         "initialize_mixed_sampler",
+        "get_pattern",
+        "sequencer_set_pattern",
+        "sequencer_set_step",
+        "sequencer_set_row_slot",
+        "initialize_sequenced_sampler",
     ] {
         let result = get_ipc_response(
             &other,

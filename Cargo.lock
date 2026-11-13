@@ -573,6 +573,9 @@ dependencies = [
  "daw-audio",
  "daw-domain",
  "daw-engine",
+ "hound",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
