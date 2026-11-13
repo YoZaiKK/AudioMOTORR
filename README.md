@@ -56,9 +56,10 @@ with 42 reference combinations and current check/release/build results.
 [listening remains pending](progress/etapa-11-medicion-nativa-secuenciador.md).
 **Stage 12 is implemented locally:** [portable project files and beat WAV export](docs/project-format.md),
 with [desktop usage](howToRunThis/09-proyectos.md), CLI and real WebView2 verification.
-**Stage 12 is delivered and closed within scope:** [`6c8c52e`](https://github.com/YoZaiKK/AudioMOTORR/commit/6c8c52e820081249a62ab5b664f94853568a4af6),
+**Initial stage 12 delivery:** [`6c8c52e`](https://github.com/YoZaiKK/AudioMOTORR/commit/6c8c52e820081249a62ab5b664f94853568a4af6),
 with [both CI jobs successful](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43348424541).
-See the [closure](progress/cierre-etapa-12.md). Stage 11 listening remains pending;
+An additional [numeric JSON round-trip correction](progress/correccion-12-precision-json.md)
+is being verified before definitive closure. Stage 11 listening remains pending;
 clips/scenes are next in stage 13.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler

@@ -1,5 +1,9 @@
 # Cierre de etapa 12 — Proyectos portables y exportación
 
+**Actualización:** cierre reabierto para validar/entregar la
+[corrección de precisión JSON](correccion-12-precision-json.md). El texto y CI
+siguientes corresponden a la entrega inicial, anterior al caso nuevo.
+
 Etapa 12 completada dentro de su alcance. Implementación entregada en main:
 [`6c8c52e820081249a62ab5b664f94853568a4af6`](https://github.com/YoZaiKK/AudioMOTORR/commit/6c8c52e820081249a62ab5b664f94853568a4af6).
 Ambos jobs del SHA exacto pasaron en
@@ -34,8 +38,8 @@ La [guía de uso](../howToRunThis/09-proyectos.md) describe el flujo actual.
 
 ## Alcance conservado
 
-La etapa 11 sigue abierta únicamente respecto de la observación auditiva
-pendiente del usuario y sus límites registrados. Hay seis casos físicos y seis
+La [etapa 11 está cerrada](cierre-etapa-11.md) tras la confirmación auditiva
+«Si se escucha», con sus límites registrados. Hay seis casos físicos y seis
 reaperturas exitosos sobre las 156 fuentes medidas; sus tiempos no se atribuyen
 a las 164 fuentes nuevas. Una repetición adicional con el ejecutable optimizado
 actual no inició casos por errores locales de acceso al archivo. La incidencia

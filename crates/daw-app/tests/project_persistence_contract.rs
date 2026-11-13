@@ -296,6 +296,71 @@ fn independent_export_does_not_change_live_session_and_propagates_sink_errors() 
     app.shutdown_audio().unwrap();
 }
 #[test]
+fn arbitrary_f64_tempo_gain_and_pan_survive_json_and_file_roundtrip_exactly() {
+    use daw_domain::{MixerChannel, Project, ProjectId, Tempo};
+    let files = sample_files::SampleFiles::new();
+    let mut project = Project::new(
+        ProjectId::new(1).unwrap(),
+        "Float precision",
+        Tempo::new(91.98927504254557).unwrap(),
+    )
+    .unwrap();
+    project
+        .mixer_mut()
+        .set_channel(
+            0,
+            MixerChannel::new(0.11940403280944911, -0.9125742275711077, false).unwrap(),
+        )
+        .unwrap();
+    let path = files.0.join("precision.json");
+    let (saved, _) = daw_app::project_file::save_project(&project, None, &path, false).unwrap();
+    let reopened = read_project(&path).unwrap().0;
+    assert_eq!(
+        reopened.tempo().bpm().to_bits(),
+        saved.tempo().bpm().to_bits(),
+        "BPM changed across save/open"
+    );
+    assert_eq!(
+        reopened.mixer().channel(0).unwrap().gain().to_bits(),
+        saved.mixer().channel(0).unwrap().gain().to_bits(),
+        "gain changed across save/open"
+    );
+    assert_eq!(
+        reopened.mixer().channel(0).unwrap().pan().to_bits(),
+        saved.mixer().channel(0).unwrap().pan().to_bits(),
+        "pan changed across save/open"
+    );
+    let mut state = 0x1234_5678_abcd_ef01_u64;
+    for _ in 0..1000 {
+        state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
+        let fraction = (state >> 11) as f64 / (1_u64 << 53) as f64;
+        project.set_tempo(Tempo::new(20.0 + 280.0 * fraction).unwrap());
+        project
+            .mixer_mut()
+            .set_channel(
+                0,
+                MixerChannel::new(fraction, 2.0 * fraction - 1.0, false).unwrap(),
+            )
+            .unwrap();
+        let bytes = serde_json::to_vec(&ProjectDocument::from_project(&project)).unwrap();
+        let decoded: ProjectDocument = serde_json::from_slice(&bytes).unwrap();
+        let restored = decoded.into_project().unwrap();
+        assert_eq!(
+            restored.tempo().bpm().to_bits(),
+            project.tempo().bpm().to_bits()
+        );
+        assert_eq!(
+            restored.mixer().channel(0).unwrap().gain().to_bits(),
+            project.mixer().channel(0).unwrap().gain().to_bits()
+        );
+        assert_eq!(
+            restored.mixer().channel(0).unwrap().pan().to_bits(),
+            project.mixer().channel(0).unwrap().pan().to_bits()
+        );
+    }
+}
+
+#[test]
 fn exact_fractional_duration_empty_pattern_and_missing_used_assets_are_explicit() {
     for rate in [8000, 48000, 192000] {
         for numerator in [80_u64, 382, 509, 1200] {

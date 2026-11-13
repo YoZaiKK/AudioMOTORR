@@ -29,6 +29,14 @@ auditoría/entrega/CI 11.4.c y persistencia/exportación de etapa 12.
 
 ## Estado actual
 
+**Actualización vigente:** usuario confirmó «Si se escucha» tras la segunda
+repetición; [etapa 11 cerrada](cierre-etapa-11.md). La etapa 12 se reabrió por
+una [corrección de precisión JSON](correccion-12-precision-json.md): check,
+release (9 casos), build, sondeo de 300000 valores y flujo WebView2 correctos.
+Huella actual de 164 fuentes: `d0550238859dbe6000f1ca7e4b281322575ff3f706a79e6c65df6e8decb0e26d`.
+Falta publicar la corrección y comprobar su CI exacta. La narración siguiente
+conserva los hitos anteriores a esta actualización.
+
 Matriz nativa completada: seis casos y seis reaperturas correctos; máximo
 180200 ns, ratio 0.01802; memoria/non-finite/deadlines medidos en cero.
 [Reporte](etapa-11-medicion-nativa-secuenciador.md) y
@@ -72,6 +80,13 @@ Seguimiento documental en preparación; no cambia ninguna de las 164 fuentes.
 Escucha del usuario continúa pendiente (pregunta asíncrona enviada tras reproducción).
 
 ## Para retomar
+
+**Actualización prioritaria:** la etapa 12 se reabre para una corrección de
+precisión JSON encontrada después de publicar. Ver
+[reproducción y corrección](correccion-12-precision-json.md): parser por defecto
+cambiaba un bit de algunos f64; se activa `float_roundtrip` y se añade una
+regresión real de archivos/1000 documentos. Pendientes: verificación y nueva
+entrega/CI de esa corrección. No asumir que el cierre previo la valida.
 
 - Confirmar estado Git/CI y leer [publicación](publicacion-secuenciador-proyectos-11-12.md).
 - Si llega respuesta auditiva, registrarla para el secuenciador y cerrar etapa 11

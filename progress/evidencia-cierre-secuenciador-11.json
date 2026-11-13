@@ -1,0 +1,72 @@
+{
+  "format_version": 1,
+  "stage": "11 closure",
+  "status": "closed_within_recorded_scope",
+  "recorded_utc": "2026-11-13T02:52:39.356Z",
+  "user_observation": {
+    "quote": "Si se escucha",
+    "recorded_utc": "2026-11-13T02:44:33Z",
+    "confirms": "Audibility of the user-requested second sequencer replay",
+    "does_not_infer": [
+      "No cuts",
+      "Headphone connection detail",
+      "Acoustic continuity"
+    ]
+  },
+  "replay": {
+    "receipt": {
+      "path": "target/stage12-precision-20261112/listening-replay-2026-11-13T02-37-50-079Z.json",
+      "sha256": "8ba9713ee7e6c4af518c2ce2b5e0534f588162bc42d34a9d5efa47a7fe310d81"
+    },
+    "log": {
+      "path": "target/stage12-precision-20261112/listening-replay-2026-11-13T02-37-50-079Z.log",
+      "sha256": "7e55f13bb0815fdb53711c77306b390f08474dc667df583c0e1f351c822008c2"
+    },
+    "binary": {
+      "path": "target/stage11-4b-20261112/cli-native.exe",
+      "sha256": "cefb9e2844c8c93fb261fd5af2c9e42b538bad2a5316b395c8415c51d60f3e59"
+    },
+    "source_fingerprint_sha256": "b2cfa93451ef73188557aecee552affc79f7b5c524981303ac1007af95b676cc",
+    "source_file_count": 156,
+    "started_utc": "2026-11-13T02:37:50.079Z",
+    "finished_utc": "2026-11-13T02:37:55.233Z",
+    "exit_code": 0,
+    "device": {
+      "id": "wasapi:{0.0.0.00000000}.{7ca1b2e0-ec85-4d31-bc07-f036d5ce34a3}",
+      "name": "Speakers (2- Realtek(R) Audio)",
+      "host": "WASAPI",
+      "requested_rate": 48000,
+      "requested_channels": 2
+    }
+  },
+  "native_matrix": {
+    "manifest": {
+      "path": "progress/evidencia-nativa-secuenciador-11.4b.json",
+      "sha256": "cdd7f6d770c02721aff9bcbd83b727c1856d555763e2ff6fece27f36a0c66185"
+    },
+    "summary": {
+      "cases": 6,
+      "sessions": 12,
+      "max_processing_ns": 180200,
+      "max_load_ratio": 0.01802,
+      "allocations": 0,
+      "deallocations": 0,
+      "non_finite_samples": 0,
+      "deadline_misses": 0,
+      "scope": "Cumulative metrics per entire session including control phases; histogram percentiles are upper bounds"
+    },
+    "scope": "Six cases and six reopens on measured 156-source revision; times not assigned to later builds"
+  },
+  "delivery": {
+    "revision": "6c8c52e820081249a62ab5b664f94853568a4af6",
+    "ci": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43348424541",
+    "jobs": ["headless-linux: success", "desktop-windows: success"]
+  },
+  "limits": [
+    "No acoustic loopback",
+    "No physical unplug",
+    "No prolonged stress or other native platforms/devices",
+    "Extra current optimized native rerun did not start because of EPERM"
+  ],
+  "subsequent": "Stage12 JSON precision correction is separately validated/delivered; engine/audio-service processing unchanged"
+}
