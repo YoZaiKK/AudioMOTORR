@@ -66,7 +66,8 @@ cerrada la etapa. Este plan no ejecuta commit, push ni publicación.
 **11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
 **11.4.b medida:** [seis casos físicos y reaperturas](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
 **Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
-En curso: auditoría/entrega/CI y cierre; [continuidad](ejecucion-11.4b-12.md).
+[12 cerrada](cierre-etapa-12.md), entrega `6c8c52e` y CI Linux/Windows correcta.
+Escucha de 11 pendiente; siguiente producto 13.1. [Continuidad](ejecucion-11.4b-12.md).
 
 El modelo 11.1 y el planificador con offsets de bloque 11.2 están implementados.
 11.3.a ya conecta sesiones, FIFO y estado observado; 11.3.b coordina el documento
@@ -174,8 +175,8 @@ El cierre 11.4 se ejecutará en este orden:
 
 **Hito de producto:** sesión musical recuperable y beat exportable.
 12.1–12.3 y el flujo local de 12.4 ya están implementados y probados; ver
-[reporte](etapa-12-persistencia-exportacion.md). Entrega/CI y cierre auditivo de
-etapa 11 se registran en [continuidad](ejecucion-11.4b-12.md).
+[reporte](etapa-12-persistencia-exportacion.md). Entrega/CI correctas y etapa 12
+cerrada; cierre auditivo de 11 pendiente. [Continuidad](ejecucion-11.4b-12.md).
 
 ## Etapa 13 — Clips y escenas
 

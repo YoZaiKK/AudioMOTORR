@@ -43,14 +43,17 @@ explicit native runner, deterministic fixtures and a physical verification proto
 listening and exact delivery/CI closure remain pending.
 [Stage 12 is implemented locally](project-format.md): portable JSON projects,
 explicit saved-asset preparation, exact beat/tail render and desktop/CLI WAV export.
-Delivery verification is in progress; clips/scenes remain stage 13.
+[Stage 12 is delivered and closed within scope](../progress/cierre-etapa-12.md)
+in `6c8c52e`, with both hosted jobs verified. Stage 11 listening remains pending;
+clips/scenes remain stage 13.
 Historical delivery detail: 9.1–9.2 are complete and published; 9.2 implementation
 7acc1db passed both hosted jobs in
 [run 42530699397](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/42530699397).
 This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests.
 Native sessions and desktop integration are implemented through 9.4.c, with
 physical processing measurements and user-confirmed audibility recorded at closure.
-Sequencer listening/delivery closure in 11.4.b–c, stage 12 delivery and stage 13 remain open.
+Sequencer listening closure and stage 13 remain open; delivery/CI of 11.4.c and
+stage 12 are recorded in the closure/publication reports.
 See the [current kernel report](../progress/etapa-9-voces.md) and
 [resource report](../progress/etapa-9-sampler.md).
 9.3.a now specifies the [loading contract](sample-loading-contract.md), including

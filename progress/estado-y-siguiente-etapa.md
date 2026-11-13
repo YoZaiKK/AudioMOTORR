@@ -19,7 +19,9 @@ y [evidencia](evidencia-diagnosticos-secuenciador-11.4a.json).
 **11.4.b medida:** [seis casos físicos y reaperturas](etapa-11-medicion-nativa-secuenciador.md),
 con escucha aún pendiente. **Etapa 12 implementada localmente:**
 [persistencia/exportación](etapa-12-persistencia-exportacion.md).
-En curso: verificación final, auditoría/entrega/CI 11.4.c y 12.4.
+Entrega `6c8c52e` y CI Linux/Windows correctas: 11.4.c completada y
+[etapa 12 cerrada dentro de su alcance](cierre-etapa-12.md).
+Pendiente: escucha de 11; siguiente producto: clips/escenas 13.1.
 La [continuidad de esta ejecución](ejecucion-11.4b-12.md) registra tareas y resultados.
 
 **Núcleo de mezcla 10.2 implementado localmente**, con
@@ -202,4 +204,4 @@ y 9.5.c cierre/CI. Etapa 9 completada dentro de su alcance; mezcla cerrada con
 mediciones, escucha confirmada y CI. 11.1–11.2 en `1effd48`, 11.3.a implementado
 en `2d4cc28`; 11.3.b/c implementados, 11.3.d aceptada y diagnósticos 11.4.a
 verificados localmente. Matriz física 11.4.b medida, escucha pendiente; etapa 12
-implementada localmente, con verificación/entrega/CI en curso.
+entregada en `6c8c52e`, con verificación/CI correctas y cierre registrado.

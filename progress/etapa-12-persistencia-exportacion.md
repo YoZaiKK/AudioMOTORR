@@ -1,5 +1,9 @@
 # Etapa 12 — Persistencia y exportación del beat
 
+**Entregada y cerrada dentro de su alcance:** `6c8c52e`, con CI Linux/Windows
+correcta. [Cierre](cierre-etapa-12.md) y [publicación](publicacion-secuenciador-proyectos-11-12.md).
+La captura local siguiente conserva su contexto anterior a la publicación.
+
 Implementación local sobre `2d4cc28` y las entregas locales del secuenciador.
 Forma parte de la [ejecución autorizada 11.4.b–12](ejecucion-11.4b-12.md).
 El cierre de escucha de etapa 11 se conserva pendiente hasta la respuesta del
@@ -74,12 +78,13 @@ fuentes verificadas; no hubo cambios de producción después de capturarlas.
 Comandos, resultados y hashes se consolidan en
 [evidencia](evidencia-persistencia-exportacion-12.json). Logs/binarios/demos
 locales: `target/stage12-20261112/`. Se repitió el check después de ajustar la
-presentación de rutas Windows y conservación de formularios. CI pendiente.
+presentación de rutas Windows y conservación de formularios. La CI de entrega
+posterior está registrada en el cierre y el manifiesto de publicación.
 
 ## Cierre y límites
 
-Pendientes de esta ejecución: entrega/CI del SHA exacto;
-escucha de etapa 11 sigue siendo una observación externa pendiente. Se conservan
+Entrega/CI del SHA exacto completadas; escucha de etapa 11 sigue siendo una
+observación externa pendiente. Se conservan
 manifiestos anteriores con su estado histórico. La revisión de estado y los
 enlaces de publicación se actualizarán al terminar esos pasos.
 

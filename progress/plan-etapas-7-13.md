@@ -32,7 +32,8 @@ audibilidad confirmada por el usuario tras repetición con audífonos.
 **11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
 **11.4.b medida:** [matriz física](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
 **Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
-En curso: entrega/CI y cierre; ver [continuidad](ejecucion-11.4b-12.md).
+[12 cerrada](cierre-etapa-12.md) con entrega/CI de `6c8c52e`; escucha de 11
+pendiente. Siguiente producto: 13.1. Ver [continuidad](ejecucion-11.4b-12.md).
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -201,10 +202,12 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Continuar con **verificación final, entrega/CI y cierre**. Los seis casos físicos
+Verificación final, entrega/CI y cierre de 12 completados. Siguiente producto:
+**13.1, contrato de clips/escenas**. Los seis casos físicos
 y reaperturas ya pasaron con 156 fuentes; la escucha sigue pendiente. La etapa
 12 está implementada y el flujo real WebView2 está verificado; se está consolidando
-la evidencia de 164 fuentes y la CI de la revisión entregada.
+la evidencia de 164 fuentes y la CI de la revisión entregada en el
+[cierre](cierre-etapa-12.md).
 11.4.a ya aporta [diagnósticos explícitos, 72 mediciones offline y protocolo](etapa-11-diagnosticos-secuenciador.md).
 11.3.d ya acepta localmente [beat de referencia, lifecycle e integración](cierre-integracion-secuenciador-11.3d.md).
 Seguirán medición/escucha física en 11.4.b y auditoría/entrega/CI en 11.4.c.

@@ -44,11 +44,12 @@ y [entrega preparada](entrega-mezclador-etapa-10.md).
 **11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
 **11.4.b medida:** [matriz física](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
 **Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
-Trabajo activo: verificación final, entrega/CI y cierre; [continuidad detallada](ejecucion-11.4b-12.md).
+Entrega/CI `6c8c52e` correctas y [12 cerrada](cierre-etapa-12.md); escucha de 11
+pendiente. Siguiente producto 13.1; [continuidad detallada](ejecucion-11.4b-12.md).
 Ver [plan de ejecución](plan-siguientes-pasos.md) y [plan general](plan-etapas-7-13.md).
 La implementación de etapa 10 está publicada y tiene CI propia; 11.1–11.2 están
-en el commit `1effd48`. 11.3.a está entregado en `2d4cc28`; 11.3.b/c/d, 11.4 y etapa 12 son cambios
-locales sin commit/push. Los manifiestos anteriores
+en el commit `1effd48`. 11.3.a está entregado en `2d4cc28`; 11.3.b/c/d, 11.4 y etapa 12
+están publicados en `6c8c52e`, con CI Linux/Windows correcta. Los manifiestos anteriores
 conservan su estado local al capturarse.
 Los hashes de etapa 9 no se atribuyen a las modificaciones del mezclador 10.2.
 Los reportes anteriores conservan sus resultados y estado de publicación fechados.
@@ -69,7 +70,9 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-Continuar con **verificación final, auditoría/publicación y CI de 11/12**.
+La verificación final, auditoría/publicación y CI de 11/12 están completadas.
+**Siguiente producto: 13.1, contrato de clips/escenas.** Antes de cerrar toda la
+etapa 11 falta registrar la respuesta de escucha del usuario.
 La matriz física de 156 fuentes ya pasó seis casos/reaperturas; falta escucha
 del usuario. Etapa 12 está implementada con 164 fuentes, 63 casos frontend,
 persistencia/exportación y flujo WebView2 real. Una repetición nativa adicional
@@ -86,7 +89,7 @@ vaciado atómico e inicialización secuenciada. Frames/IDs/fase `u128` cruzan co
 strings; snapshots/recibos se ordenan con BigInt y la UI no programa notas.
 La referencia cubre WAV → preparación → aplicación/sesión y eventos/PCM; las suites
 de transporte, ediciones, pérdida/orden, errores y reapertura pasan con el check
-actual. Siguen escucha 11.4.b y auditoría/entrega/CI 11.4.c y 12.4.
+actual. Sigue escucha 11.4.b; auditoría/entrega/CI 11.4.c y 12.4 completadas.
 Mantener preparación/cancelación/reapertura, IDs y observaciones perdidas coherentes.
 11.2 aporta `with_sequenced_sampler`, controles directos y `sequencer_snapshot`:
 [reporte](etapa-11-planificador.md) y [evidencia](evidencia-planificador-11.2.json).

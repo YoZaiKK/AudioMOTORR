@@ -62,8 +62,24 @@ Se conserva la matriz física anterior, vinculada exactamente a sus 156 fuentes;
 no se atribuye a las 164 nuevas. Procesamiento engine/audio sin cambios.
 
 Check completo final correcto, 01:40:52–01:44:08 UTC, con 63 casos frontend y
-10 IPC entre sus suites; source/RT/Clippy correctos. Pendientes: manifiesto 12,
-auditoría/publicación/CI. Escucha del usuario continúa pendiente.
+10 IPC entre sus suites; source/RT/Clippy correctos. Manifiesto 12 y auditoría
+local completados; implementación publicada en `6c8c52e` (82 archivos revisados).
+[Publicación](publicacion-secuenciador-proyectos-11-12.md). CI exacta correcta: run
+[43348424541](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43348424541):
+`headless-linux` y `desktop-windows` completados con `success` para `6c8c52e`.
+[Etapa 12 cerrada](cierre-etapa-12.md) dentro de su alcance y 11.4.c auditada/entregada.
+Seguimiento documental en preparación; no cambia ninguna de las 164 fuentes.
+Escucha del usuario continúa pendiente (pregunta asíncrona enviada tras reproducción).
+
+## Para retomar
+
+- Confirmar estado Git/CI y leer [publicación](publicacion-secuenciador-proyectos-11-12.md).
+- Si llega respuesta auditiva, registrarla para el secuenciador y cerrar etapa 11
+  dentro de sus límites; no trasladar confirmaciones antiguas a esta sesión.
+- Etapa 12 ya implementada, verificada y entregada. No repetir pruebas correctas
+  salvo cambios/fallos nuevos. Siguiente producto: 13.1 contrato de clips/escenas.
+- Conservar la incidencia EPERM del ejecutable nativo actual como limitación;
+  no convertir el intento no iniciado en una medición ni alterar protección local.
 
 Este archivo se actualizará en cada hito con resultados, cambios, comandos y
 tareas pendientes. Los manifiestos anteriores conservan sus capturas históricas.

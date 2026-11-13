@@ -35,7 +35,9 @@ Git se comprueban rama/base, índice vacío, alcance de archivos, manifiesto,
 fuentes, logs y referencias locales. La publicación solo acepta avance normal
 del main esperado; no usa reset ni force push.
 
-Después del commit/push se verificará main remoto y los jobs `headless-linux`
-y `desktop-windows` para ese SHA exacto. Código y documentación posterior se
+Después del commit/push se verificaron main remoto y los jobs `headless-linux`
+y `desktop-windows` de `6c8c52e`: ambos `success` en
+[run 43348424541](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43348424541).
+Código y documentación posterior se
 identificarán por separado. La etapa 11 conserva la escucha pendiente; una CI
-verde no la sustituye. La etapa 12 se cerrará con la evidencia/CI correspondientes.
+verde no la sustituye. La etapa 12 está [cerrada dentro de su alcance](cierre-etapa-12.md).
