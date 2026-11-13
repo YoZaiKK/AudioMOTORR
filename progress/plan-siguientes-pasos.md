@@ -1,5 +1,11 @@
 # Plan de ejecución — Cierre del sampler y etapas 10–13
 
+**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
+[corrección de precisión JSON](correccion-12-precision-json.md) verificada en
+check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
+[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+
 Fecha: 2026-11-11. Base local revisada: `4dc2c6c2e0882b8f131b68088feffa8def84ba83`.
 Al revisar, el árbol estaba limpio y `main` coincidía con la referencia local
 `origin/main`. La planificación inicial no consultó el remoto ni su CI.
@@ -64,16 +70,17 @@ cerrada la etapa. Este plan no ejecuta commit, push ni publicación.
 **11.3.c implementado localmente:** [desktop](etapa-11-desktop-secuenciador.md).
 **11.3.d aceptada localmente:** [beat de referencia e integración](cierre-integracion-secuenciador-11.3d.md).
 **11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
-**11.4.b medida:** [seis casos físicos y reaperturas](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
+**11.4.b medida:** [seis casos físicos y reaperturas](etapa-11-medicion-nativa-secuenciador.md), escucha confirmada; [cierre](cierre-etapa-11.md).
 **Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
 [12 cerrada](cierre-etapa-12.md), entrega `6c8c52e` y CI Linux/Windows correcta.
-Escucha de 11 pendiente; siguiente producto 13.1. [Continuidad](ejecucion-11.4b-12.md).
+Escucha de 11 confirmada; siguiente producto 13.1. [Continuidad](ejecucion-11.4b-12.md).
 
 El modelo 11.1 y el planificador con offsets de bloque 11.2 están implementados.
 11.3.a ya conecta sesiones, FIFO y estado observado; 11.3.b coordina el documento
 y la instalación; 11.3.c expone IPC/cuadrícula. 11.3.d completa la aceptación
-local con WAV reales y referencias independientes. Sigue cierre nativo/entrega 11.4.
-La etapa 11 completa sigue abierta.
+local con WAV reales y referencias independientes. Cierre nativo/entrega 11.4 completado;
+ver cierre-etapa-11.md.
+La [etapa 11 está cerrada](cierre-etapa-11.md) dentro de su alcance.
 
 ## Etapa 10 — Mezclador de cuatro canales
 
@@ -176,7 +183,7 @@ El cierre 11.4 se ejecutará en este orden:
 **Hito de producto:** sesión musical recuperable y beat exportable.
 12.1–12.3 y el flujo local de 12.4 ya están implementados y probados; ver
 [reporte](etapa-12-persistencia-exportacion.md). Entrega/CI correctas y etapa 12
-cerrada; cierre auditivo de 11 pendiente. [Continuidad](ejecucion-11.4b-12.md).
+entregada inicialmente; escucha de 11 confirmada. La corrección JSON tiene seguimiento propio. [Continuidad](ejecucion-11.4b-12.md).
 
 ## Etapa 13 — Clips y escenas
 

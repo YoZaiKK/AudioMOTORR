@@ -34,7 +34,7 @@ repetición; [etapa 11 cerrada](cierre-etapa-11.md). La etapa 12 se reabrió por
 una [corrección de precisión JSON](correccion-12-precision-json.md): check,
 release (9 casos), build, sondeo de 300000 valores y flujo WebView2 correctos.
 Huella actual de 164 fuentes: `d0550238859dbe6000f1ca7e4b281322575ff3f706a79e6c65df6e8decb0e26d`.
-Falta publicar la corrección y comprobar su CI exacta. La narración siguiente
+Corrección publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance. La narración siguiente
 conserva los hitos anteriores a esta actualización.
 
 Matriz nativa completada: seis casos y seis reaperturas correctos; máximo
@@ -81,20 +81,15 @@ Escucha del usuario continúa pendiente (pregunta asíncrona enviada tras reprod
 
 ## Para retomar
 
-**Actualización prioritaria:** la etapa 12 se reabre para una corrección de
-precisión JSON encontrada después de publicar. Ver
-[reproducción y corrección](correccion-12-precision-json.md): parser por defecto
-cambiaba un bit de algunos f64; se activa `float_roundtrip` y se añade una
-regresión real de archivos/1000 documentos. Pendientes: verificación y nueva
-entrega/CI de esa corrección. No asumir que el cierre previo la valida.
-
-- Confirmar estado Git/CI y leer [publicación](publicacion-secuenciador-proyectos-11-12.md).
-- Si llega respuesta auditiva, registrarla para el secuenciador y cerrar etapa 11
-  dentro de sus límites; no trasladar confirmaciones antiguas a esta sesión.
-- Etapa 12 ya implementada, verificada y entregada. No repetir pruebas correctas
-  salvo cambios/fallos nuevos. Siguiente producto: 13.1 contrato de clips/escenas.
-- Conservar la incidencia EPERM del ejecutable nativo actual como limitación;
-  no convertir el intento no iniciado en una medición ni alterar protección local.
+Etapa 11 cerrada tras «Si se escucha», registrado el 2026-11-13 02:44:33 UTC.
+Corrección JSON publicada en `4f126dc`: check, release (9 casos), build,
+sondeo de 300000 valores (cero diferencias) y flujo real WebView2 correctos.
+Huella actual de 164 fuentes: `d0550238859dbe6000f1ca7e4b281322575ff3f706a79e6c65df6e8decb0e26d`.
+Linux/Windows del SHA exacto correctas en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622).
+[Etapa 12 cerrada](cierre-etapa-12.md), con [evidencia de entrega](evidencia-publicacion-precision-12.json).
+No repetir comprobaciones correctas salvo cambios/fallos nuevos.
+Siguiente producto: **13.1, contrato de clips/escenas**.
+Conservar la incidencia EPERM como límite del intento nativo no iniciado.
 
 Este archivo se actualizará en cada hito con resultados, cambios, comandos y
 tareas pendientes. Los manifiestos anteriores conservan sus capturas históricas.

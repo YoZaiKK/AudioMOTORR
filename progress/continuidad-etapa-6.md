@@ -1,5 +1,11 @@
 # Continuidad del proyecto
 
+**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
+[corrección de precisión JSON](correccion-12-precision-json.md) verificada en
+check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
+[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+
 Actualizado el 2026-11-12. **Etapas 1–10 completadas dentro de su alcance**.
 El [cierre del sampler](cierre-etapa-9.md) reúne preparación WAV, motor/servicio,
 aplicación/IPC/UI y diagnósticos. La implementación está publicada en `4dc2c6c`,
@@ -42,10 +48,10 @@ y [entrega preparada](entrega-mezclador-etapa-10.md).
 **11.3.c implementado localmente:** [desktop](etapa-11-desktop-secuenciador.md).
 **11.3.d aceptada localmente:** [referencia e integración](cierre-integracion-secuenciador-11.3d.md).
 **11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
-**11.4.b medida:** [matriz física](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
+**11.4.b medida:** [matriz física](etapa-11-medicion-nativa-secuenciador.md), escucha confirmada; [cierre](cierre-etapa-11.md).
 **Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
 Entrega/CI `6c8c52e` correctas y [12 cerrada](cierre-etapa-12.md); escucha de 11
-pendiente. Siguiente producto 13.1; [continuidad detallada](ejecucion-11.4b-12.md).
+confirmada. Siguiente producto 13.1; [continuidad detallada](ejecucion-11.4b-12.md).
 Ver [plan de ejecución](plan-siguientes-pasos.md) y [plan general](plan-etapas-7-13.md).
 La implementación de etapa 10 está publicada y tiene CI propia; 11.1–11.2 están
 en el commit `1effd48`. 11.3.a está entregado en `2d4cc28`; 11.3.b/c/d, 11.4 y etapa 12
@@ -70,14 +76,12 @@ de cada etapa como evidencia histórica.
 
 ## Próximo cambio concreto
 
-La verificación final, auditoría/publicación y CI de 11/12 están completadas.
-**Siguiente producto: 13.1, contrato de clips/escenas.** Antes de cerrar toda la
-etapa 11 falta registrar la respuesta de escucha del usuario.
-La matriz física de 156 fuentes ya pasó seis casos/reaperturas; falta escucha
-del usuario. Etapa 12 está implementada con 164 fuentes, 63 casos frontend,
-persistencia/exportación y flujo WebView2 real. Una repetición nativa adicional
-de la revisión nueva no inició casos por EPERM; conservar esa limitación y la
-evidencia anterior por separado. Ver [continuidad detallada](ejecucion-11.4b-12.md).
+Etapa 11 cerrada con seis casos/seis reaperturas y escucha confirmada.
+La corrección de precisión de etapa 12 está publicada en `4f126dc`, con
+check, release, build y flujo real WebView2 correctos; CI Linux/Windows correcta.
+Una repetición nativa adicional no inició casos por EPERM; conservar la matriz
+medida de 156 fuentes por separado. Ver [continuidad](ejecucion-11.4b-12.md).
+Siguiente producto: **13.1, contrato de clips/escenas**.
 11.4.a ya verifica 72 mediciones offline y aporta los comandos `sequencer-bench`
 y `sequencer-native-check`, este último probado con backend manual; también el
 generador `scripts/sequencer-fixtures.mjs` con creación exclusiva y hashes.

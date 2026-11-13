@@ -20,10 +20,20 @@ confirmó `6c8c52e` después de publicar. Se comprobó equivalencia de las 164
 fuentes: 160 idénticas y cuatro con diferencias solo de finales de línea.
 El [manifiesto de implementación](evidencia-persistencia-exportacion-12.json)
 conserva su estado anterior a publicar. Este reporte registra la evolución posterior.
-La escucha del usuario sigue pendiente; publicar o aprobar CI no la sustituye.
+En esta captura inicial la escucha estaba pendiente. Después, el usuario confirmó
+«Si se escucha»; ver [cierre de 11](cierre-etapa-11.md).
 
 [Evidencia de entrega](evidencia-publicacion-11-12.json) y
 [cierre de etapa 12](cierre-etapa-12.md). La auditoría/publicación/CI de 11.4.c
-está completada; etapa 11 conserva su criterio auditivo pendiente. El seguimiento
+está completada; etapa 11 quedó cerrada tras la confirmación posterior. El seguimiento
 solo documental posterior identifica esta implementación por su SHA, sin atribuir
 sus resultados a código diferente.
+
+## Corrección posterior de precisión
+
+La revisión [`4f126dc`](https://github.com/YoZaiKK/AudioMOTORR/commit/4f126dc0d8c56b17c77160b4da93a4d251bcb0e4)
+activa float_roundtrip y añade la regresión de persistencia exacta.
+[Verificación local](correccion-12-precision-json.md): check/release/build y
+flujo real WebView2 correctos. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
+[Evidencia de corrección y entrega](evidencia-publicacion-precision-12.json).
+La CI inicial de `6c8c52e` conserva su alcance histórico.

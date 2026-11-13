@@ -1,5 +1,11 @@
 # Etapa 12 — Persistencia y exportación del beat
 
+**Actualización de cierre:** entrega inicial `6c8c52e`; precisión JSON
+corregida en `4f126dc`, con check completo, release (9 casos), build,
+WebView2 y CI Linux/Windows correctos. [Cierre definitivo](cierre-etapa-12.md)
+y [corrección](correccion-12-precision-json.md). Las cifras/huellas de la
+entrega inicial siguientes se conservan como historial fechado.
+
 **Entregada y cerrada dentro de su alcance:** `6c8c52e`, con CI Linux/Windows
 correcta. [Cierre](cierre-etapa-12.md) y [publicación](publicacion-secuenciador-proyectos-11-12.md).
 La captura local siguiente conserva su contexto anterior a la publicación.

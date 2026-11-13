@@ -1,5 +1,11 @@
 # Etapas de implementación
 
+**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
+[corrección de precisión JSON](correccion-12-precision-json.md) verificada en
+check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
+[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
 
@@ -11,9 +17,9 @@ y [planificador](etapa-11-planificador.md). 11.3.a implementado localmente:
 [desktop](etapa-11-desktop-secuenciador.md). 11.3.d aceptada localmente:
 [referencia e integración](cierre-integracion-secuenciador-11.3d.md).
 11.4.a implementada localmente: [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
-11.4.b: matriz física medida, escucha pendiente. Etapa 12 implementada localmente:
+11.4.b: matriz física medida, escucha confirmada; [cierre](cierre-etapa-11.md). Etapa 12 implementada localmente:
 [persistencia/exportación](etapa-12-persistencia-exportacion.md). Entrega/CI correctas;
-siguen clips/escenas 13, conservando el cierre auditivo de 11 pendiente.
+siguen clips/escenas 13; etapa 11 cerrada tras la repetición confirmada.
 Actualización de entrega: [12 cerrada](cierre-etapa-12.md), implementación `6c8c52e`
 y CI Linux/Windows correcta; [publicación](publicacion-secuenciador-proyectos-11-12.md).
 ver [cierre del sampler](cierre-etapa-9.md). Etapa 8 publicada en 1e6bca8,
@@ -239,8 +245,8 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 11.3.d: beat WAV de referencia, auditoría de servicio/aplicación/IPC/UI y check/release/build.
 - [x] 11.4.a: diagnósticos explícitos, 72 mediciones offline, lifecycle manual y generador/protocolo nativo.
 - [x] 11.4.b: seis casos físicos y seis reaperturas Realtek/WASAPI, con controles y métricas.
-- [ ] 11.4.b: confirmación auditiva del usuario sobre el secuenciador.
-- [x] 11.4.c: auditoría, entrega `6c8c52e` y CI Linux/Windows de esa revisión; escucha aún pendiente.
+- [x] 11.4.b: usuario confirmó «Si se escucha» tras la segunda repetición; cierre-etapa-11.md.
+- [x] 11.4.c: auditoría, entrega `6c8c52e` y CI Linux/Windows de esa revisión; escucha confirmada en cierre-etapa-11.md.
 
 ## Etapa 12 — Persistencia y exportación de beat
 
@@ -249,6 +255,9 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 12.3: exportar beat completo con duración exacta y colas cut/finish, usando el mismo motor.
 - [x] 12.4: flujo aplicación/CLI/IPC/UI y verificación real WebView2 de guardar/abrir/exportar.
 - [x] 12.4: evidencia/verificación final, entrega `6c8c52e` y CI Linux/Windows correcta.
+
+- [x] Corrección JSON: conservar bits de BPM/gain/pan, archivo real y 1000 documentos; check/release/build/WebView2 correctos.
+- [x] CI Linux/Windows exacta de `4f126dc` correcta; cierre definitivo de 12 y evidencia-publicacion-precision-12.json.
 
 ## Etapa 13 — Clips y escenas
 

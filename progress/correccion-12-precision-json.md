@@ -18,8 +18,8 @@ migración implícita ni redondeo a BPM/gains simplificados.
 
 Regresión permanente: `arbitrary_f64_tempo_gain_and_pan_survive_json_and_file_roundtrip_exactly`
 en `project_persistence_contract.rs`, con archivo real y 1000 documentos
-deterministas que contrastan bits de BPM/gain/pan. La etapa 12 se reabre para
-validar y entregar esta corrección; el cierre anterior queda fechado.
+deterministas que contrastan bits de BPM/gain/pan. La etapa 12 se reabrió para
+validar y entregar esta corrección; el cierre inicial conserva su fecha.
 
 Verificación local completada: `npm run check` (63 frontend y 10 IPC entre
 sus suites), release de proyectos (7 app + 2 CLI), build desktop y sondeo de
@@ -30,6 +30,7 @@ sin inicializar audio. La regresión recorre además 1000 documentos.
 
 Huella de 164 fuentes: `d0550238859dbe6000f1ca7e4b281322575ff3f706a79e6c65df6e8decb0e26d`.
 [Evidencia](evidencia-precision-json-12.json), con checks y artefactos en
-`target/stage12-precision-20261112`. Pendiente: publicar y verificar CI del SHA
-exacto de esta corrección. La [etapa 11 está cerrada](cierre-etapa-11.md) tras
+`target/stage12-precision-20261112`. Corrección publicada en `4f126dc`.
+CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
+[Evidencia de entrega](evidencia-publicacion-precision-12.json). La [etapa 11 está cerrada](cierre-etapa-11.md) tras
 «Si se escucha». La incidencia EPERM anterior conserva su alcance registrado.

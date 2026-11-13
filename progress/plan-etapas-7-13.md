@@ -1,5 +1,11 @@
 # Plan de progreso — Etapas 7 a 13
 
+**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
+[corrección de precisión JSON](correccion-12-precision-json.md) verificada en
+check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
+[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+
 Actualizado: 2026-11-12. Etapa 7 completada, publicada en c6cf627 y verificada
 en Linux headless/Windows desktop por CI. **Etapa 8 completada**, publicada en
 1e6bca8 con CI correcta en run 42524752652: señal nativa explícita, rampas y
@@ -30,10 +36,10 @@ audibilidad confirmada por el usuario tras repetición con audífonos.
 **11.3.c implementado localmente:** [desktop](etapa-11-desktop-secuenciador.md).
 **11.3.d aceptada localmente:** [beat de referencia e integración](cierre-integracion-secuenciador-11.3d.md).
 **11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md).
-**11.4.b medida:** [matriz física](etapa-11-medicion-nativa-secuenciador.md), escucha pendiente.
+**11.4.b medida:** [matriz física](etapa-11-medicion-nativa-secuenciador.md), escucha confirmada; [cierre](cierre-etapa-11.md).
 **Etapa 12 implementada localmente:** [persistencia/exportación](etapa-12-persistencia-exportacion.md).
 [12 cerrada](cierre-etapa-12.md) con entrega/CI de `6c8c52e`; escucha de 11
-pendiente. Siguiente producto: 13.1. Ver [continuidad](ejecucion-11.4b-12.md).
+confirmada. Siguiente producto: 13.1. Ver [continuidad](ejecucion-11.4b-12.md).
 9.3.a está completada como [contrato de carga](../docs/sample-loading-contract.md),
 9.3.b implementa lector/decoder de recursos individuales y 9.3.c añade
 coordinación de banco/permisos/presupuesto agregado. 9.3.d verifica fallos,
@@ -75,8 +81,8 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 | 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                                                                                                                                                                 |
 | 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Completada: implementación, mediciones, CI y escucha registrada.                                                                                                                                  |
 | 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Núcleo/servicio/aplicación/desktop hasta 10.3.d aceptados localmente; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; CI y escucha confirmadas; etapa 10 cerrada dentro de su alcance. |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Pendiente.                                                                                                                                                                                        |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Pendiente.                                                                                                                                                                                        |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Cerrada dentro de su alcance; evidencia y CI registradas.                                                                                                                                         |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Cerrada dentro de su alcance; evidencia y CI registradas.                                                                                                                                         |
 | 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | Pendiente.                                                                                                                                                                                        |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
@@ -202,24 +208,9 @@ hosting VST/CLAP, routing complejo, compensación de latencia ni colaboración.
 
 ## Siguiente acción concreta
 
-Verificación final, entrega/CI y cierre de 12 completados. Siguiente producto:
-**13.1, contrato de clips/escenas**. Los seis casos físicos
-y reaperturas ya pasaron con 156 fuentes; la escucha sigue pendiente. La etapa
-12 está implementada y el flujo real WebView2 está verificado; se está consolidando
-la evidencia de 164 fuentes y la CI de la revisión entregada en el
-[cierre](cierre-etapa-12.md).
-11.4.a ya aporta [diagnósticos explícitos, 72 mediciones offline y protocolo](etapa-11-diagnosticos-secuenciador.md).
-11.3.d ya acepta localmente [beat de referencia, lifecycle e integración](cierre-integracion-secuenciador-11.3d.md).
-Seguirán medición/escucha física en 11.4.b y auditoría/entrega/CI en 11.4.c.
-11.3.c ya expone [DTOs/IPC/ACL y cuadrícula](etapa-11-desktop-secuenciador.md).
-11.3.b coordina [documento y sesiones preparadas](etapa-11-aplicacion-secuenciador.md).
-11.3.a ya aporta [sesiones, FIFO y observaciones](etapa-11-sesiones-secuenciador.md).
-11.1 ya aporta [contrato y modelo](etapa-11-modelo-patron.md) de cuatro filas ×
-16 pasos; 11.2 aporta [planificador y reproducción mezclada](etapa-11-planificador.md),
-con referencias de eventos/PCM y memoria. Conservar selección/aceptación/aplicación
-diferenciadas y un playhead observado por el motor, sin temporizador musical de UI.
-[Etapa 10 cerrada](cierre-etapa-10.md); persistencia/exportación de beat y clips
-siguen en 12–13.
+Etapa 11 cerrada tras la confirmación de escucha. La corrección JSON de 12
+está publicada en `4f126dc`, con verificación local completa y CI Linux/Windows correcta; ver [corrección](correccion-12-precision-json.md) y
+[continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
 
 ## Etapa 9 — Desglose y aceptación (historial previo al cierre)
 

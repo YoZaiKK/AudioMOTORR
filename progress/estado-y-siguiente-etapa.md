@@ -1,5 +1,11 @@
 # Estado verificado, objetivos y siguiente etapa
 
+**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
+[corrección de precisión JSON](correccion-12-precision-json.md) verificada en
+check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
+[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+
 Revisión: 2026-11-12. **11.1 implementado localmente:**
 [contrato y modelo del patrón](etapa-11-modelo-patron.md), con
 [evidencia propia](evidencia-modelo-patron-11.1.json). **11.2 implementado localmente:**
@@ -17,11 +23,11 @@ y [evidencia](evidencia-integracion-secuenciador-11.3d.json).
 **11.4.a implementada localmente:** [diagnósticos y protocolo](etapa-11-diagnosticos-secuenciador.md)
 y [evidencia](evidencia-diagnosticos-secuenciador-11.4a.json).
 **11.4.b medida:** [seis casos físicos y reaperturas](etapa-11-medicion-nativa-secuenciador.md),
-con escucha aún pendiente. **Etapa 12 implementada localmente:**
+con escucha confirmada; [cierre de 11](cierre-etapa-11.md). **Etapa 12 implementada localmente:**
 [persistencia/exportación](etapa-12-persistencia-exportacion.md).
 Entrega `6c8c52e` y CI Linux/Windows correctas: 11.4.c completada y
 [etapa 12 cerrada dentro de su alcance](cierre-etapa-12.md).
-Pendiente: escucha de 11; siguiente producto: clips/escenas 13.1.
+Escucha de 11 confirmada; siguiente producto: clips/escenas 13.1.
 La [continuidad de esta ejecución](ejecucion-11.4b-12.md) registra tareas y resultados.
 
 **Núcleo de mezcla 10.2 implementado localmente**, con
@@ -55,22 +61,21 @@ los hitos se conserva en el [documento inicial](rust-daw-bootstrap-prompt.md).
 
 ## Objetivos y estado real
 
-| Objetivo                               | Qué está hecho                                                                                                   | Qué falta                                                                                                                           |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Fundamento de escritorio/audio         | Etapas 1–6: workspace, motor separado, backend manual/CPAL, aplicación, IPC/DTO, UI, cierre, documentación y CI. | Validaciones físicas/plataformas adicionales, registradas como límites.                                                             |
-| Generar una señal verificable          | Etapas 7–8: senoide offline/WAV, salida nativa explícita, volumen y rampas.                                      | Loopback acústico, unplug físico, estrés prolongado y otras configuraciones físicas.                                                |
-| Reproducir samples en motor            | PCM/banco/preparación, AudioEngine, sesiones manual/CPAL, aplicación/IPC/UI y diagnósticos.                      | Etapa 9 cerrada: mediciones, auditoría, CI de 4dc2c6c y audibilidad confirmada; límites físicos conservados.                        |
-| Groovebox de cuatro canales y 16 pasos | Base y kernel disponibles.                                                                                       | Núcleo/servicio/aplicación/desktop hasta 10.3.d aceptados localmente; etapa 10 cerrada con escucha y CI; siguiente secuenciador 11. |
-| Guardar, reabrir y exportar un beat    | La CLI exporta una senoide WAV.                                                                                  | Etapa 12: documento versionado, assets relativos y exportación del beat completo.                                                   |
-| Clips y escenas                        | Alcance documentado.                                                                                             | Etapa 13: modelo, lanzamiento cuantizado, transiciones y UI. Timeline/piano roll/automatización siguen después.                     |
+| Objetivo                               | Qué está hecho                                                                                                   | Qué falta                                                                                                       |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Fundamento de escritorio/audio         | Etapas 1–6: workspace, motor separado, backend manual/CPAL, aplicación, IPC/DTO, UI, cierre, documentación y CI. | Validaciones físicas/plataformas adicionales, registradas como límites.                                         |
+| Generar una señal verificable          | Etapas 7–8: senoide offline/WAV, salida nativa explícita, volumen y rampas.                                      | Loopback acústico, unplug físico, estrés prolongado y otras configuraciones físicas.                            |
+| Reproducir samples en motor            | PCM/banco/preparación, AudioEngine, sesiones manual/CPAL, aplicación/IPC/UI y diagnósticos.                      | Etapa 9 cerrada: mediciones, auditoría, CI de 4dc2c6c y audibilidad confirmada; límites físicos conservados.    |
+| Groovebox de cuatro canales y 16 pasos | Secuenciador 4 × 16 y mezclador integrados con UI.                                                               | Etapas 10–11 cerradas dentro de su alcance; clips/escenas siguen en 13.                                         |
+| Guardar, reabrir y exportar un beat    | JSON v1 portable y exportación del beat desde CLI/desktop.                                                       | Corrección JSON publicada y CI Linux/Windows correcta; cierre de 12 registrado.                                 |
+| Clips y escenas                        | Alcance documentado.                                                                                             | Etapa 13: modelo, lanzamiento cuantizado, transiciones y UI. Timeline/piano roll/automatización siguen después. |
 
 El objetivo de groovebox capaz de ejecutar un patrón se alcanza al cerrar 11; guardar,
-reabrir y exportar ese beat corresponde a 12. Son límites de producto, no
-funciones actuales ni fechas de entrega.
+reabrir y exportar ese beat corresponde a 12. Ambos flujos ya están implementados; clips/escenas siguen en 13.
 
 Las 16 voces son capacidad de reproducción simultánea. No equivalen a cuatro
 canales musicales de mezcla ni a 16 pasos de un patrón; esas funciones se
-implementan en 10 y 11. Mono/estéreo describe los canales PCM de entrada/salida.
+implementaron en 10 y 11. Mono/estéreo describe los canales PCM de entrada/salida.
 
 ## Evidencia contrastada
 
@@ -78,9 +83,9 @@ implementan en 10 y 11. Mono/estéreo describe los canales PCM de entrada/salida
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | PCM y voces          | [sample.rs](../crates/daw-engine/src/sample.rs), [sampler.rs](../crates/daw-engine/src/sampler.rs), suites de recursos/kernel/memoria. | Kernel completado: muestras desde memoria, sumas deterministas y recursos retenidos.                                                                       |
 | AudioEngine/servicio | [audio](../crates/daw-audio/src/service.rs) y [reporte 9.4.b](etapa-9-sesiones-sampler.md).                                            | Sesiones manual/CPAL y FIFO/outcomes implementados con pruebas de adaptador sin hardware. UI/DTOs exponen sampler desde 9.4.c, con pruebas mock.           |
-| IPC/UI               | [comandos](../src-tauri/src/ipc/command_names.rs) y [panel](../src/features/audio/AudioPanel.tsx).                                     | Veinte comandos; sampler y mezcla explícitos, cuatro tiras, rutas y niveles; selección/recibo/estado aplicado diferenciados.                               |
-| Documento            | [daw-domain](../crates/daw-domain/src/lib.rs).                                                                                         | Project contiene ID, título, BPM y ajustes validados de cuatro canales/rutas; sin patrones, assets persistidos o clips.                                    |
-| WAV                  | [export.rs](../crates/daw-cli/src/export.rs) y OfflineRender.                                                                          | Exporta senoide, no el proyecto/sampler ni un beat.                                                                                                        |
+| IPC/UI               | [comandos](../src-tauri/src/ipc/command_names.rs) y [panel](../src/features/audio/AudioPanel.tsx).                                     | Treinta comandos; sampler, mezcla, secuenciador y proyectos explícitos, cuatro tiras, rutas y niveles; selección/recibo/estado aplicado diferenciados.     |
+| Documento            | [daw-domain](../crates/daw-domain/src/lib.rs).                                                                                         | Project contiene ID, título, BPM y ajustes validados de cuatro canales/rutas; con patrón y assets persistidos; clips pendientes.                           |
+| WAV                  | [export.rs](../crates/daw-cli/src/export.rs) y OfflineRender.                                                                          | Exporta senoide y beat completo mediante project_render/export-beat.                                                                                       |
 | Carga WAV y banco    | [sample_loading.rs](../crates/daw-app/src/sample_loading.rs) y [cierre 9.3](cierre-preparacion-9.3.md).                                | Preparación cerrada localmente, con evidencia/manifiesto. Entrega a holder; Application 9.4.c mueve luego el banco a la sesión, sin I/O en controlador/RT. |
 | Verificación previa  | [Reporte 9.2](etapa-9-voces.md), código 7acc1db y jobs enlazados.                                                                      | 59 tests headless, 64 workspace, 15 audio instrumentados, 13 frontend y nueve escenarios CLI; suites solapadas. Build y focales release registrados.       |
 
@@ -138,8 +143,8 @@ mediciones físicas no realizadas siguen como limitaciones explícitas.
 | 9.4     | Sampler en AudioEngine/CPAL y en la UI.              | 9.4.a–d implementados/auditados localmente con pruebas offline/adaptador/mock. Evidencia física queda en 9.5.                                                                                                                                                                    |
 | 9.5     | Verificar y cerrar el sampler completo.              | Completada: mediciones, check/build, auditoría y CI de 4dc2c6c correctos; audibilidad confirmada por el usuario.                                                                                                                                                                 |
 | 10      | Mezclador de cuatro canales.                         | Núcleo, servicio, aplicación y desktop implementados localmente; integración aceptada en 10.3.d; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; implementación e7f543f entregada y CI correcta; escucha confirmada y etapa 10 cerrada dentro del alcance registrado. |
-| 11      | Secuenciador de 16 pasos.                            | Pendiente; eventos dentro del bloque, BPM fraccional, transporte y control de deriva.                                                                                                                                                                                            |
-| 12      | Guardar/abrir y exportar el beat.                    | Pendiente; versionado, assets relativos, round-trip y WAV consistente.                                                                                                                                                                                                           |
+| 11      | Secuenciador de 16 pasos.                            | Cerrada dentro de su alcance; eventos dentro del bloque, BPM fraccional, transporte y control de deriva.                                                                                                                                                                         |
+| 12      | Guardar/abrir y exportar el beat.                    | Cerrada dentro de su alcance; versionado, assets relativos, round-trip y WAV consistente.                                                                                                                                                                                        |
 | 13      | Clips y escenas.                                     | Pendiente; lanzamiento cuantizado y transiciones deterministas.                                                                                                                                                                                                                  |
 
 No se empieza mezclador/secuenciador antes de cerrar sampler. Las mediciones
@@ -203,5 +208,5 @@ confirmación auditiva y consolidación/CI se completaron en el [cierre](cierre-
 y 9.5.c cierre/CI. Etapa 9 completada dentro de su alcance; mezcla cerrada con
 mediciones, escucha confirmada y CI. 11.1–11.2 en `1effd48`, 11.3.a implementado
 en `2d4cc28`; 11.3.b/c implementados, 11.3.d aceptada y diagnósticos 11.4.a
-verificados localmente. Matriz física 11.4.b medida, escucha pendiente; etapa 12
+verificados y entregados. Matriz física 11.4.b medida, escucha confirmada; etapa 12
 entregada en `6c8c52e`, con verificación/CI correctas y cierre registrado.

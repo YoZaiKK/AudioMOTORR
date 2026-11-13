@@ -6,61 +6,21 @@ can later evolve into a clip-based DAW.
 
 ## Current status
 
-Updated 2026-11-12. **Stages 1–10 are complete within their recorded scope.**
-The sampler includes WAV preparation, engine/service/desktop integration and
-diagnostics. Six native matrix cases pass on Realtek/WASAPI; the user confirmed
-audible headphone output after a repeat. Source/evidence audit and exact-revision
-CI are verified; see [stage 9 closure](progress/cierre-etapa-9.md).
-The [four-channel mixer core (10.2)](progress/etapa-10-mezclador-motor.md) is
-implemented locally: document settings, opt-in engine mixing, gain/pan/mute,
-ramps and per-render meters. [Audio service integration (10.3.a)](progress/etapa-10-sesiones-mezclador.md)
-adds mixed manual/native sessions, queued controls and complete-callback peaks.
-[Application coordination (10.3.b)](progress/etapa-10-aplicacion-mezclador.md) now
-installs current document settings and distinguishes document-only edits, queue
-acceptance and applied state. [Desktop integration (10.3.c)](progress/etapa-10-desktop-mezclador.md)
-adds generated DTOs/IPC/ACL, four control strips, 16 slot routes and measured
-channel/master levels. [Integrated acceptance (10.3.d)](progress/cierre-integracion-mezclador-10.3d.md)
-adds decoded four-channel references, lifecycle coverage and two UI corrections.
-[Mixed diagnostics (10.4.a)](progress/etapa-10-diagnosticos-mezclador.md) now add
-explicit benchmark/native commands and a native verification protocol. Offline
-measurements pass. [Native measurements (10.4.b)](progress/etapa-10-medicion-nativa-mezclador.md)
-now record six successful mixed cases and six reopens on Speakers Realtek.
-The [local delivery audit (10.4.c)](progress/auditoria-cierre-mezclador-10.4c.md)
-verifies source/artifact integrity and prepares a [reviewable delivery](progress/entrega-mezclador-etapa-10.md).
-[Delivery and CI](progress/publicacion-mezclador-10.4c.md) are verified for
-implementation `e7f543f`: both Linux and Windows jobs pass. The user confirmed
-‘Se escucha’ after the requested mono/stereo replay; [stage 10 is closed](progress/cierre-etapa-10.md)
-within its recorded limits. **11.1 is implemented locally:** the
-[sequencer contract](docs/sequencer-contract.md) and editable four-row, 16-step
-domain pattern, with ordered one-shot events and independent project state.
-See the [11.1 report](progress/etapa-11-modelo-patron.md).
-**11.2 is implemented locally:** explicit sequenced mixed playback in the engine,
-exact fractional phase, within-block scheduling, transport and live edits;
-[engine report](progress/etapa-11-planificador.md).
-**11.3.a is implemented locally:** [sequenced audio sessions](docs/sequencer-service.md),
-bounded pattern commands and observed state across whole callbacks;
-[service report](progress/etapa-11-sesiones-secuenciador.md).
-11.1–11.2 are committed in `1effd48`; 11.3.a is delivered in `2d4cc28`.
-**11.3.b is implemented locally:** [application pattern coordination](docs/sequencer-application.md),
-selected versus accepted/applied edits and current settings at prepared-bank installation;
-[application report](progress/etapa-11-aplicacion-secuenciador.md).
-**11.3.c is implemented locally:** [desktop grid and IPC](docs/sequencer-desktop.md),
-64 step buttons, row slots, explicit sequenced initialization and observed position.
-See the [walkthrough](howToRunThis/08-secuenciador.md) and
-[real WebView2 capture](docs/screenshots/stage11-sequencer-wide.png).
-**11.3.d is accepted locally:** [decoded beat and integration coverage](docs/sequencer-integration-acceptance.md),
-with 42 reference combinations and current check/release/build results.
-**11.4.a is implemented locally:** [sequencer diagnostics](docs/sequencer-diagnostics.md),
-72 offline measurements and a prepared native runner/fixture/protocol.
-**11.4.b processing is measured:** six native cases and six reopens on Realtek/WASAPI;
-[listening remains pending](progress/etapa-11-medicion-nativa-secuenciador.md).
-**Stage 12 is implemented locally:** [portable project files and beat WAV export](docs/project-format.md),
-with [desktop usage](howToRunThis/09-proyectos.md), CLI and real WebView2 verification.
-**Initial stage 12 delivery:** [`6c8c52e`](https://github.com/YoZaiKK/AudioMOTORR/commit/6c8c52e820081249a62ab5b664f94853568a4af6),
-with [both CI jobs successful](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43348424541).
-An additional [numeric JSON round-trip correction](progress/correccion-12-precision-json.md)
-is being verified before definitive closure. Stage 11 listening remains pending;
-clips/scenes are next in stage 13.
+Updated 2026-11-12 (Mexico). **Stages 1–11 are complete within their recorded scope.**
+The sampler, four-channel mixer and 16-step sequencer are integrated with the
+Rust engine, audio service and desktop UI. Stage 11 records six successful
+native matrix cases and six reopens on Realtek/WASAPI; the user confirmed
+audibility after the requested replay. See [stage 11 closure](progress/cierre-etapa-11.md).
+
+**Stage 12 implements portable JSON projects and beat WAV export**, with relative
+assets, explicit saved-sample preparation and cut/finish tails. See the
+[format contract](docs/project-format.md) and [desktop guide](howToRunThis/09-proyectos.md).
+Initial delivery `6c8c52e` passed both CI jobs. The additional
+[numeric precision correction](progress/correccion-12-precision-json.md) preserves
+exact BPM/gain/pan values; full check, release and real WebView2 verification pass.
+It is published in [`4f126dc`](https://github.com/YoZaiKK/AudioMOTORR/commit/4f126dc0d8c56b17c77160b4da93a4d251bcb0e4);
+[both exact-revision CI jobs passed](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622). [Stage 12 is closed](progress/cierre-etapa-12.md) within its recorded scope.
+**Next product: stage 13.1, the clips/scenes contract.**
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
 sessions, controls transport/tempo/gain and shows exact-ID trigger outcomes or
@@ -72,8 +32,7 @@ sampler-bench provides device-free mono/stereo CPU measurements with
 offline-diagnostics, without CPAL. sampler-native-check is implemented and built
 in release and now measured on physical Realtek hardware with mono/stereo inputs
 and 0/1/16 voices; see the [native report](progress/etapa-9-medicion-nativa.md). Existing
-engine-bench/tone-check exercise the sine. The CLI exports a sine WAV; exporting
-a sampler project or a beat is not implemented.
+engine-bench/tone-check exercise the sine. The CLI exports sine WAV files and complete project beats through `export-beat`.
 
 The sampler baseline is published in [4dc2c6c](https://github.com/YoZaiKK/AudioMOTORR/commit/4dc2c6c2e0882b8f131b68088feffa8def84ba83),
 including the CLI trace patch and stereo fixture helper. On 2026-11-11, GitHub's
@@ -102,32 +61,32 @@ README/technical documents are in English; progress and practical guides are in 
 
 ## Next steps
 
-| Stage                        | Next deliverable                                                                           | Acceptance / boundary                                                                                                                                                    |
-| ---------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 9 — closed                   | Source/evidence audit, native measurements, user-confirmed audible output and CI recorded. | Both jobs successful for 4dc2c6c; acoustic continuity, unplug/stress and platform limits remain explicit.                                                                |
-| 10.1–10.2 — delivered core   | Four-channel document settings and opt-in deterministic engine mixing implemented.         | [Contract](docs/mixer-contract.md), reference samples, partition invariance and zero processing allocation/free checks.                                                  |
-| 10.3.a — delivered           | Mixed sessions, shared FIFO controls and complete-callback meter windows implemented.      | [Service contract](docs/mixer-service.md), adapter/lifecycle fixtures and processing memory checks.                                                                      |
-| 10.3.b — delivered           | Application selection/acceptance and prepared-bank installation coordinated.               | [Application contract](docs/mixer-application.md), rollback and lifecycle fixtures.                                                                                      |
-| 10.3.c — delivered           | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                                                                           |
-| 10.3.d — delivered           | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                                                                    |
-| 10.4.a — delivered           | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                                                                         |
-| **10.4.b–c — closed**        | Native measurements, delivery/CI and user-confirmed audible mixer output recorded.         | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                                                                               |
-| 11.1 — implemented locally   | Domain pattern and sequencer contract.                                                     | Fixed 4 × 16 state, validated slots, ordered events and independent project copies; [report](progress/etapa-11-modelo-patron.md).                                        |
-| 11.2 — implemented locally   | Engine scheduling and sequenced mixed rendering.                                           | Exact fractional phase, independent event/PCM references, transport/edits and processing memory checks; [report](progress/etapa-11-planificador.md).                     |
-| 11.3.a — implemented locally | Sequenced manual/native sessions and bounded pattern commands.                             | Applied phase/outcomes, FIFO budget/loss/restart, native chunk/conversion references and processing memory checks; [report](progress/etapa-11-sesiones-secuenciador.md). |
-| 11.3.b — implemented locally | Selected document pattern, queue acceptance and applied state coordinated.                 | Current pattern/mix/tempo at installation, shared FIFO rollback/lifecycle and real-WAV fixtures; [report](progress/etapa-11-aplicacion-secuenciador.md).                 |
-| 11.3.c — implemented locally | Desktop grid, generated DTOs and scoped IPC.                                               | Exact strings, receipt/order/loss tests and real WebView2 editing/layout; [report](progress/etapa-11-desktop-secuenciador.md).                                           |
-| 11.3.d — accepted locally    | Decoded beat reference and integrated acceptance.                                          | Two new cases, 42 combinations, lifecycle/UI/IPC audit, check/release/build; [report](progress/cierre-integracion-secuenciador-11.3d.md).                                |
-| 11.4.a — implemented locally | Explicit sequencer diagnostics and native protocol.                                        | 72 offline measurements, independent reference/memory checks and device-free lifecycle tests; [report](progress/etapa-11-diagnosticos-secuenciador.md).                  |
-| 11.4.b–c                     | Native sequencer verification and delivery closure.                                        | Physical measurements/listening, evidence audit and exact-revision CI.                                                                                                   |
-| 12 — completed within scope  | Portable projects, explicit preparation and full beat export.                              | Versioned files, relative asset copies, exact beat/tails and desktop/CLI; delivered in 6c8c52e with both CI jobs successful; [closure](progress/cierre-etapa-12.md).     |
-| 13                           | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                                                                          |
+| Stage                       | Next deliverable                                                                           | Acceptance / boundary                                                                                                                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 9 — closed                  | Source/evidence audit, native measurements, user-confirmed audible output and CI recorded. | Both jobs successful for 4dc2c6c; acoustic continuity, unplug/stress and platform limits remain explicit.                                                                                                 |
+| 10.1–10.2 — delivered core  | Four-channel document settings and opt-in deterministic engine mixing implemented.         | [Contract](docs/mixer-contract.md), reference samples, partition invariance and zero processing allocation/free checks.                                                                                   |
+| 10.3.a — delivered          | Mixed sessions, shared FIFO controls and complete-callback meter windows implemented.      | [Service contract](docs/mixer-service.md), adapter/lifecycle fixtures and processing memory checks.                                                                                                       |
+| 10.3.b — delivered          | Application selection/acceptance and prepared-bank installation coordinated.               | [Application contract](docs/mixer-application.md), rollback and lifecycle fixtures.                                                                                                                       |
+| 10.3.c — delivered          | Selected settings, receipts, applied observations and levels exposed through four strips.  | Generated bindings, ACL and application/IPC/UI ordering tests.                                                                                                                                            |
+| 10.3.d — delivered          | Integrated references, lifecycle and UI query ordering verified locally.                   | End-to-end reference cases, UI/IPC ordering/lifecycle, coherent check/build evidence.                                                                                                                     |
+| 10.4.a — delivered          | Mixed diagnostics and native protocol implemented; offline evidence recorded.              | Release gates, 24 offline benchmark cases and a compiled native runner; hardware remains 10.4.b.                                                                                                          |
+| **10.4.b–c — closed**       | Native measurements, delivery/CI and user-confirmed audible mixer output recorded.         | Explicit mixed runner, own hardware evidence, real listening and CI of delivered revision.                                                                                                                |
+| 11.1 — delivered            | Domain pattern and sequencer contract.                                                     | Fixed 4 × 16 state, validated slots, ordered events and independent project copies; [report](progress/etapa-11-modelo-patron.md).                                                                         |
+| 11.2 — delivered            | Engine scheduling and sequenced mixed rendering.                                           | Exact fractional phase, independent event/PCM references, transport/edits and processing memory checks; [report](progress/etapa-11-planificador.md).                                                      |
+| 11.3.a — delivered          | Sequenced manual/native sessions and bounded pattern commands.                             | Applied phase/outcomes, FIFO budget/loss/restart, native chunk/conversion references and processing memory checks; [report](progress/etapa-11-sesiones-secuenciador.md).                                  |
+| 11.3.b — delivered          | Selected document pattern, queue acceptance and applied state coordinated.                 | Current pattern/mix/tempo at installation, shared FIFO rollback/lifecycle and real-WAV fixtures; [report](progress/etapa-11-aplicacion-secuenciador.md).                                                  |
+| 11.3.c — delivered          | Desktop grid, generated DTOs and scoped IPC.                                               | Exact strings, receipt/order/loss tests and real WebView2 editing/layout; [report](progress/etapa-11-desktop-secuenciador.md).                                                                            |
+| 11.3.d — accepted locally   | Decoded beat reference and integrated acceptance.                                          | Two new cases, 42 combinations, lifecycle/UI/IPC audit, check/release/build; [report](progress/cierre-integracion-secuenciador-11.3d.md).                                                                 |
+| 11.4.a — delivered          | Explicit sequencer diagnostics and native protocol.                                        | 72 offline measurements, independent reference/memory checks and device-free lifecycle tests; [report](progress/etapa-11-diagnosticos-secuenciador.md).                                                   |
+| 11.4.b–c — closed           | Native sequencer verification and delivery closure.                                        | Physical measurements/listening, evidence audit and exact-revision CI.                                                                                                                                    |
+| 12 — completed within scope | Portable projects, explicit preparation and full beat export.                              | Versioned files, relative asset copies, exact beat/tails and desktop/CLI; delivered in 6c8c52e, precision corrected in 4f126dc; both CI jobs successful for each; [closure](progress/cierre-etapa-12.md). |
+| 13                          | Clips and scenes.                                                                          | Clip/scene model, quantized launch and predictable transitions.                                                                                                                                           |
 
 The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
 define scope and dependencies. The [execution plan](progress/plan-siguientes-pasos.md)
 breaks down the remaining deliveries. Stage 9 closure combines implementation,
 measurements, audit/CI and user-confirmed audibility; it does not establish
-acoustic continuity. This documentation update created no commit/push.
+acoustic continuity. Implementation and precision correction are published; historical manifests retain their capture-time Git state.
 
 Technical documentation:
 

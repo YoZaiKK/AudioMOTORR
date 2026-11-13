@@ -1,5 +1,11 @@
 # Roadmap after the silence foundation
 
+**Current update:** [stage 11 is closed](../progress/cierre-etapa-11.md) after
+user-confirmed sequencer audibility. Stage 12 portable save/open and beat export
+are delivered. Its additional [JSON precision correction](../progress/correccion-12-precision-json.md)
+is locally verified and published in `4f126dc`; [both exact-revision CI jobs passed](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622). Stage 12 is closed within scope.
+Next product: **13.1, clips/scenes contract**.
+
 Updated 2026-11-12. Stages 1–6 are the implemented silence foundation, published
 in baseline `1ef9bd0`. Stage 7 is complete: engine oscillator, bounded application
 rendering and WAV export are published in c6cf627 and passed hosted Linux/Windows
@@ -40,11 +46,11 @@ reference, lifecycle/UI/IPC coverage audit and current check/release/build.
 [11.4.a is implemented locally](sequencer-diagnostics.md): 72 offline measurements,
 explicit native runner, deterministic fixtures and a physical verification protocol.
 [11.4.b physical processing is measured](../progress/etapa-11-medicion-nativa-secuenciador.md);
-listening and exact delivery/CI closure remain pending.
+listening is confirmed and delivery/CI closure is recorded in the stage 11 report.
 [Stage 12 is implemented locally](project-format.md): portable JSON projects,
 explicit saved-asset preparation, exact beat/tail render and desktop/CLI WAV export.
 [Stage 12 is delivered and closed within scope](../progress/cierre-etapa-12.md)
-in `6c8c52e`, with both hosted jobs verified. Stage 11 listening remains pending;
+initially in `6c8c52e`, with both hosted jobs verified. Stage 11 listening is confirmed;
 clips/scenes remain stage 13.
 Historical delivery detail: 9.1–9.2 are complete and published; 9.2 implementation
 7acc1db passed both hosted jobs in
@@ -52,7 +58,7 @@ Historical delivery detail: 9.1–9.2 are complete and published; 9.2 implementa
 This delivers immutable resources, the fixed bank/raw voice kernel, and memory-lifetime tests.
 Native sessions and desktop integration are implemented through 9.4.c, with
 physical processing measurements and user-confirmed audibility recorded at closure.
-Sequencer listening closure and stage 13 remain open; delivery/CI of 11.4.c and
+Stage 13 remains open; sequencer listening is confirmed and delivery/CI of 11.4.c and
 stage 12 are recorded in the closure/publication reports.
 See the [current kernel report](../progress/etapa-9-voces.md) and
 [resource report](../progress/etapa-9-sampler.md).
