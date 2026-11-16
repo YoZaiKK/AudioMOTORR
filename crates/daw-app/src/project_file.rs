@@ -1,9 +1,12 @@
 //! Versioned document I/O. Never call from audio processing.
+pub use crate::project_launcher_document::{
+    ClipDocument, LauncherDocument, PlaybackModeDocument, QuantizationDocument, SceneActionDocument,
+};
 use crate::{
     Application, AudioError, AudioServiceState, EngineConfig, ErrorCode,
     sampler_session::{PreparationSnapshot, SampleFileSelection},
 };
-use daw_domain::{MixerChannel, Project, ProjectId, Tempo};
+use daw_domain::{ClipLauncher, MixerChannel, Project, ProjectId, Tempo};
 use serde::{Deserialize, Serialize};
 use std::{
     error::Error,
@@ -15,6 +18,7 @@ use std::{
 
 pub type ProjectResult<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 pub const MAX_PROJECT_BYTES: usize = 1024 * 1024;
+pub const PROJECT_VERSION: u32 = 2;
 static NEXT_FILE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -38,7 +42,7 @@ pub struct MixerDocument {
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
-pub struct ProjectDocument {
+struct LegacyProjectDocument {
     pub format: String,
     pub version: u32,
     pub id: String,
@@ -48,8 +52,8 @@ pub struct ProjectDocument {
     pub mixer: MixerDocument,
     pub assets: [Option<String>; 16],
 }
-impl ProjectDocument {
-    pub fn from_project(project: &Project) -> Self {
+impl LegacyProjectDocument {
+    fn from_project(project: &Project) -> Self {
         Self {
             format: "audiomotorr-project".into(),
             version: 1,
@@ -76,7 +80,7 @@ impl ProjectDocument {
             assets: project.assets().clone(),
         }
     }
-    pub fn into_project(self) -> ProjectResult<Project> {
+    fn into_project(self) -> ProjectResult<Project> {
         if self.format != "audiomotorr-project" || self.version != 1 {
             return Err(
                 "Unsupported project format/version; expected audiomotorr-project v1".into(),
@@ -110,8 +114,92 @@ impl ProjectDocument {
             }
             project.set_asset(slot, self.assets[slot].clone())?;
         }
+        let launcher = ClipLauncher::from_pattern(project.pattern());
+        *project.launcher_mut() = launcher;
         Ok(project)
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ProjectDocument {
+    pub format: String,
+    pub version: u32,
+    pub id: String,
+    pub title: String,
+    pub bpm: f64,
+    pub pattern: PatternDocument,
+    pub mixer: MixerDocument,
+    pub assets: [Option<String>; 16],
+    pub playback_mode: PlaybackModeDocument,
+    pub quantization: QuantizationDocument,
+    pub initial_scene: u8,
+    pub launcher: LauncherDocument,
+}
+impl ProjectDocument {
+    pub fn from_project(project: &Project) -> Self {
+        let base = LegacyProjectDocument::from_project(project);
+        Self {
+            format: base.format,
+            version: PROJECT_VERSION,
+            id: base.id,
+            title: base.title,
+            bpm: base.bpm,
+            pattern: base.pattern,
+            mixer: base.mixer,
+            assets: base.assets,
+            playback_mode: project.playback_mode().into(),
+            quantization: project.launch_quantization().into(),
+            initial_scene: project.initial_scene() as u8,
+            launcher: LauncherDocument::from_launcher(project.launcher()),
+        }
+    }
+    pub fn into_project(self) -> ProjectResult<Project> {
+        if self.version != PROJECT_VERSION || self.format != "audiomotorr-project" {
+            return Err(
+                "Unsupported project format/version; expected audiomotorr-project v2".into(),
+            );
+        }
+        let mut project = LegacyProjectDocument {
+            format: self.format,
+            version: 1,
+            id: self.id,
+            title: self.title,
+            bpm: self.bpm,
+            pattern: self.pattern,
+            mixer: self.mixer,
+            assets: self.assets,
+        }
+        .into_project()?;
+        *project.launcher_mut() = self.launcher.into_launcher()?;
+        project.set_playback_mode(self.playback_mode.into());
+        project.set_launch_quantization(self.quantization.into());
+        project.set_initial_scene(self.initial_scene as usize)?;
+        Ok(project)
+    }
+}
+
+fn decode_versioned(bytes: &[u8]) -> ProjectResult<(Project, u32)> {
+    if bytes.len() > MAX_PROJECT_BYTES {
+        return Err("Project exceeds 1 MiB".into());
+    }
+    let value: serde_json::Value = serde_json::from_slice(bytes)?;
+    // Parse again into strict typed structs, preserving duplicate-field rejection
+    // and exact float_roundtrip parsing rather than converting through Value.
+    match value.get("version").and_then(serde_json::Value::as_u64) {
+        Some(1) => Ok((
+            serde_json::from_slice::<LegacyProjectDocument>(bytes)?.into_project()?,
+            1,
+        )),
+        Some(2) => Ok((
+            serde_json::from_slice::<ProjectDocument>(bytes)?.into_project()?,
+            2,
+        )),
+        _ => Err("Unsupported project version; expected v1 or v2".into()),
+    }
+}
+pub fn decode_project(bytes: &[u8]) -> ProjectResult<Project> {
+    Ok(decode_versioned(bytes)?.0)
 }
 pub fn validate_relative(path: &str) -> ProjectResult<()> {
     if path.len() > 4096
@@ -156,25 +244,21 @@ pub fn resolved_assets(
         .collect())
 }
 pub fn read_project(path: &Path) -> ProjectResult<(Project, PathBuf)> {
+    let (project, path, _) = read_project_with_version(path)?;
+    Ok((project, path))
+}
+pub fn read_project_with_version(path: &Path) -> ProjectResult<(Project, PathBuf, u32)> {
     let path = fs::canonicalize(path)
         .map_err(|e| format!("Cannot open project {}: {e}", path.display()))?;
     let mut bytes = Vec::new();
     File::open(&path)?
         .take((MAX_PROJECT_BYTES + 1) as u64)
         .read_to_end(&mut bytes)?;
-    if bytes.len() > MAX_PROJECT_BYTES {
-        return Err("Project exceeds 1 MiB".into());
-    }
-    let value: serde_json::Value = serde_json::from_slice(&bytes)?;
-    if value.get("version").and_then(serde_json::Value::as_u64) != Some(1) {
-        return Err("Unsupported project version; only v1 is supported".into());
-    }
-    let document: ProjectDocument = serde_json::from_slice(&bytes)?;
-    let project = document.into_project()?;
+    let (project, version) = decode_versioned(&bytes)?;
     for selection in resolved_assets(&project, Some(&path))? {
         asset_metadata(&selection.path)?;
     }
-    Ok((project, path))
+    Ok((project, path, version))
 }
 struct Writes {
     parent: PathBuf,
@@ -349,5 +433,41 @@ impl Application {
         let files =
             resolved_assets(&self.project, self.project_path.as_deref()).map_err(app_error)?;
         self.start_sample_preparation(config, files, false)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use daw_domain::{Clip, LaunchQuantization, PlaybackMode, Scene, SceneAction};
+
+    #[test]
+    fn dirty_status_tracks_all_new_launcher_document_fields() {
+        let mut app = Application::new().unwrap();
+        app.saved_project = Some(app.project.clone());
+        assert!(!app.project_status().dirty);
+        for edit in 0..5 {
+            match edit {
+                0 => app.project.set_playback_mode(PlaybackMode::Launcher),
+                1 => app
+                    .project
+                    .set_launch_quantization(LaunchQuantization::Beat),
+                2 => app.project.set_initial_scene(15).unwrap(),
+                3 => app
+                    .project
+                    .launcher_mut()
+                    .set_clip(3, 15, Clip::new(15).unwrap())
+                    .unwrap(),
+                4 => {
+                    let mut scene = Scene::default();
+                    scene.set_action(3, SceneAction::Stop).unwrap();
+                    app.project.launcher_mut().set_scene(15, scene).unwrap();
+                }
+                _ => unreachable!(),
+            }
+            assert!(app.project_status().dirty, "edit {edit}");
+            app.project = app.saved_project.clone().unwrap();
+            assert!(!app.project_status().dirty);
+        }
     }
 }

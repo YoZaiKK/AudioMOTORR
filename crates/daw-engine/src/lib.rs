@@ -7,6 +7,7 @@
 use std::fmt;
 
 mod gain;
+mod launcher;
 mod mixer;
 mod oscillator;
 mod sample;
@@ -14,6 +15,11 @@ mod sampler;
 mod sequencer;
 use gain::GainRamp;
 pub use gain::{Gain, InvalidGain};
+use launcher::Launcher;
+pub use launcher::{
+    ActiveClip, ClipLaunchAction, ClipLaunchRequest, ClipTransition, LauncherControlError,
+    LauncherEvent, LauncherSnapshot, PendingClipLaunch,
+};
 use mixer::Mixer;
 pub use mixer::{MixerChannelSnapshot, MixerControlError, MixerMeters, MixerPeak, MixerSnapshot};
 pub use oscillator::OscillatorError;
@@ -28,6 +34,7 @@ pub use sequencer::{
     SequencerBoundary, SequencerControlError, SequencerCounters, SequencerEvent, SequencerSnapshot,
 };
 
+pub use daw_domain::{Clip, LaunchQuantization};
 pub use daw_domain::{MIXER_CHANNELS, MixerChannel, MixerError, MixerSettings, Tempo};
 pub use daw_domain::{Pattern, PatternError};
 
@@ -159,6 +166,7 @@ pub struct AudioEngine {
     sampler: Option<Sampler>,
     mixer: Option<Mixer>,
     sequencer: Option<Sequencer>,
+    launcher: Option<Launcher>,
 }
 
 struct RenderProgress {
@@ -190,6 +198,7 @@ impl AudioEngine {
             sampler: None,
             mixer: None,
             sequencer: None,
+            launcher: None,
         }
     }
 
@@ -273,6 +282,31 @@ impl AudioEngine {
 
     pub fn sequencer_snapshot(&self) -> Option<SequencerSnapshot> {
         self.sequencer.as_ref().map(Sequencer::snapshot)
+    }
+
+    /// Explicit clip mode, stopped and empty. Requests own snapshots; the editable
+    /// document and resource preparation stay outside the processing owner.
+    pub fn with_clip_launcher(bank: SampleBank, tempo: Tempo, settings: MixerSettings) -> Self {
+        let rate = bank.config().sample_rate();
+        let mut engine = Self::with_mixed_sampler(bank, tempo, settings);
+        engine.launcher = Some(Launcher::new(rate));
+        engine
+    }
+
+    pub fn launcher_snapshot(&self) -> Option<LauncherSnapshot> {
+        self.launcher.as_ref().map(Launcher::snapshot)
+    }
+
+    pub fn request_clip_launch(
+        &mut self,
+        request: ClipLaunchRequest,
+    ) -> Result<u64, LauncherControlError> {
+        let settled_stopped = self.state.transport == TransportState::Stopped
+            && self.state.requested_transport == TransportState::Stopped;
+        self.launcher
+            .as_mut()
+            .ok_or(LauncherControlError::NoLauncher)?
+            .request(request, settled_stopped)
     }
 
     /// Direct processing-owner edit, applied atomically between renders. Service
@@ -391,6 +425,9 @@ impl AudioEngine {
         if let Some(sequencer) = &mut self.sequencer {
             sequencer.reset();
         }
+        if let Some(launcher) = &mut self.launcher {
+            launcher.reset();
+        }
     }
 
     fn sync_ramp(&mut self) {
@@ -422,6 +459,9 @@ impl AudioEngine {
                 }
             }
             EngineCommand::Stop => {
+                if let Some(launcher) = &mut self.launcher {
+                    launcher.cancel_pending();
+                }
                 self.state.requested_transport = TransportState::Stopped;
                 if let Some(ramp) = &mut self.ramp {
                     ramp.retarget(0.0);
@@ -497,6 +537,11 @@ impl AudioEngine {
         {
             sequencer.validate_render(playing_frames, self.state.tempo)?;
         }
+        if self.state.requested_transport == TransportState::Playing
+            && let Some(launcher) = &self.launcher
+        {
+            launcher.validate_render(playing_frames, self.state.tempo)?;
+        }
         Ok(RenderProgress {
             channels,
             device_frames,
@@ -560,6 +605,53 @@ impl AudioEngine {
         Ok(())
     }
 
+    fn render_launcher(&mut self, output: &mut [f32]) -> Result<(), RenderError> {
+        let launcher = self.launcher.as_mut().expect("clip mode");
+        let sampler = self.sampler.as_mut().expect("clip sampler");
+        let mixer = self.mixer.as_mut().expect("clip mixer");
+        let master = self.ramp.as_mut().expect("clip master ramp");
+        let channels = usize::from(self.state.config.channels());
+        let frames = output.len() / channels;
+        let mut offset = 0;
+        while offset < frames {
+            while let Some((boundary, notes)) = launcher.pop_boundary() {
+                for note in notes.into_iter().flatten() {
+                    let outcome = sampler
+                        .trigger(note.sample_slot, Gain::new(1.0).unwrap())
+                        .map_err(|error| match error {
+                            TriggerError::MissingAsset => SamplerTriggerError::MissingAsset,
+                            TriggerError::PoolFull => SamplerTriggerError::PoolFull,
+                            TriggerError::InvalidSlot => unreachable!("validated clip slot"),
+                        });
+                    if let Ok(voice) = outcome {
+                        mixer.capture_route(voice, note.sample_slot);
+                    }
+                    launcher.record_event(LauncherEvent {
+                        boundary,
+                        row: note.row,
+                        clip_slot: note.clip_slot,
+                        clip_step: note.clip_step,
+                        sample_slot: note.sample_slot,
+                        device_frame: self.state.device_frames + offset as u64,
+                        outcome,
+                    });
+                }
+            }
+            let count = launcher
+                .clock
+                .frames_until_boundary(self.state.tempo)
+                .min((frames - offset) as u64) as usize;
+            mixer.render(
+                sampler,
+                &mut output[offset * channels..(offset + count) * channels],
+                master,
+            )?;
+            launcher.clock.advance(count as u64, self.state.tempo);
+            offset += count;
+        }
+        Ok(())
+    }
+
     /// Writes interleaved audio; errors silence output and preserve render state.
     /// No allocation, deallocation, blocking or I/O. Empty output is a no-op.
     pub fn render_interleaved(&mut self, output: &mut [f32]) -> Result<(), RenderError> {
@@ -579,7 +671,9 @@ impl AudioEngine {
         // failure leaves the full output silent and the engine envelope unchanged.
         if self.state.transport == TransportState::Playing {
             let playing_output = &mut output[..playing_frames as usize * channels];
-            if self.sequencer.is_some() && !releasing {
+            if self.launcher.is_some() && !releasing {
+                self.render_launcher(playing_output)?;
+            } else if self.sequencer.is_some() && !releasing {
                 self.render_sequenced(playing_output)?;
             } else if let Some(sampler) = &mut self.sampler {
                 if let Some(mixer) = &mut self.mixer {
@@ -626,13 +720,19 @@ mod tests {
     #[test]
     fn overflow_silences_output_and_preserves_both_counters() {
         for (device_frames, transport_frames) in [(u64::MAX, 0), (0, u64::MAX)] {
-            for signal in [0, 1, 2, 3, 4, 5] {
+            for signal in [0, 1, 2, 3, 4, 5, 6] {
                 let config = EngineConfig::new(48_000, 2).unwrap();
                 let mut engine = if signal >= 3 {
                     let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
                     slots[0] = Some(SampleBuffer::new(config, vec![0.5; 200]).unwrap());
                     let bank = SampleBank::new(config, slots).unwrap();
-                    if signal == 5 {
+                    if signal == 6 {
+                        AudioEngine::with_clip_launcher(
+                            bank,
+                            Tempo::default(),
+                            MixerSettings::default(),
+                        )
+                    } else if signal == 5 {
                         let mut pattern = Pattern::default();
                         pattern.set_step(0, 0, true).unwrap();
                         AudioEngine::with_sequenced_sampler(
@@ -670,6 +770,7 @@ mod tests {
                 let before_sampler = engine.sampler().map(Sampler::snapshot);
                 let before_mixer = engine.mixer_snapshot();
                 let before_sequencer = engine.sequencer_snapshot();
+                let before_launcher = engine.launcher_snapshot();
                 assert_eq!(engine.validate_render(2), Err(RenderError::CounterOverflow));
                 assert_eq!(engine.snapshot(), before);
                 let mut output = [1.0; 2];
@@ -684,6 +785,7 @@ mod tests {
                 assert_eq!(engine.sampler().map(Sampler::snapshot), before_sampler);
                 assert_eq!(engine.mixer_snapshot(), before_mixer);
                 assert_eq!(engine.sequencer_snapshot(), before_sequencer);
+                assert_eq!(engine.launcher_snapshot(), before_launcher);
                 assert_eq!(engine.render_interleaved(&mut []), Ok(()));
                 assert_eq!(engine.sine, before_sine);
             }

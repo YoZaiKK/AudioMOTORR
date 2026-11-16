@@ -343,6 +343,7 @@ impl Application {
         preparation_id: u64,
         device_id: Option<String>,
     ) -> Result<ServiceSnapshot> {
+        self.require_project_mode(crate::PlaybackMode::Pattern)?;
         let bank = self.take_sample_bank(preparation_id)?;
         self.audio.handle().initialize_native_sequenced_sampler(
             device_id,
@@ -357,6 +358,7 @@ impl Application {
         &mut self,
         preparation_id: u64,
     ) -> Result<ServiceSnapshot> {
+        self.require_project_mode(crate::PlaybackMode::Pattern)?;
         let bank = self.take_sample_bank(preparation_id)?;
         self.audio.handle().initialize_manual_sequenced_sampler(
             bank,
@@ -364,6 +366,60 @@ impl Application {
             *self.project.mixer(),
             *self.project.pattern(),
         )
+    }
+
+    pub fn initialize_clip_launcher(
+        &mut self,
+        preparation_id: u64,
+        device_id: Option<String>,
+    ) -> Result<ServiceSnapshot> {
+        self.require_project_mode(crate::PlaybackMode::Launcher)?;
+        let bank = self.take_sample_bank(preparation_id)?;
+        self.launcher_intent.set(None);
+        self.audio.handle().initialize_native_clip_launcher(
+            device_id,
+            bank,
+            self.project.tempo(),
+            *self.project.mixer(),
+        )
+    }
+    pub fn initialize_manual_clip_launcher(
+        &mut self,
+        preparation_id: u64,
+    ) -> Result<ServiceSnapshot> {
+        self.require_project_mode(crate::PlaybackMode::Launcher)?;
+        let bank = self.take_sample_bank(preparation_id)?;
+        self.launcher_intent.set(None);
+        self.audio.handle().initialize_manual_clip_launcher(
+            bank,
+            self.project.tempo(),
+            *self.project.mixer(),
+        )
+    }
+    pub fn initialize_project_sampler(
+        &mut self,
+        preparation_id: u64,
+        device_id: Option<String>,
+    ) -> Result<ServiceSnapshot> {
+        match self.project.playback_mode() {
+            crate::PlaybackMode::Pattern => {
+                self.initialize_sequenced_sampler(preparation_id, device_id)
+            }
+            crate::PlaybackMode::Launcher => {
+                self.initialize_clip_launcher(preparation_id, device_id)
+            }
+        }
+    }
+    pub fn initialize_manual_project_sampler(
+        &mut self,
+        preparation_id: u64,
+    ) -> Result<ServiceSnapshot> {
+        match self.project.playback_mode() {
+            crate::PlaybackMode::Pattern => {
+                self.initialize_manual_sequenced_sampler(preparation_id)
+            }
+            crate::PlaybackMode::Launcher => self.initialize_manual_clip_launcher(preparation_id),
+        }
     }
 
     pub fn trigger_sample(&self, slot: usize, gain: f64) -> Result<crate::CommandAccepted> {
@@ -375,6 +431,10 @@ impl Application {
 #[cfg(test)]
 #[path = "sequencer_preparation_tests.rs"]
 mod sequencer_tests;
+
+#[cfg(test)]
+#[path = "launcher_preparation_tests.rs"]
+mod launcher_tests;
 
 #[cfg(test)]
 mod tests {

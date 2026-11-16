@@ -25,15 +25,21 @@ const MIXER_HELP: &str = "Mixer diagnostics (release only):\n       daw-cli mixe
 
 const SEQUENCER_HELP: &str = "Sequencer diagnostics (release only):\n       daw-cli sequencer-bench [--block-size 1..4096] [--pattern empty|beat|dense] [--bpm 20|95.5|127.25|300] [--bars 1..8] [--channels 1|2]\n       daw-cli sequencer-native-check --input-dir DIR --device ID [--sample-rate 100..192000] [--channels 1|2] [--pattern empty|beat|dense] [--bpm 20|95.5|127.25|300] [--bars 1..2]\nBench defaults: blocks 1/127/256/4096, all three patterns, BPM 95.5/127.25/300, two bars, 48000 Hz stereo; independent PCM/event oracle and memory checks. Requires offline-diagnostics.\nNative defaults: beat, 127.25 BPM, one bar, 48000 Hz stereo. Requires rt-diagnostics, explicit device, and kick/snare/hat/accent.wav assets lasting >0 through 2 seconds. Later control/reopen phases generate sound even with an empty initial pattern. Processing observations do not prove listening.";
 
-const PROJECT_HELP: &str = "Project commands (device-free):\n       daw-cli project-check --project PATH\n       daw-cli export-beat --project PATH --output PATH [--bars 1..4096] [--tail cut|finish] [--block-size 1..4096] [--sample-rate 100..192000] [--channels 1|2]\nBeat defaults: one bar, finish sample tails, 48000 Hz stereo, block 256, float32 WAV. Sources must match output sample rate; no overwrite, live service or device opened.";
+const PROJECT_HELP: &str = "Project commands (device-free):\n       daw-cli project-check --project PATH\n       daw-cli export-beat --project PATH --output PATH [--scene 0..15] [--bars 1..4096] [--tail cut|finish] [--block-size 1..4096] [--sample-rate 100..192000] [--channels 1|2]\nReads v1 (migrated in memory) and v2 projects. Export uses document mode/initial scene; --scene explicitly selects a scene from silence.\nBeat defaults: one bar, finish sample tails, 48000 Hz stereo, block 256, float32 WAV. Sources must match output sample rate; no overwrite, live service or device opened.";
+
+const LAUNCHER_HELP: &str = "Launcher diagnostics (release only):\n       daw-cli launcher-bench [--block-size 1..4096] [--clips empty|beat|dense] [--bpm 20|95.5|127.25|300] [--quantization step|beat|bar] [--bars 1..8] [--channels 1|2]\n       daw-cli launcher-native-check --input-dir DIR --device ID [--sample-rate 100..192000] [--channels 1|2] [--clips empty|beat|dense] [--bpm 20|95.5|127.25|300] [--quantization step|beat|bar] [--bars 1..2]\nBench defaults: 48000 Hz stereo, two bars, all four blocks, three workloads, three BPM and three quantizations. Independent PCM/event/transition/meter oracle; memory and owner teardown checks. Requires offline-diagnostics.\nNative defaults: beat, 127.25 BPM, Bar, one bar, 48000 Hz stereo. Requires rt-diagnostics and an explicit device; uses kick/snare/hat/accent.wav (>0 through 2 seconds), e.g. scripts/sequencer-fixtures.mjs. Later controls/reopen generate sound even for empty clips. Never infers listening from processing metrics.";
 
 fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
     let Some(command) = args.first() else {
-        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}\n{SEQUENCER_HELP}\n{PROJECT_HELP}");
+        println!(
+            "{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}\n{SEQUENCER_HELP}\n{PROJECT_HELP}\n{LAUNCHER_HELP}"
+        );
         return Ok(());
     };
     if command == "--help" || command == "-h" {
-        println!("{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}\n{SEQUENCER_HELP}\n{PROJECT_HELP}");
+        println!(
+            "{HELP}\n{SAMPLER_HELP}\n{MIXER_HELP}\n{SEQUENCER_HELP}\n{PROJECT_HELP}\n{LAUNCHER_HELP}"
+        );
         return Ok(());
     }
     if command == "export-wav" {
@@ -52,6 +58,8 @@ fn run(args: Vec<String>) -> std::result::Result<(), Box<dyn Error>> {
             | "mixer-native-check"
             | "sequencer-bench"
             | "sequencer-native-check"
+            | "launcher-bench"
+            | "launcher-native-check"
     ) {
         #[cfg(any(feature = "rt-diagnostics", feature = "offline-diagnostics"))]
         {

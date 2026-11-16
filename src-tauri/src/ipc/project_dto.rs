@@ -1,5 +1,6 @@
 use super::dto::{
-    MixerChannelDto, MixerSettingsDto, PatternDto, ProjectSummaryDto, SequencerCountersDto,
+    LauncherSettingsDto, MixerChannelDto, MixerSettingsDto, PatternDto, ProjectSummaryDto,
+    SequencerCountersDto,
 };
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -12,10 +13,21 @@ pub struct ProjectDocumentDto {
     pub pattern: PatternDto,
     pub mixer: MixerSettingsDto,
     pub assets: [Option<String>; 16],
+    pub launcher: LauncherSettingsDto,
 }
 impl From<daw_app::project_file::ProjectStatus> for ProjectDocumentDto {
     fn from(value: daw_app::project_file::ProjectStatus) -> Self {
         let doc = value.document;
+        let launcher = daw_app::LauncherSettings {
+            launcher: doc
+                .launcher
+                .into_launcher()
+                .expect("validated project status"),
+            mode: doc.playback_mode.into(),
+            quantization: doc.quantization.into(),
+            initial_scene: doc.initial_scene as usize,
+        }
+        .into();
         Self {
             path: value.path.map(|p| {
                 let path = p.to_string_lossy();
@@ -44,6 +56,7 @@ impl From<daw_app::project_file::ProjectStatus> for ProjectDocumentDto {
                 routes: doc.mixer.routes,
             },
             assets: doc.assets,
+            launcher,
         }
     }
 }

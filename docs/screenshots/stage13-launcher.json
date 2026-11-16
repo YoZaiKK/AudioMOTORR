@@ -1,0 +1,377 @@
+{
+  "recorded_utc": "2026-11-14T07:56:46.414Z",
+  "runtime": "Real Windows Tauri/WebView2, bundled debug executable",
+  "executable_sha256": "0ddc58915d51d9030309387f12904bd53fea79a85be76d43957607053e785232",
+  "scope": "Real UI edits through Rust IPC; audio remained uninitialized, no device playback or listening claim.",
+  "selected": {
+    "mode": "launcher",
+    "quantization": "beat",
+    "initialScene": 7,
+    "clips": [
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        {
+          "steps": [
+            true,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false
+          ],
+          "sampleSlot": 15
+        }
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ],
+    "scenes": [
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "launch",
+          "slot": 15
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ],
+      [
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        },
+        {
+          "action": "keep"
+        }
+      ]
+    ]
+  },
+  "state": {
+    "sequence": "0",
+    "state": "uninitialized",
+    "backend": null,
+    "output": null,
+    "engine": null,
+    "callbacks": "0",
+    "lastAppliedCommand": null,
+    "error": null,
+    "sampler": null,
+    "mixer": null,
+    "sequencer": null,
+    "launcher": null
+  },
+  "errors": [],
+  "captures": [
+    {
+      "path": "docs/screenshots/stage13-launcher-1000.png",
+      "sha256": "a34e096f03836f3032632bde5221e08fcea875598cf9a8d63e005933e17e4725",
+      "layout": {
+        "width": 1000,
+        "pageWidth": 985,
+        "panelBottom": 1755.625,
+        "gridWidth": 802,
+        "gridContentWidth": 802,
+        "cells": 64,
+        "enabledSteps": 4
+      }
+    },
+    {
+      "path": "docs/screenshots/stage13-launcher-360.png",
+      "sha256": "7a9fc74b78a0ae44e3f57cf3fe195184bc400107d65f81fcd9d1eb7ddde41e82",
+      "layout": {
+        "width": 360,
+        "pageWidth": 345,
+        "panelBottom": 2661.5625,
+        "gridWidth": 279,
+        "gridContentWidth": 740,
+        "cells": 64,
+        "enabledSteps": 4
+      }
+    }
+  ],
+  "source_file_count": 62,
+  "source_fingerprint_sha256": "3e43a031d44b8d1186ba8008fd29e2e7b37b7d1690eb9b37bd6f793a7031b780"
+}

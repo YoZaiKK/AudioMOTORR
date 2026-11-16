@@ -1,0 +1,277 @@
+﻿{
+  "format_version": 1,
+  "stage": "13.3.b",
+  "status": "implemented_and_verified_locally",
+  "recorded_utc": "2026-11-14T03:54:24.2052281Z",
+  "base_revision": "ac372260c22bcd8eefc989edf898367f10c4e4b3",
+  "scope": "Project-owned launcher/mode/quantization/initial scene; strict v2 writes and explicit v1 migration; portable files and independent scene export through the clip engine and CLI. Application coordination and editor/DTO exposure remain 13.3.c/d.",
+  "source_rule": "Base Git revision plus 34 listed source/configuration files accumulated across local 13.1-13.3.b. This stage touches 15 files, including the previously changed domain lib and two Cargo files. Of 20 prior source files, 19 retain their hashes and domain lib is deliberately extended. Raw-byte SHA256; sensitive to line endings. Documentation/progress excluded. Local evidence, not CI.",
+  "stage_paths": [
+    "crates/daw-domain/src/lib.rs",
+    "crates/daw-domain/tests/project_launcher_contract.rs",
+    "crates/daw-app/src/lib.rs",
+    "crates/daw-app/src/project_file.rs",
+    "crates/daw-app/src/project_launcher_document.rs",
+    "crates/daw-app/src/project_render.rs",
+    "crates/daw-app/tests/project_persistence_contract.rs",
+    "crates/daw-app/tests/project_v2_contract.rs",
+    "crates/daw-app/tests/scene_export_contract.rs",
+    "crates/daw-app/tests/support/launcher_projects.rs",
+    "crates/daw-cli/Cargo.toml",
+    "Cargo.lock",
+    "crates/daw-cli/src/project_commands.rs",
+    "crates/daw-cli/src/main.rs",
+    "crates/daw-cli/tests/scene_project_contract.rs"
+  ],
+  "stage_file_count": 15,
+  "prior_unchanged_count": 19,
+  "prior_updated_path": "crates/daw-domain/src/lib.rs",
+  "cumulative_file_count": 34,
+  "source_files": [
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "stage": "13.3.b",
+      "sha256": "092dd94bc4aeae039dab8c455e622ed0cecc35ff81a7564838e784b5ecf07365"
+    },
+    {
+      "path": "crates/daw-domain/src/clips.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "38f945daa675293d018ac743680b5ead2ac71cf42174af4f57009a9e5030d644"
+    },
+    {
+      "path": "crates/daw-domain/tests/clips_contract.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "bc7114e7cc9749d8c6bd6541b7dbdb8799b0af3efa674a9e0f5d48d06abe9454"
+    },
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "093504beb8e93da1259230e40c39eaf55e169e75ffce2e8c009ee83346b84220"
+    },
+    {
+      "path": "crates/daw-engine/src/sequencer.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "de079f08250d8e03a94d6fd73ce69d8673b4c0300853e6db72eb586bc054ce98"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "667c5f489cd52de4565c9786f47260b6be5fbb28b6d57060913fd7822d98f672"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher_tests.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "3945429c8a51ce4d76201ae6221bc10b9dbf06450b6a3f9159a95190cd927a68"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_contract.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "7a1a8e1c3976cf45afc958f7cba55ae1b664b0271bfc4c39a31412d680c1b133"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_reference.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "57a7b9277dce789364546103383aae65bf3960ca7106d4fc1d3d203cbe83b9d5"
+    },
+    {
+      "path": "crates/daw-audio/tests/launcher_memory_contract.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "6057954e15c8a8c91e1b8c92bc23609b4d71d879b199026968a159f33489e738"
+    },
+    {
+      "path": "crates/daw-audio/src/lib.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "bf68331a9b11ae193bf7e71652590fb3380e370c0f1323a8829ceda48ac5d3f2"
+    },
+    {
+      "path": "crates/daw-audio/src/native.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "6921d216ea37df90b393736d49018de6d3d3a9f183a7c89e09aa4da1529f5250"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "192a18a33d4c6235a6465ed74be64165aa007b590e673c094e98216cb5cbbd99"
+    },
+    {
+      "path": "crates/daw-audio/src/service.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "68f0f20859773ac4199e09851d04ca703183dd759003e13753d9bb95b009d27a"
+    },
+    {
+      "path": "crates/daw-audio/src/launcher_test_support.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "50efa68a7bc9faebb10742c643ef6ae7a26abe0e7640e0050b99ec34d96900db"
+    },
+    {
+      "path": "crates/daw-audio/src/native_launcher_tests.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "fbdd0505d4d3e3c39437e939f6bc47a97214971548e879240d52890b5521a929"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime_launcher_tests.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "51bf3b7dcfc5dd95695b5d44684dc230b4bf567a09ebc7c24fa4edc64f5a2a86"
+    },
+    {
+      "path": "crates/daw-audio/src/service_launcher_tests.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "d710668f8ad198f729cf35df602763640ef00fb6ba6d77c5e21ca97a3b445a34"
+    },
+    {
+      "path": "crates/daw-audio/tests/launcher_service_contract.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "15b3136f60e7f54262c92e2396672d6308ee34bf2756f3247412cd623895a61a"
+    },
+    {
+      "path": "src-tauri/tests/ipc_contract.rs",
+      "stage": "13.1_13.3a_inherited",
+      "sha256": "ee9373499e92463eeb98663baa92d68396a7eb1b063e2df396f919705274878b"
+    },
+    {
+      "path": "crates/daw-domain/tests/project_launcher_contract.rs",
+      "stage": "13.3.b",
+      "sha256": "c026fe6b1b5dc0f4b9484fb807a32f39ac7c0b4e7d795b27c777210cf98d11ce"
+    },
+    {
+      "path": "crates/daw-app/src/lib.rs",
+      "stage": "13.3.b",
+      "sha256": "d57e62c6d5860a5e95eab73ae41451ceb73766271e6f63378503f768370a3034"
+    },
+    {
+      "path": "crates/daw-app/src/project_file.rs",
+      "stage": "13.3.b",
+      "sha256": "09a0f02741a671cba747e3489089d4de5164f8bc21cd77ac7040d73d4acb72f6"
+    },
+    {
+      "path": "crates/daw-app/src/project_launcher_document.rs",
+      "stage": "13.3.b",
+      "sha256": "edf1538a904df9dc879b3f25c9cb11ef57bdae778d1c9d910936049343888aa5"
+    },
+    {
+      "path": "crates/daw-app/src/project_render.rs",
+      "stage": "13.3.b",
+      "sha256": "d03e613f896f309c2068c4e67ab2fb07c3cf2b6a6b987132daa03c6d4ed7d676"
+    },
+    {
+      "path": "crates/daw-app/tests/project_persistence_contract.rs",
+      "stage": "13.3.b",
+      "sha256": "472c46f9c3100927be081cad43a5177012bdf88d4cc2c95b95eed2e1357ddc1f"
+    },
+    {
+      "path": "crates/daw-app/tests/project_v2_contract.rs",
+      "stage": "13.3.b",
+      "sha256": "9f7e6c09e639fca8a99cce2be4663153c6c0139db3906f340de722cb7818fade"
+    },
+    {
+      "path": "crates/daw-app/tests/scene_export_contract.rs",
+      "stage": "13.3.b",
+      "sha256": "0fc19abf4c50fb3860bc6f5619dc77a0ef3241361b6a43f3f20cd93608396b4b"
+    },
+    {
+      "path": "crates/daw-app/tests/support/launcher_projects.rs",
+      "stage": "13.3.b",
+      "sha256": "86579683fc55a46c8ac93f1449376d008d42ccad149df673ffae1d71edd5cc81"
+    },
+    {
+      "path": "crates/daw-cli/Cargo.toml",
+      "stage": "13.3.b",
+      "sha256": "681287bf540ef07a593a4c71501699b7b1d530bdcdbe42cba63b6e41b05c6288"
+    },
+    {
+      "path": "Cargo.lock",
+      "stage": "13.3.b",
+      "sha256": "73aab5125b19c17f3b07a7a8cf8b584b803e417e50a51a0a50fff9717d9990a8"
+    },
+    {
+      "path": "crates/daw-cli/src/project_commands.rs",
+      "stage": "13.3.b",
+      "sha256": "23cdcd5f92b9ef75e42d52225c75e5fd66a79c2c6518b204d8ff00f5c617cc79"
+    },
+    {
+      "path": "crates/daw-cli/src/main.rs",
+      "stage": "13.3.b",
+      "sha256": "ea18ae3dedce4421ba19bedbdd2bacede728eaa95b30c163066476143d4ad0bb"
+    },
+    {
+      "path": "crates/daw-cli/tests/scene_project_contract.rs",
+      "stage": "13.3.b",
+      "sha256": "1ecc38f229d032bae41d8fb92a53db60c3daf9e2ed5853f1f17c0da7f883a48c"
+    }
+  ],
+  "contracts": [
+    {
+      "path": "docs/project-format.md",
+      "sha256": "d40a8fff4e9d3334e6f8925b3f9f2eb4cc1285e1ba4d197d752e0035c6fc6e11"
+    },
+    {
+      "path": "docs/clips-scenes-contract.md",
+      "sha256": "ff8994963542858e2bbf062693aa4357bf07bb2855e3daaf09359939982d5541"
+    },
+    {
+      "path": "docs/launcher-service.md",
+      "sha256": "6bdc0f931c06d7fadf6cc16d0005356ea9219fee2efad11a9d6ea196d8b6dd8d"
+    }
+  ],
+  "validation": {
+    "check": {
+      "command": "npm run check",
+      "started_utc": "2026-11-14T03:49:22.7469980Z",
+      "finished_utc": "2026-11-14T03:52:23.5098607Z",
+      "exit_code": 0,
+      "scope": "Full scripts/check.mjs: bindings/types/lint/frontend/format/web build, CLI scenarios, Rust headless/workspace, instrumented audio, diagnostics/memory and Clippy. Overlapping suites; no hardware opened or full desktop bundle build.",
+      "frontend_cases": 63,
+      "cli_scenarios": 9
+    },
+    "targeted_domain": "cargo test -p daw-domain --locked --test project_launcher_contract: 2 passed in debug and release",
+    "targeted_app": "cargo test -p daw-app --release --locked --lib --test project_v2_contract --test scene_export_contract --test project_persistence_contract: 13 unit + 5 v2 + 4 scene + 7 previous persistence/precision cases passed; affected debug suites and full regression check also passed",
+    "targeted_cli": "cargo test -p daw-cli --release --locked --test scene_project_contract --test project_contract: 2 new + 2 existing passed; 2 new also passed in debug",
+    "clippy": "cargo clippy -p daw-domain -p daw-app -p daw-cli --all-targets --locked -- -D warnings: exit 0",
+    "release": {
+      "started_utc": "2026-11-14T03:44:44.6636732Z",
+      "finished_utc": "2026-11-14T03:45:27.1375724Z",
+      "domain_exit_code": 0,
+      "app_exit_code": 0,
+      "cli_exit_code": 0
+    },
+    "unique_new_cases": 14,
+    "unique_case_rule": "2 domain + 1 internal dirty tracking + 5 v2 persistence + 4 scene export + 2 CLI cases. Runs/variants overlap.",
+    "graph_rejection_cases": 26,
+    "independent_pcm_reference": "Mono/stereo x 4 BPM x 1/2 bars x cut/finish x blocks 1/127/256/4096: 128 configurations. Separate rational event frames and finite-voice/mixer PCM reference; real WAV readback. Additional 1/100 Hz cases prove no new notes at the tail boundary with coincident events and full pool.",
+    "strict_action_regression": "Unknown slot fields on Keep and Stop initially exposed permissive unit variants; empty-struct wire variants reject extras without changing valid JSON representation. Regression now passes.",
+    "document_links": "Local links valid in 12 reviewed Markdown documents before adding the manifest; the added manifest link resolves.",
+    "bindings": "unchanged",
+    "logs": [
+      {
+        "path": "target/stage13-3b-20261113/check.log",
+        "sha256": "7ce6b42f0af29e14e2678e1ec8e7c103126cf80f8487a9ceac5026cec7b7602f"
+      },
+      {
+        "path": "target/stage13-3b-20261113/release-domain.log",
+        "sha256": "1717e458b705abf8ed7e2f1b4fae4a41b25a9933b241b62f75ce6327c9205ab5"
+      },
+      {
+        "path": "target/stage13-3b-20261113/release-project.log",
+        "sha256": "0daac3f45ecdd16d4fae344904f21d167119539d244f944822ef664cc11a5f9e"
+      },
+      {
+        "path": "target/stage13-3b-20261113/release-cli.log",
+        "sha256": "d7639b1608587e68764bc21c23021c60d6baece98de96e21afeb7bca2621226e"
+      }
+    ]
+  },
+  "dependency_changes": {
+    "scope": "CLI dev-dependencies only: existing workspace daw-domain and serde_json with float_roundtrip",
+    "lockfile": "Only daw-domain and serde_json edges added to daw-cli; no package version changes",
+    "resolution": "Offline; subsequent verification uses --locked"
+  },
+  "publication": {
+    "status": "not_committed_or_pushed",
+    "new_revision_ci": "not_run"
+  },
+  "native_audio": {
+    "status": "not_opened_or_measured",
+    "reason": "Persistence and scene export are independent and device-free. No new launcher listening/native timing claim."
+  },
+  "next": "13.3.c: coordinate mode/document/preparation/session selection and launch requests/receipts; preserve queue-full rollback, inconclusive timeout/loss and lifecycle. Desktop DTO/IPC/UI follows in 13.3.d."
+}

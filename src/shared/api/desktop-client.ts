@@ -16,6 +16,14 @@ import type {
   ProjectDocumentDto,
   BeatExportRequestDto,
   BeatExportDto,
+  LauncherSettingsDto,
+  LauncherStatusDto,
+  LauncherEditDto,
+  LauncherTargetDto,
+  LauncherLaunchDto,
+  PlaybackModeDto,
+  ClipDto,
+  TempoEditDto,
 } from "./generated/api";
 
 export function apiError(error: unknown): ApiError {
@@ -53,6 +61,27 @@ export const desktopClient = {
   appInfo: () => call<AppInfoDto>("get_app_info"),
   project: () => call<ProjectSummaryDto>("get_project_summary"),
   document: () => call<ProjectDocumentDto>("get_project_document"),
+  launcherSettings: () => call<LauncherSettingsDto>("get_launcher_settings"),
+  launcherStatus: () => call<LauncherStatusDto>("get_launcher_status"),
+  launcherEdit: (request: LauncherEditDto) =>
+    call<LauncherSettingsDto>("launcher_edit", { request }),
+  launcherLaunch: (target: LauncherTargetDto) =>
+    call<LauncherLaunchDto>("launcher_launch", { target }),
+  launcherReplaceAndLaunch: (row: number, slot: number, clip: ClipDto) =>
+    call<LauncherLaunchDto>("launcher_replace_and_launch_clip", {
+      row,
+      slot,
+      clip,
+    }),
+  playbackMode: (mode: PlaybackModeDto) =>
+    call<LauncherSettingsDto>("project_set_playback_mode", { mode }),
+  projectTempo: (bpm: number) =>
+    call<TempoEditDto>("project_set_tempo", { bpm }),
+  initializeProjectSampler: (preparationId: string, deviceId: string | null) =>
+    call<ServiceSnapshotDto>("initialize_project_sampler", {
+      preparationId,
+      deviceId,
+    }),
   saveProject: (path: string, overwrite: boolean, title: string) =>
     call<ProjectDocumentDto>("save_project", { path, overwrite, title }),
   openProject: (path: string) =>

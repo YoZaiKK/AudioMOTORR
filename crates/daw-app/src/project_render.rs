@@ -4,8 +4,11 @@ use crate::{
     project_file::{ProjectResult, read_project, resolved_assets},
     sample_loading::{BankPreparationCoordinator, SampleSelection},
 };
-use daw_domain::{Pattern, Project};
-use daw_engine::{AudioEngine, EngineCommand, EngineConfig, SequencerCounters};
+use daw_domain::{ClipLauncher, Pattern, PlaybackMode, Project};
+use daw_engine::{
+    AudioEngine, ClipLaunchAction, ClipLaunchRequest, EngineCommand, EngineConfig,
+    LaunchQuantization, SequencerCounters,
+};
 use std::{path::Path, sync::atomic::AtomicBool};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -104,10 +107,39 @@ impl BeatRender {
         let (project, path) = read_project(path)?;
         Self::from_project(&project, Some(&path), options)
     }
+    pub fn open_scene(
+        path: &Path,
+        scene: usize,
+        options: BeatRenderOptions,
+    ) -> ProjectResult<Self> {
+        let (project, path) = read_project(path)?;
+        Self::from_scene(&project, Some(&path), scene, options)
+    }
     pub fn from_project(
         project: &Project,
         path: Option<&Path>,
         options: BeatRenderOptions,
+    ) -> ProjectResult<Self> {
+        let scene = match project.playback_mode() {
+            PlaybackMode::Pattern => None,
+            PlaybackMode::Launcher => Some(project.initial_scene()),
+        };
+        Self::prepare(project, path, options, scene)
+    }
+    /// Explicit scene selection overrides document playback mode; Keep starts empty.
+    pub fn from_scene(
+        project: &Project,
+        path: Option<&Path>,
+        scene: usize,
+        options: BeatRenderOptions,
+    ) -> ProjectResult<Self> {
+        Self::prepare(project, path, options, Some(scene))
+    }
+    fn prepare(
+        project: &Project,
+        path: Option<&Path>,
+        options: BeatRenderOptions,
+        scene: Option<usize>,
     ) -> ProjectResult<Self> {
         if !(1..=2).contains(&options.config.channels())
             || !(1..=4096).contains(&options.block_size)
@@ -119,12 +151,17 @@ impl BeatRender {
             project.tempo().bpm(),
             options.bars,
         )?;
+        let selected_pattern = if let Some(scene) = scene {
+            ClipLauncher::pattern_from_clips(project.launcher().resolve_scene(scene, [None; 4])?)
+        } else {
+            *project.pattern()
+        };
         for row in 0..4 {
-            if (0..16).any(|step| project.pattern().step(row, step).unwrap()) {
-                let slot = project.pattern().row_slot(row)?;
+            if (0..16).any(|step| selected_pattern.step(row, step).unwrap()) {
+                let slot = selected_pattern.row_slot(row)?;
                 if project.assets()[slot].is_none() {
                     return Err(format!(
-                        "Enabled pattern row {} references empty slot {slot}",
+                        "Enabled export row {} references empty slot {slot}",
                         row + 1
                     )
                     .into());
@@ -152,12 +189,23 @@ impl BeatRender {
             .unwrap_or(0);
         let mut bank = None;
         prepared.install(&mut bank);
-        let engine = AudioEngine::with_sequenced_sampler(
-            bank.unwrap(),
-            project.tempo(),
-            *project.mixer(),
-            *project.pattern(),
-        );
+        let engine = if let Some(scene) = scene {
+            let mut engine =
+                AudioEngine::with_clip_launcher(bank.unwrap(), project.tempo(), *project.mixer());
+            engine.request_clip_launch(ClipLaunchRequest::from_scene(
+                project.launcher(),
+                scene,
+                project.launch_quantization(),
+            )?)?;
+            engine
+        } else {
+            AudioEngine::with_sequenced_sampler(
+                bank.unwrap(),
+                project.tempo(),
+                *project.mixer(),
+                *project.pattern(),
+            )
+        };
         Ok(Self {
             engine,
             scratch: vec![0.0; options.block_size * usize::from(options.config.channels())],
@@ -215,14 +263,25 @@ impl BeatRender {
     ) -> ProjectResult<BeatRenderReport> {
         self.engine.apply_command(EngineCommand::Play);
         self.emit(self.musical_frames, &mut sink)?;
-        let counters = self.engine.sequencer_snapshot().unwrap().counters;
+        let counters = if let Some(sequencer) = self.engine.sequencer_snapshot() {
+            sequencer.counters
+        } else {
+            self.engine.launcher_snapshot().unwrap().counters
+        };
         let tail_frames = if self.tail == TailPolicy::Finish {
             self.remaining_voices()
         } else {
             0
         };
         if tail_frames > 0 {
-            self.engine.set_pattern(Pattern::default())?;
+            if self.engine.launcher_snapshot().is_some() {
+                self.engine.request_clip_launch(ClipLaunchRequest::new(
+                    [ClipLaunchAction::Stop; 4],
+                    LaunchQuantization::Step,
+                )?)?;
+            } else {
+                self.engine.set_pattern(Pattern::default())?;
+            }
             self.emit(tail_frames, &mut sink)?;
         }
         Ok(BeatRenderReport {

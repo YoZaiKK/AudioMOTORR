@@ -132,7 +132,7 @@ fn invalid_documents_versions_references_and_busy_open_leave_selection_unchanged
     let value: serde_json::Value = serde_json::from_slice(&fs::read(&valid).unwrap()).unwrap();
     let mut invalid = Vec::new();
     for (pointer, replacement) in [
-        ("/version", serde_json::json!(2)),
+        ("/version", serde_json::json!(3)),
         ("/id", serde_json::json!("001")),
         ("/bpm", serde_json::json!(301)),
         ("/pattern/slots/0", serde_json::json!(16)),
@@ -155,7 +155,7 @@ fn invalid_documents_versions_references_and_busy_open_leave_selection_unchanged
     invalid.push(fs::read(&valid).unwrap().into_iter().take(20).collect());
     let text = String::from_utf8(fs::read(&valid).unwrap()).unwrap();
     invalid.push(
-        text.replacen("\"version\": 1", "\"version\": 1, \"version\": 1", 1)
+        text.replacen("\"version\": 2", "\"version\": 2, \"version\": 2", 1)
             .into_bytes(),
     );
     for (index, bytes) in invalid.into_iter().enumerate() {

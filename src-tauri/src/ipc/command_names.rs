@@ -1,4 +1,12 @@
 pub const COMMANDS: &[&str] = &[
+    "get_launcher_settings",
+    "get_launcher_status",
+    "launcher_edit",
+    "launcher_launch",
+    "launcher_replace_and_launch_clip",
+    "project_set_playback_mode",
+    "project_set_tempo",
+    "initialize_project_sampler",
     "get_app_info",
     "get_project_summary",
     "get_project_document",

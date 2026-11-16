@@ -48,6 +48,7 @@ impl Application {
         next: Pattern,
         enqueue: impl FnOnce(&daw_audio::AudioHandle) -> Result<CommandAccepted>,
     ) -> Result<PatternEdit> {
+        self.require_project_mode(crate::PlaybackMode::Pattern)?;
         let handle = self.audio.handle();
         let accepted = if live_sequencer(handle.snapshot()?)? {
             Some(enqueue(&handle)?)

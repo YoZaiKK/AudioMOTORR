@@ -1,3 +1,67 @@
+.launcher-grid-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.launcher-grid {
+  min-width: 740px;
+  width: 100%;
+  border-spacing: 3px;
+}
+.launcher-grid caption {
+  text-align: left;
+  font-size: 0.85rem;
+  padding: 8px 0;
+  color: #aab3c4;
+}
+.launcher-grid th {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.launcher-grid td button {
+  width: 100%;
+  min-height: 48px;
+  padding: 4px;
+  position: relative;
+}
+.launcher-grid button[aria-pressed="true"] {
+  outline: 2px solid #e7eaf0;
+  outline-offset: -2px;
+}
+.launcher-grid .clip-active {
+  background: #245642;
+  color: #a8f2ca;
+}
+.launcher-grid .clip-queued {
+  border-bottom: 3px solid #e9bf70;
+}
+.clip-indicator {
+  display: block;
+  min-height: 12px;
+  font-size: 0.6rem;
+}
+.clip-steps {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  margin: 16px 0;
+}
+.clip-steps button {
+  padding: 12px 2px;
+}
+.clip-steps button[aria-pressed="true"] {
+  background: #34715a;
+  border-color: #86d6b3;
+}
+.launcher-sample {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.launcher-panel {
+  overflow-wrap: anywhere;
+}
 .project-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

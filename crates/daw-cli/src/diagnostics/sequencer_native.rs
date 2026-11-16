@@ -14,16 +14,16 @@ use std::{
 };
 
 const NAMES: [&str; 4] = ["kick.wav", "snare.wav", "hat.wav", "accent.wav"];
-struct Options {
-    directory: PathBuf,
-    device: String,
-    config: EngineConfig,
-    workload: Workload,
-    numerator: u64,
-    bars: u64,
+pub(super) struct Options {
+    pub directory: PathBuf,
+    pub device: String,
+    pub config: EngineConfig,
+    pub workload: Workload,
+    pub numerator: u64,
+    pub bars: u64,
 }
 impl Options {
-    fn parse(args: &[String]) -> Result<Self> {
+    pub(super) fn parse(args: &[String]) -> Result<Self> {
         let (mut directory, mut device, mut rate, mut channels) = (None, None, 48_000, 2);
         let (mut workload, mut bpm, mut bars) = (Workload::Beat, 509, 1);
         let mut seen = std::collections::HashSet::new();
@@ -64,7 +64,10 @@ impl Options {
         })
     }
 }
-fn prepare(app: &mut Application, options: &Options) -> Result<(u64, [PreparedSampleInfo; 4])> {
+pub(super) fn prepare(
+    app: &mut Application,
+    options: &Options,
+) -> Result<(u64, [PreparedSampleInfo; 4])> {
     let id = app
         .prepare_samples(
             options.config,
@@ -119,7 +122,7 @@ fn log(label: &str, snapshot: &ServiceSnapshot) {
         snapshot.mixer
     );
 }
-fn levels(snapshot: &ServiceSnapshot) -> Result<bool> {
+pub(super) fn levels(snapshot: &ServiceSnapshot) -> Result<bool> {
     let mix = snapshot.mixer.ok_or("Missing sequencer mixer")?;
     let channels = snapshot
         .engine
@@ -228,7 +231,7 @@ fn timeline(snapshot: &ServiceSnapshot, options: &Options) -> Result<()> {
     }
     Ok(())
 }
-fn silence_check(snapshot: &ServiceSnapshot) -> Result<()> {
+pub(super) fn silence_check(snapshot: &ServiceSnapshot) -> Result<()> {
     if levels(snapshot)? {
         return Err("Expected silent sequencer window".into());
     }

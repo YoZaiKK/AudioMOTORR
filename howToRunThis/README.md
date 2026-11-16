@@ -1,15 +1,13 @@
 # Cómo ejecutar y comprobar AudioMOTORR
 
-Estado actual 2026-11-12: UI de sampler, mezclador y **secuenciador de 4 × 16**
-implementada. Ver [guía del patrón](08-secuenciador.md), con capturas reales de
-edición en WebView2; su aceptación física/nativa completa sigue en 11.4.
-Las etapas 9 y 10 están cerradas dentro del alcance de sus reportes.
-11.4.a ya añade [diagnósticos del secuenciador y fixtures](03-cli.md), con
-mediciones offline y protocolo para 11.4.b.
-La matriz física del secuenciador ya pasó seis casos y seis reaperturas; la
-escucha sigue pendiente. Etapa 12 añade [guardar, abrir y exportar beats](09-proyectos.md),
-con copias de assets, rutas relativas y capturas reales del flujo de archivos.
-El párrafo fechado siguiente conserva el registro anterior de preparación/sampler.
+Estado actual 2026-11-16: sampler de 16 slots/voces, mezcla de cuatro canales,
+patrón 4 × 16 y editor/lanzador de clips y escenas implementados. Los proyectos
+v2 guardan assets portátiles y exportan WAV con colas; migración v1 explícita.
+Etapas 1–12 cerradas dentro de sus reportes; 13.3.e aceptada localmente y
+13.4.a implementa diagnósticos. Siguen medición/escucha nativa del launcher
+y entrega 13.4.b/c. Ver [clips/escenas](10-clips-escenas.md),
+[proyectos](09-proyectos.md) y [diagnósticos del launcher](11-diagnosticos-clips.md).
+El historial fechado siguiente conserva alcances anteriores.
 
 Actualización 2026-11-10: 9.3.a fija el
 [contrato de carga WAV](../docs/sample-loading-contract.md) y los presupuestos;
@@ -31,13 +29,16 @@ sampler WAV one-shot, transporte, servicio de audio y exportación de senoide WA
 desde la raíz del repositorio en PowerShell.
 El README principal se mantiene en inglés.
 
-| Quiero…                                             | Guía                                         |
-| --------------------------------------------------- | -------------------------------------------- |
-| Preparar Windows y las herramientas                 | [Preparación](01-preparacion.md)             |
-| Recorrer los controles con capturas                 | [Walkthrough de la interfaz](02-interfaz.md) |
-| Procesar frames sin dispositivo o probar audio real | [CLI](03-cli.md)                             |
-| Ejecutar tests, bindings y comprobaciones           | [Pruebas](04-pruebas.md)                     |
-| Resolver errores del entorno                        | [Problemas conocidos](05-problemas.md)       |
+| Quiero…                                             | Guía                                              |
+| --------------------------------------------------- | ------------------------------------------------- |
+| Preparar Windows y las herramientas                 | [Preparación](01-preparacion.md)                  |
+| Recorrer los controles con capturas                 | [Walkthrough de la interfaz](02-interfaz.md)      |
+| Procesar frames sin dispositivo o probar audio real | [CLI](03-cli.md)                                  |
+| Ejecutar tests, bindings y comprobaciones           | [Pruebas](04-pruebas.md)                          |
+| Resolver errores del entorno                        | [Problemas conocidos](05-problemas.md)            |
+| Editar y lanzar clips/escenas                       | [Launcher](10-clips-escenas.md)                   |
+| Guardar, abrir y exportar WAV                       | [Proyectos](09-proyectos.md)                      |
+| Verificar transiciones y preparar medición nativa   | [Diagnósticos de clips](11-diagnosticos-clips.md) |
 
 Ruta rápida:
 
@@ -103,8 +104,8 @@ ya ofrece sesiones mezcladas y controles desde Rust. La
 documento/aceptación/estado aplicado; el desktop 10.3.c añade cuatro tiras,
 rutas y niveles. La aceptación integrada 10.3.d está completada; sigue
 [etapa 10 cerrada](../progress/cierre-etapa-10.md) con mediciones, escucha y CI propias,
-conforme al [contrato](../docs/mixer-contract.md). El sampler todavía no guarda proyectos
-ni reproduce patrones; esas funciones conservan su orden posterior.
+conforme al [contrato](../docs/mixer-contract.md). Ese incremento de mezcla no incluía proyectos ni patrones; ahora están implementados
+en etapas 11/12, junto con clips/escenas en 13.3.
 
 Guía nueva: [mezclador de cuatro canales](07-mezclador.md), selección/rutas,
 recibos y niveles observados en la sesión mezclada explícita.

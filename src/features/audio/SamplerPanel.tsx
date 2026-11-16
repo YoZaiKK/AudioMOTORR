@@ -155,6 +155,7 @@ export function SamplerPanel({ session }: { session: DawSession }) {
         disabled={
           disabled ||
           !session.pattern ||
+          session.launcherSettings?.mode === "launcher" ||
           !session.mixerSettings ||
           session.snapshot?.state !== "uninitialized" ||
           prepared?.state !== "ready"
@@ -162,6 +163,18 @@ export function SamplerPanel({ session }: { session: DawSession }) {
         onClick={() => void session.initializeSequencedSampler(device || null)}
       >
         Inicializar secuenciador
+      </button>
+      <button
+        disabled={
+          disabled ||
+          !session.launcherSettings ||
+          session.snapshot?.state !== "uninitialized" ||
+          prepared?.state !== "ready"
+        }
+        onClick={() => void session.initializeProjectSampler(device || null)}
+      >
+        Inicializar proyecto (
+        {session.launcherSettings?.mode === "launcher" ? "clips" : "patrón"})
       </button>
       <p className="muted">
         Inicializar abre la salida con el formato exacto del banco y lo consume,

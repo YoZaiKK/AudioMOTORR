@@ -1,0 +1,475 @@
+{
+  "format_version": 1,
+  "stage": "13.3.d",
+  "status": "implemented_and_verified_locally",
+  "recorded_utc": "2026-11-14T21:28:31.615Z",
+  "base_revision": "ac372260c22bcd8eefc989edf898367f10c4e4b3",
+  "scope": "Scoped launcher DTO/bindings/IPC/ACL, clip/scene desktop editing, explicit launches, selected/accepted/processed/transition separation, observed row phases, browser and lifecycle handling.",
+  "source_rule": "Base revision plus accumulated source/configuration files listed here. Raw-byte SHA256 includes line endings; docs/progress/screenshots are separate. All 40 inherited source hashes remain unchanged. Local working tree evidence, not a published commit or CI.",
+  "stage_paths": [
+    "src-tauri/Cargo.toml",
+    "src-tauri/capabilities/default.json",
+    "src-tauri/src/ipc/command_names.rs",
+    "src-tauri/src/ipc/commands.rs",
+    "src-tauri/src/ipc/dto.rs",
+    "src-tauri/src/ipc/mod.rs",
+    "src-tauri/src/ipc/project_dto.rs",
+    "src-tauri/src/ipc/launcher_dto.rs",
+    "src-tauri/tests/launcher_ipc_contract.rs",
+    "src/app/App.tsx",
+    "src/app/App.test.tsx",
+    "src/app/styles.css",
+    "src/features/audio/LauncherPanel.tsx",
+    "src/features/audio/launcher-observation.ts",
+    "src/features/audio/SamplerPanel.tsx",
+    "src/features/audio/SequencerPanel.tsx",
+    "src/features/audio/useDawSession.ts",
+    "src/features/project/ProjectPanel.tsx",
+    "src/features/transport/TransportBar.tsx",
+    "src/shared/api/desktop-client.ts",
+    "src/shared/api/desktop-client.test.ts",
+    "src/shared/api/generated/api.ts"
+  ],
+  "stage_file_count": 22,
+  "inherited_unchanged_count": 40,
+  "cumulative_file_count": 62,
+  "source_fingerprint_sha256": "3e43a031d44b8d1186ba8008fd29e2e7b37b7d1690eb9b37bd6f793a7031b780",
+  "source_files": [
+    {
+      "path": "Cargo.lock",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "73aab5125b19c17f3b07a7a8cf8b584b803e417e50a51a0a50fff9717d9990a8"
+    },
+    {
+      "path": "crates/daw-app/src/launcher_preparation_tests.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "a82e3ab13f614230436acbd58b66988dc1f72beff212df5bb3fffc85845496ba"
+    },
+    {
+      "path": "crates/daw-app/src/launcher_tests.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "4a709362caf71fefc06b8b7479e90239df118d8c8e17bf363625cc8d14b5e9b4"
+    },
+    {
+      "path": "crates/daw-app/src/launcher.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "a76fcfc353bb684febab3d3e1c3b15f406fd168bfb89541625f40b5338ebe762"
+    },
+    {
+      "path": "crates/daw-app/src/lib.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "31a8ffe65a72ccf90494ada579e5b42d11ad72876ee1d7582db7f9c039fba0ac"
+    },
+    {
+      "path": "crates/daw-app/src/project_file.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "09a0f02741a671cba747e3489089d4de5164f8bc21cd77ac7040d73d4acb72f6"
+    },
+    {
+      "path": "crates/daw-app/src/project_launcher_document.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "edf1538a904df9dc879b3f25c9cb11ef57bdae778d1c9d910936049343888aa5"
+    },
+    {
+      "path": "crates/daw-app/src/project_render.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "d03e613f896f309c2068c4e67ab2fb07c3cf2b6a6b987132daa03c6d4ed7d676"
+    },
+    {
+      "path": "crates/daw-app/src/sampler_session.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "07f22bb8744ca32962e05be11a3d942e98e18488ec9670c1db870df8ef6f7161"
+    },
+    {
+      "path": "crates/daw-app/src/sequencer.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "d12eca9fe4afb503ac87d5ce9664a335ebe6c02b7af9da7734342135d5425924"
+    },
+    {
+      "path": "crates/daw-app/tests/launcher_application_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "cbf5bcf8bc5f3d8a19e049b4e24716c50ad30c9da75926723a60f0a93f6800db"
+    },
+    {
+      "path": "crates/daw-app/tests/project_persistence_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "472c46f9c3100927be081cad43a5177012bdf88d4cc2c95b95eed2e1357ddc1f"
+    },
+    {
+      "path": "crates/daw-app/tests/project_v2_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "9f7e6c09e639fca8a99cce2be4663153c6c0139db3906f340de722cb7818fade"
+    },
+    {
+      "path": "crates/daw-app/tests/scene_export_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "0fc19abf4c50fb3860bc6f5619dc77a0ef3241361b6a43f3f20cd93608396b4b"
+    },
+    {
+      "path": "crates/daw-app/tests/support/launcher_projects.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "86579683fc55a46c8ac93f1449376d008d42ccad149df673ffae1d71edd5cc81"
+    },
+    {
+      "path": "crates/daw-audio/src/launcher_test_support.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "50efa68a7bc9faebb10742c643ef6ae7a26abe0e7640e0050b99ec34d96900db"
+    },
+    {
+      "path": "crates/daw-audio/src/lib.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "bf68331a9b11ae193bf7e71652590fb3380e370c0f1323a8829ceda48ac5d3f2"
+    },
+    {
+      "path": "crates/daw-audio/src/native_launcher_tests.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "fbdd0505d4d3e3c39437e939f6bc47a97214971548e879240d52890b5521a929"
+    },
+    {
+      "path": "crates/daw-audio/src/native.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "6921d216ea37df90b393736d49018de6d3d3a9f183a7c89e09aa4da1529f5250"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime_launcher_tests.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "51bf3b7dcfc5dd95695b5d44684dc230b4bf567a09ebc7c24fa4edc64f5a2a86"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "192a18a33d4c6235a6465ed74be64165aa007b590e673c094e98216cb5cbbd99"
+    },
+    {
+      "path": "crates/daw-audio/src/service_launcher_tests.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "d710668f8ad198f729cf35df602763640ef00fb6ba6d77c5e21ca97a3b445a34"
+    },
+    {
+      "path": "crates/daw-audio/src/service.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "68f0f20859773ac4199e09851d04ca703183dd759003e13753d9bb95b009d27a"
+    },
+    {
+      "path": "crates/daw-audio/tests/launcher_memory_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "6057954e15c8a8c91e1b8c92bc23609b4d71d879b199026968a159f33489e738"
+    },
+    {
+      "path": "crates/daw-audio/tests/launcher_service_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "15b3136f60e7f54262c92e2396672d6308ee34bf2756f3247412cd623895a61a"
+    },
+    {
+      "path": "crates/daw-cli/Cargo.toml",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "681287bf540ef07a593a4c71501699b7b1d530bdcdbe42cba63b6e41b05c6288"
+    },
+    {
+      "path": "crates/daw-cli/src/main.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "ea18ae3dedce4421ba19bedbdd2bacede728eaa95b30c163066476143d4ad0bb"
+    },
+    {
+      "path": "crates/daw-cli/src/project_commands.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "23cdcd5f92b9ef75e42d52225c75e5fd66a79c2c6518b204d8ff00f5c617cc79"
+    },
+    {
+      "path": "crates/daw-cli/tests/scene_project_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "1ecc38f229d032bae41d8fb92a53db60c3daf9e2ed5853f1f17c0da7f883a48c"
+    },
+    {
+      "path": "crates/daw-domain/src/clips.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "38f945daa675293d018ac743680b5ead2ac71cf42174af4f57009a9e5030d644"
+    },
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "092dd94bc4aeae039dab8c455e622ed0cecc35ff81a7564838e784b5ecf07365"
+    },
+    {
+      "path": "crates/daw-domain/tests/clips_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "bc7114e7cc9749d8c6bd6541b7dbdb8799b0af3efa674a9e0f5d48d06abe9454"
+    },
+    {
+      "path": "crates/daw-domain/tests/project_launcher_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "c026fe6b1b5dc0f4b9484fb807a32f39ac7c0b4e7d795b27c777210cf98d11ce"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher_tests.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "3945429c8a51ce4d76201ae6221bc10b9dbf06450b6a3f9159a95190cd927a68"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "667c5f489cd52de4565c9786f47260b6be5fbb28b6d57060913fd7822d98f672"
+    },
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "093504beb8e93da1259230e40c39eaf55e169e75ffce2e8c009ee83346b84220"
+    },
+    {
+      "path": "crates/daw-engine/src/sequencer.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "de079f08250d8e03a94d6fd73ce69d8673b4c0300853e6db72eb586bc054ce98"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "7a1a8e1c3976cf45afc958f7cba55ae1b664b0271bfc4c39a31412d680c1b133"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_reference.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "57a7b9277dce789364546103383aae65bf3960ca7106d4fc1d3d203cbe83b9d5"
+    },
+    {
+      "path": "src-tauri/capabilities/default.json",
+      "stage": "13.3d_desktop",
+      "sha256": "508b426c50ff4c8769dbc22ad98eeb7a0afd65e2024cf64c1d1e31c34bab0a25"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "stage": "13.3d_desktop",
+      "sha256": "dab7d1277810e357c0d1a935ac8d06e9ef298f00f55ab0b2a47c4cf770da4bd5"
+    },
+    {
+      "path": "src-tauri/src/ipc/command_names.rs",
+      "stage": "13.3d_desktop",
+      "sha256": "f1460e85576adedc881bd8b0f5954880aeb9439dfc0fd4b261da51209c173e8d"
+    },
+    {
+      "path": "src-tauri/src/ipc/commands.rs",
+      "stage": "13.3d_desktop",
+      "sha256": "0b76bcb9db744c0ed8b8a31f0e76ec28a5e2a0f7ba5234f1e074eaed6eeb2907"
+    },
+    {
+      "path": "src-tauri/src/ipc/dto.rs",
+      "stage": "13.3d_desktop",
+      "sha256": "bc248475683dc4bcf71272b1a5924a076974b5fb3c5022cc3a2642b7628b5afa"
+    },
+    {
+      "path": "src-tauri/src/ipc/launcher_dto.rs",
+      "stage": "13.3d_desktop",
+      "sha256": "300e30f3fde84782d322fbc1125361ad47b3a1631bb796f19256f7dff946fc1a"
+    },
+    {
+      "path": "src-tauri/src/ipc/mod.rs",
+      "stage": "13.3d_desktop",
+      "sha256": "a4cfa33f7715928487f1c4ce6e83ec09f6bd55d1be45f9803cde337ecef2cc3e"
+    },
+    {
+      "path": "src-tauri/src/ipc/project_dto.rs",
+      "stage": "13.3d_desktop",
+      "sha256": "c562bf19c0d24f36f778d9142dd474519f10b436cb9f6e02ebcc50c713fc99a1"
+    },
+    {
+      "path": "src-tauri/tests/ipc_contract.rs",
+      "stage": "13.1_13.3c_inherited",
+      "sha256": "ee9373499e92463eeb98663baa92d68396a7eb1b063e2df396f919705274878b"
+    },
+    {
+      "path": "src-tauri/tests/launcher_ipc_contract.rs",
+      "stage": "13.3d_desktop",
+      "sha256": "5b0657e8a02b1beaa708b7b8ce7cdab528f978cdd9e7639984088765abc78e79"
+    },
+    {
+      "path": "src/app/App.test.tsx",
+      "stage": "13.3d_desktop",
+      "sha256": "9fb69cda436a1da74e756baae0082aa194700e2b0046fc0fb57a2d6a2c21081f"
+    },
+    {
+      "path": "src/app/App.tsx",
+      "stage": "13.3d_desktop",
+      "sha256": "14a4a1356231ede021e0af2d94a63911536f896a3ac822a5fc0bb00d3f188a02"
+    },
+    {
+      "path": "src/app/styles.css",
+      "stage": "13.3d_desktop",
+      "sha256": "46d4f788a72f9ccbe924868223ddf0943b3c74f7de492a5aff1445a46d48981e"
+    },
+    {
+      "path": "src/features/audio/launcher-observation.ts",
+      "stage": "13.3d_desktop",
+      "sha256": "9c909b328b87886cf7f49fcd70dda415718cf4b05a60686ffc750b66a9651c11"
+    },
+    {
+      "path": "src/features/audio/LauncherPanel.tsx",
+      "stage": "13.3d_desktop",
+      "sha256": "24d6c23d32b668f67c5e5fafd2543e0a3a494aab3b76902bd97b3563efe9046c"
+    },
+    {
+      "path": "src/features/audio/SamplerPanel.tsx",
+      "stage": "13.3d_desktop",
+      "sha256": "6944c6f22a4f4f778b0e40b39b57b468cfc7abefb4720753fdbbc509fc746d0d"
+    },
+    {
+      "path": "src/features/audio/SequencerPanel.tsx",
+      "stage": "13.3d_desktop",
+      "sha256": "5efe3ba19b9b0489d3dd26f64125048d2e993a57420bd6c0a77cc1bf6e1c89d8"
+    },
+    {
+      "path": "src/features/audio/useDawSession.ts",
+      "stage": "13.3d_desktop",
+      "sha256": "f766a79aa434b6ec160df313cb250bef8cfbc50ab019b61047342a83bcc11e6d"
+    },
+    {
+      "path": "src/features/project/ProjectPanel.tsx",
+      "stage": "13.3d_desktop",
+      "sha256": "2d0a8aefd33fcec0d1c77fc091390ac29711b3b801ff9b7ab8f7b57e7a3bef5c"
+    },
+    {
+      "path": "src/features/transport/TransportBar.tsx",
+      "stage": "13.3d_desktop",
+      "sha256": "b1a990d90d31f5bde677e0326f02cbf3dec3b2b36f216a2a740a6ad8ac203cc4"
+    },
+    {
+      "path": "src/shared/api/desktop-client.test.ts",
+      "stage": "13.3d_desktop",
+      "sha256": "01bf07f5c460b0ead30a18a6674b6063c87bd67b29dc1d6f79bbdea2f8591b43"
+    },
+    {
+      "path": "src/shared/api/desktop-client.ts",
+      "stage": "13.3d_desktop",
+      "sha256": "3056601e72a3f9211820b4136607a03bcade32a0530cec8314a1c897bbd326e8"
+    },
+    {
+      "path": "src/shared/api/generated/api.ts",
+      "stage": "13.3d_desktop",
+      "sha256": "cace129aaa178762ba9c621c2bdf3dd23ec285c4c4a01bab2b9e5ed43b4f70d8"
+    }
+  ],
+  "verification": {
+    "full_check": {
+      "command": "npm run check",
+      "exit_code": 0,
+      "frontend_cases": 68,
+      "cli_smoke_scenarios": 9,
+      "scope": "bindings, types, lint, frontend, format, web build, CLI, Rust headless/workspace, instrumented audio, diagnostics/memory and Clippy"
+    },
+    "targeted_ipc": {
+      "command": "cargo test -p rust-daw-desktop --locked --test launcher_ipc_contract",
+      "exit_code": 0,
+      "cases": 3
+    },
+    "new_unique_cases": 8,
+    "new_case_rule": "4 frontend integration + 1 frontend client + 3 IPC cases. Repeated runs overlap.",
+    "desktop_build": {
+      "command": "npm run desktop:build -- --debug --no-bundle",
+      "exit_code": 0,
+      "installer_built": false,
+      "executable_sha256": "0ddc58915d51d9030309387f12904bd53fea79a85be76d43957607053e785232"
+    },
+    "webview": {
+      "command": "powershell -NoProfile -File target/stage13-3d-20261114/preview.ps1",
+      "exit_code": 0,
+      "runtime": "Real Windows Tauri/WebView2, bundled debug executable",
+      "audio_state": "uninitialized",
+      "callbacks": "0",
+      "launch_automatically_submitted": false,
+      "captures": [
+        {
+          "path": "docs/screenshots/stage13-launcher-1000.png",
+          "sha256": "a34e096f03836f3032632bde5221e08fcea875598cf9a8d63e005933e17e4725",
+          "layout": {
+            "width": 1000,
+            "pageWidth": 985,
+            "panelBottom": 1755.625,
+            "gridWidth": 802,
+            "gridContentWidth": 802,
+            "cells": 64,
+            "enabledSteps": 4
+          }
+        },
+        {
+          "path": "docs/screenshots/stage13-launcher-360.png",
+          "sha256": "7a9fc74b78a0ae44e3f57cf3fe195184bc400107d65f81fcd9d1eb7ddde41e82",
+          "layout": {
+            "width": 360,
+            "pageWidth": 345,
+            "panelBottom": 2661.5625,
+            "gridWidth": 279,
+            "gridContentWidth": 740,
+            "cells": 64,
+            "enabledSteps": 4
+          }
+        }
+      ],
+      "exceptions": [],
+      "normal_process_close": true,
+      "scope": "Real UI edits through Rust IPC; audio remained uninitialized, no device playback or listening claim."
+    },
+    "generator_notes": "ts-rs prints three macro warnings for deny_unknown_fields on input enums. Rust Serde validation remains active and is exercised by IPC tests; generated TS/bindings check and Clippy pass.",
+    "dependencies": "Existing workspace daw-engine moved from dev-dependencies to normal desktop dependency for DTO conversion. No new external dependencies; inherited Cargo.lock/package-lock.json hashes unchanged.",
+    "logs": [
+      {
+        "path": "target/stage13-3d-20261114/check.log",
+        "sha256": "a392a8263c9499f779ca53e888e42cdc760da260c340f612e4d015ea46e09ea0",
+        "created_utc": "2026-11-14T07:34:30.725Z",
+        "modified_utc": "2026-11-14T07:50:59.798Z"
+      },
+      {
+        "path": "target/stage13-3d-20261114/desktop-build.log",
+        "sha256": "2f69537109cc4c3bb19b878795f8a4cd67eae21647e5270685788efbc1abf053",
+        "created_utc": "2026-11-14T07:36:36.725Z",
+        "modified_utc": "2026-11-14T07:55:46.066Z"
+      },
+      {
+        "path": "target/stage13-3d-20261114/preview.log",
+        "sha256": "26ac7649782e8e0db57e63f885af8105e016877d72634d3e8b3eef69c2f8bc54",
+        "created_utc": "2026-11-14T07:45:46.993Z",
+        "modified_utc": "2026-11-14T07:56:46.567Z"
+      },
+      {
+        "path": "target/stage13-3d-20261114/preview.json",
+        "sha256": "25241d3a0652ec72c3e904575ebe3088829254efb5b05c3037243a8c96e13af5",
+        "created_utc": "2026-11-14T07:46:08.406Z",
+        "modified_utc": "2026-11-14T21:28:31.611Z"
+      }
+    ]
+  },
+  "document_paths": [
+    "README.md",
+    "docs/roadmap.md",
+    "docs/launcher-application.md",
+    "docs/launcher-desktop.md",
+    "howToRunThis/09-proyectos.md",
+    "howToRunThis/10-clips-escenas.md",
+    "progress/checklist.md",
+    "progress/estado-y-siguiente-etapa.md",
+    "progress/plan-siguientes-pasos.md",
+    "progress/plan-etapas-7-13.md",
+    "progress/detalles.md",
+    "progress/etapa-13-desktop-clips.md"
+  ],
+  "artifacts": [
+    {
+      "path": "docs/screenshots/stage13-launcher-1000.png",
+      "sha256": "a34e096f03836f3032632bde5221e08fcea875598cf9a8d63e005933e17e4725"
+    },
+    {
+      "path": "docs/screenshots/stage13-launcher-360.png",
+      "sha256": "7a9fc74b78a0ae44e3f57cf3fe195184bc400107d65f81fcd9d1eb7ddde41e82"
+    },
+    {
+      "path": "docs/screenshots/stage13-launcher.json",
+      "sha256": "25241d3a0652ec72c3e904575ebe3088829254efb5b05c3037243a8c96e13af5"
+    }
+  ],
+  "publication": {
+    "status": "not_committed_or_pushed",
+    "new_revision_ci": "not_run"
+  },
+  "native_audio": {
+    "status": "not_opened_or_measured",
+    "reason": "Manual IPC sessions and a real WebView2 editor preview with audio uninitialized; no hardware or listening claim."
+  },
+  "next": "13.3.e: local integrated acceptance with WAV fixtures, files/export, lifecycle and IPC/UI ordering, before diagnostics/native acceptance/closure 13.4."
+}

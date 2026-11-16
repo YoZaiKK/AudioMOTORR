@@ -3,6 +3,10 @@ import { apiError, desktopClient } from "../../shared/api/desktop-client";
 import { observeTrigger, type TriggerObservation } from "./trigger-observation";
 import { observeMixer, type MixerObservation } from "./mixer-observation";
 import { observePattern, type PatternObservation } from "./pattern-observation";
+import {
+  observeLauncher,
+  type LauncherObservation,
+} from "./launcher-observation";
 import type {
   ApiError,
   AppInfoDto,
@@ -19,6 +23,11 @@ import type {
   ProjectDocumentDto,
   BeatExportDto,
   BeatExportRequestDto,
+  LauncherSettingsDto,
+  LauncherEditDto,
+  LauncherTargetDto,
+  LauncherLaunchDto,
+  PlaybackModeDto,
 } from "../../shared/api/generated/api";
 
 function acknowledged(snapshot: ServiceSnapshotDto | null, id: string) {
@@ -38,6 +47,12 @@ export function useDawSession() {
     report: BeatExportDto;
   } | null>(null);
   const documentGeneration = useRef(0);
+  const [launcherSettings, setLauncherSettings] =
+    useState<LauncherSettingsDto | null>(null);
+  const [launcherLaunch, setLauncherLaunch] =
+    useState<LauncherObservation | null>(null);
+  const launcherGeneration = useRef(0);
+  const launcherSelectionGeneration = useRef(0);
   const [devices, setDevices] = useState<OutputDeviceDto[]>([]);
   const [snapshot, setSnapshot] = useState<ServiceSnapshotDto | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
@@ -95,6 +110,14 @@ export function useDawSession() {
     if (next.state !== "ready" || !next.mixer) mixerGeneration.current += 1;
     if (next.state !== "ready" || !next.sequencer)
       patternGeneration.current += 1;
+    if (next.state !== "ready" || !next.launcher) {
+      launcherGeneration.current += 1;
+      setLauncherLaunch(null);
+    } else {
+      setLauncherLaunch((previous) =>
+        previous ? observeLauncher(next, previous) : null,
+      );
+    }
     setSnapshot(next);
     setPatternEdit((previous) =>
       previous && previous !== "offline"
@@ -151,6 +174,7 @@ export function useDawSession() {
           setInfo(appInfo);
           setProject(summary);
           setDocument(selectedDocument);
+          setLauncherSettings(selectedDocument.launcher);
           setDocumentVersion((previous) => previous + 1);
           setConnected(true);
           const failed = (reason: unknown) => {
@@ -211,7 +235,13 @@ export function useDawSession() {
       return;
     let disposed = false;
     let timer: ReturnType<typeof setTimeout>;
+    const stillPreparing = () =>
+      preparationCurrent.current?.state === "loading" ||
+      preparationCurrent.current?.state === "cancelling";
     const poll = async () => {
+      // React may not have committed the final state and cleaned up this effect
+      // yet. Consult the synchronously observed state before another IPC call.
+      if (disposed || !stillPreparing()) return;
       if (preparationPolling.current) {
         timer = setTimeout(() => void poll(), 200);
         return;
@@ -225,7 +255,8 @@ export function useDawSession() {
       } finally {
         preparationPolling.current = false;
       }
-      if (!disposed) timer = setTimeout(() => void poll(), 200);
+      if (!disposed && stillPreparing())
+        timer = setTimeout(() => void poll(), 200);
     };
     timer = setTimeout(() => void poll(), 200);
     return () => {
@@ -310,18 +341,20 @@ export function useDawSession() {
     );
   const initializeSampler = (
     deviceId: string | null,
-    mode: "raw" | "mixed" | "sequenced",
+    mode: "raw" | "mixed" | "sequenced" | "project",
   ) =>
     preparation?.preparationId &&
     run(
       async () => {
         try {
           const initialize =
-            mode === "sequenced"
-              ? desktopClient.initializeSequencedSampler
-              : mode === "mixed"
-                ? desktopClient.initializeMixedSampler
-                : desktopClient.initializeSampler;
+            mode === "project"
+              ? desktopClient.initializeProjectSampler
+              : mode === "sequenced"
+                ? desktopClient.initializeSequencedSampler
+                : mode === "mixed"
+                  ? desktopClient.initializeMixedSampler
+                  : desktopClient.initializeSampler;
           return await initialize(preparation.preparationId!, deviceId);
         } finally {
           try {
@@ -341,18 +374,106 @@ export function useDawSession() {
   const applyDocument = (next: ProjectDocumentDto, replace: boolean) => {
     setDocument(next);
     setProject(next.summary);
+    setLauncherSettings(next.launcher);
     if (replace) {
       setDocumentVersion((previous) => previous + 1);
       patternSelectionGeneration.current += 1;
       mixerSelectionGeneration.current += 1;
       setPattern(next.pattern);
       setMixerSettings(next.mixer);
+      launcherSelectionGeneration.current += 1;
+      launcherGeneration.current += 1;
+      setLauncherLaunch(null);
       setPatternEdit(null);
       setMixerEdit(null);
       setBeatExport(null);
     }
   };
   return {
+    launcherSettings,
+    launcherLaunch,
+    editLauncher: (request: LauncherEditDto) =>
+      run(
+        () => {
+          launcherSelectionGeneration.current += 1;
+          return desktopClient.launcherEdit(request);
+        },
+        (selected) => {
+          setLauncherSettings(selected);
+          syncDocument();
+        },
+      ),
+    setPlaybackMode: (mode: PlaybackModeDto) =>
+      run(
+        () => {
+          launcherSelectionGeneration.current += 1;
+          return desktopClient.playbackMode(mode);
+        },
+        (selected) => {
+          setLauncherSettings(selected);
+          setLauncherLaunch(null);
+          syncDocument();
+        },
+      ),
+    refreshLauncher: () =>
+      run(
+        async () => {
+          const selection = launcherSelectionGeneration.current;
+          const generation = launcherGeneration.current;
+          return {
+            status: await desktopClient.launcherStatus(),
+            selection,
+            generation,
+          };
+        },
+        ({ status, selection, generation }) => {
+          if (selection === launcherSelectionGeneration.current)
+            setLauncherSettings(status.selected);
+          observe(status.observed);
+          if (generation === launcherGeneration.current)
+            setLauncherLaunch((previous) => {
+              const next =
+                status.lastLaunch && status.progress
+                  ? observeLauncher(current.current, {
+                      receipt: status.lastLaunch,
+                      progress: status.progress,
+                    })
+                  : null;
+              // A slow query can outlive an exact processing event and a newer
+              // report. Keep that proven outcome for the same ID and session.
+              if (
+                next &&
+                previous &&
+                next.receipt.accepted.commandId ===
+                  previous.receipt.accepted.commandId &&
+                (previous.progress.status === "processed" ||
+                  previous.progress.status === "rejected") &&
+                (next.progress.status === "accepted" ||
+                  next.progress.status === "unknown")
+              )
+                return { ...next, progress: previous.progress };
+              return next;
+            });
+        },
+      ),
+    launchLauncher: (target: LauncherTargetDto) =>
+      run(
+        async () => {
+          const generation = launcherGeneration.current;
+          const receipt: LauncherLaunchDto =
+            await desktopClient.launcherLaunch(target);
+          return { receipt, generation };
+        },
+        ({ receipt, generation }) => {
+          if (generation === launcherGeneration.current)
+            setLauncherLaunch(
+              observeLauncher(current.current, {
+                receipt,
+                progress: { status: "accepted" },
+              }),
+            );
+        },
+      ),
     native,
     connected,
     info,
@@ -454,6 +575,8 @@ export function useDawSession() {
       initializeSampler(deviceId, "mixed"),
     initializeSequencedSampler: (deviceId: string | null) =>
       initializeSampler(deviceId, "sequenced"),
+    initializeProjectSampler: (deviceId: string | null) =>
+      initializeSampler(deviceId, "project"),
     triggerSample: (slot: number, gain: number) =>
       run(
         () => desktopClient.triggerSample(slot, gain),
@@ -476,9 +599,12 @@ export function useDawSession() {
     stop: () => command(desktopClient.stop),
     setTempo: (bpm: number) =>
       run(
-        () => desktopClient.tempo(bpm),
+        async () =>
+          current.current?.state === "uninitialized"
+            ? (await desktopClient.projectTempo(bpm)).accepted
+            : desktopClient.tempo(bpm),
         (reply) => {
-          accepted(reply);
+          if (reply) accepted(reply);
           syncDocument();
         },
       ),

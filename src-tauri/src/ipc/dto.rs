@@ -1,3 +1,4 @@
+pub use super::launcher_dto::*;
 pub use super::project_dto::*;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -160,6 +161,7 @@ pub struct ServiceSnapshotDto {
     pub sampler: Option<SamplerTelemetryDto>,
     pub mixer: Option<MixerSnapshotDto>,
     pub sequencer: Option<SequencerSnapshotDto>,
+    pub launcher: Option<LauncherTelemetryDto>,
 }
 
 impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
@@ -208,6 +210,7 @@ impl From<daw_app::ServiceSnapshot> for ServiceSnapshotDto {
             last_applied_command: value.last_applied_command.map(|id| id.to_string()),
             error: value.error.map(Into::into),
             sequencer: value.sequencer.map(Into::into),
+            launcher: value.launcher.map(Into::into),
             mixer: value.mixer.map(|mixer| MixerSnapshotDto {
                 settings: mixer.settings.into(),
                 channels: mixer.channels.map(|channel| MixerChannelSnapshotDto {
@@ -308,6 +311,23 @@ pub fn bindings_text() -> String {
     let cfg = ts_rs::Config::new();
     let declarations = [
         ErrorCodeDto::decl(&cfg),
+        PlaybackModeDto::decl(&cfg),
+        QuantizationDto::decl(&cfg),
+        ClipDto::decl(&cfg),
+        SceneActionDto::decl(&cfg),
+        LauncherSettingsDto::decl(&cfg),
+        LauncherEditDto::decl(&cfg),
+        LauncherTargetDto::decl(&cfg),
+        LaunchActionDto::decl(&cfg),
+        LauncherLaunchDto::decl(&cfg),
+        LauncherProgressDto::decl(&cfg),
+        LauncherStatusDto::decl(&cfg),
+        ActiveClipDto::decl(&cfg),
+        ClipTransitionDto::decl(&cfg),
+        LauncherEventDto::decl(&cfg),
+        LauncherReportDto::decl(&cfg),
+        LauncherTelemetryDto::decl(&cfg),
+        TempoEditDto::decl(&cfg),
         ApiError::decl(&cfg),
         AppInfoDto::decl(&cfg),
         ProjectSummaryDto::decl(&cfg),

@@ -1,9 +1,13 @@
 # Guardar, abrir y exportar un beat
 
-La etapa 12 añade proyectos JSON v1 y exportación del beat completo. Consulta
+La etapa 12 introdujo proyectos JSON v1 y exportación del beat completo.
+13.3.b lee v1/v2 y guarda siempre en **v2**, conservando clips/escenas y patrón.
+Abrir un v1 no lo reescribe; su siguiente guardado lo actualiza a v2, que una
+versión antigua de la app con lector solo v1 rechazará. Consulta
 el [contrato](../docs/project-format.md) y el
-[reporte](../progress/etapa-12-persistencia-exportacion.md). Estas operaciones
-requieren la aplicación de escritorio; el modo navegador es una vista de interfaz.
+[reporte de etapa 12](../progress/etapa-12-persistencia-exportacion.md), junto al
+[avance de escenas](../progress/etapa-13-proyectos-escenas.md).
+El flujo visual requiere escritorio; el modo navegador es una vista de interfaz.
 
 ## Crear y guardar
 
@@ -46,7 +50,8 @@ una fuente estéreo no se convierte a salida mono.
 
 Indica un WAV nuevo, compases, frecuencia/canales y el final deseado. Pulsa
 **Exportar beat**. La operación usa un motor independiente, con el patrón,
-mezcla y BPM seleccionados, y mantiene la reproducción actual.
+mezcla y BPM seleccionados en modo patrón, y mantiene la reproducción actual.
+Si el documento está en modo launcher, exporta la escena inicial guardada.
 
 - **Completar colas de samples:** termina los compases, deja de programar notas
   y completa los samples activos. La duración puede superar los compases.
@@ -66,7 +71,27 @@ cargo run -p daw-cli --no-default-features --locked -- project-check --project C
 cargo run -p daw-cli --no-default-features --locked -- export-beat --project C:\Music\mi-beat.json --output C:\Music\mi-beat.wav --bars 4 --tail finish --block-size 127 --sample-rate 48000 --channels 2
 ```
 
+## Exportar una escena por CLI
+
+`export-beat --scene 0..15` selecciona una escena explícita, incluso si el modo
+guardado es patrón. Sin esa opción se usa el modo y la escena inicial del JSON.
+La escena empieza desde silencio: Keep y Stop no activan filas. En un v1, la
+migración crea la escena 0 a partir del patrón. No se exporta historial de lanzamientos.
+
+```powershell
+cargo run -p daw-cli --no-default-features --locked -- export-beat --project C:\Music\mi-beat.json --output C:\Music\escena-7.wav --scene 7 --bars 4 --tail finish --block-size 127 --sample-rate 48000 --channels 2
+```
+
+Las APIs Rust ya coordinan sesiones y edición/lanzamiento de clips en 13.3.c;
+su exposición en la interfaz sigue pendiente en 13.3.d. Los controles actuales
+muestran el patrón heredado y exigen modo Pattern para editarlo/inicializarlo;
+abrir/guardar conserva los campos nuevos internamente. Las escenas ya se pueden
+exportar desde archivos v2 mediante CLI o la API Rust.
+
 Las [capturas normal](../docs/screenshots/stage12-project-wide.png) y
 [estrecha](../docs/screenshots/stage12-project-narrow.png) documentan el flujo
 real de WebView2. La prueba guardó, abrió y exportó sin inicializar audio;
 no es una observación auditiva.
+
+La edición desktop de clips, el modo del proyecto y la escena inicial de exportación
+se describen en la [guía de clips y escenas](10-clips-escenas.md).

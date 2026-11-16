@@ -8,6 +8,7 @@ export function SequencerPanel({ session }: { session: DawSession }) {
     !session.native ||
     !session.connected ||
     session.busy ||
+    session.launcherSettings?.mode === "launcher" ||
     !selected ||
     !(session.snapshot?.state === "uninitialized" || observed);
   const boundary = observed?.lastBoundary;

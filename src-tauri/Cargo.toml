@@ -16,6 +16,7 @@ tauri-build.workspace = true
 
 [dependencies]
 daw-app = { workspace = true, features = ["native-audio"] }
+daw-engine.workspace = true
 tauri.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -23,7 +24,6 @@ ts-rs.workspace = true
 
 [dev-dependencies]
 tauri = { workspace = true, features = ["test"] }
-daw-engine.workspace = true
 
 [lints]
 workspace = true

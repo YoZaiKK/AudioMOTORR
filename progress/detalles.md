@@ -1,5 +1,84 @@
 # Detalles de implementación
 
+## Diagnósticos de clips 13.4.a — 2026-11-16 (México)
+
+launcher-bench con oráculo de PCM/eventos/fase/transiciones/medidores, memoria cero
+y teardown positivo; launcher-native-check con dispositivo explícito y lifecycle
+manual de WAV, pausa/ediciones/Keep/supersesión/BPM/StopAll/reapertura sin replay.
+216 casos offline finales, ambos perfiles release, check/build; matriz inicial
+también conservada con sus excesos. README añade capturas reales y capacidades.
+[Reporte](etapa-13-diagnosticos-clips.md), [contrato](../docs/launcher-diagnostics.md)
+y [protocolo](../docs/launcher-native-verification.md). Siguiente: medición/escucha
+física 13.4.b; no se abrió hardware en este paso.
+
+## Aceptación integrada de clips 13.3.e — 2026-11-16 (México)
+
+Dos contratos IPC con doce sesiones WAV/tempos/bloques, referencia independiente
+de eventos/voces/medidores y PCM exportado; traslado/reapertura, errores y ausencia
+de replay. Cuatro nuevos casos frontend, conservación de resultados confirmados
+ante consultas tardías y polling final acotado. Debug/release, check con 72 frontend,
+build y flujo real WebView2 de WAV/guardar/trasladar/abrir/exportar. Sin audio físico.
+[Aceptación](cierre-integracion-clips-13.3e.md) y [evidencia](evidencia-integracion-clips-13.3e.json).
+Siguiente: diagnósticos reproducibles 13.4.a; siguen medición/escucha y entrega 13.4.b–c.
+
+## Desktop de clips y escenas 13.3.d — 2026-11-14 (México)
+
+Ocho comandos IPC con ACL de main, bindings exactos y documento completo; editor
+de matriz/clips/escenas, modo, cuantización y escena inicial separados de lanzamientos.
+Recibos exactos, pérdidas y epochs de cierre; fases/orígenes/transiciones observadas
+sin reloj JavaScript. Check completo, 68 frontend, tres contratos IPC, compilación
+desktop debug y ventana WebView2 a 1000/360 px. [Reporte](etapa-13-desktop-clips.md)
+y [contrato](../docs/launcher-desktop.md). Siguiente: aceptación integrada 13.3.e.
+
+## Coordinación de aplicación de clips 13.3.c — 2026-11-13 (México)
+
+Edición de grafo/modo/cuantización/escena inicial, sesiones según modo con ajustes
+actuales y PCM preparado, sin auto escena/Play. Solicitudes explícitas con snapshots
+propios, recibo transitorio y observación por ID exacto; operación compuesta con
+rollback ante rechazo/timeout y sin compensación. Guardar/exportar conserva escena
+inicial y reapertura descarta historial. [Reporte](etapa-13-aplicacion-clips.md)
+y [contrato](../docs/launcher-application.md). Siguiente: exposición desktop 13.3.d.
+
+## Proyectos v2 y exportación de escenas 13.3.b — 2026-11-13 (México)
+
+Project posee clips/escenas, modo, cuantización y escena inicial. Lectura v1/v2
+con migración exacta, escritura siempre v2, validación estricta de grafo/objetos
+y dirty tracking completo. Escenas exportables desde silencio con motor real,
+duración/colas exactas y `--scene` explícito en CLI. Referencias PCM independientes,
+relocación y fallos atómicos; [reporte](etapa-13-proyectos-escenas.md).
+Dos dependencias de pruebas CLI ya presentes en workspace; lockfile cambia solo
+esas aristas, sin versiones nuevas. Siguiente: coordinación de aplicación 13.3.c.
+
+## Sesiones y FIFO de clips 13.3.a — 2026-11-13 (México)
+
+Nuevas sesiones launcher manuales/CPAL y solicitudes Copy en la FIFO compartida,
+sin cambiar capacidades/presupuesto. Observación completa de callback más mapa
+ID comando→ID/resultado de solicitud del motor; pérdida sin replay ni inferencia
+de aplicación. Referencias por chunks/conversiones, límites/errores/lifecycle y
+memoria/propiedad verificadas; [reporte](etapa-13-sesiones-clips.md) y
+[contrato](../docs/launcher-service.md). Siguiente: Project/formato v2 y escena
+exportable en 13.3.b; coordinación de aplicación y desktop siguen después.
+
+## Transiciones de clips/escenas 13.2 — 2026-11-13 (México)
+
+Sobre el modelo local 13.1, nuevo modo opt-in `with_clip_launcher`: reloj racional
+existente, orígenes enteros independientes por fila, Step/Beat/Bar, solicitudes
+Copy y estado pendiente/aplicado propio. Escenas atómicas, Keep/Stop/reemplazo,
+colas naturales, transporte y preflight completo sin mutación ante overflow.
+Referencias independientes de eventos/PCM y memoria instrumentada; ver
+[reporte y evidencia](etapa-13-transiciones-motor.md). Siguiente: 13.3.a, sesiones
+de audio/FIFO; Project/formato/UI se integran en los demás incrementos de 13.3.
+
+## Modelo y contrato de clips/escenas 13.1 — 2026-11-13 (México)
+
+Revisados cierre de 12, planes y árbol limpio en `ac37226`. Siguiente incremento
+ejecutado: dominio fijo con cuatro filas × 16 clips y 16 escenas, referencias
+validadas, Keep/Stop/Launch, snapshots propios y conversión exacta del patrón.
+[Contrato](../docs/clips-scenes-contract.md) especifica cuantización, transporte,
+transiciones y migración v2/exportación requeridas en los siguientes incrementos.
+Siete pruebas nuevas de dominio; [reporte de verificación](etapa-13-modelo-clips-escenas.md).
+Project/archivo/UI se integrarán en 13.3. Siguiente: motor 13.2; etapa 13 abierta.
+
 ## Cierre del mezclador — 2026-11-11 (México)
 
 Usuario confirma «Se escucha» tras repetición solicitada del mezclador: mono y

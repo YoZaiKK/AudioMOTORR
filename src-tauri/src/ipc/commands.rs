@@ -2,6 +2,84 @@ use super::{dto::*, state::DesktopState};
 use std::sync::Arc;
 use tauri::State;
 
+#[tauri::command]
+pub async fn get_launcher_settings(
+    state: State<'_, Arc<DesktopState>>,
+) -> Result<LauncherSettingsDto, ApiError> {
+    with_app(state, |app| Ok(app.get_launcher_settings().into())).await
+}
+#[tauri::command]
+pub async fn get_launcher_status(
+    state: State<'_, Arc<DesktopState>>,
+) -> Result<LauncherStatusDto, ApiError> {
+    with_app(state, |app| app.get_launcher_status().map(Into::into)).await
+}
+#[tauri::command]
+pub async fn project_set_playback_mode(
+    state: State<'_, Arc<DesktopState>>,
+    mode: PlaybackModeDto,
+) -> Result<LauncherSettingsDto, ApiError> {
+    with_app(state, move |app| {
+        app.project_set_playback_mode(mode.into()).map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn project_set_tempo(
+    state: State<'_, Arc<DesktopState>>,
+    bpm: f64,
+) -> Result<TempoEditDto, ApiError> {
+    with_app(state, move |app| {
+        app.project_set_tempo(bpm).map(|e| TempoEditDto {
+            bpm: e.tempo.bpm(),
+            accepted: e.accepted.map(Into::into),
+        })
+    })
+    .await
+}
+#[tauri::command]
+pub async fn launcher_edit(
+    state: State<'_, Arc<DesktopState>>,
+    request: LauncherEditDto,
+) -> Result<LauncherSettingsDto, ApiError> {
+    with_app(state, move |app| request.apply(app).map(Into::into)).await
+}
+#[tauri::command]
+pub async fn launcher_launch(
+    state: State<'_, Arc<DesktopState>>,
+    target: LauncherTargetDto,
+) -> Result<LauncherLaunchDto, ApiError> {
+    with_app(state, move |app| {
+        app.launcher_launch(target.into()).map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn launcher_replace_and_launch_clip(
+    state: State<'_, Arc<DesktopState>>,
+    row: u8,
+    slot: u8,
+    clip: ClipDto,
+) -> Result<LauncherLaunchDto, ApiError> {
+    with_app(state, move |app| {
+        app.launcher_replace_and_launch_clip(row as usize, slot as usize, clip.try_into()?)
+            .map(Into::into)
+    })
+    .await
+}
+#[tauri::command]
+pub async fn initialize_project_sampler(
+    state: State<'_, Arc<DesktopState>>,
+    preparation_id: String,
+    device_id: Option<String>,
+) -> Result<ServiceSnapshotDto, ApiError> {
+    with_app(state, move |app| {
+        app.initialize_project_sampler(self::preparation_id(&preparation_id)?, device_id)
+            .map(Into::into)
+    })
+    .await
+}
+
 async fn with_app<T: Send + 'static>(
     state: State<'_, Arc<DesktopState>>,
     action: impl FnOnce(&mut daw_app::Application) -> daw_app::Result<T> + Send + 'static,

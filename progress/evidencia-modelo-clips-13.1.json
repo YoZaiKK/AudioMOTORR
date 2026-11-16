@@ -1,0 +1,54 @@
+﻿{
+  "format_version": 1,
+  "stage": "13.1",
+  "status": "implemented_and_verified_locally",
+  "recorded_utc": "2026-11-14T01:08:18.2504436Z",
+  "base_revision": "ac372260c22bcd8eefc989edf898367f10c4e4b3",
+  "scope": "Standalone fixed-size domain model and launch contract; engine scheduling is 13.2 and Project/file/UI integration is 13.3.",
+  "source_rule": "Base revision plus the three listed added/modified source files; raw-byte SHA256, sensitive to line endings. All other source and dependency files unchanged. This is local evidence, not CI.",
+  "source_files": [
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "sha256": "14125371c145ef897fcb664cd79eebe2e284a9ba111bfa1ae4e64e1b46d49500"
+    },
+    {
+      "path": "crates/daw-domain/src/clips.rs",
+      "sha256": "38f945daa675293d018ac743680b5ead2ac71cf42174af4f57009a9e5030d644"
+    },
+    {
+      "path": "crates/daw-domain/tests/clips_contract.rs",
+      "sha256": "bc7114e7cc9749d8c6bd6541b7dbdb8799b0af3efa674a9e0f5d48d06abe9454"
+    }
+  ],
+  "contract": {
+    "path": "docs/clips-scenes-contract.md",
+    "sha256": "b2a2aa62665d514f6b8bd3533df1cbd8fe6db73e9f1b2394ba184eb9436c528a"
+  },
+  "validation": {
+    "command": "npm run check",
+    "started_utc": "2026-11-14T01:03:52.9519195Z",
+    "finished_utc": "2026-11-14T01:07:08.8983847Z",
+    "exit_code": 0,
+    "log": {
+      "path": "target/stage13-1-20261113/check.log",
+      "sha256": "586a23c69566e4929c42bacc796f614be61a89a80b96165cb49ba9d094c1cabf"
+    },
+    "scope": "Full scripts/check.mjs pipeline; overlapping Rust suites are not unique-test totals. No hardware opened and no full desktop bundle build.",
+    "targeted_command": "cargo test -p daw-domain --locked",
+    "targeted_result": "16 passed: 2 unit, 2 mixer, 5 pattern, 7 new clips/scenes integration cases",
+    "targeted_clippy": "cargo clippy -p daw-domain --all-targets --locked -- -D warnings: exit 0",
+    "frontend_cases": 63,
+    "cli_scenarios": 9,
+    "document_links": "Relative local links valid in all 9 reviewed Markdown documents before adding the manifest; the added manifest link resolves.",
+    "dependency_changes": "none"
+  },
+  "publication": {
+    "status": "not_committed_or_pushed",
+    "new_revision_ci": "not_run"
+  },
+  "native_audio": {
+    "status": "not_repeated",
+    "reason": "Standalone domain model is not used in audio processing yet."
+  },
+  "next": "13.2: exact global/local row phases, bounded pending actions, quantized transitions, independent event/PCM references and processing memory checks."
+}

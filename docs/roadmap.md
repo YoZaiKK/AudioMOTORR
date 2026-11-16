@@ -4,7 +4,23 @@
 user-confirmed sequencer audibility. Stage 12 portable save/open and beat export
 are delivered. Its additional [JSON precision correction](../progress/correccion-12-precision-json.md)
 is locally verified and published in `4f126dc`; [both exact-revision CI jobs passed](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622). Stage 12 is closed within scope.
-Next product: **13.1, clips/scenes contract**.
+**13.1 is implemented locally:** [clip/scene model and launch contract](clips-scenes-contract.md),
+with [domain acceptance recorded](../progress/etapa-13-modelo-clips-escenas.md).
+**13.2 is implemented locally:** [engine scheduling and reference verification](../progress/etapa-13-transiciones-motor.md).
+**13.3.a is implemented locally:** [launcher sessions and observations](launcher-service.md),
+with [service acceptance recorded](../progress/etapa-13-sesiones-clips.md).
+**13.3.b is implemented locally:** [v2 files, v1 migration and scene export](project-format.md),
+with [verification recorded](../progress/etapa-13-proyectos-escenas.md).
+**13.3.c is implemented locally:** [application coordination](launcher-application.md),
+with [mode/receipt/lifecycle verification](../progress/etapa-13-aplicacion-clips.md).
+**13.3.d is implemented locally:** [desktop contract](launcher-desktop.md) and
+[verification](../progress/etapa-13-desktop-clips.md).
+**13.3.e is accepted locally:** [WAV/IPC/file/export acceptance](../progress/cierre-integracion-clips-13.3e.md).
+**13.4.a is implemented locally:** [launcher diagnostics](launcher-diagnostics.md) and
+[native verification protocol](launcher-native-verification.md), with [acceptance](../progress/etapa-13-diagnosticos-clips.md).
+Next product: **13.4.b, physical launcher measurements and listening**;
+closure is 13.4.
+Stage 13 remains open.
 
 Updated 2026-11-12. Stages 1–6 are the implemented silence foundation, published
 in baseline `1ef9bd0`. Stage 7 is complete: engine oscillator, bounded application

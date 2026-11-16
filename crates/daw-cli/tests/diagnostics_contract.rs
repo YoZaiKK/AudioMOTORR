@@ -17,6 +17,8 @@ fn diagnostic_help_and_feature_or_profile_gates_do_not_open_hardware() {
             && text.contains("mixer-native-check")
             && text.contains("sequencer-bench")
             && text.contains("sequencer-native-check")
+            && text.contains("launcher-bench")
+            && text.contains("launcher-native-check")
     );
     #[cfg(not(any(feature = "offline-diagnostics", feature = "rt-diagnostics")))]
     for name in [
@@ -26,6 +28,8 @@ fn diagnostic_help_and_feature_or_profile_gates_do_not_open_hardware() {
         "mixer-native-check",
         "sequencer-bench",
         "sequencer-native-check",
+        "launcher-bench",
+        "launcher-native-check",
     ] {
         let output = run(&[name]);
         assert!(!output.status.success());
@@ -42,11 +46,116 @@ fn diagnostic_help_and_feature_or_profile_gates_do_not_open_hardware() {
             "mixer-native-check",
             "sequencer-bench",
             "sequencer-native-check",
+            "launcher-bench",
+            "launcher-native-check",
         ] {
             let output = run(&[name]);
             assert!(!output.status.success());
             assert!(String::from_utf8_lossy(&output.stderr).contains("Diagnostics require"));
         }
+    }
+}
+
+#[cfg(all(not(debug_assertions), feature = "offline-diagnostics"))]
+#[test]
+fn release_launcher_matrix_checks_quantized_path_and_zero_processing_memory() {
+    for channels in ["1", "2"] {
+        let output = run(&["launcher-bench", "--bars", "1", "--channels", channels]);
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let text = String::from_utf8_lossy(&output.stdout);
+        assert_eq!(
+            text.lines()
+                .filter(|s| s.starts_with("launcher-bench completed:"))
+                .count(),
+            108
+        );
+        for expected in [
+            "source=clip_launcher",
+            "clips=Empty",
+            "clips=Beat",
+            "clips=Dense",
+            "quantization=Step",
+            "quantization=Beat",
+            "quantization=Bar",
+            "last_request_id=5",
+            "allocations: 0",
+            "deallocations: 4",
+            "p99_ns=",
+            "measured_pool_full=",
+            "transitions=",
+        ] {
+            assert!(text.contains(expected), "Missing {expected}");
+        }
+    }
+    let output = run(&[
+        "launcher-bench",
+        "--bars",
+        "1",
+        "--bpm",
+        "20",
+        "--clips",
+        "beat",
+        "--quantization",
+        "bar",
+        "--block-size",
+        "127",
+    ]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(String::from_utf8_lossy(&output.stdout).contains("bpm=20"));
+}
+#[cfg(all(not(debug_assertions), feature = "offline-diagnostics"))]
+#[test]
+fn launcher_invalid_options_and_feature_gates_precede_native_io() {
+    for args in [
+        vec!["launcher-bench", "--bars", "0"],
+        vec!["launcher-bench", "--channels", "3"],
+        vec!["launcher-bench", "--quantization", "unknown"],
+        vec!["launcher-bench", "--bpm", "NaN"],
+        vec!["launcher-native-check", "--input-dir", "missing"],
+        vec![
+            "launcher-native-check",
+            "--input-dir",
+            "missing",
+            "--device",
+            "explicit",
+            "--bars",
+            "3",
+        ],
+        vec![
+            "launcher-native-check",
+            "--input-dir",
+            "missing",
+            "--device",
+            "explicit",
+            "--quantization",
+            "bar",
+            "--quantization",
+            "step",
+        ],
+    ] {
+        let output = run(&args);
+        assert!(!output.status.success());
+        assert!(!String::from_utf8_lossy(&output.stderr).contains("Preparation failed"));
+    }
+    #[cfg(not(feature = "native-audio"))]
+    {
+        let output = run(&[
+            "launcher-native-check",
+            "--input-dir",
+            "missing",
+            "--device",
+            "explicit",
+        ]);
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("NativeAudioDisabled"));
     }
 }
 

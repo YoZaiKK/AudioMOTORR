@@ -1,10 +1,19 @@
 # Estado verificado, objetivos y siguiente etapa
 
-**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+**Estado vigente (2026-11-16 México):** [etapa 11 cerrada](cierre-etapa-11.md)
 tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
 [corrección de precisión JSON](correccion-12-precision-json.md) verificada en
 check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
-[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+[Continuidad](ejecucion-11.4b-12.md). **13.1 implementado localmente:**
+[modelo y contrato de clips/escenas](etapa-13-modelo-clips-escenas.md).
+**13.2 implementado localmente:** [transiciones y reproducción de clips](etapa-13-transiciones-motor.md).
+**13.3.a implementado localmente:** [sesiones y comandos de clips](etapa-13-sesiones-clips.md).
+**13.3.b implementado localmente:** [proyectos v2 y exportación de escenas](etapa-13-proyectos-escenas.md).
+**13.3.c implementado localmente:** [coordinación de aplicación](etapa-13-aplicacion-clips.md).
+**13.3.d implementado localmente:** [desktop de clips/escenas](etapa-13-desktop-clips.md).
+**13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
+**13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
+Siguiente: **13.4.b, medición nativa release y escucha de clips/escenas**; etapa 13 abierta.
 
 Revisión: 2026-11-12. **11.1 implementado localmente:**
 [contrato y modelo del patrón](etapa-11-modelo-patron.md), con

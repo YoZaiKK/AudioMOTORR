@@ -1,12 +1,13 @@
 //! Device-free inspection/export of versioned musical projects.
 use daw_app::{
-    project_file::{ProjectResult, read_project},
+    project_file::{ProjectResult, read_project_with_version},
     project_render::{BeatRender, BeatRenderOptions, TailPolicy},
 };
 use daw_engine::EngineConfig;
 use std::{collections::HashSet, path::PathBuf};
 pub fn run(command: &str, args: &[String]) -> ProjectResult<()> {
     let (mut project, mut output) = (None, None);
+    let mut scene = None;
     let (mut rate, mut channels, mut bars, mut block, mut tail) =
         (48_000, 2, 1, 256, TailPolicy::Finish);
     let mut seen = HashSet::new();
@@ -23,6 +24,7 @@ pub fn run(command: &str, args: &[String]) -> ProjectResult<()> {
             ("export-beat", "--bars") => bars = pair[1].parse()?,
             ("export-beat", "--block-size") => block = pair[1].parse()?,
             ("export-beat", "--tail") => tail = TailPolicy::parse(&pair[1])?,
+            ("export-beat", "--scene") => scene = Some(pair[1].parse::<usize>()?),
             _ => return Err("Unknown project command option".into()),
         }
     }
@@ -33,9 +35,9 @@ pub fn run(command: &str, args: &[String]) -> ProjectResult<()> {
         .filter(|p| !p.as_os_str().is_empty())
         .ok_or("--project PATH is required")?;
     if command == "project-check" {
-        let (document, path) = read_project(&project)?;
+        let (document, path, version) = read_project_with_version(&project)?;
         println!(
-            "project-check OK: version=1, id={}, title={:?}, bpm={}, assets={}, path={}",
+            "project-check OK: version={version}, id={}, title={:?}, bpm={}, assets={}, path={}",
             document.id().get(),
             document.title(),
             document.tempo().bpm(),
@@ -51,18 +53,21 @@ pub fn run(command: &str, args: &[String]) -> ProjectResult<()> {
         || ![1, 2].contains(&channels)
         || !(1..=4096).contains(&bars)
         || !(1..=4096).contains(&block)
+        || scene.is_some_and(|scene| scene >= 16)
     {
-        return Err("Invalid beat export rate/channels/bars/block size".into());
+        return Err("Invalid beat export rate/channels/bars/block size or scene".into());
     }
-    let render = BeatRender::open(
-        &project,
-        BeatRenderOptions {
-            config: EngineConfig::new(rate, channels)?,
-            bars,
-            block_size: block,
-            tail,
-        },
-    )?;
+    let options = BeatRenderOptions {
+        config: EngineConfig::new(rate, channels)?,
+        bars,
+        block_size: block,
+        tail,
+    };
+    let render = if let Some(scene) = scene {
+        BeatRender::open_scene(&project, scene, options)?
+    } else {
+        BeatRender::open(&project, options)?
+    };
     let report = render.write_wav(&output)?;
     println!(
         "export-beat OK: sample_rate={rate}, channels={channels}, bars={bars}, tail={tail:?}, musical_frames={}, tail_frames={}, frames={}, notes={:?}, output={}",

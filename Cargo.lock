@@ -594,8 +594,10 @@ version = "0.1.0"
 dependencies = [
  "allocation-counter",
  "daw-app",
+ "daw-domain",
  "daw-engine",
  "hound",
+ "serde_json",
 ]
 
 [[package]]

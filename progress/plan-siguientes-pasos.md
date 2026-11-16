@@ -1,10 +1,19 @@
 # Plan de ejecución — Cierre del sampler y etapas 10–13
 
-**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+**Estado vigente (2026-11-16 México):** [etapa 11 cerrada](cierre-etapa-11.md)
 tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
 [corrección de precisión JSON](correccion-12-precision-json.md) verificada en
 check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
-[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+[Continuidad](ejecucion-11.4b-12.md). **13.1 implementado localmente:**
+[modelo y contrato de clips/escenas](etapa-13-modelo-clips-escenas.md).
+**13.2 implementado localmente:** [transiciones y reproducción de clips](etapa-13-transiciones-motor.md).
+**13.3.a implementado localmente:** [sesiones y comandos de clips](etapa-13-sesiones-clips.md).
+**13.3.b implementado localmente:** [proyectos v2 y exportación de escenas](etapa-13-proyectos-escenas.md).
+**13.3.c implementado localmente:** [coordinación de aplicación](etapa-13-aplicacion-clips.md).
+**13.3.d implementado localmente:** [desktop de clips/escenas](etapa-13-desktop-clips.md).
+**13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
+**13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
+Siguiente: **13.4.b, medición nativa release y escucha de clips/escenas**; etapa 13 abierta.
 
 Fecha: 2026-11-11. Base local revisada: `4dc2c6c2e0882b8f131b68088feffa8def84ba83`.
 Al revisar, el árbol estaba limpio y `main` coincidía con la referencia local
@@ -187,15 +196,58 @@ entregada inicialmente; escucha de 11 confirmada. La corrección JSON tiene segu
 
 ## Etapa 13 — Clips y escenas
 
-| Paso | Entrega                                                                             | Aceptación                                                                                             |
-| ---- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 13.1 | Modelo de clips/escenas y reglas de lanzamiento, parada y cuantización.             | Relación explícita con patrones, transporte y formato persistido.                                      |
-| 13.2 | Transiciones programadas dentro del motor.                                          | Cambios deterministas entre tempos y tamaños de bloque; sin disparos perdidos/duplicados en fronteras. |
-| 13.3 | Edición/lanzamiento desde aplicación/UI e integración con persistencia/exportación. | Estado solicitado y observado coherentes; semántica de guardar y exportar definida para clips/escenas. |
-| 13.4 | Verificación de sesiones y cierre.                                                  | Secuencias de lanzamiento/transición reproducibles, regresiones, check/build y CI correspondiente.     |
+**13.1 completado localmente el 2026-11-13:** [contrato](../docs/clips-scenes-contract.md)
+y [reporte](etapa-13-modelo-clips-escenas.md). Dominio independiente de Project:
+cuatro filas × 16 clips y 16 escenas, Keep/Stop/Launch, cuantización Step/Beat/Bar,
+referencias seguras y conversión explícita del patrón. Integración con documento
+y migración v1→v2 en 13.3. Desktop y aceptación integrada se completaron después en 13.3.d–e.
+
+| Paso         | Entrega                                                                             | Aceptación                                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 13.1 — local | Modelo de clips/escenas y reglas de lanzamiento, parada y cuantización.             | Siete pruebas nuevas; relación explícita con patrones, transporte y futuro formato v2.                         |
+| 13.2 — local | Transiciones programadas dentro del motor.                                          | Cuantización, orígenes independientes, supersesión, PCM/eventos de referencia, transporte, overflow y memoria. |
+| 13.3         | Edición/lanzamiento desde aplicación/UI e integración con persistencia/exportación. | Estado solicitado y observado coherentes; semántica de guardar y exportar definida para clips/escenas.         |
+| 13.4         | Verificación de sesiones y cierre.                                                  | Secuencias de lanzamiento/transición reproducibles, regresiones, check/build y CI correspondiente.             |
 
 Timeline, piano roll y automatización se planifican después. Grabación, MIDI
 externo, plugins y time-stretching mantienen su alcance posterior.
+
+**13.2 completado localmente:** [reporte](etapa-13-transiciones-motor.md).
+El reloj exacto compartido y orígenes por fila conservan fases independientes;
+solicitudes Copy, una pendiente por fila, escenas atómicas y reemplazo por orden
+de llamadas. Servicio/FIFO, aplicación y UI se conectan en 13.3.
+
+Desglose de **13.3**: **a/b/c/d implementados y e aceptada localmente**; sigue 13.4.a.
+
+1. **13.3.a — Servicio de audio, implementado localmente:** sesiones launcher manuales/CPAL explícitas,
+   solicitudes Copy por la FIFO compartida, presupuesto por callback e IDs de
+   comando separados de los IDs de solicitud del motor. Snapshot aplicado,
+   supersesión, pérdida, validación del callback completo y cierre/reapertura;
+   referencias por chunks/conversiones y propiedad/memoria verificadas.
+   [Reporte](etapa-13-sesiones-clips.md) y [contrato](../docs/launcher-service.md).
+2. **13.3.b — Documento y archivos, implementado localmente:** integrar launcher/modo/cuantización/escena
+   inicial en Project y formato v2; migración v1 explícita, round-trip sin pérdida,
+   referencias relativas, errores atómicos y exportación offline de escena.
+   [Reporte](etapa-13-proyectos-escenas.md) y [contrato](../docs/project-format.md).
+3. **13.3.c — Aplicación, implementada localmente:** coordinar edición, preparación, sesiones y solicitudes;
+   selección/aceptación/aplicación separadas, cola llena sin mutación ni replay.
+   [Reporte](etapa-13-aplicacion-clips.md) y [contrato](../docs/launcher-application.md).
+4. **13.3.d — Desktop, implementado localmente:** DTOs/bindings/IPC/ACL y edición/lanzamiento con fases
+   observadas, errores/pérdida y compatibilidad con modo patrón/navegador.
+   [Reporte](etapa-13-desktop-clips.md), [contrato](../docs/launcher-desktop.md) y [guía](../howToRunThis/10-clips-escenas.md).
+5. **13.3.e — Aceptación integrada local, completada:** fixtures WAV, archivos/exportación,
+   lifecycle, orden IPC/UI y verificaciones/build antes de diagnósticos 13.4.
+   [Aceptación y correcciones](cierre-integracion-clips-13.3e.md).
+
+Desglose de **13.4**: a implementada localmente; b/c pendientes:
+
+1. **13.4.a — Diagnósticos, implementados localmente:** benchmark y protocolo nativo reproducibles con WAV,
+   transiciones/tempos/bloques, referencias, métricas de callback y propiedad/memoria.
+   [Reporte](etapa-13-diagnosticos-clips.md), [contrato](../docs/launcher-diagnostics.md) y [protocolo](../docs/launcher-native-verification.md).
+2. **13.4.b — Medición nativa:** matriz release en dispositivo identificado,
+   reaperturas y escucha, registrando formato, carga, presupuesto y límites físicos.
+3. **13.4.c — Entrega y cierre:** artefactos y revisión exacta, CI correspondiente
+   y cierre dentro del alcance medido, después de completar a/b.
 
 ## Forma de ejecución
 

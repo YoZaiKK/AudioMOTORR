@@ -1,0 +1,123 @@
+﻿{
+  "format_version": 1,
+  "stage": "13.2",
+  "status": "implemented_and_verified_locally",
+  "recorded_utc": "2026-11-14T02:21:53.0845098Z",
+  "base_revision": "ac372260c22bcd8eefc989edf898367f10c4e4b3",
+  "previous_stage": "Local, uncommitted 13.1 domain sources retained with matching hashes from evidencia-modelo-clips-13.1.json; its contract is extended in this stage.",
+  "scope": "Opt-in engine clip playback and direct Copy requests/observations. Service queues, Project/files, application and desktop integration remain 13.3.",
+  "source_rule": "Base revision plus these 10 added/modified source files: 3 inherited from 13.1 and 7 changed/added in 13.2. Raw-byte SHA256, sensitive to line endings. All other source/configuration/dependency files unchanged. Local evidence, not CI.",
+  "source_files": [
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "stage": "13.1_unchanged",
+      "sha256": "14125371c145ef897fcb664cd79eebe2e284a9ba111bfa1ae4e64e1b46d49500"
+    },
+    {
+      "path": "crates/daw-domain/src/clips.rs",
+      "stage": "13.1_unchanged",
+      "sha256": "38f945daa675293d018ac743680b5ead2ac71cf42174af4f57009a9e5030d644"
+    },
+    {
+      "path": "crates/daw-domain/tests/clips_contract.rs",
+      "stage": "13.1_unchanged",
+      "sha256": "bc7114e7cc9749d8c6bd6541b7dbdb8799b0af3efa674a9e0f5d48d06abe9454"
+    },
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "stage": "13.2",
+      "sha256": "093504beb8e93da1259230e40c39eaf55e169e75ffce2e8c009ee83346b84220"
+    },
+    {
+      "path": "crates/daw-engine/src/sequencer.rs",
+      "stage": "13.2",
+      "sha256": "de079f08250d8e03a94d6fd73ce69d8673b4c0300853e6db72eb586bc054ce98"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher.rs",
+      "stage": "13.2",
+      "sha256": "667c5f489cd52de4565c9786f47260b6be5fbb28b6d57060913fd7822d98f672"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher_tests.rs",
+      "stage": "13.2",
+      "sha256": "3945429c8a51ce4d76201ae6221bc10b9dbf06450b6a3f9159a95190cd927a68"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_contract.rs",
+      "stage": "13.2",
+      "sha256": "7a1a8e1c3976cf45afc958f7cba55ae1b664b0271bfc4c39a31412d680c1b133"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_reference.rs",
+      "stage": "13.2",
+      "sha256": "57a7b9277dce789364546103383aae65bf3960ca7106d4fc1d3d203cbe83b9d5"
+    },
+    {
+      "path": "crates/daw-audio/tests/launcher_memory_contract.rs",
+      "stage": "13.2",
+      "sha256": "6057954e15c8a8c91e1b8c92bc23609b4d71d879b199026968a159f33489e738"
+    }
+  ],
+  "contract": {
+    "path": "docs/clips-scenes-contract.md",
+    "sha256": "d027b29ef917adec90242b4ba963f0d044e903d734970e28e88e28a024d275e0"
+  },
+  "validation": {
+    "check": {
+      "command": "npm run check",
+      "started_utc": "2026-11-14T02:17:45.1685968Z",
+      "finished_utc": "2026-11-14T02:20:27.9468024Z",
+      "exit_code": 0,
+      "scope": "Full scripts/check.mjs pipeline including frontend/bindings/lint/format/web build, CLI scenarios, Rust headless/workspace, instrumented audio, diagnostics/memory and Clippy. Suites overlap; no hardware opened and no full desktop bundle build.",
+      "frontend_cases": 63,
+      "cli_scenarios": 9
+    },
+    "targeted_engine": {
+      "command": "cargo test -p daw-engine --locked --lib --test launcher_contract --test launcher_reference",
+      "result": "25 passed in debug and release: 16 unit, 7 launcher contract, 2 reference/invariance. Includes 16 new engine cases and 9 existing unit cases.",
+      "clippy": "cargo clippy -p daw-engine --all-targets --locked -- -D warnings: exit 0"
+    },
+    "targeted_memory": {
+      "command": "cargo test -p daw-audio --features rt-diagnostics --locked --test launcher_memory_contract",
+      "result": "1 passed in debug and release; six rate/channel combinations, zero allocations/frees in processing, exactly four PCM frees on owner-side engine drop.",
+      "rates": [1, 800, 48000],
+      "channels": [1, 2],
+      "scope": "Direct engine processing, not physical callback timing."
+    },
+    "release": {
+      "started_utc": "2026-11-14T02:13:14.5017175Z",
+      "finished_utc": "2026-11-14T02:13:31.9016536Z",
+      "engine_exit_code": 0,
+      "memory_exit_code": 0,
+      "option": "--release on the two targeted test commands"
+    },
+    "unique_new_cases": 17,
+    "independent_references": "IEEE-754 rational event frames across 4 rates, 5 tempos, 3 grids and 5 partitions; piecewise tempo-change reference; independent PCM/voice/mixer reference in 48 configurations across 5 partitions.",
+    "document_links": "Local links valid in the 9 reviewed Markdown documents before adding the manifest; the added manifest link resolves.",
+    "dependency_changes": "none",
+    "logs": [
+      {
+        "path": "target/stage13-2-20261113/check.log",
+        "sha256": "fe4c72c9c56cac1c1c5b049667af1b22b677ba55eb1f5e50d34d969989b28ac5"
+      },
+      {
+        "path": "target/stage13-2-20261113/release-engine.log",
+        "sha256": "219ee5c8dd9acb73e1019710c4aee4a6cb703b745981f251b8e5d99dca6bc6b9"
+      },
+      {
+        "path": "target/stage13-2-20261113/release-memory.log",
+        "sha256": "82b5c55438ffcdabb72be97960e0b388cc60ea60061345fe5f4108cb55a1d97a"
+      }
+    ]
+  },
+  "publication": {
+    "status": "not_committed_or_pushed",
+    "new_revision_ci": "not_run"
+  },
+  "native_audio": {
+    "status": "not_opened_or_measured",
+    "reason": "Native launcher sessions/commands are next in 13.3.a; no audibility or native timing claims for this engine-only increment."
+  },
+  "next": "13.3.a: explicit manual/CPAL launcher sessions, shared bounded FIFO commands, applied/lost observations, whole-callback/chunk/conversion references, close/reopen and ownership/memory checks."
+}

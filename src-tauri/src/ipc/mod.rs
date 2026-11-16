@@ -1,5 +1,6 @@
 pub mod commands;
 pub mod dto;
+mod launcher_dto;
 mod project_dto;
 pub mod state;
 
@@ -14,6 +15,14 @@ pub fn configure<R: tauri::Runtime>(
         .manage(state)
         .invoke_handler(tauri::generate_handler![
             commands::get_app_info,
+            commands::get_launcher_settings,
+            commands::get_launcher_status,
+            commands::launcher_edit,
+            commands::launcher_launch,
+            commands::launcher_replace_and_launch_clip,
+            commands::project_set_playback_mode,
+            commands::project_set_tempo,
+            commands::initialize_project_sampler,
             commands::get_project_summary,
             commands::get_project_document,
             commands::save_project,

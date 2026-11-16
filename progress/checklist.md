@@ -1,10 +1,19 @@
 # Etapas de implementación
 
-**Estado vigente (2026-11-12 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+**Estado vigente (2026-11-16 México):** [etapa 11 cerrada](cierre-etapa-11.md)
 tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
 [corrección de precisión JSON](correccion-12-precision-json.md) verificada en
 check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
-[Continuidad](ejecucion-11.4b-12.md). Siguiente producto: **13.1, contrato de clips/escenas**.
+[Continuidad](ejecucion-11.4b-12.md). **13.1 implementado localmente:**
+[modelo y contrato de clips/escenas](etapa-13-modelo-clips-escenas.md).
+**13.2 implementado localmente:** [transiciones y reproducción de clips](etapa-13-transiciones-motor.md).
+**13.3.a implementado localmente:** [sesiones y comandos de clips](etapa-13-sesiones-clips.md).
+**13.3.b implementado localmente:** [proyectos v2 y exportación de escenas](etapa-13-proyectos-escenas.md).
+**13.3.c implementado localmente:** [coordinación de aplicación](etapa-13-aplicacion-clips.md).
+**13.3.d implementado localmente:** [desktop de clips/escenas](etapa-13-desktop-clips.md).
+**13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
+**13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
+Siguiente: **13.4.b, medición nativa release y escucha de clips/escenas**; etapa 13 abierta.
 
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
@@ -261,6 +270,24 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 
 ## Etapa 13 — Clips y escenas
 
-- [ ] Definir modelo, lanzamiento, cuantización y transición de clips/escenas.
-- [ ] Implementar coordinación y controles manteniendo documento/reproducción separados.
-- [ ] Probar cambios con distintos bloques/tempos antes de planificar timeline/piano roll/automatización.
+- [x] 13.1: modelo fijo de clips/escenas, referencias validadas y snapshots independientes.
+- [x] 13.1: contrato de lanzamiento, cuantización, transporte y relación con formato/exportación.
+- [x] 13.1: siete pruebas nuevas de dominio y verificación local registrada en etapa-13-modelo-clips-escenas.md.
+- [x] 13.2: transiciones cuantizadas opt-in, orígenes por fila y una solicitud pendiente por fila.
+- [x] 13.2: referencias independientes de eventos/PCM, particiones, transporte, overflow y memoria debug/release.
+- [x] 13.3.a: sesiones de audio y solicitudes de launcher por la FIFO compartida, con estado aplicado y pérdida de observaciones.
+- [x] 13.3.a: referencia por chunks/conversiones, FIFO/budget/IDs, memoria y propiedad de PCM en cierre/expiración/reapertura.
+- [x] 13.3.b: Project/formato v2, migración explícita v1 y exportación de escena.
+- [x] 13.3.b: grafo/dirty/round-trip/relocación/errores, PCM y colas de referencia, CLI y verificación local.
+- [x] 13.3.c: coordinación de modo/documento/preparación/sesiones y recibos con rollback/pérdida explícitos.
+- [x] 13.3.c: snapshots propios, timeout tras enqueue real sin compensación, guardado/export/reapertura sin replay y preparación bloqueada.
+- [x] 13.3.d: DTO/bindings/IPC/ACL y editor/lanzamiento de clips con estado observado.
+- [x] 13.3.d: check completo, 68 frontend, tres contratos IPC y build/WebView2 real; sin abrir hardware.
+- [x] Implementar coordinación y controles manteniendo documento/reproducción separados.
+- [x] 13.3.e: aceptación integrada local con WAV, archivos/exportación y lifecycle/orden IPC/UI.
+- [x] 13.3.e: referencia independiente, debug/release, 72 frontend, check/build y WebView2 real con archivos.
+- [x] 13.4.a: diagnósticos reproducibles y protocolo nativo de clips/escenas.
+- [x] 13.4.a: 216 mediciones offline finales, referencias/memoria, release y lifecycle manual; README con imágenes y capacidades actuales.
+- [ ] 13.4.b: matriz física release, reaperturas y escucha identificadas.
+- [ ] 13.4.c: entrega/CI de la revisión correspondiente y cierre de 13.
+- [x] Probar cambios con distintos bloques/tempos antes de planificar timeline/piano roll/automatización.

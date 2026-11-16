@@ -6,6 +6,8 @@ use std::{
     hint::black_box,
     time::{Duration, Instant},
 };
+mod launcher_bench;
+mod launcher_native;
 mod mixer_bench;
 mod mixer_native;
 mod sampler;
@@ -21,6 +23,12 @@ pub fn run(command: &str, args: &[String]) -> Result<(), Box<dyn Error>> {
     }
     if command == "sampler-bench" {
         return sampler::run(args);
+    }
+    if command == "launcher-bench" {
+        return launcher_bench::run(args);
+    }
+    if command == "launcher-native-check" {
+        return launcher_native::run(args);
     }
     if command == "sampler-native-check" {
         return sampler_native::run(args);

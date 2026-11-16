@@ -6,6 +6,12 @@ and observed engine state. [DTOs, IPC, ACL and the desktop grid](sequencer-deskt
 are implemented in 11.3.c; integrated acceptance remains 11.3.d.
 See the [stage report](../progress/etapa-11-aplicacion-secuenciador.md).
 
+Current mode boundary, added in [13.3.c](launcher-application.md): pattern edits
+and explicit sequenced-session initialization require selected Pattern mode.
+Mode changes require closed audio. Generic project-sampler initialization chooses
+Pattern or Launcher from current document state; the legacy pattern remains stored
+independently when Launcher is selected.
+
 ## Rust application API
 
 - `get_pattern()` returns a Copy snapshot of the selected Project pattern.

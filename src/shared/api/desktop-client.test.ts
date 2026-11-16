@@ -15,6 +15,51 @@ beforeEach(() => {
   transport.isTauri.mockReturnValue(true);
   transport.invoke.mockResolvedValue(undefined);
 });
+it("uses typed launcher commands and preserves decimal preparation IDs", async () => {
+  await desktopClient.launcherSettings();
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "get_launcher_settings",
+    undefined,
+  );
+  await desktopClient.launcherStatus();
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "get_launcher_status",
+    undefined,
+  );
+  await desktopClient.playbackMode("launcher");
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "project_set_playback_mode",
+    { mode: "launcher" },
+  );
+  await desktopClient.projectTempo(137.25);
+  expect(transport.invoke).toHaveBeenLastCalledWith("project_set_tempo", {
+    bpm: 137.25,
+  });
+  const request = {
+    edit: "sceneAction" as const,
+    index: 15,
+    row: 3,
+    action: { action: "launch" as const, slot: 15 },
+  };
+  await desktopClient.launcherEdit(request);
+  expect(transport.invoke).toHaveBeenLastCalledWith("launcher_edit", {
+    request,
+  });
+  await desktopClient.launcherLaunch({ target: "stopAll" });
+  expect(transport.invoke).toHaveBeenLastCalledWith("launcher_launch", {
+    target: { target: "stopAll" },
+  });
+  await desktopClient.initializeProjectSampler("18446744073709551615", null);
+  expect(transport.invoke).toHaveBeenLastCalledWith(
+    "initialize_project_sampler",
+    { preparationId: "18446744073709551615", deviceId: null },
+  );
+  transport.isTauri.mockReturnValue(false);
+  await expect(
+    desktopClient.launcherLaunch({ target: "stopAll" }),
+  ).rejects.toMatchObject({ code: "nativeAudioDisabled" });
+  expect(transport.invoke).toHaveBeenCalledTimes(7);
+});
 it("uses scoped project commands and preserves export options as a single typed request", async () => {
   await desktopClient.document();
   expect(transport.invoke).toHaveBeenLastCalledWith(

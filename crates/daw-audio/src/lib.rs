@@ -1,4 +1,6 @@
 //! Audio service: bounded control requests, SPSC queues, manual and optional CPAL backends.
+#[cfg(test)]
+mod launcher_test_support;
 mod metrics;
 #[cfg(feature = "native-audio")]
 mod native;
@@ -7,8 +9,9 @@ mod service;
 pub use metrics::{MemoryActivity, RealtimeMetrics};
 
 use daw_engine::{
-    AudioEngine, EngineConfig, EngineSnapshot, MixerSettings, MixerSnapshot, Pattern,
-    SAMPLE_BANK_SLOTS, SampleBank, SamplerTriggerError, SequencerSnapshot, Tempo,
+    AudioEngine, EngineConfig, EngineSnapshot, LauncherControlError, LauncherSnapshot,
+    MixerSettings, MixerSnapshot, Pattern, SAMPLE_BANK_SLOTS, SampleBank, SamplerTriggerError,
+    SequencerSnapshot, Tempo,
 };
 use std::fmt;
 
@@ -93,6 +96,29 @@ pub struct ServiceSnapshot {
     pub mixer: Option<MixerSnapshot>,
     /// Applied sequenced-session state; latest event only, not a complete history.
     pub sequencer: Option<SequencerSnapshot>,
+    /// Applied launcher state and latest request-processing report; lossy observation.
+    pub launcher: Option<LauncherTelemetry>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ClipLaunchReport {
+    pub command_id: u64,
+    /// Kernel request ID on success, not proof that a quantized transition fired.
+    pub result: std::result::Result<u64, LauncherControlError>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LauncherTelemetry {
+    pub state: LauncherSnapshot,
+    pub last_request: Option<ClipLaunchReport>,
+}
+impl LauncherTelemetry {
+    pub(crate) fn for_engine(engine: &AudioEngine) -> Option<Self> {
+        engine.launcher_snapshot().map(|state| Self {
+            state,
+            last_request: None,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -102,8 +128,8 @@ pub struct TriggerReport {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-/// Explicit trigger-command telemetry. Active voices also include sequenced notes;
-/// scheduled outcomes/counters live separately in ServiceSnapshot::sequencer.
+/// Explicit trigger-command telemetry. Active voices also include scheduled notes;
+/// those outcomes/counters live in ServiceSnapshot::sequencer or ::launcher.
 pub struct SamplerTelemetry {
     pub occupied_slots: u16,
     pub active_voices: usize,
@@ -137,6 +163,7 @@ pub(crate) enum Source {
     Sampler(Box<SampleBank>),
     MixedSampler(Box<SampleBank>, MixerSettings),
     SequencedSampler(Box<SampleBank>, MixerSettings, Pattern),
+    ClipLauncher(Box<SampleBank>, MixerSettings),
 }
 impl Source {
     pub(crate) fn engine(self, config: EngineConfig, tempo: Tempo) -> Result<AudioEngine> {
@@ -151,12 +178,16 @@ impl Source {
             Self::SequencedSampler(bank, settings, pattern) if bank.config() == config => Ok(
                 AudioEngine::with_sequenced_sampler(*bank, tempo, settings, pattern),
             ),
-            Self::Sampler(_) | Self::MixedSampler(..) | Self::SequencedSampler(..) => {
-                Err(AudioError::new(
-                    ErrorCode::InvalidArgument,
-                    "Device configuration must match the prepared bank rate and channels",
-                ))
+            Self::ClipLauncher(bank, settings) if bank.config() == config => {
+                Ok(AudioEngine::with_clip_launcher(*bank, tempo, settings))
             }
+            Self::Sampler(_)
+            | Self::MixedSampler(..)
+            | Self::SequencedSampler(..)
+            | Self::ClipLauncher(..) => Err(AudioError::new(
+                ErrorCode::InvalidArgument,
+                "Device configuration must match the prepared bank rate and channels",
+            )),
         }
     }
 }

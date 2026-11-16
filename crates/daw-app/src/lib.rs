@@ -1,22 +1,30 @@
 //! Application use cases shared by desktop and CLI, independent of Tauri.
 
+mod launcher;
 mod mixer;
 pub mod offline;
 pub mod project_file;
+mod project_launcher_document;
 pub mod project_render;
 pub mod sample_loading;
 pub mod sampler_session;
 mod sequencer;
-pub use daw_domain::{MixerChannel, MixerSettings, Pattern};
+pub use daw_domain::{
+    Clip, ClipLauncher, LaunchQuantization, MixerChannel, MixerSettings, Pattern, PlaybackMode,
+    Scene, SceneAction, Tempo,
+};
+pub use launcher::{
+    LauncherLaunch, LauncherProgress, LauncherSettings, LauncherStatus, LauncherTarget, TempoEdit,
+};
 pub use mixer::MixerEdit;
 pub use sequencer::PatternEdit;
 
 pub use daw_audio::{
-    AudioError, AudioServiceState, Backend, CommandAccepted, ErrorCode, MemoryActivity,
-    OutputDevice, RealtimeMetrics, RenderReport, Result, SamplerTelemetry, ServiceSnapshot,
-    TriggerReport,
+    AudioError, AudioServiceState, Backend, ClipLaunchReport, CommandAccepted, ErrorCode,
+    LauncherTelemetry, MemoryActivity, OutputDevice, RealtimeMetrics, RenderReport, Result,
+    SamplerTelemetry, ServiceSnapshot, TriggerReport,
 };
-use daw_domain::{Project, ProjectId, Tempo};
+use daw_domain::{Project, ProjectId};
 use daw_engine::{EngineCommand, Gain};
 pub use daw_engine::{
     EngineConfig, SamplerTriggerError, SequencerBoundary, SequencerCounters, SequencerEvent,
@@ -35,6 +43,7 @@ pub struct Application {
     samples: sampler_session::SamplePreparation,
     project_path: Option<std::path::PathBuf>,
     saved_project: Option<Project>,
+    launcher_intent: std::cell::Cell<Option<LauncherLaunch>>,
 }
 
 impl Application {
@@ -45,6 +54,7 @@ impl Application {
             samples: sampler_session::SamplePreparation::default(),
             project_path: None,
             saved_project: None,
+            launcher_intent: std::cell::Cell::new(None),
         })
     }
     pub fn get_project_summary(&self) -> ProjectSummary {
@@ -95,10 +105,16 @@ impl Application {
         self.audio.handle().command(EngineCommand::SetGain(gain))
     }
     pub fn shutdown_audio(&self) -> Result<()> {
-        self.audio.handle().shutdown()
+        self.audio.handle().shutdown()?;
+        self.launcher_intent.set(None);
+        Ok(())
     }
     pub fn get_engine_snapshot(&self) -> Result<ServiceSnapshot> {
-        self.audio.handle().snapshot()
+        let snapshot = self.audio.handle().snapshot()?;
+        if snapshot.state != AudioServiceState::Ready || snapshot.launcher.is_none() {
+            self.launcher_intent.set(None);
+        }
+        Ok(snapshot)
     }
     pub fn transport_play(&self) -> Result<CommandAccepted> {
         self.audio.handle().command(EngineCommand::Play)

@@ -6,13 +6,14 @@ import { SamplerPanel } from "../features/audio/SamplerPanel";
 import { MixerPanel } from "../features/audio/MixerPanel";
 import { SequencerPanel } from "../features/audio/SequencerPanel";
 import { ProjectPanel } from "../features/project/ProjectPanel";
+import { LauncherPanel } from "../features/audio/LauncherPanel";
 
 export function App() {
   const session = useDawSession();
   return (
     <main className="workspace">
       <header>
-        <span className="eyebrow">AudioMOTORR · Etapa 12</span>
+        <span className="eyebrow">AudioMOTORR · Etapa 13</span>
         <h1>
           {session.info?.name ?? "Rust DAW"}{" "}
           <small>{session.info?.version}</small>
@@ -21,15 +22,17 @@ export function App() {
         <p className="notice">
           {session.snapshot?.state === "uninitialized"
             ? "Crea un patrón y carga un banco WAV para comenzar"
-            : session.snapshot?.sequencer != null
-              ? "Secuenciador · 4 filas × 16 pasos · mezcla de cuatro canales"
-              : session.snapshot?.mixer != null
-                ? "Sampler · mezcla de cuatro canales · 16 voces"
-                : session.snapshot?.sampler != null
-                  ? "Sampler one-shot · 16 voces · rampas de 5 ms"
-                  : session.snapshot?.engine?.sineFrequencyHz != null
-                    ? `Senoide: ${session.snapshot.engine.sineFrequencyHz} Hz · rampas de 5 ms`
-                    : "Salida de silencio · selecciona senoide para generar señal"}
+            : session.snapshot?.launcher != null
+              ? "Clips y escenas · transiciones cuantizadas · mezcla de cuatro canales"
+              : session.snapshot?.sequencer != null
+                ? "Secuenciador · 4 filas × 16 pasos · mezcla de cuatro canales"
+                : session.snapshot?.mixer != null
+                  ? "Sampler · mezcla de cuatro canales · 16 voces"
+                  : session.snapshot?.sampler != null
+                    ? "Sampler one-shot · 16 voces · rampas de 5 ms"
+                    : session.snapshot?.engine?.sineFrequencyHz != null
+                      ? `Senoide: ${session.snapshot.engine.sineFrequencyHz} Hz · rampas de 5 ms`
+                      : "Salida de silencio · selecciona senoide para generar señal"}
         </p>
       </header>
       {!session.native && (
@@ -45,6 +48,10 @@ export function App() {
           <strong>{session.error.code}</strong>: {session.error.message}
         </div>
       )}
+      <LauncherPanel
+        key={`launcher-${session.documentVersion}`}
+        session={session}
+      />
       <SequencerPanel session={session} />
       <ProjectPanel key={session.documentVersion} session={session} />
       <TransportBar session={session} />

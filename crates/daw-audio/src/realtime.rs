@@ -1,8 +1,8 @@
 //! Only Copy payloads cross these queues. This module never formats errors.
-use crate::{SamplerTelemetry, TriggerReport};
+use crate::{ClipLaunchReport, LauncherTelemetry, SamplerTelemetry, TriggerReport};
 use daw_engine::{
-    AudioEngine, EngineCommand, EngineSnapshot, Gain, MixerChannel, MixerMeters, MixerPeak,
-    MixerSnapshot, Pattern, SequencerSnapshot,
+    AudioEngine, ClipLaunchRequest, EngineCommand, EngineSnapshot, Gain, LauncherControlError,
+    MixerChannel, MixerMeters, MixerPeak, MixerSnapshot, Pattern, SequencerSnapshot,
 };
 use rtrb::{Consumer, Producer, RingBuffer};
 use std::sync::{
@@ -24,6 +24,7 @@ pub(crate) struct Command {
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum RealtimeCommand {
+    ClipLaunch(ClipLaunchRequest),
     Engine(EngineCommand),
     Trigger {
         slot: usize,
@@ -63,6 +64,7 @@ pub(crate) struct AppliedSnapshot {
     pub sampler: Option<SamplerTelemetry>,
     pub mixer: Option<MixerSnapshot>,
     pub sequencer: Option<SequencerSnapshot>,
+    pub launcher: Option<LauncherTelemetry>,
 }
 
 pub(crate) struct ControlQueues {
@@ -82,6 +84,7 @@ pub(crate) struct Realtime {
     sampler: Option<SamplerTelemetry>,
     mixer: Option<MixerSnapshot>,
     mixer_window: Option<MixerMeters>,
+    launcher: Option<LauncherTelemetry>,
     #[cfg(feature = "rt-diagnostics")]
     metrics: crate::RealtimeMetrics,
     #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
@@ -92,6 +95,7 @@ impl Realtime {
     pub fn new(engine: AudioEngine) -> (ControlQueues, Self) {
         let sampler = SamplerTelemetry::for_engine(&engine);
         let mixer = engine.mixer_snapshot();
+        let launcher = LauncherTelemetry::for_engine(&engine);
         let (commands_tx, commands) = RingBuffer::new(COMMAND_CAPACITY);
         let (snapshots, snapshots_rx) = RingBuffer::new(SNAPSHOT_CAPACITY);
         let failure = Arc::new(AtomicU8::new(0));
@@ -111,6 +115,7 @@ impl Realtime {
                 sampler,
                 mixer,
                 mixer_window: None,
+                launcher,
                 #[cfg(feature = "rt-diagnostics")]
                 metrics: Default::default(),
                 #[cfg(all(feature = "rt-diagnostics", feature = "native-audio"))]
@@ -133,6 +138,22 @@ impl Realtime {
                 break;
             };
             match command.command {
+                RealtimeCommand::ClipLaunch(request) => {
+                    let result = self.engine.request_clip_launch(request);
+                    if matches!(
+                        result,
+                        Err(LauncherControlError::NoLauncher | LauncherControlError::InvalidClip(_))
+                    ) {
+                        self.fail();
+                        return;
+                    }
+                    if let Some(launcher) = &mut self.launcher {
+                        launcher.last_request = Some(ClipLaunchReport {
+                            command_id: command.id,
+                            result,
+                        });
+                    }
+                }
                 RealtimeCommand::Engine(command) => self.engine.apply_command(command),
                 RealtimeCommand::Trigger { slot, gain } => {
                     let result = self.engine.trigger_sample(slot, gain);
@@ -263,6 +284,12 @@ impl Realtime {
     }
 
     pub fn end(&mut self) {
+        if let Some(launcher) = &mut self.launcher {
+            launcher.state = self
+                .engine
+                .launcher_snapshot()
+                .expect("retained launcher mode");
+        }
         if let Some(sampler) = &mut self.sampler {
             sampler.active_voices = self
                 .engine
@@ -295,6 +322,7 @@ impl Realtime {
             sampler: self.sampler,
             mixer: self.mixer,
             sequencer: self.engine.sequencer_snapshot(),
+            launcher: self.launcher,
         });
     }
 
@@ -393,6 +421,10 @@ mod mixer_tests;
 #[cfg(test)]
 #[path = "realtime_sequencer_tests.rs"]
 mod sequencer_tests;
+
+#[cfg(test)]
+#[path = "realtime_launcher_tests.rs"]
+mod launcher_tests;
 
 #[cfg(test)]
 mod tests {

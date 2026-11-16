@@ -2,6 +2,12 @@ import type { FormEvent } from "react";
 import type { DawSession } from "../audio/useDawSession";
 export function TransportBar({ session }: { session: DawSession }) {
   const disabled = !session.ready || session.busy || session.pending !== null;
+  const tempoDisabled =
+    !session.native ||
+    !session.connected ||
+    session.busy ||
+    session.pending !== null ||
+    !(session.ready || session.snapshot?.state === "uninitialized");
   const engine = session.snapshot?.engine;
   const appliedTempo = engine?.tempo ?? session.project?.tempo ?? 120;
   const labels = {
@@ -82,9 +88,9 @@ export function TransportBar({ session }: { session: DawSession }) {
           step="any"
           required
           defaultValue={appliedTempo}
-          disabled={disabled}
+          disabled={tempoDisabled}
         />
-        <button type="submit" disabled={disabled}>
+        <button type="submit" disabled={tempoDisabled}>
           Aplicar BPM
         </button>
         <span className="muted">

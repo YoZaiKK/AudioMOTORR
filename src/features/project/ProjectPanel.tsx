@@ -32,6 +32,13 @@ export function ProjectPanel({ session }: { session: DawSession }) {
   return (
     <section className="panel project-panel" aria-labelledby="project-heading">
       <h2 id="project-heading">Proyecto y exportación</h2>
+      <p>
+        Exportación:{" "}
+        {session.launcherSettings?.mode === "launcher"
+          ? `escena inicial ${session.launcherSettings.initialScene} de clips`
+          : "patrón de 16 pasos"}
+        . Los lanzamientos en vivo no cambian esta selección.
+      </p>
       <p className="muted">
         Guardar copia los samples junto al proyecto para poder moverlo. Abrir
         requiere audio cerrado y ninguna preparación pendiente.
@@ -153,9 +160,9 @@ export function ProjectPanel({ session }: { session: DawSession }) {
         </button>
       </div>
       <p className="muted">
-        Preparar no abre audio. Después, inicializa el secuenciador desde el
-        sampler. Exportar usa el patrón y la mezcla seleccionados y conserva la
-        reproducción actual.
+        Preparar no abre audio. Después, inicializa el proyecto desde el
+        sampler. Exportar usa el modo, el contenido y la mezcla seleccionados y
+        conserva la reproducción actual.
       </p>
       <div className="project-fields">
         <label>

@@ -135,7 +135,11 @@ impl Sequencer {
         (tempo.bpm() * TEMPO_SCALE as f64) as u128
     }
 
-    fn position_after(&self, frames: u64, tempo: Tempo) -> Result<(u64, u128), RenderError> {
+    pub(super) fn position_after(
+        &self,
+        frames: u64,
+        tempo: Tempo,
+    ) -> Result<(u64, u128), RenderError> {
         // At most 64 + 57 bits for frames * increment, under u128 at every rate.
         let phase = self.fraction + u128::from(frames) * Self::increment(tempo);
         let crossed =
@@ -145,6 +149,10 @@ impl Sequencer {
             .checked_add(crossed)
             .ok_or(RenderError::CounterOverflow)?;
         Ok((whole, phase % self.denominator))
+    }
+
+    pub(super) fn next_boundary_ordinal(&self) -> u64 {
+        self.next_boundary
     }
 
     /// Exact enabled-event count without visiting every boundary of a large block.
@@ -388,6 +396,89 @@ mod tests {
                 (
                     engine.snapshot(),
                     engine.sequencer_snapshot(),
+                    engine.sampler().unwrap().snapshot(),
+                    engine.mixer_snapshot()
+                ),
+                before
+            );
+        }
+    }
+
+    #[test]
+    fn launcher_clock_note_and_target_overflows_are_atomic_before_audio() {
+        use crate::{
+            Clip, ClipLaunchAction as Action, ClipLaunchRequest as Request,
+            LaunchQuantization as Quant, LauncherControlError,
+        };
+        for failure in 0..7 {
+            let config = EngineConfig::new(800, 2).unwrap();
+            let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
+            slots[0] = Some(SampleBuffer::new(config, vec![0.5; 200]).unwrap());
+            let mut engine = AudioEngine::with_clip_launcher(
+                SampleBank::new(config, slots).unwrap(),
+                Tempo::default(),
+                MixerSettings::default(),
+            );
+            let mut clip = Clip::new(0).unwrap();
+            clip.set_step(if failure == 5 { 1 } else { 0 }, true)
+                .unwrap();
+            engine
+                .request_clip_launch(
+                    Request::new([Action::Launch { slot: 0, clip }; 4], Quant::Step).unwrap(),
+                )
+                .unwrap();
+            engine.apply_command(EngineCommand::Play);
+            let clock = &mut engine.launcher.as_mut().unwrap().clock;
+            match failure {
+                0 => clock.musical_frames = u64::MAX,
+                1 => {
+                    clock.whole_steps = u64::MAX;
+                    clock.fraction = clock.denominator - 1;
+                }
+                2 | 6 => {
+                    clock.whole_steps = u64::MAX;
+                    clock.next_boundary = u64::MAX;
+                }
+                3 => clock.counters.boundaries = u64::MAX,
+                4 | 5 => {
+                    clock.counters.attempted = u64::MAX;
+                    clock.counters.started = u64::MAX;
+                }
+                _ => unreachable!(),
+            }
+            let before = (
+                engine.snapshot(),
+                engine.launcher_snapshot(),
+                engine.sampler().unwrap().snapshot(),
+                engine.mixer_snapshot(),
+            );
+            if failure == 6 {
+                assert_eq!(
+                    engine
+                        .request_clip_launch(Request::new([Action::Stop; 4], Quant::Bar).unwrap()),
+                    Err(LauncherControlError::CounterOverflow)
+                );
+            } else {
+                let frames = if failure == 5 { 101 } else { 1 };
+                if failure == 5 {
+                    assert_eq!(engine.validate_render(200), Ok(()));
+                }
+                let mut output = vec![1.0; frames * 2];
+                assert_eq!(
+                    engine.validate_render(output.len()),
+                    Err(RenderError::CounterOverflow)
+                );
+                assert_eq!(
+                    engine.render_interleaved(&mut output),
+                    Err(RenderError::CounterOverflow)
+                );
+                assert!(output.iter().all(|v| *v == 0.0));
+            }
+            engine.render_interleaved(&mut []).unwrap();
+            assert_eq!(
+                (
+                    engine.snapshot(),
+                    engine.launcher_snapshot(),
                     engine.sampler().unwrap().snapshot(),
                     engine.mixer_snapshot()
                 ),

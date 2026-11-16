@@ -11,6 +11,12 @@ pub use pattern::{
     StepEvent,
 };
 
+mod clips;
+pub use clips::{
+    CLIPS_PER_ROW, Clip, ClipError, ClipLauncher, LaunchQuantization, SCENE_COUNT, Scene,
+    SceneAction,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DomainError {
     InvalidProjectId,
@@ -74,6 +80,13 @@ impl Default for Tempo {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum PlaybackMode {
+    #[default]
+    Pattern,
+    Launcher,
+}
+
 /// Documento editable. Su tempo no modifica automáticamente el estado de reproducción.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Project {
@@ -82,6 +95,10 @@ pub struct Project {
     tempo: Tempo,
     mixer: MixerSettings,
     pattern: Pattern,
+    launcher: ClipLauncher,
+    playback_mode: PlaybackMode,
+    launch_quantization: LaunchQuantization,
+    initial_scene: u8,
     assets: [Option<String>; SAMPLE_SLOTS],
 }
 
@@ -97,6 +114,10 @@ impl Project {
             tempo,
             mixer: MixerSettings::default(),
             pattern: Pattern::default(),
+            launcher: ClipLauncher::default(),
+            playback_mode: PlaybackMode::default(),
+            launch_quantization: LaunchQuantization::default(),
+            initial_scene: 0,
             assets: [const { None }; SAMPLE_SLOTS],
         })
     }
@@ -158,6 +179,33 @@ impl Project {
     pub fn pattern_mut(&mut self) -> &mut Pattern {
         &mut self.pattern
     }
+
+    pub const fn launcher(&self) -> &ClipLauncher {
+        &self.launcher
+    }
+    pub fn launcher_mut(&mut self) -> &mut ClipLauncher {
+        &mut self.launcher
+    }
+    pub const fn playback_mode(&self) -> PlaybackMode {
+        self.playback_mode
+    }
+    pub fn set_playback_mode(&mut self, mode: PlaybackMode) {
+        self.playback_mode = mode;
+    }
+    pub const fn launch_quantization(&self) -> LaunchQuantization {
+        self.launch_quantization
+    }
+    pub fn set_launch_quantization(&mut self, quantization: LaunchQuantization) {
+        self.launch_quantization = quantization;
+    }
+    pub const fn initial_scene(&self) -> usize {
+        self.initial_scene as usize
+    }
+    pub fn set_initial_scene(&mut self, scene: usize) -> Result<(), ClipError> {
+        self.launcher.scene(scene)?;
+        self.initial_scene = scene as u8;
+        Ok(())
+    }
 }
 
 impl Default for Project {
@@ -168,6 +216,10 @@ impl Default for Project {
             tempo: Tempo::default(),
             mixer: MixerSettings::default(),
             pattern: Pattern::default(),
+            launcher: ClipLauncher::default(),
+            playback_mode: PlaybackMode::default(),
+            launch_quantization: LaunchQuantization::default(),
+            initial_scene: 0,
             assets: [const { None }; SAMPLE_SLOTS],
         }
     }

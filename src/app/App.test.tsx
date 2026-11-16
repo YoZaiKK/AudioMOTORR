@@ -15,6 +15,7 @@ import type {
   MixerEditDto,
   PatternDto,
   ProjectDocumentDto,
+  LauncherSettingsDto,
 } from "../shared/api/generated/api";
 
 const client = vi.hoisted(() => ({
@@ -50,6 +51,12 @@ const client = vi.hoisted(() => ({
   patternStep: vi.fn(),
   patternRowSlot: vi.fn(),
   initializeSequencedSampler: vi.fn(),
+  launcherEdit: vi.fn(),
+  launcherLaunch: vi.fn(),
+  launcherStatus: vi.fn(),
+  playbackMode: vi.fn(),
+  projectTempo: vi.fn(),
+  initializeProjectSampler: vi.fn(),
 }));
 vi.mock("../shared/api/desktop-client", async (original) => ({
   ...(await original<typeof import("../shared/api/desktop-client")>()),
@@ -69,6 +76,7 @@ const empty: ServiceSnapshotDto = {
   sampler: null,
   mixer: null,
   sequencer: null,
+  launcher: null,
 };
 const ready: ServiceSnapshotDto = {
   ...empty,
@@ -202,6 +210,7 @@ beforeEach(() => {
   });
   client.devices.mockResolvedValue([]);
   client.document.mockResolvedValue({
+    launcher: launcherFixture(),
     path: null,
     dirty: true,
     summary: { id: "1", title: "Proyecto sin título", tempo: 120 },
@@ -233,6 +242,7 @@ afterEach(cleanup);
 
 function documentFixture(): ProjectDocumentDto {
   return {
+    launcher: launcherFixture(),
     path: null,
     dirty: true,
     summary: { id: "1", title: "Proyecto sin título", tempo: 120 },
@@ -241,6 +251,573 @@ function documentFixture(): ProjectDocumentDto {
     assets: Array(16).fill(null) as ProjectDocumentDto["assets"],
   };
 }
+
+function launcherFixture(): LauncherSettingsDto {
+  return {
+    mode: "pattern",
+    quantization: "bar",
+    initialScene: 0,
+    clips: Array.from({ length: 4 }, () =>
+      Array(16).fill(null),
+    ) as LauncherSettingsDto["clips"],
+    scenes: Array.from({ length: 16 }, () =>
+      Array.from({ length: 4 }, () => ({ action: "keep" })),
+    ) as LauncherSettingsDto["scenes"],
+  };
+}
+
+function launcherReady(sequence = "1"): ServiceSnapshotDto {
+  return {
+    ...mixedReady,
+    sequence,
+    launcher: {
+      rowSteps: [null, null, null, null],
+      active: [null, null, null, null],
+      pending: [null, null, null, null],
+      lastTransition: [null, null, null, null],
+      lastRequestId: "0",
+      transitions: "0",
+      musicalFrames: "0",
+      wholeSteps: "0",
+      phaseNumerator: "0",
+      phaseDenominator: "340282366920938463463374607431768211455",
+      lastBoundary: null,
+      lastEvent: null,
+      lastRequest: null,
+      counters: {
+        boundaries: "0",
+        attempted: "0",
+        started: "0",
+        missingAsset: "0",
+        poolFull: "0",
+      },
+    },
+  };
+}
+
+describe("clips and scenes", () => {
+  it("edits offline without launching and keeps initial scene distinct from selected scene", async () => {
+    const selected = launcherFixture();
+    selected.mode = "launcher";
+    selected.initialScene = 7;
+    client.document.mockResolvedValue({
+      ...documentFixture(),
+      launcher: selected,
+    });
+    const edited = structuredClone(selected);
+    edited.clips[0][0] = {
+      sampleSlot: 0,
+      steps: Array(16).fill(false) as NonNullable<
+        LauncherSettingsDto["clips"][0][0]
+      >["steps"],
+    };
+    client.launcherEdit.mockResolvedValue(edited);
+    render(<App />);
+    await connected();
+    expect(
+      (
+        screen.getByLabelText(
+          "Escena inicial guardada / exportación",
+        ) as HTMLSelectElement
+      ).value,
+    ).toBe("7");
+    fireEvent.change(screen.getByLabelText("Escena a editar y lanzar"), {
+      target: { value: "3" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Crear clip vacío" }));
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Eliminar clip",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    expect(client.launcherEdit).toHaveBeenCalledWith({
+      edit: "clip",
+      row: 0,
+      slot: 0,
+      clip: edited.clips[0][0],
+    });
+    expect(client.launcherLaunch).not.toHaveBeenCalled();
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Lanzar escena 3",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByLabelText(
+          "Escena inicial guardada / exportación",
+        ) as HTMLSelectElement
+      ).value,
+    ).toBe("7");
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Fila 1, paso 1",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
+  it("separates a late acceptance, exact processing report, queued transition and active content", async () => {
+    const selected = launcherFixture();
+    selected.mode = "launcher";
+    client.document.mockResolvedValue({
+      ...documentFixture(),
+      launcher: selected,
+    });
+    client.snapshot.mockResolvedValue(launcherReady());
+    let resolve!: (value: unknown) => void;
+    client.launcherLaunch.mockImplementation(
+      () =>
+        new Promise((r) => {
+          resolve = r;
+        }),
+    );
+    render(<App />);
+    await connected();
+    fireEvent.click(screen.getByRole("button", { name: "Lanzar escena 0" }));
+    const queued = launcherReady("3");
+    queued.lastAppliedCommand = "9007199254740993";
+    queued.launcher!.lastRequest = {
+      commandId: "9007199254740993",
+      result: { status: "processed", requestId: "18446744073709551615" },
+    };
+    queued.launcher!.pending[0] = {
+      action: { action: "stop" },
+      targetStep: "9007199254740997",
+      requestId: "18446744073709551615",
+    };
+    emit(queued);
+    await act(async () =>
+      resolve({
+        target: { target: "scene", index: 0 },
+        actions: Array.from({ length: 4 }, () => ({ action: "keep" })),
+        quantization: "bar",
+        accepted: { commandId: "9007199254740993" },
+      }),
+    );
+    expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+      "procesada (motor 18446744073709551615)",
+    );
+    expect(screen.getByTestId("launcher-row-0").textContent).toContain(
+      "sin clip activo · en cola: Detener al paso global 9007199254740997",
+    );
+    const active = launcherReady("4");
+    active.launcher!.lastTransition[0] = queued.launcher!.pending[0];
+    emit(active);
+    expect(screen.getByTestId("launcher-row-0").textContent).toContain(
+      "última transición: Detener al paso 9007199254740997",
+    );
+    emit(queued); // stale event cannot resurrect a queued transition
+    expect(screen.getByTestId("launcher-row-0").textContent).toContain(
+      "sin transición pendiente",
+    );
+  });
+  it("reports a skipped outcome as unknown and discards an acknowledgement from a closed session", async () => {
+    const selected = launcherFixture();
+    selected.mode = "launcher";
+    client.document.mockResolvedValue({
+      ...documentFixture(),
+      launcher: selected,
+    });
+    client.snapshot.mockResolvedValue(launcherReady());
+    const receipt = {
+      target: { target: "scene", index: 0 },
+      actions: Array.from({ length: 4 }, () => ({ action: "keep" })),
+      quantization: "bar",
+      accepted: { commandId: "11" },
+    };
+    client.launcherLaunch.mockResolvedValue(receipt);
+    render(<App />);
+    await connected();
+    fireEvent.click(screen.getByRole("button", { name: "Lanzar escena 0" }));
+    await waitFor(() =>
+      expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+        "aceptada",
+      ),
+    );
+    const skipped = launcherReady("2");
+    skipped.lastAppliedCommand = "12";
+    skipped.launcher!.lastRequest = {
+      commandId: "12",
+      result: { status: "processed", requestId: "2" },
+    };
+    emit(skipped);
+    expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+      "resultado desconocido",
+    );
+    let resolve!: (value: unknown) => void;
+    client.launcherLaunch.mockImplementation(
+      () =>
+        new Promise((r) => {
+          resolve = r;
+        }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Lanzar escena 0" }));
+    emit({ ...empty, sequence: "3" });
+    emit(launcherReady("4"));
+    await act(async () => resolve(receipt));
+    expect(screen.queryByTestId("launcher-receipt")).toBeNull();
+  });
+  it("preserves selected content after queue failure and initializes the current project mode", async () => {
+    const selected = launcherFixture();
+    selected.mode = "launcher";
+    client.document.mockResolvedValue({
+      ...documentFixture(),
+      launcher: selected,
+    });
+    client.snapshot.mockResolvedValue(launcherReady());
+    client.launcherEdit.mockRejectedValue({
+      code: "queueFull",
+      message: "Cola llena",
+      details: null,
+    });
+    client.preparation.mockResolvedValue(prepared);
+    render(<App />);
+    await connected();
+    fireEvent.change(
+      screen.getByLabelText("Cuantización de próximos lanzamientos"),
+      { target: { value: "step" } },
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toContain("queueFull"),
+    );
+    expect(
+      (
+        screen.getByLabelText(
+          "Cuantización de próximos lanzamientos",
+        ) as HTMLSelectElement
+      ).value,
+    ).toBe("bar");
+    expect(client.launcherLaunch).not.toHaveBeenCalled();
+    emit({ ...empty, sequence: "2" });
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Inicializar proyecto (clips)",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    client.initializeProjectSampler.mockResolvedValue(launcherReady("3"));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Inicializar proyecto (clips)" }),
+    );
+    await waitFor(() =>
+      expect(client.initializeProjectSampler).toHaveBeenCalledWith("1", null),
+    );
+    expect(client.play).not.toHaveBeenCalled();
+    expect(client.launcherLaunch).not.toHaveBeenCalled();
+  });
+});
+describe("integrated launcher acceptance", () => {
+  function receipt(commandId = "11") {
+    return {
+      target: { target: "scene" as const, index: 8 },
+      actions: [
+        { action: "keep" as const },
+        { action: "stop" as const },
+        { action: "keep" as const },
+        { action: "keep" as const },
+      ] as const,
+      quantization: "beat" as const,
+      accepted: { commandId },
+    };
+  }
+  function selectedDocument() {
+    const doc = documentFixture();
+    doc.launcher.mode = "launcher";
+    doc.launcher.initialScene = 7;
+    doc.launcher.quantization = "beat";
+    doc.assets[0] = "assets/kick.wav";
+    doc.path = "C:\\beats\\portable.json";
+    doc.dirty = false;
+    doc.launcher.clips[0][15] = {
+      sampleSlot: 0,
+      steps: Array(16).fill(true) as NonNullable<
+        LauncherSettingsDto["clips"][0][0]
+      >["steps"],
+    };
+    doc.launcher.scenes[7][0] = { action: "launch", slot: 15 };
+    return doc;
+  }
+  it("opens, prepares, initializes, launches, saves, exports and reopens without implicit replay", async () => {
+    const doc = selectedDocument();
+    client.openProject.mockResolvedValue(doc);
+    client.document.mockResolvedValue(doc);
+    client.prepareProjectSamples.mockResolvedValue(prepared);
+    client.initializeProjectSampler.mockResolvedValue(launcherReady("1"));
+    client.preparation
+      .mockResolvedValueOnce({
+        ...prepared,
+        sequence: "0",
+        state: "idle",
+        preparationId: null,
+      })
+      .mockResolvedValue({
+        ...prepared,
+        sequence: "3",
+        state: "idle",
+        preparationId: null,
+      });
+    client.launcherLaunch.mockResolvedValue(receipt());
+    client.saveProject.mockResolvedValue(doc);
+    client.exportBeat.mockResolvedValue({
+      musicalFrames: "1399",
+      tailFrames: "126",
+      totalFrames: "1525",
+      counters: {
+        boundaries: "16",
+        attempted: "15",
+        started: "15",
+        missingAsset: "0",
+        poolFull: "0",
+      },
+    });
+    render(<App />);
+    await connected();
+    fireEvent.click(screen.getByRole("button", { name: "Abrir proyecto" }));
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Modo del proyecto") as HTMLSelectElement).value,
+      ).toBe("launcher"),
+    );
+    expect(client.prepareProjectSamples).not.toHaveBeenCalled();
+    expect(client.initializeProjectSampler).not.toHaveBeenCalled();
+    expect(client.launcherLaunch).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Preparar samples del proyecto" }),
+    );
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Inicializar proyecto (clips)",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Inicializar proyecto (clips)" }),
+    );
+    await waitFor(() =>
+      expect(client.initializeProjectSampler).toHaveBeenCalledWith("1", null),
+    );
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Lanzar escena 0",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    expect(client.play).not.toHaveBeenCalled();
+    expect(client.launcherLaunch).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Escena a editar y lanzar"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Lanzar escena 8" }));
+    await waitFor(() =>
+      expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+        "aceptada",
+      ),
+    );
+    const processed = launcherReady("2");
+    processed.lastAppliedCommand = "11";
+    processed.launcher!.lastRequest = {
+      commandId: "11",
+      result: { status: "processed", requestId: "3" },
+    };
+    emit(processed);
+    expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+      "procesada (motor 3)",
+    );
+    expect(
+      (
+        screen.getByLabelText(
+          "Escena inicial guardada / exportación",
+        ) as HTMLSelectElement
+      ).value,
+    ).toBe("7");
+    fireEvent.change(screen.getByLabelText("Archivo WAV del beat"), {
+      target: { value: "C:\\beats\\scene-seven.wav" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar proyecto" }));
+    await waitFor(() => expect(client.saveProject).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Exportar beat",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Exportar beat" }));
+    await waitFor(() =>
+      expect(screen.getByTestId("beat-export-result").textContent).toContain(
+        "1525 frames",
+      ),
+    );
+    expect(client.exportBeat).toHaveBeenCalledWith(
+      expect.objectContaining({ outputPath: "C:\\beats\\scene-seven.wav" }),
+    );
+    expect(
+      (screen.getByLabelText("Escena a editar y lanzar") as HTMLSelectElement)
+        .value,
+    ).toBe("8");
+    client.shutdown.mockResolvedValue(undefined);
+    client.snapshot.mockResolvedValue({ ...empty, sequence: "3" });
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar audio" }));
+    await waitFor(() =>
+      expect(screen.queryByTestId("launcher-receipt")).toBeNull(),
+    );
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Abrir proyecto",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Abrir proyecto" }));
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Escena a editar y lanzar") as HTMLSelectElement)
+          .value,
+      ).toBe("0"),
+    );
+    expect(
+      (
+        screen.getByLabelText(
+          "Escena inicial guardada / exportación",
+        ) as HTMLSelectElement
+      ).value,
+    ).toBe("7");
+    expect(client.launcherLaunch).toHaveBeenCalledTimes(1);
+    expect(client.initializeProjectSampler).toHaveBeenCalledTimes(1);
+    expect(client.prepareProjectSamples).toHaveBeenCalledTimes(1);
+    expect(client.play).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("beat-export-result")).toBeNull();
+  });
+  it("reconciles an inconclusive timeout only on explicit consultation without retrying a launch", async () => {
+    const doc = selectedDocument();
+    client.document.mockResolvedValue(doc);
+    client.snapshot.mockResolvedValue(launcherReady());
+    client.launcherLaunch.mockRejectedValue({
+      code: "timeout",
+      message: "Respuesta perdida",
+      details: null,
+    });
+    render(<App />);
+    await connected();
+    fireEvent.change(screen.getByLabelText("Escena a editar y lanzar"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Lanzar escena 8" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toContain("timeout"),
+    );
+    const processed = launcherReady("2");
+    processed.lastAppliedCommand = "11";
+    processed.launcher!.lastRequest = {
+      commandId: "11",
+      result: { status: "processed", requestId: "3" },
+    };
+    emit(processed);
+    expect(screen.queryByTestId("launcher-receipt")).toBeNull();
+    client.launcherStatus.mockResolvedValue({
+      selected: doc.launcher,
+      lastLaunch: receipt(),
+      progress: { status: "processed", requestId: "3" },
+      observed: processed,
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Consultar estado de clips" }),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+        "procesada (motor 3)",
+      ),
+    );
+    expect(client.launcherLaunch).toHaveBeenCalledTimes(1);
+    expect(client.play).not.toHaveBeenCalled();
+    expect(
+      (
+        screen.getByLabelText(
+          "Escena inicial guardada / exportación",
+        ) as HTMLSelectElement
+      ).value,
+    ).toBe("7");
+  });
+  it.each(["processed", "rejected"] as const)(
+    "keeps a known %s result when a late status query contains only an older watermark",
+    async (status) => {
+      const doc = selectedDocument();
+      client.document.mockResolvedValue(doc);
+      client.snapshot.mockResolvedValue(launcherReady());
+      client.launcherLaunch.mockResolvedValue(receipt());
+      render(<App />);
+      await connected();
+      fireEvent.click(screen.getByRole("button", { name: "Lanzar escena 0" }));
+      await waitFor(() =>
+        expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+          "aceptada",
+        ),
+      );
+      let resolve!: (value: unknown) => void;
+      client.launcherStatus.mockImplementation(
+        () =>
+          new Promise((r) => {
+            resolve = r;
+          }),
+      );
+      fireEvent.click(
+        screen.getByRole("button", { name: "Consultar estado de clips" }),
+      );
+      const known = launcherReady("2");
+      known.lastAppliedCommand = "11";
+      known.launcher!.lastRequest = {
+        commandId: "11",
+        result:
+          status === "processed"
+            ? { status: "processed", requestId: "3" }
+            : { status: "rejected", reason: "counter overflow" },
+      };
+      emit(known);
+      const later = launcherReady("3");
+      later.lastAppliedCommand = "12";
+      later.launcher!.lastRequest = {
+        commandId: "12",
+        result: { status: "processed", requestId: "4" },
+      };
+      emit(later);
+      await act(async () =>
+        resolve({
+          selected: doc.launcher,
+          lastLaunch: receipt(),
+          progress: { status: "accepted" },
+          observed: launcherReady("1"),
+        }),
+      );
+      expect(screen.getByTestId("launcher-receipt").textContent).toContain(
+        status === "processed"
+          ? "procesada (motor 3)"
+          : "rechazada: counter overflow",
+      );
+      expect(client.launcherLaunch).toHaveBeenCalledTimes(1);
+    },
+  );
+});
+
 describe("project persistence and beat export", () => {
   it("saves title/path explicitly and only replaces the current saved destination automatically", async () => {
     const saved = {

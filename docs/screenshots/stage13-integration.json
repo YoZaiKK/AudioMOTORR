@@ -1,0 +1,726 @@
+{
+  "recorded_utc": "2026-11-16T22:10:14.803Z",
+  "runtime": "Real Windows Tauri/WebView2, bundled debug application",
+  "executable_sha256": "050f3e85d3436331fa44b2ba881b9cbd6870394abf9456fea204cd5dfe3577af",
+  "scope": "Real UI, WAV preparation, save/relocate/reopen and exclusive cut/finish export checked against independent PCM. No audio initialization, device playback or listening.",
+  "case_root": "C:\\proyectos\\rust\\MOTORUST\\target\\stage13-3e-20261116\\desktop-case-1794867012828",
+  "saved": {
+    "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage13-3e-20261116\\desktop-case-1794867012828\\portable\\scene.json",
+    "dirty": false,
+    "summary": {
+      "id": "1",
+      "title": "Aceptación integrada 13.3.e",
+      "tempo": 137.25
+    },
+    "pattern": {
+      "steps": [
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      ],
+      "slots": [0, 1, 2, 3]
+    },
+    "mixer": {
+      "channels": [
+        { "gain": 1, "pan": 0, "muted": false },
+        { "gain": 1, "pan": 0, "muted": false },
+        { "gain": 1, "pan": 0, "muted": false },
+        { "gain": 1, "pan": 0, "muted": false }
+      ],
+      "routes": [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
+    },
+    "assets": [
+      "audiomotorr-assets-26420-0/slot-0.wav",
+      "audiomotorr-assets-26420-0/slot-1.wav",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "launcher": {
+      "mode": "launcher",
+      "quantization": "bar",
+      "initialScene": 7,
+      "clips": [
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "steps": [
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true
+            ],
+            "sampleSlot": 0
+          }
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "steps": [
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "sampleSlot": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      "scenes": [
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "launch", "slot": 15 },
+          { "action": "launch", "slot": 7 },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ]
+      ]
+    }
+  },
+  "opened": {
+    "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage13-3e-20261116\\desktop-case-1794867012828\\moved\\scene.json",
+    "dirty": false,
+    "summary": {
+      "id": "1",
+      "title": "Aceptación integrada 13.3.e",
+      "tempo": 137.25
+    },
+    "pattern": {
+      "steps": [
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      ],
+      "slots": [0, 1, 2, 3]
+    },
+    "mixer": {
+      "channels": [
+        { "gain": 1, "pan": 0, "muted": false },
+        { "gain": 1, "pan": 0, "muted": false },
+        { "gain": 1, "pan": 0, "muted": false },
+        { "gain": 1, "pan": 0, "muted": false }
+      ],
+      "routes": [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
+    },
+    "assets": [
+      "audiomotorr-assets-26420-0/slot-0.wav",
+      "audiomotorr-assets-26420-0/slot-1.wav",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "launcher": {
+      "mode": "launcher",
+      "quantization": "bar",
+      "initialScene": 7,
+      "clips": [
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "steps": [
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true
+            ],
+            "sampleSlot": 0
+          }
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "steps": [
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "sampleSlot": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      "scenes": [
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "launch", "slot": 15 },
+          { "action": "launch", "slot": 7 },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ],
+        [
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" },
+          { "action": "keep" }
+        ]
+      ]
+    }
+  },
+  "prepared_relocated": {
+    "sequence": "5",
+    "preparationId": "2",
+    "state": "ready",
+    "sampleRate": 800,
+    "channels": 2,
+    "occupiedSlots": 3,
+    "retainedPcmBytes": "2236",
+    "error": null
+  },
+  "state": {
+    "sequence": "0",
+    "state": "uninitialized",
+    "backend": null,
+    "output": null,
+    "engine": null,
+    "callbacks": "0",
+    "lastAppliedCommand": null,
+    "error": null,
+    "sampler": null,
+    "mixer": null,
+    "sequencer": null,
+    "launcher": null
+  },
+  "exports": [
+    {
+      "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage13-3e-20261116\\desktop-case-1794867012828\\scene-cut.wav",
+      "sha256": "b71ab1c63306a0f5b79c3f803f8564a57621c13e9090400359203c641fbfa9d1",
+      "musical_frames": 1399,
+      "tail_frames": 0,
+      "total_frames": 1399,
+      "samples_checked": 2798,
+      "maximum_absolute_error": 0
+    },
+    {
+      "path": "C:\\proyectos\\rust\\MOTORUST\\target\\stage13-3e-20261116\\desktop-case-1794867012828\\scene-finish.wav",
+      "sha256": "af23d10cf170ded672fc8c73f56e3a67822c8a59138d52f2d5c6dbe05a87f9f1",
+      "musical_frames": 1399,
+      "tail_frames": 50,
+      "total_frames": 1449,
+      "samples_checked": 2898,
+      "maximum_absolute_error": 0
+    }
+  ],
+  "errors": [],
+  "captures": [
+    {
+      "path": "docs/screenshots/stage13-integration-1000.png",
+      "sha256": "fe3f8dbea397a82c8e8a399fa4f4c6f18000875a4d7ab437b2689f2ee180cd0a",
+      "layout": { "width": 1000, "pageWidth": 985, "top": 2527, "height": 1041 }
+    },
+    {
+      "path": "docs/screenshots/stage13-integration-360.png",
+      "sha256": "74f160df5dc4d481c7f425b9bd801e8e2e0ff2b2e98ef66f156ec25f4703e6ef",
+      "layout": { "width": 360, "pageWidth": 345, "top": 0, "height": 5384 }
+    }
+  ],
+  "source_file_count": 64,
+  "source_fingerprint_sha256": "95ca5ab2cde0b83cebea30d9f7afe408b3ee442ef4ff0c7f2b074cfdc6c1f079"
+}
