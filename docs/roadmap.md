@@ -19,7 +19,8 @@ with [mode/receipt/lifecycle verification](../progress/etapa-13-aplicacion-clips
 **13.4.a is implemented locally:** [launcher diagnostics](launcher-diagnostics.md) and
 [native verification protocol](launcher-native-verification.md), with [acceptance](../progress/etapa-13-diagnosticos-clips.md).
 **13.4.b physical processing is measured:** [six scenarios and reopens](../progress/etapa-13-medicion-nativa-clips.md).
-Listening confirmation remains pending; next closure work is **13.4.c, delivery/CI**;
+**13.4.c delivery/CI is verified:** [exact-revision Linux/Windows checks and local preview](../progress/etapa-13-entrega-ci.md).
+Listening confirmation remains pending before formal closure;
 closure is 13.4.
 Stage 13 remains open.
 

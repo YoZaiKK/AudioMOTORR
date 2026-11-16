@@ -1,0 +1,739 @@
+{
+  "format_version": 1,
+  "stage": "13.4.c",
+  "status": "delivery_ci_verified_formal_closure_listening_pending",
+  "recorded_utc": "2026-11-16T23:17:32.284Z",
+  "source_revision": "ca37f7480d93ca5651facf048ab1ffb978d499c1",
+  "publication": {
+    "implementation_revision": "03055988a37faf68af7d1cd0bd3b02315af6799b",
+    "native_evidence_revision": "ca37f7480d93ca5651facf048ab1ffb978d499c1",
+    "remote_main_observed": "ca37f7480d93ca5651facf048ab1ffb978d499c1",
+    "remote_observation": "git ls-remote origin refs/heads/main succeeded and matched HEAD at the beginning of this task. No push of these already-published commits was needed.",
+    "documentation_scope": "Current increment changes documentation/evidence only; its commit/publication is separate from the verified application revision."
+  },
+  "source_rule": "All 69 measured source/configuration raw hashes and Git blob hashes match revision ca37f74. Existing line ending difference is recorded. No production, dependency, lockfile, binding or workflow changes.",
+  "source_fingerprint_sha256": "7ca822567241ce17f65e11cf678f00c72f50e4064e9a7d6327fcb68bb1703d3a",
+  "source_file_count": 69,
+  "source_files": [
+    {
+      "path": "Cargo.lock",
+      "sha256": "73aab5125b19c17f3b07a7a8cf8b584b803e417e50a51a0a50fff9717d9990a8",
+      "commit_blob_sha256": "73aab5125b19c17f3b07a7a8cf8b584b803e417e50a51a0a50fff9717d9990a8"
+    },
+    {
+      "path": "crates/daw-app/src/launcher_preparation_tests.rs",
+      "sha256": "a82e3ab13f614230436acbd58b66988dc1f72beff212df5bb3fffc85845496ba",
+      "commit_blob_sha256": "a82e3ab13f614230436acbd58b66988dc1f72beff212df5bb3fffc85845496ba"
+    },
+    {
+      "path": "crates/daw-app/src/launcher_tests.rs",
+      "sha256": "4a709362caf71fefc06b8b7479e90239df118d8c8e17bf363625cc8d14b5e9b4",
+      "commit_blob_sha256": "4a709362caf71fefc06b8b7479e90239df118d8c8e17bf363625cc8d14b5e9b4"
+    },
+    {
+      "path": "crates/daw-app/src/launcher.rs",
+      "sha256": "a76fcfc353bb684febab3d3e1c3b15f406fd168bfb89541625f40b5338ebe762",
+      "commit_blob_sha256": "a76fcfc353bb684febab3d3e1c3b15f406fd168bfb89541625f40b5338ebe762"
+    },
+    {
+      "path": "crates/daw-app/src/lib.rs",
+      "sha256": "31a8ffe65a72ccf90494ada579e5b42d11ad72876ee1d7582db7f9c039fba0ac",
+      "commit_blob_sha256": "31a8ffe65a72ccf90494ada579e5b42d11ad72876ee1d7582db7f9c039fba0ac"
+    },
+    {
+      "path": "crates/daw-app/src/project_file.rs",
+      "sha256": "09a0f02741a671cba747e3489089d4de5164f8bc21cd77ac7040d73d4acb72f6",
+      "commit_blob_sha256": "09a0f02741a671cba747e3489089d4de5164f8bc21cd77ac7040d73d4acb72f6"
+    },
+    {
+      "path": "crates/daw-app/src/project_launcher_document.rs",
+      "sha256": "edf1538a904df9dc879b3f25c9cb11ef57bdae778d1c9d910936049343888aa5",
+      "commit_blob_sha256": "edf1538a904df9dc879b3f25c9cb11ef57bdae778d1c9d910936049343888aa5"
+    },
+    {
+      "path": "crates/daw-app/src/project_render.rs",
+      "sha256": "d03e613f896f309c2068c4e67ab2fb07c3cf2b6a6b987132daa03c6d4ed7d676",
+      "commit_blob_sha256": "d03e613f896f309c2068c4e67ab2fb07c3cf2b6a6b987132daa03c6d4ed7d676"
+    },
+    {
+      "path": "crates/daw-app/src/sampler_session.rs",
+      "sha256": "07f22bb8744ca32962e05be11a3d942e98e18488ec9670c1db870df8ef6f7161",
+      "commit_blob_sha256": "07f22bb8744ca32962e05be11a3d942e98e18488ec9670c1db870df8ef6f7161"
+    },
+    {
+      "path": "crates/daw-app/src/sequencer.rs",
+      "sha256": "d12eca9fe4afb503ac87d5ce9664a335ebe6c02b7af9da7734342135d5425924",
+      "commit_blob_sha256": "d12eca9fe4afb503ac87d5ce9664a335ebe6c02b7af9da7734342135d5425924"
+    },
+    {
+      "path": "crates/daw-app/tests/launcher_application_contract.rs",
+      "sha256": "cbf5bcf8bc5f3d8a19e049b4e24716c50ad30c9da75926723a60f0a93f6800db",
+      "commit_blob_sha256": "cbf5bcf8bc5f3d8a19e049b4e24716c50ad30c9da75926723a60f0a93f6800db"
+    },
+    {
+      "path": "crates/daw-app/tests/project_persistence_contract.rs",
+      "sha256": "472c46f9c3100927be081cad43a5177012bdf88d4cc2c95b95eed2e1357ddc1f",
+      "commit_blob_sha256": "472c46f9c3100927be081cad43a5177012bdf88d4cc2c95b95eed2e1357ddc1f"
+    },
+    {
+      "path": "crates/daw-app/tests/project_v2_contract.rs",
+      "sha256": "9f7e6c09e639fca8a99cce2be4663153c6c0139db3906f340de722cb7818fade",
+      "commit_blob_sha256": "9f7e6c09e639fca8a99cce2be4663153c6c0139db3906f340de722cb7818fade"
+    },
+    {
+      "path": "crates/daw-app/tests/scene_export_contract.rs",
+      "sha256": "0fc19abf4c50fb3860bc6f5619dc77a0ef3241361b6a43f3f20cd93608396b4b",
+      "commit_blob_sha256": "0fc19abf4c50fb3860bc6f5619dc77a0ef3241361b6a43f3f20cd93608396b4b"
+    },
+    {
+      "path": "crates/daw-app/tests/support/launcher_projects.rs",
+      "sha256": "86579683fc55a46c8ac93f1449376d008d42ccad149df673ffae1d71edd5cc81",
+      "commit_blob_sha256": "86579683fc55a46c8ac93f1449376d008d42ccad149df673ffae1d71edd5cc81"
+    },
+    {
+      "path": "crates/daw-audio/src/launcher_test_support.rs",
+      "sha256": "50efa68a7bc9faebb10742c643ef6ae7a26abe0e7640e0050b99ec34d96900db",
+      "commit_blob_sha256": "50efa68a7bc9faebb10742c643ef6ae7a26abe0e7640e0050b99ec34d96900db"
+    },
+    {
+      "path": "crates/daw-audio/src/lib.rs",
+      "sha256": "bf68331a9b11ae193bf7e71652590fb3380e370c0f1323a8829ceda48ac5d3f2",
+      "commit_blob_sha256": "bf68331a9b11ae193bf7e71652590fb3380e370c0f1323a8829ceda48ac5d3f2"
+    },
+    {
+      "path": "crates/daw-audio/src/native_launcher_tests.rs",
+      "sha256": "fbdd0505d4d3e3c39437e939f6bc47a97214971548e879240d52890b5521a929",
+      "commit_blob_sha256": "fbdd0505d4d3e3c39437e939f6bc47a97214971548e879240d52890b5521a929"
+    },
+    {
+      "path": "crates/daw-audio/src/native.rs",
+      "sha256": "6921d216ea37df90b393736d49018de6d3d3a9f183a7c89e09aa4da1529f5250",
+      "commit_blob_sha256": "6921d216ea37df90b393736d49018de6d3d3a9f183a7c89e09aa4da1529f5250"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime_launcher_tests.rs",
+      "sha256": "51bf3b7dcfc5dd95695b5d44684dc230b4bf567a09ebc7c24fa4edc64f5a2a86",
+      "commit_blob_sha256": "51bf3b7dcfc5dd95695b5d44684dc230b4bf567a09ebc7c24fa4edc64f5a2a86"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime.rs",
+      "sha256": "192a18a33d4c6235a6465ed74be64165aa007b590e673c094e98216cb5cbbd99",
+      "commit_blob_sha256": "192a18a33d4c6235a6465ed74be64165aa007b590e673c094e98216cb5cbbd99"
+    },
+    {
+      "path": "crates/daw-audio/src/service_launcher_tests.rs",
+      "sha256": "d710668f8ad198f729cf35df602763640ef00fb6ba6d77c5e21ca97a3b445a34",
+      "commit_blob_sha256": "d710668f8ad198f729cf35df602763640ef00fb6ba6d77c5e21ca97a3b445a34"
+    },
+    {
+      "path": "crates/daw-audio/src/service.rs",
+      "sha256": "68f0f20859773ac4199e09851d04ca703183dd759003e13753d9bb95b009d27a",
+      "commit_blob_sha256": "68f0f20859773ac4199e09851d04ca703183dd759003e13753d9bb95b009d27a"
+    },
+    {
+      "path": "crates/daw-audio/tests/launcher_memory_contract.rs",
+      "sha256": "6057954e15c8a8c91e1b8c92bc23609b4d71d879b199026968a159f33489e738",
+      "commit_blob_sha256": "6057954e15c8a8c91e1b8c92bc23609b4d71d879b199026968a159f33489e738"
+    },
+    {
+      "path": "crates/daw-audio/tests/launcher_service_contract.rs",
+      "sha256": "15b3136f60e7f54262c92e2396672d6308ee34bf2756f3247412cd623895a61a",
+      "commit_blob_sha256": "15b3136f60e7f54262c92e2396672d6308ee34bf2756f3247412cd623895a61a"
+    },
+    {
+      "path": "crates/daw-cli/Cargo.toml",
+      "sha256": "681287bf540ef07a593a4c71501699b7b1d530bdcdbe42cba63b6e41b05c6288",
+      "commit_blob_sha256": "681287bf540ef07a593a4c71501699b7b1d530bdcdbe42cba63b6e41b05c6288"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics.rs",
+      "sha256": "c2c622a9c659fb4a893ae17cbf785035baa45b42a07e96873a2f5b62772e7559",
+      "commit_blob_sha256": "c2c622a9c659fb4a893ae17cbf785035baa45b42a07e96873a2f5b62772e7559"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/launcher_bench.rs",
+      "sha256": "acc693f0ed995f6b67ffbd165ca9576727d0a0f1cad0ca61d59749b62af06c48",
+      "commit_blob_sha256": "acc693f0ed995f6b67ffbd165ca9576727d0a0f1cad0ca61d59749b62af06c48"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/launcher_native.rs",
+      "sha256": "a6db57d7a61b6325de74dec213a17ea6161252cf4529c6d85c6afafbe3899236",
+      "commit_blob_sha256": "a6db57d7a61b6325de74dec213a17ea6161252cf4529c6d85c6afafbe3899236"
+    },
+    {
+      "path": "crates/daw-cli/src/diagnostics/sequencer_native.rs",
+      "sha256": "e8fcfa05d65f98e4b4de98f5e6e1d3916686d519cd059725218949abd32a4de2",
+      "commit_blob_sha256": "e8fcfa05d65f98e4b4de98f5e6e1d3916686d519cd059725218949abd32a4de2"
+    },
+    {
+      "path": "crates/daw-cli/src/main.rs",
+      "sha256": "15dddffe0d507702717434596cdeb4b514284a6b8a5e4031d34d57dd17c2f360",
+      "commit_blob_sha256": "15dddffe0d507702717434596cdeb4b514284a6b8a5e4031d34d57dd17c2f360"
+    },
+    {
+      "path": "crates/daw-cli/src/project_commands.rs",
+      "sha256": "23cdcd5f92b9ef75e42d52225c75e5fd66a79c2c6518b204d8ff00f5c617cc79",
+      "commit_blob_sha256": "23cdcd5f92b9ef75e42d52225c75e5fd66a79c2c6518b204d8ff00f5c617cc79"
+    },
+    {
+      "path": "crates/daw-cli/tests/diagnostics_contract.rs",
+      "sha256": "c7ff0cc6077e83b2cabd07dcadc6864dd7840a6db07277fdcf74d6b5f818a3ac",
+      "commit_blob_sha256": "c7ff0cc6077e83b2cabd07dcadc6864dd7840a6db07277fdcf74d6b5f818a3ac"
+    },
+    {
+      "path": "crates/daw-cli/tests/scene_project_contract.rs",
+      "sha256": "1ecc38f229d032bae41d8fb92a53db60c3daf9e2ed5853f1f17c0da7f883a48c",
+      "commit_blob_sha256": "1ecc38f229d032bae41d8fb92a53db60c3daf9e2ed5853f1f17c0da7f883a48c"
+    },
+    {
+      "path": "crates/daw-domain/src/clips.rs",
+      "sha256": "38f945daa675293d018ac743680b5ead2ac71cf42174af4f57009a9e5030d644",
+      "commit_blob_sha256": "38f945daa675293d018ac743680b5ead2ac71cf42174af4f57009a9e5030d644"
+    },
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "sha256": "092dd94bc4aeae039dab8c455e622ed0cecc35ff81a7564838e784b5ecf07365",
+      "commit_blob_sha256": "092dd94bc4aeae039dab8c455e622ed0cecc35ff81a7564838e784b5ecf07365"
+    },
+    {
+      "path": "crates/daw-domain/tests/clips_contract.rs",
+      "sha256": "bc7114e7cc9749d8c6bd6541b7dbdb8799b0af3efa674a9e0f5d48d06abe9454",
+      "commit_blob_sha256": "bc7114e7cc9749d8c6bd6541b7dbdb8799b0af3efa674a9e0f5d48d06abe9454"
+    },
+    {
+      "path": "crates/daw-domain/tests/project_launcher_contract.rs",
+      "sha256": "c026fe6b1b5dc0f4b9484fb807a32f39ac7c0b4e7d795b27c777210cf98d11ce",
+      "commit_blob_sha256": "c026fe6b1b5dc0f4b9484fb807a32f39ac7c0b4e7d795b27c777210cf98d11ce"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher_tests.rs",
+      "sha256": "3945429c8a51ce4d76201ae6221bc10b9dbf06450b6a3f9159a95190cd927a68",
+      "commit_blob_sha256": "3945429c8a51ce4d76201ae6221bc10b9dbf06450b6a3f9159a95190cd927a68"
+    },
+    {
+      "path": "crates/daw-engine/src/launcher.rs",
+      "sha256": "667c5f489cd52de4565c9786f47260b6be5fbb28b6d57060913fd7822d98f672",
+      "commit_blob_sha256": "667c5f489cd52de4565c9786f47260b6be5fbb28b6d57060913fd7822d98f672"
+    },
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "sha256": "093504beb8e93da1259230e40c39eaf55e169e75ffce2e8c009ee83346b84220",
+      "commit_blob_sha256": "093504beb8e93da1259230e40c39eaf55e169e75ffce2e8c009ee83346b84220"
+    },
+    {
+      "path": "crates/daw-engine/src/sequencer.rs",
+      "sha256": "de079f08250d8e03a94d6fd73ce69d8673b4c0300853e6db72eb586bc054ce98",
+      "commit_blob_sha256": "de079f08250d8e03a94d6fd73ce69d8673b4c0300853e6db72eb586bc054ce98"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_contract.rs",
+      "sha256": "7a1a8e1c3976cf45afc958f7cba55ae1b664b0271bfc4c39a31412d680c1b133",
+      "commit_blob_sha256": "7a1a8e1c3976cf45afc958f7cba55ae1b664b0271bfc4c39a31412d680c1b133"
+    },
+    {
+      "path": "crates/daw-engine/tests/launcher_reference.rs",
+      "sha256": "57a7b9277dce789364546103383aae65bf3960ca7106d4fc1d3d203cbe83b9d5",
+      "commit_blob_sha256": "57a7b9277dce789364546103383aae65bf3960ca7106d4fc1d3d203cbe83b9d5"
+    },
+    {
+      "path": "src-tauri/capabilities/default.json",
+      "sha256": "508b426c50ff4c8769dbc22ad98eeb7a0afd65e2024cf64c1d1e31c34bab0a25",
+      "commit_blob_sha256": "508b426c50ff4c8769dbc22ad98eeb7a0afd65e2024cf64c1d1e31c34bab0a25"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "sha256": "dab7d1277810e357c0d1a935ac8d06e9ef298f00f55ab0b2a47c4cf770da4bd5",
+      "commit_blob_sha256": "6b94500a215485de9a19db1d1a32effc00d24eb48a39dd55284a5297d2f10532"
+    },
+    {
+      "path": "src-tauri/src/ipc/command_names.rs",
+      "sha256": "f1460e85576adedc881bd8b0f5954880aeb9439dfc0fd4b261da51209c173e8d",
+      "commit_blob_sha256": "f1460e85576adedc881bd8b0f5954880aeb9439dfc0fd4b261da51209c173e8d"
+    },
+    {
+      "path": "src-tauri/src/ipc/commands.rs",
+      "sha256": "0b76bcb9db744c0ed8b8a31f0e76ec28a5e2a0f7ba5234f1e074eaed6eeb2907",
+      "commit_blob_sha256": "0b76bcb9db744c0ed8b8a31f0e76ec28a5e2a0f7ba5234f1e074eaed6eeb2907"
+    },
+    {
+      "path": "src-tauri/src/ipc/dto.rs",
+      "sha256": "bc248475683dc4bcf71272b1a5924a076974b5fb3c5022cc3a2642b7628b5afa",
+      "commit_blob_sha256": "bc248475683dc4bcf71272b1a5924a076974b5fb3c5022cc3a2642b7628b5afa"
+    },
+    {
+      "path": "src-tauri/src/ipc/launcher_dto.rs",
+      "sha256": "300e30f3fde84782d322fbc1125361ad47b3a1631bb796f19256f7dff946fc1a",
+      "commit_blob_sha256": "300e30f3fde84782d322fbc1125361ad47b3a1631bb796f19256f7dff946fc1a"
+    },
+    {
+      "path": "src-tauri/src/ipc/mod.rs",
+      "sha256": "a4cfa33f7715928487f1c4ce6e83ec09f6bd55d1be45f9803cde337ecef2cc3e",
+      "commit_blob_sha256": "a4cfa33f7715928487f1c4ce6e83ec09f6bd55d1be45f9803cde337ecef2cc3e"
+    },
+    {
+      "path": "src-tauri/src/ipc/project_dto.rs",
+      "sha256": "c562bf19c0d24f36f778d9142dd474519f10b436cb9f6e02ebcc50c713fc99a1",
+      "commit_blob_sha256": "c562bf19c0d24f36f778d9142dd474519f10b436cb9f6e02ebcc50c713fc99a1"
+    },
+    {
+      "path": "src-tauri/tests/ipc_contract.rs",
+      "sha256": "ee9373499e92463eeb98663baa92d68396a7eb1b063e2df396f919705274878b",
+      "commit_blob_sha256": "ee9373499e92463eeb98663baa92d68396a7eb1b063e2df396f919705274878b"
+    },
+    {
+      "path": "src-tauri/tests/launcher_acceptance_contract.rs",
+      "sha256": "12329b862217372f83c8e14a9f058c515fa9a7f3719a3057bbd7bbf31cddbfa3",
+      "commit_blob_sha256": "12329b862217372f83c8e14a9f058c515fa9a7f3719a3057bbd7bbf31cddbfa3"
+    },
+    {
+      "path": "src-tauri/tests/launcher_ipc_contract.rs",
+      "sha256": "5b0657e8a02b1beaa708b7b8ce7cdab528f978cdd9e7639984088765abc78e79",
+      "commit_blob_sha256": "5b0657e8a02b1beaa708b7b8ce7cdab528f978cdd9e7639984088765abc78e79"
+    },
+    {
+      "path": "src-tauri/tests/support/launcher_reference.rs",
+      "sha256": "00cc68f3b31ecf0fa5b7830a27e4a8275cd56ae17b645be51337107042eca11f",
+      "commit_blob_sha256": "00cc68f3b31ecf0fa5b7830a27e4a8275cd56ae17b645be51337107042eca11f"
+    },
+    {
+      "path": "src/app/App.test.tsx",
+      "sha256": "67d82f2a0c51e11385e05b5e6861de14ea1e0f2ec2450a4b63768eab37c69f83",
+      "commit_blob_sha256": "67d82f2a0c51e11385e05b5e6861de14ea1e0f2ec2450a4b63768eab37c69f83"
+    },
+    {
+      "path": "src/app/App.tsx",
+      "sha256": "14a4a1356231ede021e0af2d94a63911536f896a3ac822a5fc0bb00d3f188a02",
+      "commit_blob_sha256": "14a4a1356231ede021e0af2d94a63911536f896a3ac822a5fc0bb00d3f188a02"
+    },
+    {
+      "path": "src/app/styles.css",
+      "sha256": "46d4f788a72f9ccbe924868223ddf0943b3c74f7de492a5aff1445a46d48981e",
+      "commit_blob_sha256": "46d4f788a72f9ccbe924868223ddf0943b3c74f7de492a5aff1445a46d48981e"
+    },
+    {
+      "path": "src/features/audio/launcher-observation.ts",
+      "sha256": "9c909b328b87886cf7f49fcd70dda415718cf4b05a60686ffc750b66a9651c11",
+      "commit_blob_sha256": "9c909b328b87886cf7f49fcd70dda415718cf4b05a60686ffc750b66a9651c11"
+    },
+    {
+      "path": "src/features/audio/LauncherPanel.tsx",
+      "sha256": "24d6c23d32b668f67c5e5fafd2543e0a3a494aab3b76902bd97b3563efe9046c",
+      "commit_blob_sha256": "24d6c23d32b668f67c5e5fafd2543e0a3a494aab3b76902bd97b3563efe9046c"
+    },
+    {
+      "path": "src/features/audio/SamplerPanel.tsx",
+      "sha256": "6944c6f22a4f4f778b0e40b39b57b468cfc7abefb4720753fdbbc509fc746d0d",
+      "commit_blob_sha256": "6944c6f22a4f4f778b0e40b39b57b468cfc7abefb4720753fdbbc509fc746d0d"
+    },
+    {
+      "path": "src/features/audio/SequencerPanel.tsx",
+      "sha256": "5efe3ba19b9b0489d3dd26f64125048d2e993a57420bd6c0a77cc1bf6e1c89d8",
+      "commit_blob_sha256": "5efe3ba19b9b0489d3dd26f64125048d2e993a57420bd6c0a77cc1bf6e1c89d8"
+    },
+    {
+      "path": "src/features/audio/useDawSession.ts",
+      "sha256": "e93b29a57dc674e20fb4ddc6d5232e69c5b4871c2e906412bae75e160e7a6c76",
+      "commit_blob_sha256": "e93b29a57dc674e20fb4ddc6d5232e69c5b4871c2e906412bae75e160e7a6c76"
+    },
+    {
+      "path": "src/features/project/ProjectPanel.tsx",
+      "sha256": "053ee343c35279e45ca8503f67818e5f992bab23f7e059448e2e05dcff6a113f",
+      "commit_blob_sha256": "053ee343c35279e45ca8503f67818e5f992bab23f7e059448e2e05dcff6a113f"
+    },
+    {
+      "path": "src/features/transport/TransportBar.tsx",
+      "sha256": "b1a990d90d31f5bde677e0326f02cbf3dec3b2b36f216a2a740a6ad8ac203cc4",
+      "commit_blob_sha256": "b1a990d90d31f5bde677e0326f02cbf3dec3b2b36f216a2a740a6ad8ac203cc4"
+    },
+    {
+      "path": "src/shared/api/desktop-client.test.ts",
+      "sha256": "01bf07f5c460b0ead30a18a6674b6063c87bd67b29dc1d6f79bbdea2f8591b43",
+      "commit_blob_sha256": "01bf07f5c460b0ead30a18a6674b6063c87bd67b29dc1d6f79bbdea2f8591b43"
+    },
+    {
+      "path": "src/shared/api/desktop-client.ts",
+      "sha256": "3056601e72a3f9211820b4136607a03bcade32a0530cec8314a1c897bbd326e8",
+      "commit_blob_sha256": "3056601e72a3f9211820b4136607a03bcade32a0530cec8314a1c897bbd326e8"
+    },
+    {
+      "path": "src/shared/api/generated/api.ts",
+      "sha256": "cace129aaa178762ba9c621c2bdf3dd23ec285c4c4a01bab2b9e5ed43b4f70d8",
+      "commit_blob_sha256": "cace129aaa178762ba9c621c2bdf3dd23ec285c4c4a01bab2b9e5ed43b4f70d8"
+    }
+  ],
+  "line_ending_only_worktree_vs_git": ["src-tauri/Cargo.toml"],
+  "prior_native": {
+    "path": "progress/evidencia-nativa-clips-13.4b.json",
+    "sha256": "977d6719ede7b84180ece78b18ebabf0c3bab0f4cf9bbe571e2eed942ca58ebb",
+    "physical_cases": 6,
+    "reopens": 6,
+    "summary": {
+      "scenarios": 6,
+      "reopens": 6,
+      "sessions": 12,
+      "total_measured_callbacks": "2283",
+      "total_measured_frames": "1102752",
+      "min_callback_frames": 480,
+      "max_callback_frames": 1056,
+      "max_processing_ns": "145900",
+      "max_load_ratio": 0.01459,
+      "max_p99_upper_ns": "131071",
+      "deadline_misses": "0",
+      "allocations": "0",
+      "deallocations": "0",
+      "non_finite_samples": "0",
+      "minimum_signal_peak": 0.0011054969,
+      "maximum_signal_peak": 0.0062017236
+    },
+    "listening_status": "pending_user_observation"
+  },
+  "ci": {
+    "checked_utc": "2026-11-16T23:14:05.568Z",
+    "revision": "ca37f7480d93ca5651facf048ab1ffb978d499c1",
+    "run": {
+      "id": 43975724679,
+      "url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43975724679",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "ca37f7480d93ca5651facf048ab1ffb978d499c1",
+      "event": "push"
+    },
+    "jobs": [
+      {
+        "id": 133679062950,
+        "name": "headless-linux",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-16T23:02:51Z",
+        "completed_at": "2026-11-16T23:03:42Z",
+        "url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43975724679/job/133679062950",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install pinned Rust",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check Rust formatting",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test the five headless packages",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Lint the five headless packages",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run nine offline CLI scenarios",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify unchanged lockfiles",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 133679063340,
+        "name": "desktop-windows",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-16T23:02:51Z",
+        "completed_at": "2026-11-16T23:12:01Z",
+        "url": "https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43975724679/job/133679063340",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install pinned Rust",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify npm and Windows prerequisites",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install frontend dependencies from lockfile",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify deterministic binding regeneration",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check frontend, mock IPC, and Rust workspace",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build desktop debug without installer",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify unchanged lockfiles and generated types",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ],
+    "provider": "Official GitHub REST API",
+    "required_jobs": ["headless-linux", "desktop-windows"],
+    "exact_head_sha_verified": true,
+    "hardware_opened_by_ci": false
+  },
+  "local_preview": {
+    "verified_utc": "2026-11-16T23:11:17.725Z",
+    "source_revision": "ca37f7480d93ca5651facf048ab1ffb978d499c1",
+    "directory": "target/stage13-4c-20261116/AudioMOTORR-stage13-preview-win-x64-ca37f74",
+    "extracted_directory": "target/stage13-4c-20261116/relocation verification/AudioMOTORR-stage13-preview-win-x64-ca37f74",
+    "zip": {
+      "path": "target/stage13-4c-20261116/AudioMOTORR-stage13-preview-win-x64-ca37f74.zip",
+      "bytes": 6096253,
+      "sha256": "e292548d2239c28ec815e74826bf82775f9829bbd34a9e4e0d6b546bb32af830"
+    },
+    "profiles": {
+      "desktop": "debug, bundled web assets, no installer",
+      "cli": "release, rt-diagnostics"
+    },
+    "checks": {
+      "inventory_files": 13,
+      "checksum_entries": 12,
+      "archive_extraction_matches": true,
+      "relocated_project": "project-check OK: version=2, id=1, title=\"Demo de clips y escenas\", bpm=127.25, assets=4, path=\\\\?\\C:\\proyectos\\rust\\MOTORUST\\target\\stage13-4c-20261116\\relocation verification\\AudioMOTORR-stage13-preview-win-x64-ca37f74\\example\\launcher.json",
+      "relocated_export": "export-beat OK: sample_rate=48000, channels=2, bars=1, tail=Finish, musical_frames=90531, tail_frames=5862, frames=96393, notes=SequencerCounters { boundaries: 16, attempted: 18, started: 18, missing_asset: 0, pool_full: 0 }, output=C:\\proyectos\\rust\\MOTORUST\\target\\stage13-4c-20261116\\relocation verification\\scene-seven-relocated.wav",
+      "block_sizes": [127, 4096],
+      "export_bit_identical": true,
+      "wav": {
+        "channels": 2,
+        "rate": 48000,
+        "frames": 96393,
+        "musical_frames": 90531,
+        "tail_frames": 5862,
+        "notes": 18,
+        "finite": true,
+        "peak": 0.0034247913863509893,
+        "sha256": "01e27f71dc799a6dad7da13a9da286a44475c9e9575d29c94f6ada1537564f83"
+      },
+      "audio_hardware_opened": false
+    },
+    "files": [
+      {
+        "path": "AudioMOTORR.exe",
+        "bytes": 15588864,
+        "sha256": "4d5aecc8a05836eb507d7ae80cf5109d61ebf3fb7a6afbec23b4959551ce124c"
+      },
+      {
+        "path": "daw-cli.exe",
+        "bytes": 1653248,
+        "sha256": "d6f12b4ad0b29aafbdbedb38bf2835fe394fe29b0ec4d6e035869c01f5b3fa06"
+      },
+      {
+        "path": "example/assets/accent.wav",
+        "bytes": 92204,
+        "sha256": "3b69a7d43ed8039a760a2642aa421994342c82800065f9a970e999d2c5beebaa"
+      },
+      {
+        "path": "example/assets/hat.wav",
+        "bytes": 23084,
+        "sha256": "efce779e13d0027e22c99c612773169c5b0d5f88594a0f2d8696eff2b07a6eda"
+      },
+      {
+        "path": "example/assets/kick.wav",
+        "bytes": 46124,
+        "sha256": "6e58a77cedf2602356343eca404b9857768cbdf2d83dcc8f083394c57ecc8cff"
+      },
+      {
+        "path": "example/assets/snare.wav",
+        "bytes": 69164,
+        "sha256": "8626903fb17456fa710271105225c94077855f1db26223083202c01d1a0c298a"
+      },
+      {
+        "path": "example/launcher.json",
+        "bytes": 7288,
+        "sha256": "78d6c9c026c8976dd902f8415652fe6ffb2b2167d62474e069c490f777b9e459"
+      },
+      {
+        "path": "example/scene-7.wav",
+        "bytes": 771212,
+        "sha256": "01e27f71dc799a6dad7da13a9da286a44475c9e9575d29c94f6ada1537564f83"
+      },
+      {
+        "path": "images/clips.png",
+        "bytes": 85010,
+        "sha256": "a34e096f03836f3032632bde5221e08fcea875598cf9a8d63e005933e17e4725"
+      },
+      {
+        "path": "images/project-export.png",
+        "bytes": 64684,
+        "sha256": "fe3f8dbea397a82c8e8a399fa4f4c6f18000875a4d7ab437b2689f2ee180cd0a"
+      },
+      {
+        "path": "MANIFEST.json",
+        "bytes": 2817,
+        "sha256": "03746a374d192822fa8edf6d49397cf374e0d23070d487e9c83d04fa4a617a57"
+      },
+      {
+        "path": "README.md",
+        "bytes": 2436,
+        "sha256": "7556d662f9dd0cdde5c6b0159ff1ca41bb56b675948270932820e4d74e6f21d7"
+      },
+      {
+        "path": "SHA256SUMS.txt",
+        "bytes": 1027,
+        "sha256": "159e55bd44d2d0edf7137bd83c92ce79c93b58934c22141590e4a2708bffe0f8"
+      }
+    ],
+    "distribution": "Local review ZIP only, no installer or uploaded GitHub Release artifact.",
+    "claim_boundary": "Desktop debug executable with embedded web assets; CLI release with rt-diagnostics equals the native-measured binary. CI independently compiles the same source content; this ZIP is a local artifact."
+  },
+  "verification": {
+    "source_content_and_raw_hashes_match": true,
+    "native_binary_and_logs_match": true,
+    "archive_and_extraction_inventory_match": true,
+    "relocated_export_bit_identical": true,
+    "independent_riff_duration_finite_signal_checked": true,
+    "full_check": "Previous local 13.4.a evidence and exact-revision Windows CI cover unchanged product sources; no extra broad product run for documentation-only changes.",
+    "documentation": "Markdown/image targets, formatting and git diff whitespace reviewed."
+  },
+  "listening": {
+    "status": "pending_user_observation",
+    "response": null,
+    "rule": "The user authorized continuation; no explicit acoustic observation was provided. No inference from waveform peaks, CI, elapsed time or preselected answers."
+  },
+  "closure": {
+    "stage_13_closed": false,
+    "stage_13_4b_closed": false,
+    "technical_delivery_and_ci_complete": true,
+    "remaining": [
+      "Explicit listening observation for the previously executed Realtek/WASAPI matrix, or requested replay.",
+      "Record formal closure only after that observation."
+    ]
+  },
+  "limitations": [
+    "No physical acoustic continuity, loopback, driver latency, unplug or stress measurement.",
+    "Other devices/platforms and mono hardware output remain unmeasured.",
+    "No recording, external MIDI, plugins, resampling/time stretching, timeline, piano roll or automation."
+  ],
+  "records": [
+    {
+      "path": "target/stage13-4c-20261116/ci-ca37f7480d93ca5651facf048ab1ffb978d499c1-1794870566181.json",
+      "sha256": "76061f6fa0c5a2da25c2b0eed459d51c818c645ffe1a148dd1d2317c94d6af2d"
+    },
+    {
+      "path": "target/stage13-4c-20261116/ci-ca37f7480d93ca5651facf048ab1ffb978d499c1-1794870635290.json",
+      "sha256": "f2d87f9accc1f422e545de86b5545d6177d807a7226656889cbf72c5dd7214e3"
+    },
+    {
+      "path": "target/stage13-4c-20261116/ci-ca37f7480d93ca5651facf048ab1ffb978d499c1-1794870678634.json",
+      "sha256": "208f541e20d3fb9e3fba0908f9b90b416e761d79cff9813071bc6746eb90c0b1"
+    },
+    {
+      "path": "target/stage13-4c-20261116/ci-ca37f7480d93ca5651facf048ab1ffb978d499c1-1794870845875.json",
+      "sha256": "90fd6c0bd2216ef60644e4e39e0622ab3960d001ebe22c36adac9d2f533bf884"
+    },
+    {
+      "path": "target/stage13-4c-20261116/ci-initial.json",
+      "sha256": "5c8c8c5e1e87337fb5106f44d7cd391fbace2dae545897df372e6ad910afcb6f"
+    },
+    {
+      "path": "target/stage13-4c-20261116/ci-latest.json",
+      "sha256": "90fd6c0bd2216ef60644e4e39e0622ab3960d001ebe22c36adac9d2f533bf884"
+    },
+    {
+      "path": "target/stage13-4c-20261116/ci-verified-ca37f74.json",
+      "sha256": "90fd6c0bd2216ef60644e4e39e0622ab3960d001ebe22c36adac9d2f533bf884"
+    },
+    {
+      "path": "target/stage13-4c-20261116/delivery.json",
+      "sha256": "321c3a3f8928aeb98d9ecde479a4016ea8fecd94028376ef8578ba5664bc196e"
+    },
+    {
+      "path": "target/stage13-4c-20261116/package.json",
+      "sha256": "aa5627dd923eeed0e829985d86512af930a8608724fd3d595c9d26db838318b7"
+    }
+  ],
+  "document_paths": [
+    "README.md",
+    "docs/roadmap.md",
+    "howToRunThis/README.md",
+    "howToRunThis/12-entrega-preview.md",
+    "progress/checklist.md",
+    "progress/estado-y-siguiente-etapa.md",
+    "progress/plan-siguientes-pasos.md",
+    "progress/plan-etapas-7-13.md",
+    "progress/detalles.md",
+    "progress/etapa-13-entrega-ci.md"
+  ],
+  "next": "Record explicit listening outcome, then complete the formal stage-13 closure within measured scope; do not advance product scope on a false hearing claim."
+}

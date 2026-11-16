@@ -14,7 +14,8 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
 **13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
-Pendiente inmediato: **confirmación de escucha 13.4.b**; después, **13.4.c, entrega/CI y cierre**.
+**13.4.c entrega/CI verificadas:** [revisión ca37f74 y paquete local](etapa-13-entrega-ci.md), Linux/Windows correctas.
+Pendiente inmediato: **confirmación de escucha para completar 13.4.b y el cierre de la etapa 13**.
 
 Revisión: 2026-11-12. **11.1 implementado localmente:**
 [contrato y modelo del patrón](etapa-11-modelo-patron.md), con

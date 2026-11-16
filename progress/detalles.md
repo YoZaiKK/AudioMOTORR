@@ -1,5 +1,15 @@
 # Detalles de implementación
 
+## Entrega/CI del launcher 13.4.c — 2026-11-16 (México)
+
+Main remoto verificado en ca37f74; CI del SHA exacto correcta en ambos jobs
+([run 43975724679](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43975724679)).
+Paquete local Windows x64, GUI debug y CLI release instrumentada, 13 archivos con
+hashes, cuatro WAV y proyecto de escenas. ZIP extraído a otra carpeta: proyecto
+válido y WAV idéntico entre bloques 127/4096, 96393 frames y 18 notas. No se abrió
+audio en este paso; escucha del launcher aún pendiente, sin cerrar la etapa 13.
+[Reporte](etapa-13-entrega-ci.md) y [evidencia](evidencia-entrega-clips-13.4c.json).
+
 ## Commit y medición nativa del launcher 13.4.b — 2026-11-16 (México)
 
 Commit solicitado `0305598`: implementación acumulada hasta 13.4.a, 111 archivos.

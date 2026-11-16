@@ -14,7 +14,8 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
 **13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
-Pendiente inmediato: **confirmación de escucha 13.4.b**; después, **13.4.c, entrega/CI y cierre**.
+**13.4.c entrega/CI verificadas:** [revisión ca37f74 y paquete local](etapa-13-entrega-ci.md), Linux/Windows correctas.
+Pendiente inmediato: **confirmación de escucha para completar 13.4.b y el cierre de la etapa 13**.
 
 Fecha: 2026-11-11. Base local revisada: `4dc2c6c2e0882b8f131b68088feffa8def84ba83`.
 Al revisar, el árbol estaba limpio y `main` coincidía con la referencia local
@@ -240,7 +241,7 @@ Desglose de **13.3**: **a/b/c/d implementados y e aceptada localmente**; sigue 1
    lifecycle, orden IPC/UI y verificaciones/build antes de diagnósticos 13.4.
    [Aceptación y correcciones](cierre-integracion-clips-13.3e.md).
 
-Desglose de **13.4**: a implementada localmente; b medida con escucha pendiente; c pendiente:
+Desglose de **13.4**: a implementada localmente; b medida con escucha pendiente; entrega/CI de c verificadas y cierre pendiente:
 
 1. **13.4.a — Diagnósticos, implementados localmente:** benchmark y protocolo nativo reproducibles con WAV,
    transiciones/tempos/bloques, referencias, métricas de callback y propiedad/memoria.
@@ -248,8 +249,9 @@ Desglose de **13.4**: a implementada localmente; b medida con escucha pendiente;
 2. **13.4.b — Medición nativa, matriz completada y escucha pendiente:** matriz release en dispositivo identificado,
    reaperturas y escucha, registrando formato, carga, presupuesto y límites físicos.
    [Seis casos/reaperturas y límites](etapa-13-medicion-nativa-clips.md); falta observación humana de escucha.
-3. **13.4.c — Entrega y cierre:** artefactos y revisión exacta, CI correspondiente
+3. **13.4.c — Entrega/CI verificadas, cierre pendiente de escucha:** artefactos y revisión exacta, CI correspondiente
    y cierre dentro del alcance medido, después de completar a/b.
+   [CI Linux/Windows de ca37f74 y paquete verificado](etapa-13-entrega-ci.md); no se infiere escucha de las métricas.
 
 ## Forma de ejecución
 

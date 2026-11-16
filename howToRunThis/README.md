@@ -4,9 +4,10 @@ Estado actual 2026-11-16: sampler de 16 slots/voces, mezcla de cuatro canales,
 patrón 4 × 16 y editor/lanzador de clips y escenas implementados. Los proyectos
 v2 guardan assets portátiles y exportan WAV con colas; migración v1 explícita.
 Etapas 1–12 cerradas dentro de sus reportes; 13.3.e aceptada localmente y
-13.4.a implementa diagnósticos. Siguen medición/escucha nativa del launcher
-y entrega 13.4.b/c. Ver [clips/escenas](10-clips-escenas.md),
+13.4.a implementa diagnósticos. La matriz física 13.4.b y la entrega/CI 13.4.c
+ya están verificadas; falta confirmar escucha para cerrar la etapa 13. Ver [clips/escenas](10-clips-escenas.md),
 [proyectos](09-proyectos.md) y [diagnósticos del launcher](11-diagnosticos-clips.md).
+Ver [paquete local, ejemplo portátil y CI](12-entrega-preview.md).
 El historial fechado siguiente conserva alcances anteriores.
 
 Actualización 2026-11-10: 9.3.a fija el

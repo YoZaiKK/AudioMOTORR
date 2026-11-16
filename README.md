@@ -40,8 +40,10 @@ uninitialized, so the images do not establish native playback or listening.
 
 ## Current status
 
-Implementation through 13.4.a is committed locally in `0305598`. The stage evidence
-retains its capture-time Git/CI status; this commit has not been pushed.
+Implementation through 13.4.a is in `0305598`; native evidence is in `ca37f74`.
+Remote main was verified at `ca37f74`, with [both exact-revision CI jobs passing](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43975724679).
+Earlier stage evidence retains its capture-time Git/CI status. See the
+[delivery report](progress/etapa-13-entrega-ci.md) and [local preview guide](howToRunThis/12-entrega-preview.md).
 
 Updated 2026-11-16 (Mexico). **Stages 1–11 are complete within their recorded scope.**
 The sampler, four-channel mixer and 16-step sequencer are integrated with the
@@ -85,7 +87,10 @@ native lifecycle tested with manual audio. See the [stage report](progress/etapa
 **Stage 13.4.b has six successful physical cases and six reopens** on Realtek/WASAPI,
 48 kHz stereo f32: zero processing allocations/frees, nonfinite samples and deadline
 misses. See the [native report](progress/etapa-13-medicion-nativa-clips.md).
-**Pending: user listening observation for 13.4.b; then delivery/CI in 13.4.c.**
+**Stage 13.4.c delivery/CI is verified:** the exact source revision passes Linux
+and Windows checks; a local Windows preview ZIP with portable example/export and
+checksums is validated. **Formal closure remains pending the user listening
+observation for 13.4.b.**
 Stage 13 remains open.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
@@ -153,7 +158,7 @@ README/technical documents are in English; progress and practical guides are in 
 | 13.3.c — implemented locally | Application document/session coordination.                                                 | Owned launch snapshots, exact-ID receipts, queue rollback, mode/preparation gates and no replay on reopening.                                                                                             |
 | 13.3.d–e — accepted locally  | Desktop launcher and integrated WAV/file/export verification.                              | Generated DTO/IPC/ACL, real WebView2 workflow, independent references and 72 frontend cases.                                                                                                              |
 | 13.4.a — implemented locally | Launcher benchmark and native verification protocol.                                       | Quantized reference/memory checks and manual lifecycle; [diagnostics](docs/launcher-diagnostics.md).                                                                                                      |
-| 13.4.b–c — pending           | Six physical cases/reopens measured; listening, delivery and closure pending.              | [Native evidence](progress/etapa-13-medicion-nativa-clips.md); listening and exact-revision CI remain separate.                                                                                           |
+| 13.4.b–c — pending           | Six physical cases/reopens measured; delivery/CI verified; listening and closure pending.  | [Native evidence](progress/etapa-13-medicion-nativa-clips.md); listening remains separate; [delivery/CI](progress/etapa-13-entrega-ci.md) is verified.                                                    |
 
 The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
 define scope and dependencies. The [execution plan](progress/plan-siguientes-pasos.md)

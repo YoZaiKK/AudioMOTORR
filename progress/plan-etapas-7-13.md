@@ -14,7 +14,8 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
 **13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
-Pendiente inmediato: **confirmación de escucha 13.4.b**; después, **13.4.c, entrega/CI y cierre**.
+**13.4.c entrega/CI verificadas:** [revisión ca37f74 y paquete local](etapa-13-entrega-ci.md), Linux/Windows correctas.
+Pendiente inmediato: **confirmación de escucha para completar 13.4.b y el cierre de la etapa 13**.
 
 Actualizado: 2026-11-12. Etapa 7 completada, publicada en c6cf627 y verificada
 en Linux headless/Windows desktop por CI. **Etapa 8 completada**, publicada en
@@ -85,15 +86,15 @@ posteriores del roadmap anterior. Las etapas 1–6 no se renumeran ni se reabren
 
 ## Orden y dependencias
 
-| Etapa | Resultado                                                                      | Depende de                 | Estado                                                                                                                                                                                                   |
-| ----- | ------------------------------------------------------------------------------ | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.                                                                                                                                                                        |
-| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                                                                                                                                                                        |
-| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Completada: implementación, mediciones, CI y escucha registrada.                                                                                                                                         |
-| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Núcleo/servicio/aplicación/desktop hasta 10.3.d aceptados localmente; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; CI y escucha confirmadas; etapa 10 cerrada dentro de su alcance.        |
-| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Cerrada dentro de su alcance; evidencia y CI registradas.                                                                                                                                                |
-| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Cerrada dentro de su alcance; evidencia y CI registradas.                                                                                                                                                |
-| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | 13.1–13.3.e locales: dominio/motor/servicio/formato/exportación/aplicación/desktop e integración probados; 13.4.a añade diagnósticos; 13.4.b mide seis casos/reaperturas; falta escucha y cierre 13.4.c. |
+| Etapa | Resultado                                                                      | Depende de                 | Estado                                                                                                                                                                                                                                    |
+| ----- | ------------------------------------------------------------------------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7     | Oscilador offline determinista y exportación WAV desde CLI.                    | Base 1–6 y revisión de CI. | Completada; c6cf627, CI correcta.                                                                                                                                                                                                         |
+| 8     | Mismo oscilador por CPAL, rampas y mediciones en release.                      | 7 cerrada.                 | Completada; 1e6bca8, CI correcta.                                                                                                                                                                                                         |
+| 9     | Sampler con pool fijo de voces y recursos preparados fuera del callback.       | 8 cerrada.                 | Completada: implementación, mediciones, CI y escucha registrada.                                                                                                                                                                          |
+| 10    | Mezclador de cuatro canales con gain/pan/mute y medidores.                     | 9 cerrada.                 | Núcleo/servicio/aplicación/desktop hasta 10.3.d aceptados localmente; diagnósticos 10.4.a listos; matriz nativa 10.4.b correcta; CI y escucha confirmadas; etapa 10 cerrada dentro de su alcance.                                         |
+| 11    | Secuenciador de 16 pasos con eventos dentro de cada bloque.                    | 10 cerrada.                | Cerrada dentro de su alcance; evidencia y CI registradas.                                                                                                                                                                                 |
+| 12    | Documento versionado, guardar/abrir, recursos relativos y exportación de beat. | 11 cerrada.                | Cerrada dentro de su alcance; evidencia y CI registradas.                                                                                                                                                                                 |
+| 13    | Clips y escenas con reglas explícitas de lanzamiento.                          | 12 cerrada.                | 13.1–13.3.e locales: dominio/motor/servicio/formato/exportación/aplicación/desktop e integración probados; 13.4.a añade diagnósticos; 13.4.b mide seis casos/reaperturas; falta escucha; entrega/CI 13.4.c verificadas, cierre pendiente. |
 
 El orden es de entrega, no una petición de construir todas las etapas de una vez.
 Cada una termina con pruebas, documentación y evidencia propia antes de iniciar
@@ -223,7 +224,7 @@ está publicada en `4f126dc`, con verificación local completa y CI Linux/Window
 [continuidad](ejecucion-11.4b-12.md). **13.1 completado localmente** en el
 [reporte](etapa-13-modelo-clips-escenas.md). **13.2 también implementado localmente**:
 [motor y verificación](etapa-13-transiciones-motor.md). Siguiente producto:
-**confirmación de escucha de 13.4.b**; [matriz nativa](etapa-13-medicion-nativa-clips.md) correcta. Después: entrega/CI 13.4.c.
+**confirmación de escucha de 13.4.b**; [matriz nativa](etapa-13-medicion-nativa-clips.md) correcta. La [entrega/CI 13.4.c](etapa-13-entrega-ci.md) ya está verificada; falta el cierre condicionado a escucha.
 
 ## Etapa 9 — Desglose y aceptación (historial previo al cierre)
 
