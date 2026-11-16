@@ -6,16 +6,16 @@ now includes a clip and scene launcher alongside its original step sequencer.
 
 ## Current capabilities
 
-| Area             | Available now                                                                                                                                          |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Desktop          | Windows Tauri application; browser mode previews the interface and disables native operations.                                                         |
-| Samples          | 16 WAV slots and 16 simultaneous one-shot voices. PCM16/float32, mono/stereo; sources must match the session sample rate.                              |
-| Mixer            | Four channels with sample routing, gain, pan, mute and observed peak meters.                                                                           |
-| Sequencer        | Four rows × 16 steps, sample selection per row, BPM and Play/Pause/Stop with master ramps.                                                             |
-| Clips and scenes | Four rows × 16 clips, 16 scenes, Keep/Stop/Launch per row, step/beat/bar quantization, explicit launches and observed active/pending transitions.      |
-| Projects         | Portable JSON v2 with copied relative WAV assets, title, dirty state and explicit v1 migration. Opening does not start playback.                       |
-| Export           | Float32 WAV of the selected pattern or initial scene, cut/finish tails, exclusive destinations; CLI `--scene` override.                                |
-| Diagnostics      | Release-only engine/sampler/mixer/sequencer/launcher benchmarks and explicit-device native verifiers; launcher hardware measurement is the next stage. |
+| Area             | Available now                                                                                                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop          | Windows Tauri application; browser mode previews the interface and disables native operations.                                                                                          |
+| Samples          | 16 WAV slots and 16 simultaneous one-shot voices. PCM16/float32, mono/stereo; sources must match the session sample rate.                                                               |
+| Mixer            | Four channels with sample routing, gain, pan, mute and observed peak meters.                                                                                                            |
+| Sequencer        | Four rows × 16 steps, sample selection per row, BPM and Play/Pause/Stop with master ramps.                                                                                              |
+| Clips and scenes | Four rows × 16 clips, 16 scenes, Keep/Stop/Launch per row, step/beat/bar quantization, explicit launches and observed active/pending transitions.                                       |
+| Projects         | Portable JSON v2 with copied relative WAV assets, title, dirty state and explicit v1 migration. Opening does not start playback.                                                        |
+| Export           | Float32 WAV of the selected pattern or initial scene, cut/finish tails, exclusive destinations; CLI `--scene` override.                                                                 |
+| Diagnostics      | Release-only engine/sampler/mixer/sequencer/launcher benchmarks and explicit-device native verifiers; launcher measured locally on Realtek/WASAPI, with listening confirmation pending. |
 
 Editing a running clip changes the document; launch it again to use the new content.
 Saved initial scenes determine export and remain separate from live launch history.
@@ -39,6 +39,9 @@ uninitialized, so the images do not establish native playback or listening.
 [Project/export capture evidence](docs/screenshots/stage13-integration.json)
 
 ## Current status
+
+Implementation through 13.4.a is committed locally in `0305598`. The stage evidence
+retains its capture-time Git/CI status; this commit has not been pushed.
 
 Updated 2026-11-16 (Mexico). **Stages 1–11 are complete within their recorded scope.**
 The sampler, four-channel mixer and 16-step sequencer are integrated with the
@@ -79,7 +82,10 @@ late-query/polling fixes, debug/release, 72 frontend tests and real WebView2 fil
 **Stage 13.4.a is implemented locally:** [launcher diagnostics](docs/launcher-diagnostics.md),
 independent benchmark references, processing-memory checks and an explicit-device
 native lifecycle tested with manual audio. See the [stage report](progress/etapa-13-diagnosticos-clips.md).
-**Next product: stage 13.4.b, physical release measurements and listening.**
+**Stage 13.4.b has six successful physical cases and six reopens** on Realtek/WASAPI,
+48 kHz stereo f32: zero processing allocations/frees, nonfinite samples and deadline
+misses. See the [native report](progress/etapa-13-medicion-nativa-clips.md).
+**Pending: user listening observation for 13.4.b; then delivery/CI in 13.4.c.**
 Stage 13 remains open.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
@@ -147,7 +153,7 @@ README/technical documents are in English; progress and practical guides are in 
 | 13.3.c — implemented locally | Application document/session coordination.                                                 | Owned launch snapshots, exact-ID receipts, queue rollback, mode/preparation gates and no replay on reopening.                                                                                             |
 | 13.3.d–e — accepted locally  | Desktop launcher and integrated WAV/file/export verification.                              | Generated DTO/IPC/ACL, real WebView2 workflow, independent references and 72 frontend cases.                                                                                                              |
 | 13.4.a — implemented locally | Launcher benchmark and native verification protocol.                                       | Quantized reference/memory checks and manual lifecycle; [diagnostics](docs/launcher-diagnostics.md).                                                                                                      |
-| 13.4.b–c — pending           | Physical launcher measurements/listening, delivery and closure.                            | Explicit hardware evidence, exact-revision CI and scope recorded separately.                                                                                                                              |
+| 13.4.b–c — pending           | Six physical cases/reopens measured; listening, delivery and closure pending.              | [Native evidence](progress/etapa-13-medicion-nativa-clips.md); listening and exact-revision CI remain separate.                                                                                           |
 
 The [roadmap](docs/roadmap.md) and [Spanish execution plan](progress/plan-etapas-7-13.md)
 define scope and dependencies. The [execution plan](progress/plan-siguientes-pasos.md)

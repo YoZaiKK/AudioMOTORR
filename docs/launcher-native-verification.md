@@ -1,7 +1,8 @@
 # Launcher native verification protocol
 
 The runner is implemented and its lifecycle is exercised with manual callbacks;
-physical launcher timing and listening remain stage 13.4.b. Earlier sampler,
+physical launcher results are recorded in [13.4.b](../progress/etapa-13-medicion-nativa-clips.md),
+with listening recorded separately. Earlier sampler,
 mixer and sequencer measurements do not measure this launcher. Native execution
 requires an explicitly chosen device and generates sound, including later control
 phases when the initial clip workload is empty.
@@ -28,7 +29,8 @@ The runner performs the following bounded lifecycle:
 1. Prepare WAV outside processing, choose Launcher mode, initial scene 7 and
    selected tempo/mix/quantization. Initialize the exact device stopped with empty
    rows, no receipt or replay. Warm up at least 66 complete callbacks before the
-   initial launch so the existing first-64-callback metrics warmup has elapsed.
+   initial launch. This is runner stabilization, not an exclusion from cumulative
+   callback metrics.
 2. Launch scene 7 explicitly, observe its exact service report and engine ID,
    then Play. Validate the rational phase, boundaries, scheduled counters and
    signal/empty meter windows over the requested bars. Scheduled notes must not
@@ -57,8 +59,11 @@ processing report is inconclusive and fails without replay. A watermark only
 establishes processing, not a result or transition. Waits have deadlines; OS WAV
 reads remain subject to the existing preparation/cancellation contract.
 
-Metrics are cumulative **per entire session**, including later control phases,
-after the existing instrumentation warmup. Report histogram p50/p99 upper bounds,
+Metrics are cumulative **per entire session**, including the runner's silent
+warmup and later control phases. There is no first-64-callback exclusion in native
+instrumentation. Snapshot publication precedes recording that callback's processing
+duration, so observed processing metrics can lag the snapshot callback counter by
+one callback. Report histogram p50/p99 upper bounds,
 maximum callback time/load, nominal deadline misses, allocation/free activity,
 finite output, signal peak/jump, callback and frame sizes. The runner rejects
 zero measured activity, nonfinite output, processing allocations/frees or deadline

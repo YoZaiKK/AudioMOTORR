@@ -13,7 +13,8 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.3.d implementado localmente:** [desktop de clips/escenas](etapa-13-desktop-clips.md).
 **13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
-Siguiente: **13.4.b, medición nativa release y escucha de clips/escenas**; etapa 13 abierta.
+**13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
+Pendiente inmediato: **confirmación de escucha 13.4.b**; después, **13.4.c, entrega/CI y cierre**.
 
 Fecha: 2026-11-11. Base local revisada: `4dc2c6c2e0882b8f131b68088feffa8def84ba83`.
 Al revisar, el árbol estaba limpio y `main` coincidía con la referencia local
@@ -239,13 +240,14 @@ Desglose de **13.3**: **a/b/c/d implementados y e aceptada localmente**; sigue 1
    lifecycle, orden IPC/UI y verificaciones/build antes de diagnósticos 13.4.
    [Aceptación y correcciones](cierre-integracion-clips-13.3e.md).
 
-Desglose de **13.4**: a implementada localmente; b/c pendientes:
+Desglose de **13.4**: a implementada localmente; b medida con escucha pendiente; c pendiente:
 
 1. **13.4.a — Diagnósticos, implementados localmente:** benchmark y protocolo nativo reproducibles con WAV,
    transiciones/tempos/bloques, referencias, métricas de callback y propiedad/memoria.
    [Reporte](etapa-13-diagnosticos-clips.md), [contrato](../docs/launcher-diagnostics.md) y [protocolo](../docs/launcher-native-verification.md).
-2. **13.4.b — Medición nativa:** matriz release en dispositivo identificado,
+2. **13.4.b — Medición nativa, matriz completada y escucha pendiente:** matriz release en dispositivo identificado,
    reaperturas y escucha, registrando formato, carga, presupuesto y límites físicos.
+   [Seis casos/reaperturas y límites](etapa-13-medicion-nativa-clips.md); falta observación humana de escucha.
 3. **13.4.c — Entrega y cierre:** artefactos y revisión exacta, CI correspondiente
    y cierre dentro del alcance medido, después de completar a/b.
 

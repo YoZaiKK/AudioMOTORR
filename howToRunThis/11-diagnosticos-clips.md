@@ -1,7 +1,8 @@
 # Diagnósticos de clips y escenas
 
 El benchmark funciona sin dispositivo. El verificador nativo está implementado,
-pero la medición física del launcher corresponde a 13.4.b.
+y la [matriz física 13.4.b](../progress/etapa-13-medicion-nativa-clips.md) ya pasó
+seis casos y seis reaperturas. Falta confirmar escucha; las métricas no la sustituyen.
 
 ```powershell
 cargo run -p daw-cli --release --features offline-diagnostics --locked -- launcher-bench --channels 2

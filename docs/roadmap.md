@@ -18,7 +18,8 @@ with [mode/receipt/lifecycle verification](../progress/etapa-13-aplicacion-clips
 **13.3.e is accepted locally:** [WAV/IPC/file/export acceptance](../progress/cierre-integracion-clips-13.3e.md).
 **13.4.a is implemented locally:** [launcher diagnostics](launcher-diagnostics.md) and
 [native verification protocol](launcher-native-verification.md), with [acceptance](../progress/etapa-13-diagnosticos-clips.md).
-Next product: **13.4.b, physical launcher measurements and listening**;
+**13.4.b physical processing is measured:** [six scenarios and reopens](../progress/etapa-13-medicion-nativa-clips.md).
+Listening confirmation remains pending; next closure work is **13.4.c, delivery/CI**;
 closure is 13.4.
 Stage 13 remains open.
 

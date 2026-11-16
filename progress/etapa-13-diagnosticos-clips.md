@@ -20,8 +20,10 @@ La etapa 13 sigue abierta; faltan medición/escucha física 13.4.b y entrega/CI 
   supersesión, BPM, recurso ausente, mute con notas, StopAll y colas naturales,
   Stop, cierre y reapertura vacía sin replay hasta un nuevo lanzamiento explícito.
 - Warmup de al menos 66 callbacks antes de lanzar y en la sesión reabierta,
-  para superar los 64 callbacks excluidos de la instrumentación incluso con
-  bloques físicos grandes. Las esperas tienen límites y no reintentan lanzamientos.
+  como estabilización del runner incluso con bloques físicos grandes. Las métricas
+  nativas son acumuladas e incluyen ese calentamiento; no excluyen 64 callbacks.
+  Esta precisión se corrigió al revisar las mediciones 13.4.b. Las esperas tienen
+  límites y no reintentan lanzamientos.
 - Métricas acumuladas por sesión, fases e IDs/counters exactos. Salida elegida
   verificada sin fallback; validación de opciones y gate nativo antes de I/O.
 - Se reutilizan generador `scripts/sequencer-fixtures.mjs`, metadatos/preparación

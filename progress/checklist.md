@@ -13,7 +13,8 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.3.d implementado localmente:** [desktop de clips/escenas](etapa-13-desktop-clips.md).
 **13.3.e aceptada localmente:** [integración de clips/escenas](cierre-integracion-clips-13.3e.md).
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
-Siguiente: **13.4.b, medición nativa release y escucha de clips/escenas**; etapa 13 abierta.
+**13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
+Pendiente inmediato: **confirmación de escucha 13.4.b**; después, **13.4.c, entrega/CI y cierre**.
 
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).
@@ -288,6 +289,7 @@ nativas Linux/macOS. La medición de muestras no prueba ausencia de dropouts.
 - [x] 13.3.e: referencia independiente, debug/release, 72 frontend, check/build y WebView2 real con archivos.
 - [x] 13.4.a: diagnósticos reproducibles y protocolo nativo de clips/escenas.
 - [x] 13.4.a: 216 mediciones offline finales, referencias/memoria, release y lifecycle manual; README con imágenes y capacidades actuales.
-- [ ] 13.4.b: matriz física release, reaperturas y escucha identificadas.
+- [x] 13.4.b: seis casos release y seis reaperturas WASAPI/Realtek, métricas y procedencia identificadas.
+- [ ] 13.4.b: confirmación explícita de escucha de estas secuencias.
 - [ ] 13.4.c: entrega/CI de la revisión correspondiente y cierre de 13.
 - [x] Probar cambios con distintos bloques/tempos antes de planificar timeline/piano roll/automatización.

@@ -1,5 +1,17 @@
 # Detalles de implementación
 
+## Commit y medición nativa del launcher 13.4.b — 2026-11-16 (México)
+
+Commit solicitado `0305598`: implementación acumulada hasta 13.4.a, 111 archivos.
+Las 69 fuentes coinciden con el contenido del commit; Cargo.toml desktop difiere
+solo por CRLF/LF. Matriz física release WASAPI/Realtek 48 kHz estéreo f32: seis casos
+y seis reaperturas, 2283 callbacks medidos, cero memoria/no finitos/deadline misses;
+máximo 145.9 µs y carga nominal 1.459 %. Escucha solicitada, aún pendiente.
+[Reporte](etapa-13-medicion-nativa-clips.md) y [evidencia](evidencia-nativa-clips-13.4b.json).
+Se conserva un ensayo inicial cuyo recolector perdió procedencia por faltar
+metadata WMI; no se ocultó ni se contó como una ejecución completa. Corregida
+la descripción de warmup: las métricas nativas sí incluyen calentamiento.
+
 ## Diagnósticos de clips 13.4.a — 2026-11-16 (México)
 
 launcher-bench con oráculo de PCM/eventos/fase/transiciones/medidores, memoria cero
