@@ -2,8 +2,9 @@
 
 Stage 14 adds a deterministic song timeline using the existing one-bar clips.
 The standalone domain model and its reference queries are implemented in 14.1;
-opt-in engine playback is implemented in 14.2. Sessions, project persistence,
-export and desktop editing remain later increments in the
+opt-in engine playback is implemented in 14.2. Explicit sessions and application
+coordination are implemented in [14.3.a](arrangement-service.md). Project
+persistence, export and desktop editing remain later increments in the
 [execution plan](../progress/plan-etapa-14.md).
 
 ## Document bounds and identities — implemented
@@ -49,8 +50,8 @@ stored in these types.
 `region_at_step` and `local_step_at` are pure musical-position queries. They accept
 `u64` positions, including values beyond the supported horizon, and return no
 region outside the half-open range. They neither advance a clock nor allocate
-voices. A snapshot is not a callback command: service ownership/installation and
-bounded realtime representation must be specified and verified in 14.2–14.3.
+voices. A snapshot is not a callback command: installation happens on the control
+side in 14.3.a, with only bounded observations and controls crossing realtime queues.
 
 ## Engine playback — implemented in 14.2
 
@@ -118,7 +119,18 @@ frame positions. Completed timelines remain completed through tempo changes or
 Pause/Play. Seeking, loops, tempo maps and recording live launch history remain
 outside this increment.
 
-## Integration requirements — not yet implemented
+## Session/application integration — implemented in 14.3.a
+
+Manual/native service initializers explicitly install the resolved arrangement,
+prepared bank, current tempo and mixer, starting stopped. Applied arrangement
+observations share the existing lossy telemetry queue. Application use cases
+validate against current source clips before consuming preparation and keep
+transient installation context separate from the selected project. Initialization
+does not modify Project, imply saving, enqueue Play or retry an ambiguous reply.
+The [session/application contract](arrangement-service.md) specifies FIFO,
+ownership, loss, errors, preparation and close/reopen semantics.
+
+## Persistence and desktop requirements — not yet implemented
 
 Playback is driven by the engine independently of UI timers and live launcher
 quantization. Service/application integration must retain this ownership and
@@ -131,7 +143,7 @@ owned snapshot outside the callback, with no files, JSON, heap allocation or
 destruction in audio processing. Reuse sampler/mixer and exact event scheduling;
 do not drive arrangement playback by feeding quantized UI launch commands.
 
-14.1–14.2 deliberately leave `Project`, JSON v2, generated DTOs and desktop controls
+Through 14.3.a, `Project`, JSON v2, generated DTOs and desktop controls remain
 unchanged so save/open cannot silently discard an editable arrangement. Add the
 project field and a new versioned schema together in 14.3, with explicit v1/v2
 migration to an empty arrangement and preserved original playback mode. Readers
@@ -159,7 +171,8 @@ adjacent same/different clips, duplicate sample slots, missing assets, full voic
 pool, start/end/overflow, Pause/Stop/resume and tempo changes. Instrument processing
 allocation/deallocation and ownership teardown. The
 [engine report](../progress/etapa-14-arreglo-motor.md) records local verification.
-14.3 must add queue/lifecycle,
-file/migration/relocation/export and desktop receipt tests. 14.4 must collect
+14.3.a adds queue/lifecycle, application and native-adapter checks without opening
+hardware. 14.3.b–d must add file/migration/relocation/export and desktop receipt
+tests. 14.4 must collect
 integration, native measurements/listening and exact-delivery CI evidence for
 the new path; historical launcher evidence does not establish these results.

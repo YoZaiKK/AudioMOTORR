@@ -65,6 +65,7 @@ pub(crate) struct AppliedSnapshot {
     pub mixer: Option<MixerSnapshot>,
     pub sequencer: Option<SequencerSnapshot>,
     pub launcher: Option<LauncherTelemetry>,
+    pub arrangement: Option<daw_engine::ArrangementSnapshot>,
 }
 
 pub(crate) struct ControlQueues {
@@ -323,6 +324,7 @@ impl Realtime {
             mixer: self.mixer,
             sequencer: self.engine.sequencer_snapshot(),
             launcher: self.launcher,
+            arrangement: self.engine.arrangement_snapshot(),
         });
     }
 
@@ -425,6 +427,10 @@ mod sequencer_tests;
 #[cfg(test)]
 #[path = "realtime_launcher_tests.rs"]
 mod launcher_tests;
+
+#[cfg(test)]
+#[path = "realtime_arrangement_tests.rs"]
+mod arrangement_tests;
 
 #[cfg(test)]
 mod tests {

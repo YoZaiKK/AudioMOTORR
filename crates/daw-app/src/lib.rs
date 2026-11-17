@@ -1,5 +1,7 @@
 //! Application use cases shared by desktop and CLI, independent of Tauri.
 
+mod arrangement;
+pub use arrangement::{ArrangementInstallation, ArrangementStatus};
 mod launcher;
 mod mixer;
 pub mod offline;
@@ -25,11 +27,11 @@ pub use daw_audio::{
     SamplerTelemetry, ServiceSnapshot, TriggerReport,
 };
 use daw_domain::{Project, ProjectId};
-use daw_engine::{EngineCommand, Gain};
 pub use daw_engine::{
-    EngineConfig, SamplerTriggerError, SequencerBoundary, SequencerCounters, SequencerEvent,
-    SequencerSnapshot, TransportState,
+    ArrangementSnapshot, EngineConfig, SamplerTriggerError, SequencerBoundary, SequencerCounters,
+    SequencerEvent, SequencerSnapshot, TransportState,
 };
+use daw_engine::{EngineCommand, Gain};
 
 pub struct ProjectSummary {
     pub id: ProjectId,
@@ -44,6 +46,7 @@ pub struct Application {
     project_path: Option<std::path::PathBuf>,
     saved_project: Option<Project>,
     launcher_intent: std::cell::Cell<Option<LauncherLaunch>>,
+    arrangement_installation: std::cell::Cell<Option<ArrangementInstallation>>,
 }
 
 impl Application {
@@ -55,6 +58,7 @@ impl Application {
             project_path: None,
             saved_project: None,
             launcher_intent: std::cell::Cell::new(None),
+            arrangement_installation: std::cell::Cell::new(None),
         })
     }
     pub fn get_project_summary(&self) -> ProjectSummary {
@@ -107,10 +111,14 @@ impl Application {
     pub fn shutdown_audio(&self) -> Result<()> {
         self.audio.handle().shutdown()?;
         self.launcher_intent.set(None);
+        self.arrangement_installation.set(None);
         Ok(())
     }
     pub fn get_engine_snapshot(&self) -> Result<ServiceSnapshot> {
         let snapshot = self.audio.handle().snapshot()?;
+        if snapshot.state != AudioServiceState::Ready || snapshot.arrangement.is_none() {
+            self.arrangement_installation.set(None);
+        }
         if snapshot.state != AudioServiceState::Ready || snapshot.launcher.is_none() {
             self.launcher_intent.set(None);
         }

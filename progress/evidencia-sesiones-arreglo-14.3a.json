@@ -1,0 +1,239 @@
+{
+  "format_version": 1,
+  "stage": "14.3.a",
+  "status": "implemented_and_verified_locally",
+  "recorded_utc": "2026-11-17T20:03:44.754Z",
+  "base_revision": "081f91b7e26b4967295f2076e6c803fc9661f83e",
+  "initial_worktree": "Clean at start; implementation continues from the requested 14.1-14.2 commit 081f91b.",
+  "source_rule": "Base revision plus the listed source/config/test files. Raw-byte SHA256. The 11 inherited 14.1/14.2 domain/engine/test/check-script sources retain identical LF-normalized contents to the parent revision.",
+  "source_files": [
+    {
+      "path": "Cargo.lock",
+      "sha256": "5fc08c9c488170e2fc28791ddf759113abbbf50e64cf494b407ff026d1951cad"
+    },
+    {
+      "path": "crates/daw-app/src/arrangement.rs",
+      "sha256": "ce4be8a2e287fc8934074469b09635e73495f9b12652b718885415e41570cc88"
+    },
+    {
+      "path": "crates/daw-app/src/arrangement_preparation_tests.rs",
+      "sha256": "3da77cb29c24c7b63ee79ce6ff4a11dc308a0ffb6eebf20cd4553b7e641c3015"
+    },
+    {
+      "path": "crates/daw-app/src/lib.rs",
+      "sha256": "89cc5ac7e7bf05bc8727db0a8f9f788118af9f06e43dccf71edafaa4239afb5d"
+    },
+    {
+      "path": "crates/daw-app/src/sampler_session.rs",
+      "sha256": "780b8e7a26549d8545e13a94568bd757910ef620f3504a461eec70bbe6fcc17f"
+    },
+    {
+      "path": "crates/daw-app/tests/arrangement_application_contract.rs",
+      "sha256": "bf4f7fb632cacb59070953f5d5f6fa7b1a7d4b16222ec7d66e8c3a017d2c85a4"
+    },
+    {
+      "path": "crates/daw-audio/Cargo.toml",
+      "sha256": "f043888200744edb2b52195a434b1df9bd4dd2d53420dd6ecbca7d6f5fdbb391"
+    },
+    {
+      "path": "crates/daw-audio/src/arrangement_test_support.rs",
+      "sha256": "34125f1abcb04aa9bd827f1ba3b1d65fa2eecff0c5d97385d3f4f72a120392a4"
+    },
+    {
+      "path": "crates/daw-audio/src/lib.rs",
+      "sha256": "858e6b1393f150f9a9f1bb47285b79ae82ff418262e41237ec8e93b9fd7fcbae"
+    },
+    {
+      "path": "crates/daw-audio/src/native.rs",
+      "sha256": "fb9fe92264ce5c0e0344fe11d88641b992af998750a547fe57c9b3eef208c248"
+    },
+    {
+      "path": "crates/daw-audio/src/native_arrangement_tests.rs",
+      "sha256": "f72de489c0e0c65b38c5a07681d11c44480aa9ac20a12d8e0b46d3c3481c0ce3"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime.rs",
+      "sha256": "9cb45343e22bf72c38214bd5914b6fad38e79f13510dada753373cbfb9b121b1"
+    },
+    {
+      "path": "crates/daw-audio/src/realtime_arrangement_tests.rs",
+      "sha256": "1bb7942a2b041f083fac6e815d1f1dd55c3a8cecbcd8f39f03a1dcd56e52d11b"
+    },
+    {
+      "path": "crates/daw-audio/src/service.rs",
+      "sha256": "32c9c7c61e36453baa9db03a0a8e014dfc52c164c9bdb826f6be6e7f8e38747f"
+    },
+    {
+      "path": "crates/daw-audio/src/service_arrangement_tests.rs",
+      "sha256": "b529fb8e35d749fae31dfcafcdcbdc8e8ad72de32226e99b8401eca2edd00030"
+    },
+    {
+      "path": "crates/daw-audio/tests/arrangement_service_contract.rs",
+      "sha256": "82898ccccd9d9a3e29786393b947fdc51602aaa041d7cee9da0b9f96a9a6be0e"
+    },
+    {
+      "path": "src-tauri/tests/ipc_contract.rs",
+      "sha256": "b6c8c8ec7fd701fe43ec81f1486c6c671812393bac53be80ebf323217b08979f"
+    }
+  ],
+  "inherited_source_content_verified": [
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "sha256": "8f711f33114ac833fccbfd5835499f1f7bd160cf31b21d44396c97e90df9d297"
+    },
+    {
+      "path": "crates/daw-domain/src/arrangement.rs",
+      "sha256": "bb4d481b46d8f4bc31491b96925e6b87b1100ddfb8dc4e2da4de55223fcb743c"
+    },
+    {
+      "path": "crates/daw-domain/tests/arrangement_contract.rs",
+      "sha256": "8258f7057e8f6d75a00debbf2c9fb2b5f55ff663ac591299aef66c6261e5c0be"
+    },
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "sha256": "949c17768745029bc2c23c2a03f4fad43cc13f811115dca98c799ec6ed25f297"
+    },
+    {
+      "path": "crates/daw-engine/src/sequencer.rs",
+      "sha256": "fc68e681d23e6030cc5a55f54387c0f54287270f483672bc796238fb685edffd"
+    },
+    {
+      "path": "crates/daw-engine/src/arrangement.rs",
+      "sha256": "bb8e5bfa4f90bbc9df7cb819565fa30b6d7602a30f28bb5527caeb176bcfaee8"
+    },
+    {
+      "path": "crates/daw-engine/tests/arrangement_contract.rs",
+      "sha256": "299932a180ce3ab5c8588dc969016d7492fc114ac32f3fb80220919360829edf"
+    },
+    {
+      "path": "crates/daw-engine/tests/arrangement_reference.rs",
+      "sha256": "d82f4190ff08e161e796e518f9d161861456b83e6ddaf36703e007356c09408f"
+    },
+    {
+      "path": "crates/daw-engine/tests/support/arrangement_fixtures.rs",
+      "sha256": "fd34340abbcdaa246b2dea636dedb010948afc5d10358b4420c9ea3df64c334c"
+    },
+    {
+      "path": "crates/daw-cli/tests/arrangement_memory_contract.rs",
+      "sha256": "fffec6c8236e59320dcea6f82276151753f49ccabe13bb59d1aa2349ee0b6e3c"
+    },
+    {
+      "path": "scripts/check.mjs",
+      "sha256": "e8b14cacb95c3e534090716389a232318b5a730cad4e4dac38bbb7162e9e451c"
+    }
+  ],
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "e93cf34ed77460bb2cb22af926bbad23b6abd950e1d912b14dd0bab0c72ed224"
+    },
+    {
+      "path": "docs/arrangement-contract.md",
+      "sha256": "c9decc2c835ceeec0dd9418322ef6ad74c1d26459b3ca7c4ea7fa7c58a326bda"
+    },
+    {
+      "path": "docs/arrangement-service.md",
+      "sha256": "f058e6f093acf1da24deaf43a465fc00147efd01831ee0aa255d385dc1d8d25c"
+    },
+    {
+      "path": "docs/roadmap.md",
+      "sha256": "eec1b5c9855cf6c13f0420771911719ae796f1a0ce2ae7dfaa187cf148367df2"
+    },
+    {
+      "path": "progress/checklist.md",
+      "sha256": "3497fbc6a7ccea00904cbe62e440da71bb0332559c2195baf5a85eb82457e748"
+    },
+    {
+      "path": "progress/detalles.md",
+      "sha256": "5a337156ad51db99aa7c7094bc0dfad2032d2669cd66ed26b50923b79fb809d5"
+    },
+    {
+      "path": "progress/estado-y-siguiente-etapa.md",
+      "sha256": "c730f011d277d34d042ac14509765101840c2ad14efd987263bcfb9d0d619786"
+    },
+    {
+      "path": "progress/etapa-14-sesiones-aplicacion.md",
+      "sha256": "10bcd067b0c0af8ce28bdacf5541bb5c267943e4cae5a9c3e59108454b2f676e"
+    },
+    {
+      "path": "progress/plan-etapa-14.md",
+      "sha256": "6b0eb8c19850ee9ed49105057208ca77a298328650eb213db90d92677d7d9dfd"
+    },
+    {
+      "path": "progress/plan-etapas-7-13.md",
+      "sha256": "943c17cc03fa9fe9303f123b0338be0120ce5b8017142b0b2a8f3feec05d5361"
+    },
+    {
+      "path": "progress/plan-siguientes-pasos.md",
+      "sha256": "25a13963002add66d06964da6c61bc2e774aed7997aa66ab34acf589ceae4512"
+    }
+  ],
+  "validation": {
+    "checks": [
+      {
+        "command": "cargo test -p daw-audio --features native-audio,rt-diagnostics --release --locked",
+        "started_utc": "2026-11-17T19:54:59.747Z",
+        "finished_utc": "2026-11-17T19:55:51.179Z",
+        "exit_code": 0,
+        "log": {
+          "path": "target/stage14-3a-20261117/audio-release.log",
+          "sha256": "3345e8c11f605a7bf8e848b8d237f5b0a844540fc7c1753ccfc74fa06e08ea5b"
+        }
+      },
+      {
+        "command": "cargo test -p daw-app --release --locked --test arrangement_application_contract",
+        "started_utc": "2026-11-17T19:55:51.183Z",
+        "finished_utc": "2026-11-17T19:56:04.128Z",
+        "exit_code": 0,
+        "log": {
+          "path": "target/stage14-3a-20261117/app-release.log",
+          "sha256": "ff9b8c1e101e91c8c781502a5eab10238bf8e4945bc46d8d2914ad2b47c3ceac"
+        }
+      },
+      {
+        "command": "cargo test -p daw-app --release --locked --lib arrangement",
+        "started_utc": "2026-11-17T19:56:04.128Z",
+        "finished_utc": "2026-11-17T19:56:17.079Z",
+        "exit_code": 0,
+        "log": {
+          "path": "target/stage14-3a-20261117/app-unit-release.log",
+          "sha256": "92df5311ca91429ae3aee0e187375346c3885030b49d098e078335d72f6f386f"
+        }
+      },
+      {
+        "exit_code": 0,
+        "command": "npm run check",
+        "started_utc": "2026-11-17T19:58:47.3767723Z",
+        "finished_utc": "2026-11-17T20:02:55.5310612Z",
+        "log": {
+          "path": "target/stage14-3a-20261117/check.log",
+          "sha256": "43e31d921e9d6e8e6294c3aacfaf7db87ca469142bd2d0864aa4ba20b01db429"
+        }
+      }
+    ],
+    "audio_release_tests": 90,
+    "application_release_cases": 4,
+    "application_internal_release_cases": 2,
+    "frontend_cases": 72,
+    "cli_scenarios": 9,
+    "local_links_checked": 597,
+    "native_adapter_matrix": {
+      "hardware_opened": false,
+      "configurations": 32,
+      "callbacks_per_configuration": 7,
+      "formats": ["f32", "f64", "i16", "u16"],
+      "channels": [1, 2],
+      "scratch_frames": [1, 127, 256, 513],
+      "reference": "Unsplit callbacks around the same engine; exact converted PCM, engine/arrangement/mixer/manual telemetry and cumulative acknowledgments."
+    },
+    "processing_memory": "Zero allocations/frees/bytes during native conversion/render/publication matrix and realtime controls/render/publication at 1/800/48000 Hz x mono/stereo. Positive PCM reclamation on control/stream owner after processing; callback worker transfers ownership.",
+    "application_cases": "Real-WAV preparation; latest source content/tempo/mix; immutable transient installed context; unchanged project; wrong modes, stale IDs, missing references, Loading/Cancelling, cancellation/reuse, Busy, queue-full rollback, disabled native and lost initialization reply without retry/fabricated content.",
+    "boundaries": "No hardware opened, no physical callback timing/latency or listening observation, no desktop bundle rebuild or new hosted CI. Overlapping Rust suites are not summed as distinct-test totals."
+  },
+  "dependencies": "One dev-dependency on existing workspace crate daw-domain for daw-audio fixtures; Cargo.lock records that relation. No new external package or production dependency.",
+  "ipc": "Only existing Rust ServiceSnapshot fixture gains arrangement: None. Generated bindings, ACL and frontend unchanged; no arrangement IPC or UI exposed yet.",
+  "project_format": "Project and JSON v2 unchanged. Explicit arrangement initializer accepts transient document; it is not persisted or exported by current project workflows.",
+  "stage13_listening": "Pending; continuation is not interpreted as confirmation.",
+  "publication": "Local changes only; no commit/push or remote CI attributed to this increment.",
+  "next": "14.3.b versioned arrangement project/mode, v1/v2 migration, validated references and timeline WAV export with explicit tail policy"
+}

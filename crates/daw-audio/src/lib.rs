@@ -1,5 +1,7 @@
 //! Audio service: bounded control requests, SPSC queues, manual and optional CPAL backends.
 #[cfg(test)]
+mod arrangement_test_support;
+#[cfg(test)]
 mod launcher_test_support;
 mod metrics;
 #[cfg(feature = "native-audio")]
@@ -9,9 +11,9 @@ mod service;
 pub use metrics::{MemoryActivity, RealtimeMetrics};
 
 use daw_engine::{
-    AudioEngine, EngineConfig, EngineSnapshot, LauncherControlError, LauncherSnapshot,
-    MixerSettings, MixerSnapshot, Pattern, SAMPLE_BANK_SLOTS, SampleBank, SamplerTriggerError,
-    SequencerSnapshot, Tempo,
+    ArrangementSnapshot, AudioEngine, EngineConfig, EngineSnapshot, LauncherControlError,
+    LauncherSnapshot, MixerSettings, MixerSnapshot, Pattern, ResolvedArrangement,
+    SAMPLE_BANK_SLOTS, SampleBank, SamplerTriggerError, SequencerSnapshot, Tempo,
 };
 use std::fmt;
 
@@ -98,6 +100,8 @@ pub struct ServiceSnapshot {
     pub sequencer: Option<SequencerSnapshot>,
     /// Applied launcher state and latest request-processing report; lossy observation.
     pub launcher: Option<LauncherTelemetry>,
+    /// Applied finite timeline, latest state only; no editable document or PCM.
+    pub arrangement: Option<ArrangementSnapshot>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -129,7 +133,7 @@ pub struct TriggerReport {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Explicit trigger-command telemetry. Active voices also include scheduled notes;
-/// those outcomes/counters live in ServiceSnapshot::sequencer or ::launcher.
+/// those outcomes/counters live in ::sequencer, ::launcher or ::arrangement.
 pub struct SamplerTelemetry {
     pub occupied_slots: u16,
     pub active_voices: usize,
@@ -164,6 +168,7 @@ pub(crate) enum Source {
     MixedSampler(Box<SampleBank>, MixerSettings),
     SequencedSampler(Box<SampleBank>, MixerSettings, Pattern),
     ClipLauncher(Box<SampleBank>, MixerSettings),
+    ArrangedSampler(Box<SampleBank>, MixerSettings, Box<ResolvedArrangement>),
 }
 impl Source {
     pub(crate) fn engine(self, config: EngineConfig, tempo: Tempo) -> Result<AudioEngine> {
@@ -181,10 +186,14 @@ impl Source {
             Self::ClipLauncher(bank, settings) if bank.config() == config => {
                 Ok(AudioEngine::with_clip_launcher(*bank, tempo, settings))
             }
+            Self::ArrangedSampler(bank, settings, arrangement) if bank.config() == config => Ok(
+                AudioEngine::with_arranged_sampler(*bank, tempo, settings, *arrangement),
+            ),
             Self::Sampler(_)
             | Self::MixedSampler(..)
             | Self::SequencedSampler(..)
-            | Self::ClipLauncher(..) => Err(AudioError::new(
+            | Self::ClipLauncher(..)
+            | Self::ArrangedSampler(..) => Err(AudioError::new(
                 ErrorCode::InvalidArgument,
                 "Device configuration must match the prepared bank rate and channels",
             )),

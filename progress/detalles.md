@@ -1,5 +1,15 @@
 # Detalles de implementación
 
+## Sesiones y aplicación de arreglos 14.3.a — 2026-11-17 (México)
+
+Sobre `081f91b`: inicializadores manual/nativo con banco y copia resuelta,
+observación Copy del arreglo, FIFO/presupuesto compartidos y propiedad de PCM
+fuera del procesamiento. Aplicación instala clips/tempo/mezcla actuales y
+conserva contexto transitorio separado de Project; respuestas perdidas no
+inventan contenido ni provocan reintentos. Pruebas de sesiones, callback sin
+dispositivo, memoria y WAV reales; [reporte](etapa-14-sesiones-aplicacion.md) y
+[contrato](../docs/arrangement-service.md). Sigue 14.3.b, proyecto/exportación.
+
 ## Commit de arreglo 14.1–14.2 — 2026-11-16 (México)
 
 Entrega conjunta de modelo, motor, pruebas, README, contrato, planes y evidencia,

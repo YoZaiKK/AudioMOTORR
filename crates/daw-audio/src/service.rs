@@ -19,7 +19,29 @@ const REQUEST_CAPACITY: usize = 32;
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 const CONTROL_POLL: Duration = Duration::from_millis(5);
 
+type InitialState = (
+    daw_engine::EngineSnapshot,
+    Option<SamplerTelemetry>,
+    Option<MixerSnapshot>,
+    Option<SequencerSnapshot>,
+    Option<LauncherTelemetry>,
+    Option<ArrangementSnapshot>,
+);
+
 enum Operation {
+    ManualArrangedSampler(
+        Box<SampleBank>,
+        Tempo,
+        MixerSettings,
+        Box<ResolvedArrangement>,
+    ),
+    NativeArrangedSampler(
+        Option<String>,
+        Box<SampleBank>,
+        Tempo,
+        MixerSettings,
+        Box<ResolvedArrangement>,
+    ),
     ManualClipLauncher(Box<SampleBank>, Tempo, MixerSettings),
     NativeClipLauncher(Option<String>, Box<SampleBank>, Tempo, MixerSettings),
     ClipLaunch(ClipLaunchRequest),
@@ -108,6 +130,39 @@ impl Drop for AudioService {
 }
 
 impl AudioHandle {
+    /// Installs fixed owned content on the control thread, stopped at zero.
+    pub fn initialize_manual_arranged_sampler(
+        &self,
+        bank: SampleBank,
+        tempo: Tempo,
+        settings: MixerSettings,
+        arrangement: ResolvedArrangement,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::ManualArrangedSampler(
+            Box::new(bank),
+            tempo,
+            settings,
+            Box::new(arrangement),
+        ))
+    }
+
+    pub fn initialize_native_arranged_sampler(
+        &self,
+        device_id: Option<String>,
+        bank: SampleBank,
+        tempo: Tempo,
+        settings: MixerSettings,
+        arrangement: ResolvedArrangement,
+    ) -> Result<ServiceSnapshot> {
+        self.snapshot_response(Operation::NativeArrangedSampler(
+            device_id,
+            Box::new(bank),
+            tempo,
+            settings,
+            Box::new(arrangement),
+        ))
+    }
+
     /// Starts an empty, stopped launcher session; no implicit scene or Play.
     pub fn initialize_manual_clip_launcher(
         &self,
@@ -413,6 +468,7 @@ impl Controller {
                 mixer: None,
                 sequencer: None,
                 launcher: None,
+                arrangement: None,
             },
         }
     }
@@ -466,6 +522,7 @@ impl Controller {
                 self.snapshot.mixer = applied.mixer;
                 self.snapshot.sequencer = applied.sequencer;
                 self.snapshot.launcher = applied.launcher;
+                self.snapshot.arrangement = applied.arrangement;
                 updated = true;
             }
             failure = queues.failure.load(Ordering::Relaxed);
@@ -477,6 +534,7 @@ impl Controller {
             self.snapshot.mixer = None;
             self.snapshot.sequencer = None;
             self.snapshot.launcher = None;
+            self.snapshot.arrangement = None;
             self.snapshot.error = Some(AudioError::new(
                 ErrorCode::StreamError,
                 if failure == 1 {
@@ -509,6 +567,7 @@ impl Controller {
         self.snapshot.mixer = None;
         self.snapshot.sequencer = None;
         self.snapshot.launcher = None;
+        self.snapshot.arrangement = None;
         self.changed();
     }
 
@@ -525,25 +584,20 @@ impl Controller {
 
     fn ready(
         &mut self,
-        initial: (
-            daw_engine::EngineSnapshot,
-            Option<SamplerTelemetry>,
-            Option<MixerSnapshot>,
-            Option<SequencerSnapshot>,
-            Option<LauncherTelemetry>,
-        ),
+        initial: InitialState,
         backend: Backend,
         output: Option<OutputSelection>,
         queues: ControlQueues,
         running: Running,
     ) {
-        let (engine, sampler, mixer, sequencer, launcher) = initial;
+        let (engine, sampler, mixer, sequencer, launcher, arrangement) = initial;
         self.snapshot.state = AudioServiceState::Ready;
         self.snapshot.diagnostics = None;
         self.snapshot.sampler = sampler;
         self.snapshot.mixer = mixer;
         self.snapshot.sequencer = sequencer;
         self.snapshot.launcher = launcher;
+        self.snapshot.arrangement = arrangement;
         self.snapshot.backend = Some(backend);
         self.snapshot.output = output;
         self.snapshot.engine = Some(engine);
@@ -557,6 +611,19 @@ impl Controller {
 
     fn execute(&mut self, operation: Operation) -> Result<Response> {
         match operation {
+            Operation::ManualArrangedSampler(bank, tempo, settings, arrangement) => {
+                self.can_initialize()?;
+                let config = bank.config();
+                self.manual(
+                    Source::ArrangedSampler(bank, settings, arrangement).engine(config, tempo)?,
+                )
+            }
+            Operation::NativeArrangedSampler(device_id, bank, tempo, settings, arrangement) => self
+                .native(
+                    device_id,
+                    tempo,
+                    Source::ArrangedSampler(bank, settings, arrangement),
+                ),
             Operation::ManualClipLauncher(bank, tempo, settings) => {
                 self.can_initialize()?;
                 let config = bank.config();
@@ -741,10 +808,11 @@ impl Controller {
         let mixer = engine.mixer_snapshot();
         let sequencer = engine.sequencer_snapshot();
         let launcher = LauncherTelemetry::for_engine(&engine);
+        let arrangement = engine.arrangement_snapshot();
         let scratch = vec![0.0; MANUAL_MAX_FRAMES * usize::from(initial.config.channels())];
         let (queues, rt) = Realtime::new(engine);
         self.ready(
-            (initial, sampler, mixer, sequencer, launcher),
+            (initial, sampler, mixer, sequencer, launcher, arrangement),
             Backend::Manual,
             None,
             queues,
@@ -774,6 +842,7 @@ impl Controller {
                             opened.mixer,
                             opened.sequencer,
                             opened.launcher,
+                            opened.arrangement,
                         ),
                         Backend::Native,
                         Some(opened.output),
@@ -797,6 +866,7 @@ impl Controller {
                     self.snapshot.mixer = None;
                     self.snapshot.sequencer = None;
                     self.snapshot.launcher = None;
+                    self.snapshot.arrangement = None;
                     self.snapshot.callbacks = 0;
                     self.snapshot.last_applied_command = None;
                     self.snapshot.diagnostics = None;
@@ -885,6 +955,10 @@ mod sequencer_tests;
 #[cfg(test)]
 #[path = "service_launcher_tests.rs"]
 mod launcher_tests;
+
+#[cfg(test)]
+#[path = "service_arrangement_tests.rs"]
+mod arrangement_tests;
 
 #[cfg(test)]
 mod tests {

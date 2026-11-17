@@ -1,5 +1,8 @@
 //! Application-owned preparation worker. File I/O never runs under the desktop
 //! application lock or on the audio controller. Close audio before preparing.
+#[cfg(test)]
+#[path = "arrangement_preparation_tests.rs"]
+mod arrangement_tests;
 use crate::sample_loading::{BankPreparationCoordinator, PreparedBank, SampleSelection};
 use crate::{Application, AudioError, AudioServiceState, ErrorCode, Result, ServiceSnapshot};
 use daw_engine::{EngineConfig, Gain};
@@ -270,7 +273,10 @@ impl Application {
         self.samples.poll();
         Ok(self.samples.snapshot.clone())
     }
-    fn take_sample_bank(&mut self, preparation_id: u64) -> Result<daw_engine::SampleBank> {
+    pub(crate) fn take_sample_bank(
+        &mut self,
+        preparation_id: u64,
+    ) -> Result<daw_engine::SampleBank> {
         self.samples.poll();
         if self.samples.snapshot.preparation_id != Some(preparation_id) {
             return Err(invalid("Stale preparation ID"));

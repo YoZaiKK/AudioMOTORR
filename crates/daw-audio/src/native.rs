@@ -56,6 +56,7 @@ pub(crate) struct Opened {
     pub mixer: Option<MixerSnapshot>,
     pub sequencer: Option<SequencerSnapshot>,
     pub launcher: Option<LauncherTelemetry>,
+    pub arrangement: Option<ArrangementSnapshot>,
 }
 
 // This mailbox is teardown-only, never touched by process_output. CPAL may drop
@@ -163,7 +164,8 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
         Source::Sampler(bank)
         | Source::MixedSampler(bank, _)
         | Source::SequencedSampler(bank, ..)
-        | Source::ClipLauncher(bank, ..) => select_sampler_config(
+        | Source::ClipLauncher(bank, ..)
+        | Source::ArrangedSampler(bank, ..) => select_sampler_config(
             bank.config(),
             device.supported_output_configs().map_err(stream_error)?,
         )?,
@@ -183,6 +185,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
     let mixer = engine.mixer_snapshot();
     let sequencer = engine.sequencer_snapshot();
     let launcher = LauncherTelemetry::for_engine(&engine);
+    let arrangement = engine.arrangement_snapshot();
     let (queues, rt) = Realtime::new(engine);
     let stream = match format {
         SampleFormat::F32 => build::<f32>(&device, supported.config(), rt, &queues),
@@ -212,6 +215,7 @@ pub(crate) fn open(device_id: Option<String>, tempo: Tempo, source: Source) -> R
         mixer,
         sequencer,
         launcher,
+        arrangement,
     })
 }
 
@@ -302,6 +306,10 @@ mod sequencer_tests;
 #[cfg(test)]
 #[path = "native_launcher_tests.rs"]
 mod launcher_tests;
+
+#[cfg(test)]
+#[path = "native_arrangement_tests.rs"]
+mod arrangement_tests;
 
 #[cfg(test)]
 mod tests {

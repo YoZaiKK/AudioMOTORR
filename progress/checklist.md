@@ -1,6 +1,6 @@
 # Etapas de implementación
 
-**Estado vigente (2026-11-16 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+**Estado vigente (2026-11-17 México):** [etapa 11 cerrada](cierre-etapa-11.md)
 tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
 [corrección de precisión JSON](correccion-12-precision-json.md) verificada en
 check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
@@ -19,7 +19,8 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **14.2 implementada localmente:** [reproducción del arreglo en el motor](etapa-14-arreglo-motor.md).
 [Entrega conjunta de 14.1–14.2](entrega-arreglo-14.1-14.2.md): código, pruebas,
 documentación y evidencia incluidos en el commit local solicitado.
-Siguiente trabajo: **14.3.a, sesiones y coordinación de aplicación**, según el
+**14.3.a implementada localmente:** [sesiones y aplicación de arreglos](etapa-14-sesiones-aplicacion.md).
+Siguiente trabajo: **14.3.b, proyecto versionado y exportación de arreglo**, según el
 [plan de etapa 14](plan-etapa-14.md). La escucha de 13.4.b y el cierre formal
 de 13 siguen pendientes; se continúa el desarrollo por indicación del usuario.
 
@@ -27,7 +28,7 @@ de 13 siguen pendientes; se continúa el desarrollo por indicación del usuario.
 
 - [x] 14.1: contrato y modelo independiente, regiones acotadas, validación y snapshots.
 - [x] 14.2: motor determinista, transporte, referencias PCM/eventos y memoria.
-- [ ] 14.3.a: sesiones y aplicación.
+- [x] 14.3.a: sesiones y aplicación.
 - [ ] 14.3.b: persistencia versionada y exportación de arreglo.
 - [ ] 14.3.c–d: editor desktop y aceptación integrada.
 - [ ] 14.4: diagnósticos, medición nativa, escucha y entrega/CI de la revisión.

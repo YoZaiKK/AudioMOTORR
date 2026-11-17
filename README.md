@@ -21,8 +21,9 @@ Editing a running clip changes the document; launch it again to use the new cont
 Saved initial scenes determine export and remain separate from live launch history.
 This is a groovebox/launcher foundation: recording, external MIDI, plugins,
 resampling/time stretching, timeline desktop editing/export, piano roll and
-automation remain future work. Stages 14.1–14.2 supply the arrangement model and
-playback through the Rust engine API; see the [contract](docs/arrangement-contract.md).
+automation remain future work. Stages 14.1–14.3.a supply the arrangement model,
+engine playback and explicit manual/native sessions through the Rust API; see the
+[contract](docs/arrangement-contract.md).
 See the [clip/scene walkthrough](howToRunThis/10-clips-escenas.md).
 
 ## App screenshots
@@ -47,7 +48,7 @@ Remote main was verified at `ca37f74`, with [both exact-revision CI jobs passing
 Earlier stage evidence retains its capture-time Git/CI status. See the
 [delivery report](progress/etapa-13-entrega-ci.md) and [local preview guide](howToRunThis/12-entrega-preview.md).
 
-Updated 2026-11-16 (Mexico). **Stages 1–11 are complete within their recorded scope.**
+Updated 2026-11-17 (Mexico). **Stages 1–11 are complete within their recorded scope.**
 The sampler, four-channel mixer and 16-step sequencer are integrated with the
 Rust engine, audio service and desktop UI. Stage 11 records six successful
 native matrix cases and six reopens on Realtek/WASAPI; the user confirmed
@@ -105,13 +106,19 @@ listening observation remains pending; see the [plan](progress/plan-etapa-14.md)
 exact region scheduling and completion, natural sample tails, transport/tempo
 controls and applied region/event observations. Independent PCM/event references
 and processing-memory checks cover the new path. See the
-[engine report](progress/etapa-14-arreglo-motor.md). It is not yet exposed through
-audio sessions, project files, export or desktop controls. Next is **14.3.a:
-sessions and application coordination**.
+[engine report](progress/etapa-14-arreglo-motor.md).
 
-Stages 14.1–14.2 are grouped in this [local source delivery](progress/entrega-arreglo-14.1-14.2.md),
+**Stage 14.3.a is implemented locally:** explicit manual/native arrangement
+sessions, shared controls and applied observations, preparation/ownership and
+transient application installation context. See the
+[session/application contract](docs/arrangement-service.md) and
+[stage report](progress/etapa-14-sesiones-aplicacion.md). Project files, timeline
+export and desktop controls remain future work. Next is **14.3.b: versioned
+projects and arrangement export**.
+
+Commit `081f91b` groups stages 14.1–14.2 in the [local source delivery](progress/entrega-arreglo-14.1-14.2.md),
 including code, tests and documentation. Earlier manifests retain their capture-time
-status; this commit has no remote publication or hosted CI attributed to it.
+status. Later increments record their own source and verification evidence.
 
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
 sessions, controls transport/tempo/gain and shows exact-ID trigger outcomes or
@@ -152,7 +159,7 @@ README/technical documents are in English; progress and practical guides are in 
 
 ## Next steps
 
-The active product increment is **14.3.a, arrangement sessions and application coordination**.
+The active product increment is **14.3.b, versioned projects and arrangement export**.
 [Stage 14 plan](progress/plan-etapa-14.md) tracks the new work; the table below
 retains the delivery history through stage 13.
 

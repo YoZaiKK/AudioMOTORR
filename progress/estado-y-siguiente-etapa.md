@@ -1,6 +1,6 @@
 # Estado verificado, objetivos y siguiente etapa
 
-**Estado vigente (2026-11-16 México):** [etapa 11 cerrada](cierre-etapa-11.md)
+**Estado vigente (2026-11-17 México):** [etapa 11 cerrada](cierre-etapa-11.md)
 tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
 [corrección de precisión JSON](correccion-12-precision-json.md) verificada en
 check completo, release (9 casos), build y WebView2 real. Corrección de precisión publicada en `4f126dc`. CI Linux/Windows del SHA exacto correcta en [run 43362943622](https://github.com/YoZaiKK/AudioMOTORR/actions/runs/43362943622); etapa 12 cerrada dentro de su alcance.
@@ -19,7 +19,8 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **14.2 implementada localmente:** [reproducción del arreglo en el motor](etapa-14-arreglo-motor.md).
 [Entrega conjunta de 14.1–14.2](entrega-arreglo-14.1-14.2.md): código, pruebas,
 documentación y evidencia incluidos en el commit local solicitado.
-Siguiente trabajo: **14.3.a, sesiones y coordinación de aplicación**, según el
+**14.3.a implementada localmente:** [sesiones y aplicación de arreglos](etapa-14-sesiones-aplicacion.md).
+Siguiente trabajo: **14.3.b, proyecto versionado y exportación de arreglo**, según el
 [plan de etapa 14](plan-etapa-14.md). La escucha de 13.4.b y el cierre formal
 de 13 siguen pendientes; se continúa el desarrollo por indicación del usuario.
 
@@ -45,7 +46,7 @@ con escucha confirmada; [cierre de 11](cierre-etapa-11.md). **Etapa 12 implement
 Entrega `6c8c52e` y CI Linux/Windows correctas: 11.4.c completada y
 [etapa 12 cerrada dentro de su alcance](cierre-etapa-12.md).
 En esa revisión, tras confirmar la escucha de 11, el siguiente producto era 13.1.
-El avance vigente hasta 14.2 se registra al inicio de este documento.
+El avance vigente hasta 14.3.a se registra al inicio de este documento.
 La [continuidad de esta ejecución](ejecucion-11.4b-12.md) registra tareas y resultados.
 
 **Núcleo de mezcla 10.2 implementado localmente**, con
@@ -79,19 +80,19 @@ los hitos se conserva en el [documento inicial](rust-daw-bootstrap-prompt.md).
 
 ## Objetivos y estado real
 
-| Objetivo                               | Qué está hecho                                                                                                   | Qué falta                                                                                                        |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Fundamento de escritorio/audio         | Etapas 1–6: workspace, motor separado, backend manual/CPAL, aplicación, IPC/DTO, UI, cierre, documentación y CI. | Validaciones físicas/plataformas adicionales, registradas como límites.                                          |
-| Generar una señal verificable          | Etapas 7–8: senoide offline/WAV, salida nativa explícita, volumen y rampas.                                      | Loopback acústico, unplug físico, estrés prolongado y otras configuraciones físicas.                             |
-| Reproducir samples en motor            | PCM/banco/preparación, AudioEngine, sesiones manual/CPAL, aplicación/IPC/UI y diagnósticos.                      | Etapa 9 cerrada: mediciones, auditoría, CI de 4dc2c6c y audibilidad confirmada; límites físicos conservados.     |
-| Groovebox de cuatro canales y 16 pasos | Secuenciador 4 × 16 y mezclador integrados con UI.                                                               | Etapas 10–11 cerradas dentro de su alcance; clips/escenas siguen en 13.                                          |
-| Guardar, reabrir y exportar un beat    | JSON v1 portable y exportación del beat desde CLI/desktop.                                                       | Corrección JSON publicada y CI Linux/Windows correcta; cierre de 12 registrado.                                  |
-| Clips y escenas                        | Modelo, motor, sesiones, proyectos v2, UI, exportación de escena y mediciones nativas implementados.             | Escucha de 13.4.b pendiente; entrega/CI verificadas para ca37f74.                                                |
-| Arreglo en línea de tiempo             | 14.1–14.2: modelo y reproducción en motor, fin exclusivo, transporte/tempo y referencias PCM/eventos.            | 14.3.a sesiones/aplicación; después persistencia/exportación y editor. Piano roll/automatización siguen después. |
+| Objetivo                               | Qué está hecho                                                                                                      | Qué falta                                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Fundamento de escritorio/audio         | Etapas 1–6: workspace, motor separado, backend manual/CPAL, aplicación, IPC/DTO, UI, cierre, documentación y CI.    | Validaciones físicas/plataformas adicionales, registradas como límites.                                      |
+| Generar una señal verificable          | Etapas 7–8: senoide offline/WAV, salida nativa explícita, volumen y rampas.                                         | Loopback acústico, unplug físico, estrés prolongado y otras configuraciones físicas.                         |
+| Reproducir samples en motor            | PCM/banco/preparación, AudioEngine, sesiones manual/CPAL, aplicación/IPC/UI y diagnósticos.                         | Etapa 9 cerrada: mediciones, auditoría, CI de 4dc2c6c y audibilidad confirmada; límites físicos conservados. |
+| Groovebox de cuatro canales y 16 pasos | Secuenciador 4 × 16 y mezclador integrados con UI.                                                                  | Etapas 10–11 cerradas dentro de su alcance; clips/escenas siguen en 13.                                      |
+| Guardar, reabrir y exportar un beat    | JSON v1 portable y exportación del beat desde CLI/desktop.                                                          | Corrección JSON publicada y CI Linux/Windows correcta; cierre de 12 registrado.                              |
+| Clips y escenas                        | Modelo, motor, sesiones, proyectos v2, UI, exportación de escena y mediciones nativas implementados.                | Escucha de 13.4.b pendiente; entrega/CI verificadas para ca37f74.                                            |
+| Arreglo en línea de tiempo             | 14.1–14.3.a: modelo, motor, sesiones manual/nativa y coordinación de aplicación; referencias y memoria verificadas. | 14.3.b proyecto/exportación; después editor y aceptación. Piano roll/automatización siguen después.          |
 
 El objetivo de groovebox capaz de ejecutar un patrón se alcanza al cerrar 11; guardar,
 reabrir y exportar ese beat corresponde a 12. Ambos flujos y el launcher de 13
-ya están implementados; el motor de arreglo 14.2 también. Sigue la integración de sesiones/aplicación 14.3.a.
+ya están implementados, junto con el motor y sesiones/aplicación de arreglos 14.3.a. Sigue proyecto/exportación 14.3.b.
 
 Las 16 voces son capacidad de reproducción simultánea. No equivalen a cuatro
 canales musicales de mezcla ni a 16 pasos de un patrón; esas funciones se
@@ -168,7 +169,7 @@ mediciones físicas no realizadas siguen como limitaciones explícitas.
 | 11      | Secuenciador de 16 pasos.                            | Cerrada dentro de su alcance; eventos dentro del bloque, BPM fraccional, transporte y control de deriva.                                                                                                                                                                         |
 | 12      | Guardar/abrir y exportar el beat.                    | Cerrada dentro de su alcance; versionado, assets relativos, round-trip y WAV consistente.                                                                                                                                                                                        |
 | 13      | Clips y escenas.                                     | Implementada, con mediciones nativas y entrega/CI verificadas; escucha pendiente para cierre formal.                                                                                                                                                                             |
-| 14      | Arreglo en línea de tiempo.                          | 14.1–14.2 implementadas localmente; siguen sesiones/aplicación 14.3.a, persistencia/exportación, editor y aceptación propias.                                                                                                                                                    |
+| 14      | Arreglo en línea de tiempo.                          | 14.1–14.3.a implementadas localmente; siguen proyecto/exportación 14.3.b, editor y aceptación propias.                                                                                                                                                                           |
 
 No se empieza mezclador/secuenciador antes de cerrar sampler. Las mediciones
 de senoide y las pruebas con mock no sustituyen las pruebas nativas del sampler.
