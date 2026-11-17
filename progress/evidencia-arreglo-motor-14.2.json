@@ -1,0 +1,191 @@
+{
+  "format_version": 1,
+  "stage": "14.2",
+  "status": "implemented_and_verified_locally",
+  "recorded_utc": "2026-11-17T00:37:23.470Z",
+  "base_revision": "f5f7ded8f401e2fc9caf4a2cced585060190e6c7",
+  "initial_worktree": "Contained the local stage 14.1 increment; no clean-tree claim and no commit between stages.",
+  "inherited_14_1": {
+    "manifest": {
+      "path": "progress/evidencia-modelo-arreglo-14.1.json",
+      "sha256": "354d8185d1f9c9767df2049d8c29d2480e1a87ae53b400f1956c0829fe2c30ef"
+    },
+    "sources": [
+      {
+        "path": "crates/daw-domain/src/lib.rs",
+        "sha256": "8f711f33114ac833fccbfd5835499f1f7bd160cf31b21d44396c97e90df9d297"
+      },
+      {
+        "path": "crates/daw-domain/src/arrangement.rs",
+        "sha256": "bb4d481b46d8f4bc31491b96925e6b87b1100ddfb8dc4e2da4de55223fcb743c"
+      },
+      {
+        "path": "crates/daw-domain/tests/arrangement_contract.rs",
+        "sha256": "8258f7057e8f6d75a00debbf2c9fb2b5f55ff663ac591299aef66c6261e5c0be"
+      }
+    ],
+    "comparison": "All three 14.1 source hashes unchanged; historical documentation hashes describe the prior increment."
+  },
+  "source_rule": "Base Git revision plus the three inherited 14.1 source files and these eight added/modified sources/scripts. Raw-byte SHA256. No dependency, lockfile, generated binding or workflow change.",
+  "source_files": [
+    {
+      "path": "crates/daw-engine/src/lib.rs",
+      "sha256": "949c17768745029bc2c23c2a03f4fad43cc13f811115dca98c799ec6ed25f297"
+    },
+    {
+      "path": "crates/daw-engine/src/sequencer.rs",
+      "sha256": "fc68e681d23e6030cc5a55f54387c0f54287270f483672bc796238fb685edffd"
+    },
+    {
+      "path": "crates/daw-engine/src/arrangement.rs",
+      "sha256": "bb8e5bfa4f90bbc9df7cb819565fa30b6d7602a30f28bb5527caeb176bcfaee8"
+    },
+    {
+      "path": "crates/daw-engine/tests/arrangement_contract.rs",
+      "sha256": "299932a180ce3ab5c8588dc969016d7492fc114ac32f3fb80220919360829edf"
+    },
+    {
+      "path": "crates/daw-engine/tests/arrangement_reference.rs",
+      "sha256": "d82f4190ff08e161e796e518f9d161861456b83e6ddaf36703e007356c09408f"
+    },
+    {
+      "path": "crates/daw-engine/tests/support/arrangement_fixtures.rs",
+      "sha256": "fd34340abbcdaa246b2dea636dedb010948afc5d10358b4420c9ea3df64c334c"
+    },
+    {
+      "path": "crates/daw-cli/tests/arrangement_memory_contract.rs",
+      "sha256": "fffec6c8236e59320dcea6f82276151753f49ccabe13bb59d1aa2349ee0b6e3c"
+    },
+    {
+      "path": "scripts/check.mjs",
+      "sha256": "e8b14cacb95c3e534090716389a232318b5a730cad4e4dac38bbb7162e9e451c"
+    }
+  ],
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "c13c9357d13a5358f376935a745c337041e8f9a1352cdcdc7a032bb3c705d0fa"
+    },
+    {
+      "path": "docs/roadmap.md",
+      "sha256": "b2f146485fe9ac30bc3db57386eaca36a7aa08bb28d547f5a56c6e19d8310d27"
+    },
+    {
+      "path": "docs/arrangement-contract.md",
+      "sha256": "ae8e44d051f8654eea9ea6767ad7a13c5f43d29be23724bbeaed5e74fe7ace5d"
+    },
+    {
+      "path": "progress/checklist.md",
+      "sha256": "16e9a17acdc3d7254ad0854a0ddd495c0af8b4ea1b3c0a58cca06c4793ee2bd4"
+    },
+    {
+      "path": "progress/detalles.md",
+      "sha256": "4d45fa45b9f27188c046565ae9517aadc92b49d25b23a429a1323b8c1b80cdfd"
+    },
+    {
+      "path": "progress/estado-y-siguiente-etapa.md",
+      "sha256": "fc68642a8a62abde2d1c77445dbe81b9c4b648c710a95e981eb4351b34ae5580"
+    },
+    {
+      "path": "progress/plan-etapas-7-13.md",
+      "sha256": "724eac29c97e9fafa0ba84b3dacebf8c0802c241c9ddbfa6f8e7dcb4b6c4e629"
+    },
+    {
+      "path": "progress/plan-siguientes-pasos.md",
+      "sha256": "6abbc3a7543f415ee911caf19cf104a69f327ee8c9ef2fa92e9836ab146a12c6"
+    },
+    {
+      "path": "progress/plan-etapa-14.md",
+      "sha256": "6059e3ed8d1d5d59c6f55b6e7983d99ea7a192489872244e2fcac99c00f78747"
+    },
+    {
+      "path": "progress/etapa-14-arreglo-motor.md",
+      "sha256": "52dc570b24c0f397fea172a62de6e81b7d4813b49d03f52e69209035a095abc2"
+    }
+  ],
+  "validation": {
+    "checks": [
+      {
+        "exit_code": 0,
+        "command": "npm run check",
+        "started_utc": "2026-11-17T00:32:05.2833430Z",
+        "finished_utc": "2026-11-17T00:36:09.7738562Z",
+        "log": {
+          "path": "target/stage14-2-20261116/check.log",
+          "sha256": "09a71be75c282e3334326286026a5dd6e97090c23b6fa17fb3d6d8ce9aaab472"
+        }
+      },
+      {
+        "exit_code": 0,
+        "command": "cargo test -p daw-engine --release --locked",
+        "started_utc": "2026-11-17T00:28:42.1854076Z",
+        "finished_utc": "2026-11-17T00:29:33.2196089Z",
+        "log": {
+          "path": "target/stage14-2-20261116/engine-release.log",
+          "sha256": "3143a27808c921cda24db025dc29ec32decdea3a6b4df974328c782f34765422"
+        }
+      },
+      {
+        "exit_code": 0,
+        "command": "cargo test -p daw-cli --features offline-diagnostics --release --locked --test arrangement_memory_contract",
+        "started_utc": "2026-11-17T00:30:09.0844983Z",
+        "finished_utc": "2026-11-17T00:30:25.8612054Z",
+        "log": {
+          "path": "target/stage14-2-20261116/memory-release.log",
+          "sha256": "fab5d18b315434b7c9d8380c2df32c524a8734dd3151b5ffdcafd65bdea0b604"
+        }
+      }
+    ],
+    "engine_tests_debug_and_release": 91,
+    "new_engine_tests": 9,
+    "new_instrumented_memory_tests": 1,
+    "independent_reference_variants": 160,
+    "independent_reference": "IEEE-754 rational decomposition, absolute piecewise event-frame calculation and separate fixed voice/mix/envelope simulation; PCM <= 1e-7, exact PCM across partitions, exact event/outcome/boundary/phase comparisons.",
+    "processing_memory": "Six configs: 1/800/48000 Hz x mono/stereo, 128 regions, controls/render/observations: zero allocations/frees/bytes. Owner-side teardown frees exactly three PCM buffers. Debug and release pass.",
+    "extreme_horizon": "65537 observed boundaries and 128 notes over the 4096-bar horizon at 1 and u32::MAX Hz, BPM20/300; processing-owner clock simulation, not physical rendering at those rates.",
+    "frontend_cases": 72,
+    "cli_scenarios": 9,
+    "local_document_links_checked": 576,
+    "scope": "Full scripts/check.mjs pipeline; Rust suites overlap and are not summed. No hardware, new listening observation, native measurement or full desktop bundle build.",
+    "dependency_and_workflow_files": [
+      {
+        "path": "Cargo.toml",
+        "sha256": "e9a6cf01bca5fb39a4db573b8a90372aafb225a7fa724492a01d0a86f52157b5"
+      },
+      {
+        "path": "Cargo.lock",
+        "sha256": "73aab5125b19c17f3b07a7a8cf8b584b803e417e50a51a0a50fff9717d9990a8"
+      },
+      {
+        "path": "package.json",
+        "sha256": "b6aa1da4a4e58c31b83a6d87d3bd6551cf9914c60b3d178b913edde66f9a3c64"
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "abccdceae11e9a00dcf184d6039b2e55fc8397cdf4204c883ddeb2b61ba4cfbd"
+      },
+      {
+        "path": "crates/daw-engine/Cargo.toml",
+        "sha256": "4466ec2df843ae6dcb4ad415cac9cb93eb3211da070fe259f4710a7d4666c7d1"
+      },
+      {
+        "path": "crates/daw-cli/Cargo.toml",
+        "sha256": "681287bf540ef07a593a4c71501699b7b1d530bdcdbe42cba63b6e41b05c6288"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "3594911a71711ca8e8d2c80d3af020c3ff5033e3a34a97fee726fa12c5a50228"
+      }
+    ]
+  },
+  "engine_contract": {
+    "initialization": "Explicit arranged sampler constructor; stopped; fixed sorted owned region data with stable identities; no mutable timeline installation command.",
+    "end": "Phase clamps at the exclusive end's ceil frame. The due end boundary is consumed on a nonempty playing render of that frame, after earlier coincident steps; completion freezes musical clock/observations while voices finish under Playing transport.",
+    "transport": "Pause/release freezes music; resume consumes pending boundaries once; settled Stop resets phase/cursors/completion/latest observations and clears voices; lifetime counters/content retained. Play alone does not restart completed timeline.",
+    "failures": "Whole-window atomic preflight; invalid/overflow output is silent, state unchanged; empty render is a no-op."
+  },
+  "stage13_listening": "Still pending; user continuation is not interpreted as listening confirmation.",
+  "integration": "No arrangement mode in Project/file v2, service/backend, IPC/DTO, desktop UI or export yet.",
+  "publication": "14.1 and 14.2 remain local changes; no commit/push or hosted CI attributed to this increment.",
+  "next": "14.3.a arrangement audio sessions and application coordination, ownership/lifecycle and bounded commands/observations"
+}

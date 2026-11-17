@@ -6,6 +6,7 @@
 
 use std::fmt;
 
+mod arrangement;
 mod gain;
 mod launcher;
 mod mixer;
@@ -13,6 +14,9 @@ mod oscillator;
 mod sample;
 mod sampler;
 mod sequencer;
+use arrangement::ArrangementPlayer;
+pub use arrangement::{ActiveArrangementRegion, ArrangementEvent, ArrangementSnapshot};
+pub use daw_domain::ResolvedArrangement;
 use gain::GainRamp;
 pub use gain::{Gain, InvalidGain};
 use launcher::Launcher;
@@ -167,6 +171,7 @@ pub struct AudioEngine {
     mixer: Option<Mixer>,
     sequencer: Option<Sequencer>,
     launcher: Option<Launcher>,
+    arrangement: Option<ArrangementPlayer>,
 }
 
 struct RenderProgress {
@@ -199,6 +204,7 @@ impl AudioEngine {
             mixer: None,
             sequencer: None,
             launcher: None,
+            arrangement: None,
         }
     }
 
@@ -295,6 +301,24 @@ impl AudioEngine {
 
     pub fn launcher_snapshot(&self) -> Option<LauncherSnapshot> {
         self.launcher.as_ref().map(Launcher::snapshot)
+    }
+
+    /// Explicit finite timeline, prepared outside processing; starts stopped.
+    /// Owns fixed clip snapshots and shares the existing sampler/mixer/envelope.
+    pub fn with_arranged_sampler(
+        bank: SampleBank,
+        tempo: Tempo,
+        settings: MixerSettings,
+        arrangement: ResolvedArrangement,
+    ) -> Self {
+        let rate = bank.config().sample_rate();
+        let mut engine = Self::with_mixed_sampler(bank, tempo, settings);
+        engine.arrangement = Some(ArrangementPlayer::new(rate, arrangement));
+        engine
+    }
+
+    pub fn arrangement_snapshot(&self) -> Option<ArrangementSnapshot> {
+        self.arrangement.as_ref().map(ArrangementPlayer::snapshot)
     }
 
     pub fn request_clip_launch(
@@ -428,6 +452,9 @@ impl AudioEngine {
         if let Some(launcher) = &mut self.launcher {
             launcher.reset();
         }
+        if let Some(arrangement) = &mut self.arrangement {
+            arrangement.reset();
+        }
     }
 
     fn sync_ramp(&mut self) {
@@ -542,6 +569,11 @@ impl AudioEngine {
         {
             launcher.validate_render(playing_frames, self.state.tempo)?;
         }
+        if self.state.requested_transport == TransportState::Playing
+            && let Some(arrangement) = &self.arrangement
+        {
+            arrangement.validate_render(playing_frames, self.state.tempo)?;
+        }
         Ok(RenderProgress {
             channels,
             device_frames,
@@ -600,6 +632,53 @@ impl AudioEngine {
                 master,
             )?;
             sequencer.advance(count as u64, self.state.tempo);
+            offset += count;
+        }
+        Ok(())
+    }
+
+    fn render_arrangement(&mut self, output: &mut [f32]) -> Result<(), RenderError> {
+        let arrangement = self.arrangement.as_mut().expect("arrangement mode");
+        let sampler = self.sampler.as_mut().expect("arrangement sampler");
+        let mixer = self.mixer.as_mut().expect("arrangement mixer");
+        let master = self.ramp.as_mut().expect("arrangement master ramp");
+        let channels = usize::from(self.state.config.channels());
+        let frames = output.len() / channels;
+        let mut offset = 0;
+        while offset < frames {
+            while let Some((boundary, notes)) = arrangement.pop_boundary() {
+                for note in notes.into_iter().flatten() {
+                    let outcome = sampler
+                        .trigger(note.sample_slot, Gain::new(1.0).unwrap())
+                        .map_err(|error| match error {
+                            TriggerError::MissingAsset => SamplerTriggerError::MissingAsset,
+                            TriggerError::PoolFull => SamplerTriggerError::PoolFull,
+                            TriggerError::InvalidSlot => unreachable!("validated arrangement slot"),
+                        });
+                    if let Ok(voice) = outcome {
+                        mixer.capture_route(voice, note.sample_slot);
+                    }
+                    arrangement.record_event(ArrangementEvent {
+                        boundary,
+                        row: note.row,
+                        region_slot: note.region_slot,
+                        clip_slot: note.clip_slot,
+                        clip_step: note.clip_step,
+                        sample_slot: note.sample_slot,
+                        device_frame: self.state.device_frames + offset as u64,
+                        outcome,
+                    });
+                }
+            }
+            let count = arrangement
+                .frames_until_boundary(self.state.tempo)
+                .min((frames - offset) as u64) as usize;
+            mixer.render(
+                sampler,
+                &mut output[offset * channels..(offset + count) * channels],
+                master,
+            )?;
+            arrangement.advance(count as u64, self.state.tempo);
             offset += count;
         }
         Ok(())
@@ -671,7 +750,9 @@ impl AudioEngine {
         // failure leaves the full output silent and the engine envelope unchanged.
         if self.state.transport == TransportState::Playing {
             let playing_output = &mut output[..playing_frames as usize * channels];
-            if self.launcher.is_some() && !releasing {
+            if self.arrangement.is_some() && !releasing {
+                self.render_arrangement(playing_output)?;
+            } else if self.launcher.is_some() && !releasing {
                 self.render_launcher(playing_output)?;
             } else if self.sequencer.is_some() && !releasing {
                 self.render_sequenced(playing_output)?;
@@ -720,13 +801,22 @@ mod tests {
     #[test]
     fn overflow_silences_output_and_preserves_both_counters() {
         for (device_frames, transport_frames) in [(u64::MAX, 0), (0, u64::MAX)] {
-            for signal in [0, 1, 2, 3, 4, 5, 6] {
+            for signal in [0, 1, 2, 3, 4, 5, 6, 7] {
                 let config = EngineConfig::new(48_000, 2).unwrap();
                 let mut engine = if signal >= 3 {
                     let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
                     slots[0] = Some(SampleBuffer::new(config, vec![0.5; 200]).unwrap());
                     let bank = SampleBank::new(config, slots).unwrap();
-                    if signal == 6 {
+                    if signal == 7 {
+                        AudioEngine::with_arranged_sampler(
+                            bank,
+                            Tempo::default(),
+                            MixerSettings::default(),
+                            daw_domain::Arrangement::default()
+                                .resolve(&daw_domain::ClipLauncher::default())
+                                .unwrap(),
+                        )
+                    } else if signal == 6 {
                         AudioEngine::with_clip_launcher(
                             bank,
                             Tempo::default(),
@@ -771,6 +861,7 @@ mod tests {
                 let before_mixer = engine.mixer_snapshot();
                 let before_sequencer = engine.sequencer_snapshot();
                 let before_launcher = engine.launcher_snapshot();
+                let before_arrangement = engine.arrangement_snapshot();
                 assert_eq!(engine.validate_render(2), Err(RenderError::CounterOverflow));
                 assert_eq!(engine.snapshot(), before);
                 let mut output = [1.0; 2];
@@ -786,6 +877,7 @@ mod tests {
                 assert_eq!(engine.mixer_snapshot(), before_mixer);
                 assert_eq!(engine.sequencer_snapshot(), before_sequencer);
                 assert_eq!(engine.launcher_snapshot(), before_launcher);
+                assert_eq!(engine.arrangement_snapshot(), before_arrangement);
                 assert_eq!(engine.render_interleaved(&mut []), Ok(()));
                 assert_eq!(engine.sine, before_sine);
             }

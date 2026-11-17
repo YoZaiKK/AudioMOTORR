@@ -1,5 +1,35 @@
 # Detalles de implementación
 
+## Commit de arreglo 14.1–14.2 — 2026-11-16 (México)
+
+Entrega conjunta de modelo, motor, pruebas, README, contrato, planes y evidencia,
+solicitada por el usuario. Se conservan los manifiestos históricos; se verifican
+las once fuentes/scripts contra sus hashes, logs y documentación antes de
+registrarlos. Check completo/release correctos de 14.2 reutilizados, sin cambios
+posteriores de código. [Registro de entrega](entrega-arreglo-14.1-14.2.md).
+Sigue 14.3.a; sin push ni nueva CI remota en esta operación.
+
+## Motor de arreglo 14.2 — 2026-11-16 (México)
+
+Constructor explícito `AudioEngine::with_arranged_sampler`, copia fija ordenada
+fuera del procesamiento y cursores por fila. Reutiliza reloj exacto, sampler,
+mezcla/rutas capturadas y rampas de transporte. Fin exclusivo sin notas nuevas,
+colas naturales y observación de final; pausa/reanudación y Stop con sus reglas
+de reinicio. Referencias independientes comparan PCM, eventos, fases, voces y
+medidores; pruebas instrumentadas cubren 128 regiones sin asignaciones/liberaciones
+en procesamiento y liberación posterior del PCM. [Reporte](etapa-14-arreglo-motor.md).
+No se agrega todavía modo de proyecto, sesión nativa ni UI; sigue 14.3.a.
+
+## Modelo de arreglo 14.1 — 2026-11-16 (México)
+
+Se continúa por indicación del usuario mientras la escucha de 13.4.b conserva
+su estado pendiente. Nuevo modelo independiente en `daw-domain`: cuatro filas,
+32 regiones por fila, horizonte de 4096 compases y referencias a clips de la
+misma fila. Edición atómica, solapamientos rechazados, huecos y repeticiones,
+consulta musical pura y snapshots que conservan su contenido. Proyecto/JSON v2,
+motor y controles desktop aún no incorporan arreglos. [Plan](plan-etapa-14.md),
+[contrato](../docs/arrangement-contract.md) y [reporte](etapa-14-modelo-arreglo.md).
+
 ## Entrega/CI del launcher 13.4.c — 2026-11-16 (México)
 
 Main remoto verificado en ca37f74; CI del SHA exacto correcta en ambos jobs

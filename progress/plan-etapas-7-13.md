@@ -15,7 +15,13 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
 **13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
 **13.4.c entrega/CI verificadas:** [revisión ca37f74 y paquete local](etapa-13-entrega-ci.md), Linux/Windows correctas.
-Pendiente inmediato: **confirmación de escucha para completar 13.4.b y el cierre de la etapa 13**.
+**14.1 implementada localmente:** [modelo de arreglo](etapa-14-modelo-arreglo.md).
+**14.2 implementada localmente:** [reproducción del arreglo en el motor](etapa-14-arreglo-motor.md).
+[Entrega conjunta de 14.1–14.2](entrega-arreglo-14.1-14.2.md): código, pruebas,
+documentación y evidencia incluidos en el commit local solicitado.
+Siguiente trabajo: **14.3.a, sesiones y coordinación de aplicación**, según el
+[plan de etapa 14](plan-etapa-14.md). Este documento conserva el plan histórico
+7–13; la escucha de 13.4.b y el cierre formal de 13 siguen pendientes.
 
 Actualizado: 2026-11-12. Etapa 7 completada, publicada en c6cf627 y verificada
 en Linux headless/Windows desktop por CI. **Etapa 8 completada**, publicada en

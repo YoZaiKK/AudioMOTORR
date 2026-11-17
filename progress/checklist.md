@@ -15,7 +15,22 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
 **13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
 **13.4.c entrega/CI verificadas:** [revisión ca37f74 y paquete local](etapa-13-entrega-ci.md), Linux/Windows correctas.
-Pendiente inmediato: **confirmación de escucha para completar 13.4.b y el cierre de la etapa 13**.
+**14.1 implementada localmente:** [modelo de arreglo](etapa-14-modelo-arreglo.md).
+**14.2 implementada localmente:** [reproducción del arreglo en el motor](etapa-14-arreglo-motor.md).
+[Entrega conjunta de 14.1–14.2](entrega-arreglo-14.1-14.2.md): código, pruebas,
+documentación y evidencia incluidos en el commit local solicitado.
+Siguiente trabajo: **14.3.a, sesiones y coordinación de aplicación**, según el
+[plan de etapa 14](plan-etapa-14.md). La escucha de 13.4.b y el cierre formal
+de 13 siguen pendientes; se continúa el desarrollo por indicación del usuario.
+
+## Etapa 14 — Arreglo en línea de tiempo
+
+- [x] 14.1: contrato y modelo independiente, regiones acotadas, validación y snapshots.
+- [x] 14.2: motor determinista, transporte, referencias PCM/eventos y memoria.
+- [ ] 14.3.a: sesiones y aplicación.
+- [ ] 14.3.b: persistencia versionada y exportación de arreglo.
+- [ ] 14.3.c–d: editor desktop y aceptación integrada.
+- [ ] 14.4: diagnósticos, medición nativa, escucha y entrega/CI de la revisión.
 
 Fuente de requisitos: [documento original](rust-daw-bootstrap-prompt.md).
 Registro de decisiones, comandos y limitaciones: [detalles](detalles.md).

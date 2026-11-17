@@ -20,14 +20,16 @@ now includes a clip and scene launcher alongside its original step sequencer.
 Editing a running clip changes the document; launch it again to use the new content.
 Saved initial scenes determine export and remain separate from live launch history.
 This is a groovebox/launcher foundation: recording, external MIDI, plugins,
-resampling/time stretching, timeline, piano roll and automation are not implemented.
+resampling/time stretching, timeline desktop editing/export, piano roll and
+automation remain future work. Stages 14.1–14.2 supply the arrangement model and
+playback through the Rust engine API; see the [contract](docs/arrangement-contract.md).
 See the [clip/scene walkthrough](howToRunThis/10-clips-escenas.md).
 
 ## App screenshots
 
 Actual Windows Tauri/WebView2 captures of the clip editor and a relocated project
 with verified WAV export. These captures were recorded in stages 13.3.d/e; this
-diagnostics increment does not change their desktop controls. Their audio remained
+arrangement-engine increment does not change their desktop controls. Their audio remained
 uninitialized, so the images do not establish native playback or listening.
 
 ![Clip and scene editor with independent initial-scene selection](docs/screenshots/stage13-launcher-1000.png)
@@ -93,6 +95,24 @@ checksums is validated. **Formal closure remains pending the user listening
 observation for 13.4.b.**
 Stage 13 remains open.
 
+**Stage 14.1 is implemented locally:** a standalone four-row arrangement model
+with 32 regions per row, bar-aligned clip placement, overlap/reference validation
+and owned snapshots. Development continues at the user's request while the stage 13
+listening observation remains pending; see the [plan](progress/plan-etapa-14.md) and
+[verification report](progress/etapa-14-modelo-arreglo.md).
+
+**Stage 14.2 is implemented locally:** opt-in arrangement engine playback,
+exact region scheduling and completion, natural sample tails, transport/tempo
+controls and applied region/event observations. Independent PCM/event references
+and processing-memory checks cover the new path. See the
+[engine report](progress/etapa-14-arreglo-motor.md). It is not yet exposed through
+audio sessions, project files, export or desktop controls. Next is **14.3.a:
+sessions and application coordination**.
+
+Stages 14.1–14.2 are grouped in this [local source delivery](progress/entrega-arreglo-14.1-14.2.md),
+including code, tests and documentation. Earlier manifests retain their capture-time
+status; this commit has no remote publication or hosted CI attributed to it.
+
 Desktop explicitly loads/cancels WAV banks, initializes silence/sine/sampler
 sessions, controls transport/tempo/gain and shows exact-ID trigger outcomes or
 Unknown for lost observations. The sampler has 16 slots/voices, fixed 1/16
@@ -131,6 +151,10 @@ See the [configuration review](progress/revision-readme-configuracion.md),
 README/technical documents are in English; progress and practical guides are in Spanish.
 
 ## Next steps
+
+The active product increment is **14.3.a, arrangement sessions and application coordination**.
+[Stage 14 plan](progress/plan-etapa-14.md) tracks the new work; the table below
+retains the delivery history through stage 13.
 
 | Stage                        | Next deliverable                                                                           | Acceptance / boundary                                                                                                                                                                                     |
 | ---------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

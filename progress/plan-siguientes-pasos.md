@@ -1,4 +1,4 @@
-# Plan de ejecución — Cierre del sampler y etapas 10–13
+# Plan de ejecución — Cierre del sampler y etapas 10–14
 
 **Estado vigente (2026-11-16 México):** [etapa 11 cerrada](cierre-etapa-11.md)
 tras «Si se escucha». Persistencia y exportación de etapa 12 implementadas;
@@ -15,7 +15,13 @@ check completo, release (9 casos), build y WebView2 real. Corrección de precisi
 **13.4.a implementada localmente:** [diagnósticos de clips/protocolo nativo](etapa-13-diagnosticos-clips.md).
 **13.4.b medida localmente:** [matriz nativa y reaperturas](etapa-13-medicion-nativa-clips.md); escucha pendiente.
 **13.4.c entrega/CI verificadas:** [revisión ca37f74 y paquete local](etapa-13-entrega-ci.md), Linux/Windows correctas.
-Pendiente inmediato: **confirmación de escucha para completar 13.4.b y el cierre de la etapa 13**.
+**14.1 implementada localmente:** [modelo de arreglo](etapa-14-modelo-arreglo.md).
+**14.2 implementada localmente:** [reproducción del arreglo en el motor](etapa-14-arreglo-motor.md).
+[Entrega conjunta de 14.1–14.2](entrega-arreglo-14.1-14.2.md): código, pruebas,
+documentación y evidencia incluidos en el commit local solicitado.
+Siguiente trabajo: **14.3.a, sesiones y coordinación de aplicación**, según el
+[plan de etapa 14](plan-etapa-14.md). La escucha de 13.4.b y el cierre formal
+de 13 siguen pendientes; se continúa el desarrollo por indicación del usuario.
 
 Fecha: 2026-11-11. Base local revisada: `4dc2c6c2e0882b8f131b68088feffa8def84ba83`.
 Al revisar, el árbol estaba limpio y `main` coincidía con la referencia local
@@ -219,7 +225,8 @@ El reloj exacto compartido y orígenes por fila conservan fases independientes;
 solicitudes Copy, una pendiente por fila, escenas atómicas y reemplazo por orden
 de llamadas. Servicio/FIFO, aplicación y UI se conectan en 13.3.
 
-Desglose de **13.3**: **a/b/c/d implementados y e aceptada localmente**; sigue 13.4.a.
+Desglose de **13.3**: **a/b/c/d implementados y e aceptada localmente**;
+los diagnósticos posteriores de 13.4.a también están implementados.
 
 1. **13.3.a — Servicio de audio, implementado localmente:** sesiones launcher manuales/CPAL explícitas,
    solicitudes Copy por la FIFO compartida, presupuesto por callback e IDs de
@@ -256,7 +263,9 @@ Desglose de **13.4**: a implementada localmente; b medida con escucha pendiente;
 ## Forma de ejecución
 
 Entregar incrementos revisables: contrato, implementación del motor,
-integración y cierre. Cada etapa empieza tras cerrar su dependencia y conserva
-su propio reporte de aceptación. Las comprobaciones se eligen según lo que
+integración y cierre. Cada incremento parte de dependencias técnicas verificadas
+y conserva su propio reporte de aceptación. Por indicación del usuario, el
+modelo/motor 14.1–14.2 avanzan mientras la observación auditiva de 13 sigue pendiente;
+esto no cierra 13 ni permite atribuir su evidencia al arreglo. Las comprobaciones se eligen según lo que
 cambia; los resultados locales y remotos siempre identifican su revisión.
 No se estiman fechas antes de resolver las decisiones de contrato de cada etapa.

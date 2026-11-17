@@ -24,6 +24,14 @@ Listening confirmation remains pending before formal closure;
 closure is 13.4.
 Stage 13 remains open.
 
+**14.1 is implemented locally:** [arrangement document contract](arrangement-contract.md),
+with bounded bar-aligned regions, atomic validation and owned clip snapshots.
+Development continues at the user's request while stage 13 listening remains
+pending. **14.2 engine playback is implemented locally**, with
+[independent PCM/event and memory verification](../progress/etapa-14-arreglo-motor.md).
+Next is **14.3.a, sessions and application coordination**; see the
+[stage 14 execution plan](../progress/plan-etapa-14.md).
+
 Updated 2026-11-12. Stages 1–6 are the implemented silence foundation, published
 in baseline `1ef9bd0`. Stage 7 is complete: engine oscillator, bounded application
 rendering and WAV export are published in c6cf627 and passed hosted Linux/Windows
@@ -143,6 +151,7 @@ the [export report](../progress/etapa-7-exportacion.md) covers the current incre
 | 11    | 16-step sequencer: domain patterns, engine scheduling with within-block offsets, application use cases and UI.                | Identical event positions across partitions, fractional frames per step and BPM changes; explicit rounding/drift policy and no duplicate/skipped boundary events on transport changes.                                                                                                             |
 | 12    | Versioned document, save/open, relative assets, beat export; application migrations and adapter file I/O.                     | Document round-trip, explicit version/asset/path errors, exact export duration and agreement with offline rendering. No persistence or filesystem access in callback.                                                                                                                              |
 | 13    | Clips/scenes in domain, transition scheduling in engine, application/UI edit and launch use cases.                            | Define and test launch quantization and transitions across blocks/tempos; preserve bounded commands and separate editable/observed state. Timeline, piano roll, and automation follow later.                                                                                                       |
+| 14    | Clip arrangement timeline: bounded domain regions, deterministic engine, versioned project/export and desktop editor.         | Independent PCM/event references, gaps/adjacency/repeats/transport, processing memory, migration/relocation and integrated/native delivery evidence. 14.1 model and 14.2 engine implemented; 14.3.a sessions/application next.                                                                     |
 
 ## Stage 7 delivery steps
 

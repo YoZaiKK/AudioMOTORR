@@ -95,6 +95,8 @@ const checks = [
       "daw-cli",
       "--test",
       "diagnostics_contract",
+      "--test",
+      "arrangement_memory_contract",
     ],
   ],
   [

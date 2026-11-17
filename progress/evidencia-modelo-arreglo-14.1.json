@@ -1,0 +1,103 @@
+{
+  "format_version": 1,
+  "stage": "14.1",
+  "status": "implemented_and_verified_locally",
+  "recorded_utc": "2026-11-16T23:52:15.000Z",
+  "base_revision": "f5f7ded8f401e2fc9caf4a2cced585060190e6c7",
+  "scope": "Standalone four-row, 32-regions-per-row arrangement domain; playback, Project/schema, export and UI are later increments.",
+  "source_rule": "Base revision plus these three added/modified sources. Raw-byte SHA256. Of the previous 69 launcher source/config files, only domain lib.rs changed; 68 retain their recorded hashes. No dependency, lockfile, binding or workflow changes.",
+  "source_files": [
+    {
+      "path": "crates/daw-domain/src/lib.rs",
+      "sha256": "8f711f33114ac833fccbfd5835499f1f7bd160cf31b21d44396c97e90df9d297"
+    },
+    {
+      "path": "crates/daw-domain/src/arrangement.rs",
+      "sha256": "bb4d481b46d8f4bc31491b96925e6b87b1100ddfb8dc4e2da4de55223fcb743c"
+    },
+    {
+      "path": "crates/daw-domain/tests/arrangement_contract.rs",
+      "sha256": "8258f7057e8f6d75a00debbf2c9fb2b5f55ff663ac591299aef66c6261e5c0be"
+    }
+  ],
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "ff7abf26ce12acaa3aa982541b50b40ed7bdd9a18706207b59ab29110be85607"
+    },
+    {
+      "path": "docs/roadmap.md",
+      "sha256": "f897d1bc8aa3f88209d46b858bf04617c2cf53a0e6e6a90ef1b68b26732aa101"
+    },
+    {
+      "path": "docs/arrangement-contract.md",
+      "sha256": "7f6a0a216aa2648de0e0fe5218beb049748c61956a7097d2327f189dfc4460d7"
+    },
+    {
+      "path": "progress/checklist.md",
+      "sha256": "b7d680f7e8891a17524dd27e108e722b2e023714a3796c6c4838ee9063325b53"
+    },
+    {
+      "path": "progress/detalles.md",
+      "sha256": "313aede6b3ed889ea5e33d4a752821a9d8b4ec578ed511ff5e2987cb6baec36f"
+    },
+    {
+      "path": "progress/estado-y-siguiente-etapa.md",
+      "sha256": "03083140ce33447e876adefc1c9d037937f7935a3e8a4ae46065f0ee09390408"
+    },
+    {
+      "path": "progress/plan-etapas-7-13.md",
+      "sha256": "22254a1fc52bbedd7d08b0256beee9b4ff2c66d81def7ad94f7ea0c0b75d8c14"
+    },
+    {
+      "path": "progress/plan-siguientes-pasos.md",
+      "sha256": "b27473104245d167abaf2f8e713a2d6e3c91800e1d517b14fe22856a31749b46"
+    },
+    {
+      "path": "progress/plan-etapa-14.md",
+      "sha256": "55d6950c36837aa982affd0188af6d068e1890375ab1108fc980d7ffb32cb567"
+    },
+    {
+      "path": "progress/etapa-14-modelo-arreglo.md",
+      "sha256": "670480d74a5dbd93f6163907534b86f7b3d466a186801f3c62751883ae27de03"
+    }
+  ],
+  "validation": {
+    "exit_code": 0,
+    "command": "npm run check",
+    "started_utc": "2026-11-16T23:48:18.1864082Z",
+    "finished_utc": "2026-11-16T23:51:53.9352627Z",
+    "log": {
+      "path": "target/stage14-1-20261116/check-final.log",
+      "sha256": "6e361a0eaaa9a311d9f2dae8aeaff2473939fbcf90e2a8d214f1ae3efdfd9c80"
+    },
+    "scope": "Full scripts/check.mjs pipeline: bindings, types, lint, frontend, format, web build, CLI, headless/workspace/native-feature Rust, diagnostics, memory and Clippy. Overlapping suites are not distinct-test totals. No hardware opened or full desktop bundle built.",
+    "domain_tests": 26,
+    "new_arrangement_tests": 8,
+    "targeted_release": "cargo test -p daw-domain --release --locked: exit 0, 26 tests; observed in this execution.",
+    "frontend_cases": 72,
+    "cli_scenarios": 9,
+    "local_links_checked": 567,
+    "first_attempt": {
+      "exit_code": 101,
+      "command": "npm run check",
+      "started_utc": "2026-11-16T23:45:55.4477174Z",
+      "finished_utc": "2026-11-16T23:47:31.6469468Z",
+      "log": {
+        "path": "target/stage14-1-20261116/check.log",
+        "sha256": "2eff05b31342fd2db5076fd961fb10ab414aa0644343294e977da31cd252e585"
+      },
+      "cause": "Clippy manual_is_multiple_of in the new reference test; corrected to is_multiple_of, then reran release tests and full check."
+    }
+  },
+  "stage13": {
+    "listening": "pending; user continuation is not a listening observation",
+    "closure": "still open; stage14 development continues at user request",
+    "historical_delivery_evidence": "progress/evidencia-entrega-clips-13.4c.json"
+  },
+  "publication": {
+    "status": "local changes; no commit or push in this increment",
+    "ci": "No hosted CI attributed to this local increment; previous ca37f74 run remains historical launcher evidence."
+  },
+  "next": "14.2 deterministic arrangement engine playback and independent event/PCM/memory verification"
+}

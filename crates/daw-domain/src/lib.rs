@@ -17,6 +17,12 @@ pub use clips::{
     SceneAction,
 };
 
+mod arrangement;
+pub use arrangement::{
+    ARRANGEMENT_MAX_BARS, Arrangement, ArrangementError, ClipRegion, REGIONS_PER_ROW,
+    ResolvedArrangement, ResolvedRegion,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DomainError {
     InvalidProjectId,

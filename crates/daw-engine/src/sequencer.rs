@@ -130,7 +130,7 @@ impl Sequencer {
         self.last_event = None;
     }
 
-    fn increment(tempo: Tempo) -> u128 {
+    pub(super) fn increment(tempo: Tempo) -> u128 {
         // Power-of-two scaling is exact, including non-decimal/dyadic inputs.
         (tempo.bpm() * TEMPO_SCALE as f64) as u128
     }
@@ -237,6 +237,15 @@ impl Sequencer {
             .position_after(frames, tempo)
             .expect("entire render preflighted musical position");
         self.musical_frames += frames;
+    }
+
+    /// Finite timelines discard subframe overshoot at their exclusive end.
+    /// Due boundaries up to and including that end remain available to drain.
+    pub(super) fn clamp_position(&mut self, end: u64) {
+        if self.whole_steps >= end {
+            self.whole_steps = end;
+            self.fraction = 0;
+        }
     }
 
     pub fn record_event(&mut self, event: SequencerEvent) {
@@ -525,6 +534,86 @@ mod tests {
             seq.next_boundary = start;
             for count in [0, 1, 15, 16, 17, 41, 100, u64::MAX] {
                 assert_eq!(seq.event_count(count), u128::from(count) * 4);
+            }
+        }
+    }
+
+    #[test]
+    fn arrangement_preflights_later_notes_coincident_end_and_boundary_overflows_atomically() {
+        use daw_domain::{Arrangement, Clip, ClipLauncher, ClipRegion};
+        for rate in [1, 800] {
+            for failure in 0..4 {
+                let mut launcher = ClipLauncher::default();
+                let mut clip = Clip::new(0).unwrap();
+                for step in 0..16 {
+                    clip.set_step(step, true).unwrap();
+                }
+                launcher.set_clip(0, 0, clip).unwrap();
+                let mut document = Arrangement::default();
+                document
+                    .set_region(0, 31, ClipRegion::new(0, 1, 1).unwrap(), &launcher)
+                    .unwrap();
+                let mut slots = [const { None }; SAMPLE_BANK_SLOTS];
+                slots[0] = Some(
+                    SampleBuffer::new(EngineConfig::new(rate, 1).unwrap(), vec![0.5; 200]).unwrap(),
+                );
+                let mut engine = AudioEngine::with_arranged_sampler(
+                    SampleBank::new(EngineConfig::new(rate, 2).unwrap(), slots).unwrap(),
+                    Tempo::new(300.0).unwrap(),
+                    MixerSettings::default(),
+                    document.resolve(&launcher).unwrap(),
+                );
+                engine.apply_command(EngineCommand::Play);
+                if failure == 3 {
+                    let frames = if rate == 1 { 2 } else { 1280 };
+                    engine
+                        .render_interleaved(&mut vec![0.0; frames * 2])
+                        .unwrap();
+                }
+                let clock = &mut engine.arrangement.as_mut().unwrap().clock;
+                let frames = match failure {
+                    0 => {
+                        clock.musical_frames = u64::MAX;
+                        1
+                    }
+                    1 | 3 => {
+                        clock.counters.boundaries = u64::MAX;
+                        1
+                    }
+                    2 => {
+                        clock.counters.attempted = u64::MAX - 15;
+                        clock.counters.started = u64::MAX - 15;
+                        if rate == 1 { 3 } else { 1281 }
+                    }
+                    _ => unreachable!(),
+                };
+                let before = (
+                    engine.snapshot(),
+                    engine.arrangement_snapshot(),
+                    engine.sampler().unwrap().snapshot(),
+                    engine.mixer_snapshot(),
+                );
+                assert_eq!(
+                    engine.validate_render(frames * 2),
+                    Err(RenderError::CounterOverflow)
+                );
+                let mut output = vec![1.0; frames * 2];
+                assert_eq!(
+                    engine.render_interleaved(&mut output),
+                    Err(RenderError::CounterOverflow)
+                );
+                assert!(output.iter().all(|value| *value == 0.0));
+                assert_eq!(
+                    (
+                        engine.snapshot(),
+                        engine.arrangement_snapshot(),
+                        engine.sampler().unwrap().snapshot(),
+                        engine.mixer_snapshot()
+                    ),
+                    before
+                );
+                engine.render_interleaved(&mut []).unwrap();
+                assert_eq!(engine.arrangement_snapshot(), before.1);
             }
         }
     }
